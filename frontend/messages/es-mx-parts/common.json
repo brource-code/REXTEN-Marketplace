@@ -1,0 +1,51 @@
+{
+    "status": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "all": "All statuses"
+    },
+    "buttons": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "view": "View",
+        "close": "Close",
+        "submit": "Submit",
+        "back": "Back",
+        "next": "Next",
+        "yes": "Yes",
+        "no": "No",
+        "confirm": "Confirm",
+        "search": "Search",
+        "filter": "Filter",
+        "reset": "Reset",
+        "apply": "Apply",
+        "loading": "Loading..."
+    },
+    "labels": {
+        "date": "Date",
+        "time": "Time",
+        "price": "Price",
+        "total": "Total",
+        "status": "Status",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "description": "Description",
+        "notes": "Notes"
+    },
+    "messages": {
+        "noData": "No data",
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "success": "Success",
+        "saved": "Saved",
+        "deleted": "Deleted",
+        "updated": "Updated",
+        "created": "Created"
+    }
+}

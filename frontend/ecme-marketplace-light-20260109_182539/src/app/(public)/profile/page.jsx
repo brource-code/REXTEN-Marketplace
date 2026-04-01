@@ -1,0 +1,1446 @@
+'use client'
+
+import { useState, useMemo } from 'react'
+import Container from '@/components/shared/Container'
+import Card from '@/components/ui/Card'
+import Tabs from '@/components/ui/Tabs'
+import Avatar from '@/components/ui/Avatar'
+import Button from '@/components/ui/Button'
+import Badge from '@/components/ui/Badge'
+import Switcher from '@/components/ui/Switcher'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { useCurrentUser } from '@/hooks/api/useAuth'
+import { useUserStore } from '@/store'
+import { CLIENT } from '@/constants/roles.constant'
+import { formatCurrency } from '@/utils/formatCurrency'
+import {
+    getClientReviews,
+    getPendingReviews,
+    createReview,
+    getFavoriteServices,
+    getFavoriteAdvertisements,
+    getFavoriteBusinesses,
+    getClientDiscounts,
+    getClientBonuses,
+    applyDiscount,
+    applyBonus,
+    getNotificationSettings,
+    updateNotificationSettings,
+    getClientBookings,
+    removeFromFavorites,
+} from '@/lib/api/client'
+import {
+    PiUser,
+    PiStarFill,
+    PiStar,
+    PiHeart,
+    PiHeartFill,
+    PiBell,
+    PiGear,
+    PiMapPinFill,
+    PiCalendar,
+    PiTrash,
+    PiCheck,
+    PiEnvelope,
+    PiDeviceMobile,
+    PiPaperPlaneTilt,
+    PiTicket,
+    PiGift,
+    PiCopy,
+} from 'react-icons/pi'
+import { TbSettings } from 'react-icons/tb'
+import Link from 'next/link'
+import Image from 'next/image'
+import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
+import { NumericFormat } from 'react-number-format'
+import classNames from '@/utils/classNames'
+import Loading from '@/components/shared/Loading'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
+import ReviewModal from '@/components/reviews/ReviewModal'
+
+const { TabNav, TabList, TabContent } = Tabs
+
+// Компонент профиля
+const ProfileHeader = ({ user, bookingsCount, favoritesCount }) => {
+    const avatarUrl = user?.avatar || user?.image
+    const fullName = user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+
+    return (
+        <Card className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                <Avatar
+                    src={avatarUrl}
+                    alt={fullName || 'User'}
+                    size={80}
+                    shape="circle"
+                    className="border-4 border-gray-200 dark:border-gray-700 sm:w-[100px] sm:h-[100px]"
+                    icon={<PiUser />}
+                />
+                <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 truncate">
+                        {fullName || 'Пользователь'}
+                    </h1>
+                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 truncate">
+                        {user?.email}
+                    </p>
+                    {/* Локация */}
+                    {user?.city && user?.state ? (
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            <PiMapPinFill className="flex-shrink-0" />
+                            <span className="truncate">{user.city}, {user.state}</span>
+                        </div>
+                    ) : (
+                        <div className="mb-3">
+                            <Link href="/profile/settings" className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                                Укажите город и штат в настройках профиля
+                            </Link>
+                        </div>
+                    )}
+                    
+                    {/* Мини-статистика */}
+                    <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-4">
+                        <div className="px-2 sm:px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-center sm:text-left">
+                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-0.5">Бронирований</p>
+                            <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 dark:text-white">{bookingsCount || 0}</p>
+                        </div>
+                        <div className="px-2 sm:px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-center sm:text-left">
+                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-0.5">Избранное</p>
+                            <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 dark:text-white">{favoritesCount || 0}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <Link href="/booking" className="w-full sm:w-auto">
+                        <Button variant="outline" icon={<PiCalendar />} className="w-full sm:w-auto">
+                            <span className="hidden sm:inline">Бронирования</span>
+                            <span className="sm:hidden">Брони</span>
+                        </Button>
+                    </Link>
+                    <Link href="/profile/settings" className="w-full sm:w-auto">
+                        <Button variant="outline" icon={<TbSettings />} className="w-full sm:w-auto">
+                            <span className="hidden sm:inline">Настройки</span>
+                            <span className="sm:hidden">Настройки</span>
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+        </Card>
+    )
+}
+
+// Компонент бронирований
+const BookingsTab = () => {
+    // Загружаем только предстоящие бронирования для профиля
+    const { data: bookings = [], isLoading } = useQuery({
+        queryKey: ['client-bookings', true],
+        queryFn: () => getClientBookings({ upcoming: true }),
+    })
+
+    if (isLoading) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <Loading loading />
+            </div>
+        )
+    }
+
+    if (bookings.length === 0) {
+        return (
+            <Card className="p-8 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
+                <PiCalendar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Нет предстоящих бронирований
+                </h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    Запишитесь на услугу, чтобы увидеть её здесь
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Link href="/services">
+                        <Button variant="outline" size="sm">
+                            Найти услуги
+                        </Button>
+                    </Link>
+                    <Link href="/booking">
+                        <Button variant="outline" size="sm">
+                            Все бронирования
+                        </Button>
+                    </Link>
+                </div>
+            </Card>
+        )
+    }
+
+    return (
+        <div className="space-y-3 sm:space-y-4">
+            {bookings.length > 0 && (
+                <>
+                {bookings.slice(0, 5).map((booking) => {
+                    // Рассчитываем стоимость дополнительных услуг
+                    const additionalServices = booking.additional_services || []
+                    const additionalTotal = additionalServices.reduce((sum, item) => {
+                        const price = parseFloat(item.pivot?.price || item.price || 0)
+                        const quantity = parseInt(item.pivot?.quantity || item.quantity || 1)
+                        return sum + price * quantity
+                    }, 0)
+                    
+                    // Общая стоимость = цена услуги + дополнительные услуги
+                    const basePrice = parseFloat(booking.price || 0)
+                    const totalPrice = booking.total_price || (basePrice + additionalTotal)
+                    
+                    return (
+                        <Card key={booking.id} className="p-4 sm:p-6 hover:shadow-md transition-shadow">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                                        {booking.serviceName}
+                                    </h4>
+                                    {booking.businessSlug ? (
+                                        <Link 
+                                            href={`/marketplace/${booking.businessSlug}`}
+                                            className="text-sm text-gray-500 dark:text-gray-400 mb-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-block"
+                                        >
+                                            {booking.businessName}
+                                        </Link>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                            {booking.businessName}
+                                        </p>
+                                    )}
+                                    <div className="flex flex-wrap gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        <span>{booking.date ? (() => {
+                                            // Парсим дату как локальную дату (без учета таймзоны)
+                                            const dateParts = booking.date.split('-')
+                                            if (dateParts.length === 3) {
+                                                const localDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]))
+                                                return localDate.toLocaleDateString('ru-RU', {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })
+                                            }
+                                            return new Date(booking.date).toLocaleDateString('ru-RU')
+                                        })() : 'N/A'}</span>
+                                        <span>•</span>
+                                        <span>{booking.time}</span>
+                                        {booking.specialist && (
+                                            <>
+                                                <span>•</span>
+                                                <span>Мастер: {booking.specialist}</span>
+                                            </>
+                                        )}
+                                    </div>
+                                    
+                                    {/* Итого */}
+                                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-3 space-y-2">
+                                            {/* Базовая стоимость услуги */}
+                                            {basePrice > 0 && (
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-gray-700 dark:text-gray-300">
+                                                        Базовая стоимость услуги
+                                                    </span>
+                                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                                        {formatCurrency(basePrice, booking.currency || 'USD')}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Дополнительные услуги */}
+                                            {additionalServices.length > 0 && (
+                                                <>
+                                                    {additionalServices.map((addService, idx) => {
+                                                        const service = addService
+                                                        const price = parseFloat(addService.pivot?.price || addService.price || 0)
+                                                        const quantity = parseInt(addService.pivot?.quantity || addService.quantity || 1)
+                                                        const itemTotal = price * quantity
+                                                        
+                                                        return (
+                                                            <div key={addService.id || idx} className="flex justify-between items-center text-sm">
+                                                                <span className="text-gray-700 dark:text-gray-300">
+                                                                    {service.name} × {quantity}
+                                                                </span>
+                                                                <span className="font-semibold text-gray-900 dark:text-white">
+                                                                    {formatCurrency(itemTotal, booking.currency || 'USD')}
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </>
+                                            )}
+                                            
+                                            {/* Итого общий */}
+                                            <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2 flex justify-between items-center">
+                                                <span className="text-sm font-semibold text-gray-900 dark:text-white">Итого:</span>
+                                                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    {formatCurrency(totalPrice, booking.currency || 'USD')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span
+                                        className={classNames(
+                                            'text-xs font-medium px-2.5 py-1 rounded-full',
+                                            booking.status === 'new' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+                                            booking.status === 'pending' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+                                            booking.status === 'confirmed' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+                                            booking.status === 'completed' && 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+                                            booking.status === 'cancelled' && 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                                        )}
+                                    >
+                                        {booking.status === 'new' && 'Новый'}
+                                        {booking.status === 'pending' && 'Ожидает'}
+                                        {booking.status === 'confirmed' && 'Подтвержден'}
+                                        {booking.status === 'completed' && 'Завершен'}
+                                        {booking.status === 'cancelled' && 'Отменен'}
+                                    </span>
+                                    <Link href="/booking">
+                                        <Button variant="plain" size="sm">
+                                            Подробнее →
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </Card>
+                    )
+                })}
+                </>
+            )}
+            {bookings.length > 5 && (
+                <div className="text-center pt-2">
+                    <Link href="/booking">
+                        <Button variant="outline" size="sm">
+                            Показать все бронирования ({bookings.length})
+                        </Button>
+                    </Link>
+                </div>
+            )}
+        </div>
+    )
+}
+
+// Компонент отзывов
+const ReviewsTab = () => {
+    const queryClient = useQueryClient()
+    const [reviewModal, setReviewModal] = useState({ isOpen: false, order: null })
+
+    // Загрузка ожидающих отзывов
+    const { data: pendingReviews = [], isLoading: pendingLoading } = useQuery({
+        queryKey: ['client-pending-reviews'],
+        queryFn: getPendingReviews,
+    })
+
+    // Загрузка готовых отзывов
+    const { data: completedReviews = [], isLoading: completedLoading } = useQuery({
+        queryKey: ['client-reviews'],
+        queryFn: getClientReviews,
+    })
+
+    // Мутация для создания отзыва
+    const createReviewMutation = useMutation({
+        mutationFn: createReview,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['client-reviews'] })
+            queryClient.invalidateQueries({ queryKey: ['client-pending-reviews'] })
+            setReviewModal({ isOpen: false, order: null })
+            toast.push(
+                <Notification type="success" title="Успешно">
+                    Отзыв успешно добавлен!
+                </Notification>,
+                {
+                    placement: 'top-end',
+                }
+            )
+        },
+        onError: (error) => {
+            toast.push(
+                <Notification type="error" title="Ошибка">
+                    Ошибка при создании отзыва
+                </Notification>,
+                {
+                    placement: 'top-end',
+                }
+            )
+        },
+    })
+
+    const isLoading = pendingLoading || completedLoading
+
+    if (isLoading) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <Loading loading />
+            </div>
+        )
+    }
+
+    const hasPending = pendingReviews.length > 0
+    const hasCompleted = completedReviews.length > 0
+
+    if (!hasPending && !hasCompleted) {
+        return (
+            <Card className="p-8 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
+                <PiStar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
+                <p className="text-sm sm:text-base text-gray-500">У вас пока нет отзывов</p>
+                <p className="text-xs sm:text-sm text-gray-400 mt-2">
+                    После завершения бронирований здесь появятся запросы на отзывы
+                </p>
+            </Card>
+        )
+    }
+
+    return (
+        <div className="space-y-6 min-h-[400px]">
+            {/* Ожидающие отзывы */}
+            {hasPending && (
+                <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        Ожидающие отзывы
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-500 dark:bg-yellow-600 text-white">
+                            {pendingReviews.length}
+                        </span>
+                    </h3>
+                    <div className="space-y-3">
+                        {pendingReviews.map((order) => (
+                            <Card key={order.id} className="p-4 sm:p-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                    <div className="flex-1">
+                                        <div className="flex items-start gap-3 sm:gap-4">
+                                            <div className="flex-1 min-w-0">
+                                                <Link
+                                                    href={`/marketplace/${order.businessSlug}`}
+                                                    className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white hover:text-primary block mb-1"
+                                                >
+                                                    {order.businessName}
+                                                </Link>
+                                                <p className="text-xs sm:text-sm text-gray-500 mb-2">
+                                                    {order.serviceName}
+                                                </p>
+                                                <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500">
+                                                    <span>{new Date(order.date).toLocaleDateString('ru-RU')}</span>
+                                                    <span>•</span>
+                                                    <span>{order.time}</span>
+                                                    <span>•</span>
+                                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                                        <NumericFormat
+                                                            displayType="text"
+                                                            value={order.price}
+                                                            prefix="$"
+                                                            thousandSeparator={true}
+                                                        />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="solid"
+                                        size="sm"
+                                        onClick={() => setReviewModal({ isOpen: true, order })}
+                                        className="flex-shrink-0"
+                                    >
+                                        Оставить отзыв
+                                    </Button>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Готовые отзывы */}
+            <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        Мои отзывы
+                        {hasCompleted && (
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500 dark:bg-blue-600 text-white">
+                                {completedReviews.length}
+                            </span>
+                        )}
+                    </h3>
+                {!hasCompleted ? (
+                    <Card className="p-8 sm:p-12 text-center">
+                        <PiStar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
+                        <p className="text-sm sm:text-base text-gray-500">Вы еще не оставили ни одного отзыва</p>
+                    </Card>
+                ) : (
+                    <div className="space-y-3 sm:space-y-4">
+                        {completedReviews.map((review) => (
+                            <Card key={review.id} className="p-4 sm:p-6">
+                                <div className="flex items-start gap-3 sm:gap-4">
+                                    <Avatar
+                                        src={review.businessAvatar}
+                                        size={40}
+                                        shape="circle"
+                                        className="flex-shrink-0 sm:w-[50px] sm:h-[50px]"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-2">
+                                            <div className="min-w-0">
+                                                <Link
+                                                    href={`/marketplace/${review.businessSlug}`}
+                                                    className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white hover:text-primary truncate block"
+                                                >
+                                                    {review.businessName}
+                                                </Link>
+                                                <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">
+                                                    {review.serviceName}
+                                                </p>
+                                                {review.specialistName && (
+                                                    <p className="text-xs text-gray-400 mt-0.5 truncate">
+                                                        Исполнитель: {review.specialistName}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1 flex-shrink-0">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <PiStarFill
+                                                        key={i}
+                                                        className={classNames(
+                                                            'text-sm sm:text-lg',
+                                                            i < review.rating
+                                                                ? 'text-yellow-400'
+                                                                : 'text-gray-300 dark:text-gray-600'
+                                                        )}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
+                                            {review.comment}
+                                        </p>
+                                        {review.response && (
+                                            <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
+                                                    Ответ от {review.businessName}:
+                                                </p>
+                                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                                    {review.response}
+                                                </p>
+                                            </div>
+                                        )}
+                                        <div className="text-xs text-gray-400 mt-2">
+                                            {new Date(review.createdAt).toLocaleDateString('ru-RU', {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric',
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Модалка для отзыва */}
+            {reviewModal.isOpen && reviewModal.order && (
+                <ReviewModal
+                    isOpen={reviewModal.isOpen}
+                    onClose={() => setReviewModal({ isOpen: false, order: null })}
+                    order={reviewModal.order}
+                    onSubmit={(data) => createReviewMutation.mutate(data)}
+                    isLoading={createReviewMutation.isPending}
+                />
+            )}
+        </div>
+    )
+}
+
+// Компонент избранного (сервисы, объявления и бизнесы)
+const FavoritesTab = () => {
+    const queryClient = useQueryClient()
+
+    const { data: services = [], isLoading: servicesLoading } = useQuery({
+        queryKey: ['client-favorite-services'],
+        queryFn: getFavoriteServices,
+    })
+
+    const { data: advertisements = [], isLoading: advertisementsLoading } = useQuery({
+        queryKey: ['client-favorite-advertisements'],
+        queryFn: getFavoriteAdvertisements,
+    })
+
+    const { data: businesses = [], isLoading: businessesLoading } = useQuery({
+        queryKey: ['client-favorite-businesses'],
+        queryFn: getFavoriteBusinesses,
+    })
+
+    const removeFavoriteMutation = useMutation({
+        mutationFn: ({ type, id }) => 
+            removeFromFavorites(type, id),
+        onSuccess: (_, variables) => {
+            // Обновляем соответствующий кэш в зависимости от типа
+            if (variables.type === 'service') {
+                queryClient.invalidateQueries({ queryKey: ['client-favorite-services'] })
+            } else if (variables.type === 'advertisement') {
+                queryClient.invalidateQueries({ queryKey: ['client-favorite-advertisements'] })
+            } else if (variables.type === 'business') {
+                queryClient.invalidateQueries({ queryKey: ['client-favorite-businesses'] })
+            }
+            toast.push({
+                title: 'Успех',
+                message: 'Удалено из избранного',
+                type: 'success',
+            })
+        },
+        onError: (error) => {
+            toast.push({
+                title: 'Ошибка',
+                message: error?.response?.data?.message || 'Не удалось удалить из избранного',
+                type: 'danger',
+            })
+        },
+    })
+
+    // Дедупликация по serviceId для услуг, по id для бизнесов
+    const finalServices = useMemo(() => {
+        const map = new Map()
+        services.forEach((service) => {
+            // Используем serviceId как основной ключ, если он есть
+            // Это гарантирует, что мы не показываем дубликаты одной и той же услуги
+            const key = service.serviceId || service.id
+            if (key && !map.has(key)) {
+                map.set(key, service)
+            } else if (key && map.has(key)) {
+                // Если уже есть запись с таким ключом, логируем для отладки
+                console.warn('Duplicate favorite service found:', {
+                    existing: map.get(key),
+                    duplicate: service,
+                    key: key
+                })
+            }
+        })
+        return Array.from(map.values())
+    }, [services])
+
+    const finalBusinesses = useMemo(() => {
+        const map = new Map()
+        businesses.forEach((business) => {
+            if (!map.has(business.id)) {
+                map.set(business.id, business)
+            }
+        })
+        return Array.from(map.values())
+    }, [businesses])
+
+    // Дедупликация объявлений
+    const finalAdvertisements = useMemo(() => {
+        const map = new Map()
+        advertisements.forEach((ad) => {
+            // Используем advertisementId или id как ключ
+            const key = ad.advertisementId || ad.id
+            if (key && !map.has(key)) {
+                map.set(key, ad)
+            }
+        })
+        return Array.from(map.values())
+    }, [advertisements])
+
+    const isLoading = servicesLoading || advertisementsLoading || businessesLoading
+    const hasFavorites = finalServices.length > 0 || finalAdvertisements.length > 0 || finalBusinesses.length > 0
+
+    const handleRemoveFavorite = (e, type, id) => {
+        e.preventDefault()
+        e.stopPropagation()
+        removeFavoriteMutation.mutate({ type, id })
+    }
+
+    // Показываем загрузку, но сохраняем структуру для предотвращения дергания
+    if (isLoading) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <Loading loading />
+            </div>
+        )
+    }
+
+    if (!hasFavorites) {
+        return (
+            <Card className="p-8 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
+                <PiHeart className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Нет избранных
+                </h4>
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4">
+                    Добавляйте мастеров и услуги в избранное на страницах объявлений
+                </p>
+                <Link href="/services">
+                    <Button variant="outline" size="sm" className="mt-2 sm:mt-4">
+                        Найти услуги
+                    </Button>
+                </Link>
+            </Card>
+        )
+    }
+
+    return (
+        <div className="space-y-6 min-h-[400px]">
+            {/* Избранные сервисы */}
+            {finalServices.length > 0 && (
+                <div>
+                    <h3 className="text-lg font-semibold mb-4">Избранные сервисы</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                        {finalServices.map((service) => {
+                            const serviceSlug = service.serviceSlug || service.businessSlug || ''
+                            const serviceUrl = serviceSlug ? `/marketplace/${serviceSlug}` : `/services`
+                            const imageUrl = service.image || (service.businessImage || null)
+                            const normalizedImageUrl = imageUrl ? normalizeImageUrl(imageUrl) : null
+                            
+                            return (
+                                <Card key={`service-${service.serviceId || service.id}`} className="p-0 overflow-hidden group hover:shadow-lg transition-shadow">
+                                    <Link href={serviceUrl} className="block">
+                                        <div className="relative h-48 sm:h-56 bg-gray-100 dark:bg-gray-800">
+                                            {normalizedImageUrl ? (
+                                                <Image
+                                                    src={normalizedImageUrl}
+                                                    alt={service.serviceName || 'Услуга'}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full">
+                                                    <PiCalendar className="text-4xl text-gray-400" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2 right-2 z-10">
+                                                <Button
+                                                    variant="plain"
+                                                    size="sm"
+                                                    className="bg-white/90 dark:bg-gray-900/90 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-sm"
+                                                    icon={<PiHeartFill className="text-red-500" />}
+                                                    onClick={(e) => handleRemoveFavorite(e, 'service', service.serviceId || service.id)}
+                                                    disabled={removeFavoriteMutation.isPending}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="p-4">
+                                            {/* Категория */}
+                                            {service.category && (
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {service.category}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Название услуги */}
+                                            <h4 className="font-semibold text-base text-gray-900 dark:text-white mb-1 line-clamp-1">
+                                                {service.serviceName || 'Услуга'}
+                                            </h4>
+                                            
+                                            {/* Название бизнеса */}
+                                            {service.businessName && service.businessName !== 'N/A' && (
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-1">
+                                                    {service.businessName}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Описание */}
+                                            {service.description && (
+                                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                                                    {service.description}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Локация */}
+                                            {(service.city || service.state) && (
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-1">
+                                                    <PiMapPinFill className="text-xs" />
+                                                    {service.city && service.state ? `${service.city}, ${service.state}` : service.city || service.state}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Рейтинг и цена */}
+                                            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                                                {/* Показываем рейтинг только если он есть и больше 0 */}
+                                                {service.rating !== null && service.rating !== undefined && service.rating > 0 ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <PiStarFill className="text-yellow-400 text-sm" />
+                                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                            {service.rating.toFixed(1)}
+                                                        </span>
+                                                        {service.reviewsCount !== undefined && service.reviewsCount > 0 && (
+                                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                                ({service.reviewsCount})
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div></div> // Пустой div для выравнивания
+                                                )}
+                                                {service.priceLabel && (
+                                                    <span className="text-base font-semibold text-gray-900 dark:text-white">
+                                                        {service.priceLabel}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </Card>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Избранные объявления */}
+            {finalAdvertisements.length > 0 && (
+                <div>
+                    <h3 className="text-lg font-semibold mb-4">Избранные объявления</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                        {finalAdvertisements.map((ad) => {
+                            const adId = ad.advertisementId || ad.id
+                            // Используем slug из link объявления, если есть
+                            // Приоритет: slug > advertisementSlug > link (без префикса) > fallback
+                            let adSlug = ad.slug || ad.advertisementSlug || ''
+                            
+                            // Если есть link, извлекаем slug из него
+                            if (!adSlug && ad.link) {
+                                // Убираем префикс /marketplace/ если есть
+                                adSlug = ad.link.replace(/^\/marketplace\//, '').replace(/^marketplace\//, '')
+                                // Убираем ведущий слеш
+                                adSlug = adSlug.trim().replace(/^\//, '')
+                                // Если это полный URL, извлекаем только путь
+                                if (adSlug.startsWith('http://') || adSlug.startsWith('https://')) {
+                                    try {
+                                        const url = new URL(adSlug)
+                                        adSlug = url.pathname.replace(/^\//, '')
+                                    } catch {
+                                        // Если не удалось распарсить URL, используем как есть
+                                    }
+                                }
+                            }
+                            
+                            // Fallback: если slug все еще пустой, используем формат ad_ID
+                            if (!adSlug) {
+                                adSlug = `ad_${adId}`
+                            }
+                            
+                            const adUrl = `/marketplace/${adSlug}`
+                            const imageUrl = ad.image || ad.imageUrl || null
+                            const normalizedImageUrl = imageUrl ? normalizeImageUrl(imageUrl) : null
+                            
+                            return (
+                                <Card key={`advertisement-${adId}`} className="p-0 overflow-hidden group hover:shadow-lg transition-shadow">
+                                    <Link href={adUrl} className="block">
+                                        <div className="relative h-48 sm:h-56 bg-gray-100 dark:bg-gray-800">
+                                            {normalizedImageUrl ? (
+                                                <Image
+                                                    src={normalizedImageUrl}
+                                                    alt={ad.title || ad.name || ad.advertisementName || 'Объявление'}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                    onError={(e) => {
+                                                        // Заменяем битое изображение на fallback
+                                                        e.target.src = FALLBACK_IMAGE
+                                                        e.target.onerror = null
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full">
+                                                    <PiCalendar className="text-4xl text-gray-400" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2 right-2 z-10">
+                                                <Button
+                                                    variant="plain"
+                                                    size="sm"
+                                                    className="bg-white/90 dark:bg-gray-900/90 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-sm"
+                                                    icon={<PiHeartFill className="text-red-500" />}
+                                                    onClick={(e) => handleRemoveFavorite(e, 'advertisement', adId)}
+                                                    disabled={removeFavoriteMutation.isPending}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="p-4">
+                                            {/* Категория */}
+                                            {ad.category && (
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    {ad.category}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Название объявления */}
+                                            <h4 className="font-semibold text-base text-gray-900 dark:text-white mb-1 line-clamp-1">
+                                                {ad.title || ad.name || ad.advertisementName || 'Объявление'}
+                                            </h4>
+                                            
+                                            {/* Название бизнеса */}
+                                            {ad.businessName && ad.businessName !== 'N/A' && (
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-1">
+                                                    {ad.businessName}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Описание */}
+                                            {ad.description && (
+                                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                                                    {ad.description}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Локация */}
+                                            {(ad.city || ad.state) && (
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-1">
+                                                    <PiMapPinFill className="text-xs" />
+                                                    {ad.city && ad.state ? `${ad.city}, ${ad.state}` : ad.city || ad.state}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Рейтинг и цена */}
+                                            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                                                {/* Показываем рейтинг только если он есть и больше 0 */}
+                                                {ad.rating !== null && ad.rating !== undefined && ad.rating > 0 && (
+                                                    <div className="flex items-center gap-1">
+                                                        <PiStarFill className="text-yellow-400 text-sm" />
+                                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                            {ad.rating.toFixed(1)}
+                                                        </span>
+                                                        {ad.reviewsCount !== undefined && ad.reviewsCount > 0 && (
+                                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                                ({ad.reviewsCount})
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {ad.priceLabel && (
+                                                    <span className={`text-base font-semibold text-gray-900 dark:text-white ${(!ad.rating || ad.rating === 0) ? 'ml-0' : ''}`}>
+                                                        {ad.priceLabel}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </Card>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Избранные бизнесы */}
+            {finalBusinesses.length > 0 && (
+                <div>
+                    <h3 className="text-lg font-semibold mb-4">Избранные бизнесы</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                        {finalBusinesses.map((business) => (
+                            <Card key={`business-${business.id}`} className="p-0 overflow-hidden group hover:shadow-lg transition-shadow">
+                                <Link href={`/marketplace/${business.businessSlug}`}>
+                                    <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800">
+                                        {business.image ? (
+                                            <Image
+                                                src={business.image}
+                                                alt={business.businessName}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full">
+                                                <PiUser className="text-4xl text-gray-400" />
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 right-2">
+                                            <Button
+                                                variant="plain"
+                                                size="sm"
+                                                className="bg-white/90 hover:bg-white"
+                                                icon={<PiHeartFill className="text-red-500" />}
+                                                onClick={(e) => handleRemoveFavorite(e, 'business', business.businessId || business.id)}
+                                                disabled={removeFavoriteMutation.isPending}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 sm:p-4">
+                                        <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white mb-1 truncate">
+                                            {business.businessName}
+                                        </h4>
+                                        <p className="text-xs sm:text-sm text-gray-500 mb-2 truncate">
+                                            {business.category}
+                                        </p>
+                                        {/* Показываем рейтинг только если он есть и больше 0 */}
+                                        {business.rating !== null && business.rating !== undefined && business.rating > 0 && (
+                                            <div className="flex items-center gap-1">
+                                                <PiStarFill className="text-yellow-400 text-sm sm:text-base" />
+                                                <span className="text-xs sm:text-sm font-semibold">{business.rating.toFixed(1)}</span>
+                                                {business.reviewsCount !== undefined && business.reviewsCount > 0 && (
+                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                        ({business.reviewsCount})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </Link>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
+// Компонент уведомлений (только настройки)
+const NotificationsTab = () => {
+    const queryClient = useQueryClient()
+
+    const { data: settings = { email: true, sms: false, telegram: false, push: true }, isLoading: settingsLoading } = useQuery({
+        queryKey: ['client-notification-settings'],
+        queryFn: getNotificationSettings,
+    })
+
+    const updateSettingsMutation = useMutation({
+        mutationFn: updateNotificationSettings,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['client-notification-settings'] })
+        },
+    })
+
+    const handleSettingChange = (key, value) => {
+        const newSettings = {
+            ...settings,
+            [key]: value,
+        }
+        updateSettingsMutation.mutate(newSettings)
+        // TODO: Интеграция с email сервисом (SendGrid, Mailgun и т.д.)
+        // TODO: Интеграция с SMS сервисом (Twilio, Sms.ru и т.д.)
+        // TODO: Интеграция с Telegram Bot API
+    }
+
+    if (settingsLoading) {
+        return <Loading loading />
+    }
+
+    return (
+        <Card className="p-4 sm:p-6">
+            <h4 className="text-lg font-semibold mb-4">Настройки уведомлений</h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Выберите способы получения уведомлений. Все уведомления доступны в навбаре.
+            </p>
+            <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                            <PiBell className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                            <div className="font-semibold text-sm sm:text-base">Push-уведомления</div>
+                            <div className="text-xs sm:text-sm text-gray-500">
+                                Уведомления в браузере
+                            </div>
+                        </div>
+                    </div>
+                    <Switcher
+                        checked={settings.push}
+                        onChange={(checked) => handleSettingChange('push', checked)}
+                        disabled={settingsLoading || updateSettingsMutation.isPending}
+                    />
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center">
+                            <PiEnvelope className="text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                            <div className="font-semibold text-sm sm:text-base">Email</div>
+                            <div className="text-xs sm:text-sm text-gray-500">
+                                Уведомления на почту
+                            </div>
+                        </div>
+                    </div>
+                    <Switcher
+                        checked={settings.email}
+                        onChange={(checked) => handleSettingChange('email', checked)}
+                        disabled={settingsLoading || updateSettingsMutation.isPending}
+                    />
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                            <PiDeviceMobile className="text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <div>
+                            <div className="font-semibold text-sm sm:text-base">SMS</div>
+                            <div className="text-xs sm:text-sm text-gray-500">
+                                Уведомления по SMS
+                            </div>
+                        </div>
+                    </div>
+                    <Switcher
+                        checked={settings.sms}
+                        onChange={(checked) => handleSettingChange('sms', checked)}
+                        disabled={settingsLoading || updateSettingsMutation.isPending}
+                    />
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/20 flex items-center justify-center">
+                            <PiPaperPlaneTilt className="text-sky-600 dark:text-sky-400" />
+                        </div>
+                        <div>
+                            <div className="font-semibold text-sm sm:text-base">Telegram</div>
+                            <div className="text-xs sm:text-sm text-gray-500">
+                                Уведомления в Telegram
+                            </div>
+                        </div>
+                    </div>
+                    <Switcher
+                        checked={settings.telegram}
+                        onChange={(checked) => handleSettingChange('telegram', checked)}
+                        disabled={settingsLoading || updateSettingsMutation.isPending}
+                    />
+                </div>
+            </div>
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-xs text-blue-700 dark:text-blue-300">
+                    <strong>На будущее:</strong> Интеграция с email (SendGrid/Mailgun), SMS (Twilio/Sms.ru) и Telegram Bot API будет добавлена на этапе разработки бэкенда.
+                </p>
+            </div>
+        </Card>
+    )
+}
+
+// Компонент скидок и бонусов
+const DiscountsAndBonusesTab = () => {
+    const queryClient = useQueryClient()
+
+    const { data: discounts = [], isLoading: discountsLoading } = useQuery({
+        queryKey: ['client-discounts'],
+        queryFn: getClientDiscounts,
+    })
+
+    const { data: bonuses = [], isLoading: bonusesLoading } = useQuery({
+        queryKey: ['client-bonuses'],
+        queryFn: getClientBonuses,
+    })
+
+    const applyDiscountMutation = useMutation({
+        mutationFn: applyDiscount,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['client-discounts'] })
+        },
+    })
+
+    const applyBonusMutation = useMutation({
+        mutationFn: applyBonus,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['client-bonuses'] })
+        },
+    })
+
+    const handleCopyCode = (code) => {
+        navigator.clipboard.writeText(code)
+        // TODO: Показать toast уведомление
+    }
+
+    const handleApplyDiscount = (discountId) => {
+        applyDiscountMutation.mutate(discountId)
+        // TODO: Перенаправить на страницу бронирования с примененной скидкой
+    }
+
+    const handleApplyBonus = (bonusId) => {
+        applyBonusMutation.mutate(bonusId)
+        // TODO: Применить бонус
+    }
+
+    const activeDiscounts = discounts.filter((d) => d.isActive && !d.isUsed)
+    const usedDiscounts = discounts.filter((d) => d.isUsed)
+    const activeBonuses = bonuses.filter((b) => b.isActive && !b.isUsed)
+    const usedBonuses = bonuses.filter((b) => b.isUsed)
+
+    if (discountsLoading || bonusesLoading) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <Loading loading />
+            </div>
+        )
+    }
+
+    const allItems = [
+        ...activeDiscounts.map((d) => ({ ...d, type: 'discount' })),
+        ...activeBonuses.map((b) => ({ ...b, type: 'bonus' })),
+    ]
+
+    if (allItems.length === 0 && usedDiscounts.length === 0 && usedBonuses.length === 0) {
+        return (
+            <Card className="p-8 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
+                <PiTicket className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
+                <p className="text-sm sm:text-base text-gray-500">
+                    У вас пока нет доступных скидок и бонусов
+                </p>
+            </Card>
+        )
+    }
+
+    return (
+        <div className="space-y-3 sm:space-y-4 min-h-[400px]">
+            {/* Активные скидки и бонусы */}
+            {allItems.map((item) => {
+                const isValid = new Date(item.validUntil) > new Date()
+                const isDiscount = item.type === 'discount'
+                
+                return (
+                    <Card key={`${item.type}-${item.id}`} className="p-4 sm:p-6">
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            {item.businessImage && (
+                                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0">
+                                    <Image
+                                        src={item.businessImage}
+                                        alt={item.businessName}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-2">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">
+                                                {item.title}
+                                            </h4>
+                                            <span
+                                                className={classNames(
+                                                    'text-xs font-medium px-2.5 py-1 rounded-full',
+                                                    isDiscount
+                                                        ? 'bg-primary text-white'
+                                                        : 'bg-emerald-500 text-white'
+                                                )}
+                                            >
+                                                {isDiscount
+                                                    ? item.discountType === 'percentage'
+                                                        ? `-${item.discountValue}%`
+                                                        : `-${item.discountValue}₽`
+                                                    : item.bonusType === 'points'
+                                                    ? `+${item.bonusValue} баллов`
+                                                    : item.bonusType === 'cashback'
+                                                    ? `${item.bonusValue}% кэшбэк`
+                                                    : `Бонус ${item.bonusValue}`}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">
+                                            {item.description}
+                                        </p>
+                                        <Link
+                                            href={`/marketplace/${item.businessSlug}`}
+                                            className="text-xs sm:text-sm text-primary hover:underline"
+                                        >
+                                            {item.businessName}
+                                        </Link>
+                                    </div>
+                                </div>
+                                {isDiscount && (
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-xs sm:text-sm font-mono font-semibold bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                            {item.code}
+                                        </span>
+                                        <Button
+                                            variant="plain"
+                                            size="sm"
+                                            icon={<PiCopy />}
+                                            onClick={() => handleCopyCode(item.code)}
+                                            title="Скопировать код"
+                                            className="h-6 w-6 p-0"
+                                        />
+                                        {item.minPurchaseAmount && (
+                                            <span className="text-xs text-gray-500">
+                                                От {item.minPurchaseAmount}₽
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-500">
+                                        Действует до:{' '}
+                                        {new Date(item.validUntil).toLocaleDateString('ru-RU')}
+                                    </span>
+                                    {isValid && (
+                                        <Button
+                                            size="sm"
+                                            variant="solid"
+                                            onClick={() =>
+                                                isDiscount
+                                                    ? handleApplyDiscount(item.id)
+                                                    : handleApplyBonus(item.id)
+                                            }
+                                            loading={
+                                                isDiscount
+                                                    ? applyDiscountMutation.isPending
+                                                    : applyBonusMutation.isPending
+                                            }
+                                        >
+                                            {isDiscount ? 'Применить' : 'Получить'}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                )
+            })}
+
+            {/* Использованные скидки и бонусы */}
+            {(usedDiscounts.length > 0 || usedBonuses.length > 0) && (
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
+                        Использованные
+                    </h4>
+                    <div className="space-y-2">
+                        {[...usedDiscounts, ...usedBonuses].map((item) => {
+                            const isDiscount = 'code' in item
+                            return (
+                                <Card key={`used-${isDiscount ? 'discount' : 'bonus'}-${item.id}`} className="p-3 opacity-60">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <span className="font-semibold text-sm">{item.title}</span>
+                                            <span className="text-xs text-gray-500 ml-2">
+                                                Использовано:{' '}
+                                                {item.usedAt
+                                                    ? new Date(item.usedAt).toLocaleDateString('ru-RU')
+                                                    : '-'}
+                                            </span>
+                                        </div>
+                                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-400 text-white">
+                                            {isDiscount
+                                                ? item.discountType === 'percentage'
+                                                    ? `-${item.discountValue}%`
+                                                    : `-${item.discountValue}₽`
+                                                : item.bonusType === 'points'
+                                                ? `+${item.bonusValue} баллов`
+                                                : item.bonusType === 'cashback'
+                                                ? `${item.bonusValue}% кэшбэк`
+                                                : `Бонус ${item.bonusValue}`}
+                                        </span>
+                                    </div>
+                                </Card>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
+// Основной компонент страницы
+export default function ClientProfilePage() {
+    const { data: user, isLoading: userLoading } = useCurrentUser()
+    const { user: userStore } = useUserStore()
+    const [activeTab, setActiveTab] = useState('bookings')
+
+    const displayUser = user || userStore
+
+    // Загружаем данные для статистики
+    const { data: upcomingBookingsForBadge = [] } = useQuery({
+        queryKey: ['client-bookings', true],
+        queryFn: () => getClientBookings({ upcoming: true }),
+        staleTime: 30000,
+    })
+    
+    const { data: favoriteServices = [] } = useQuery({
+        queryKey: ['client-favorite-services'],
+        queryFn: getFavoriteServices,
+    })
+    
+    const { data: favoriteBusinesses = [] } = useQuery({
+        queryKey: ['client-favorite-businesses'],
+        queryFn: getFavoriteBusinesses,
+    })
+    
+    const { data: pendingReviewsForBadge = [] } = useQuery({
+        queryKey: ['client-pending-reviews'],
+        queryFn: getPendingReviews,
+        staleTime: 30000,
+    })
+    
+    const upcomingBookingsCount = upcomingBookingsForBadge?.length || 0
+    const favoritesCount = (favoriteServices?.length || 0) + (favoriteBusinesses?.length || 0)
+    const pendingReviewsCount = pendingReviewsForBadge?.length || 0
+
+    if (userLoading) {
+        return (
+            <Container className="pt-20 pb-8 md:pt-24 md:pb-12 px-4 sm:px-6">
+                <div className="flex items-center justify-center min-h-[400px]">
+                    <Loading loading />
+                </div>
+            </Container>
+        )
+    }
+
+    return (
+        <ProtectedRoute allowedRoles={[CLIENT]} redirectTo="/sign-in">
+            <Container className="pt-20 pb-8 md:pt-24 md:pb-12 px-4 sm:px-6">
+                <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
+                    <ProfileHeader 
+                        user={displayUser} 
+                        bookingsCount={upcomingBookingsCount}
+                        favoritesCount={favoritesCount}
+                    />
+
+                    <Card>
+                        <Tabs value={activeTab} onChange={setActiveTab}>
+                            <TabList className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                <TabNav value="bookings" icon={<PiCalendar />} className="whitespace-nowrap">
+                                    <span className="hidden sm:inline">Бронирования</span>
+                                    <span className="sm:hidden">Брони</span>
+                                    {upcomingBookingsCount > 0 && (
+                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500 dark:bg-blue-600 text-white ml-2">
+                                            {upcomingBookingsCount}
+                                        </span>
+                                    )}
+                                </TabNav>
+                                <TabNav value="reviews" icon={<PiStar />} className="whitespace-nowrap">
+                                    <span className="hidden sm:inline">Мои отзывы</span>
+                                    <span className="sm:hidden">Отзывы</span>
+                                    {pendingReviewsCount > 0 && (
+                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-500 dark:bg-yellow-600 text-white ml-2">
+                                            {pendingReviewsCount}
+                                        </span>
+                                    )}
+                                </TabNav>
+                                <TabNav value="favorites" icon={<PiHeart />} className="whitespace-nowrap">
+                                    <span className="hidden sm:inline">Избранное</span>
+                                    <span className="sm:hidden">Избранное</span>
+                                    {favoritesCount > 0 && (
+                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500 dark:bg-blue-600 text-white ml-2">
+                                            {favoritesCount}
+                                        </span>
+                                    )}
+                                </TabNav>
+                                <TabNav value="discounts" icon={<PiTicket />} className="whitespace-nowrap">
+                                    <span className="hidden sm:inline">Скидки и бонусы</span>
+                                    <span className="sm:hidden">Скидки</span>
+                                </TabNav>
+                                <TabNav value="notifications" icon={<PiBell />} className="whitespace-nowrap">
+                                    Уведомления
+                                </TabNav>
+                            </TabList>
+                            <div className="p-4 sm:p-6 min-h-[400px]">
+                                <TabContent value="bookings">
+                                    <BookingsTab />
+                                </TabContent>
+                                <TabContent value="reviews">
+                                    <ReviewsTab />
+                                </TabContent>
+                                <TabContent value="favorites">
+                                    <FavoritesTab />
+                                </TabContent>
+                                <TabContent value="discounts">
+                                    <DiscountsAndBonusesTab />
+                                </TabContent>
+                                <TabContent value="notifications">
+                                    <NotificationsTab />
+                                </TabContent>
+                            </div>
+                        </Tabs>
+                    </Card>
+                </div>
+            </Container>
+        </ProtectedRoute>
+    )
+}

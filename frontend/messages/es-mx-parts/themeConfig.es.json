@@ -1,0 +1,12 @@
+{
+    "title": "Configuración del tema",
+    "darkMode": "Modo oscuro",
+    "darkModeDesc": "Cambiar el tema a modo oscuro",
+    "theme": "Tema",
+    "layout": "Diseño",
+    "collapsible": "Colapsable",
+    "topBar": "Barra superior",
+    "copyConfig": "Guardar",
+    "copySuccess": "Copiado correctamente",
+    "copySuccessDesc": "Reemplaza themeConfig en 'src/configs/theme.config.ts'"
+}

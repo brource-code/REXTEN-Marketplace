@@ -1,0 +1,793 @@
+{
+    "dashboard": {
+        "title": "Platform Overview",
+        "pageTitle": "Dashboard",
+        "cards": {
+            "companies": "Companies",
+            "users": "Users",
+            "bookingsToday": "Bookings today",
+            "vsYesterday": "yesterday",
+            "revenueMonth": "Revenue this month",
+            "vsLastMonth": "vs last month",
+            "adsActive": "Listings & ads",
+            "marketplace": "marketplace",
+            "promo": "promo",
+            "onModeration": "pending moderation",
+            "avgRating": "Average rating",
+            "active": "active",
+            "pendingCompanies": "companies pending approval",
+            "clientsWord": "clients",
+            "businessesWord": "businesses"
+        },
+        "charts": {
+            "sectionTitle": "Daily trends",
+            "activityTitle": "Signups & bookings",
+            "revenueTitle": "Revenue (paid orders)",
+            "days14": "14 days",
+            "days30": "30 days",
+            "seriesCompanies": "New companies",
+            "seriesUsers": "New users",
+            "seriesBookings": "Bookings",
+            "seriesRevenue": "Revenue"
+        },
+        "activity": {
+            "title": "Recent activity",
+            "empty": "No entries yet",
+            "viewAll": "Full activity log",
+            "columnTime": "Time",
+            "columnUser": "User",
+            "columnAction": "Action"
+        },
+        "activitySynthetic": {
+            "new_user": "Sign up: {email} ({role})",
+            "new_company": "New company: {name}",
+            "new_booking": "Booking #{id} · {company}",
+            "new_booking_short": "Booking #{id}"
+        },
+        "overviewChart": {
+            "title": "Platform trends",
+            "selectPeriod": "Period",
+            "periodTotal": "period total",
+            "periods": {
+                "days7": "7 days",
+                "days14": "14 days",
+                "days30": "30 days"
+            },
+            "stats": {
+                "companies": "New companies",
+                "users": "New users",
+                "bookings": "Bookings",
+                "revenue": "Revenue"
+            },
+            "seriesCompanies": "Companies",
+            "seriesUsers": "Users",
+            "seriesBookings": "Bookings",
+            "seriesRevenue": "Revenue",
+            "chartError": "Could not load chart",
+            "noData": "No data for this period"
+        },
+        "quickActions": {
+            "title": "Quick actions",
+            "manage": "Manage",
+            "companies": "Companies",
+            "companiesDesc": "All businesses on the platform",
+            "companiesDescPending": "{count} pending approval",
+            "users": "Users",
+            "usersDesc": "Accounts and roles",
+            "advertisements": "Advertisements",
+            "adsDesc": "Marketplace and promo",
+            "adsDescPending": "{count} pending moderation",
+            "activityLog": "Activity log",
+            "activityLogDesc": "Actions in the system",
+            "reviews": "Reviews",
+            "reviewsDesc": "Moderation and replies",
+            "settings": "Settings",
+            "settingsDesc": "Platform and integrations"
+        },
+        "topCategoriesTitle": "Top categories by services",
+        "servicesCount": "services",
+        "quickStats": "Quick Statistics",
+        "newUsers": "New Users (this month)",
+        "newBusinesses": "New Businesses (this month)",
+        "revenue": "Revenue (this month)",
+        "kpi": {
+            "gmv": "Gross Merchandise Value (GMV)",
+            "takeRate": "Take Rate",
+            "activeBusinesses": "Active Businesses",
+            "newUsers": "New Users",
+            "retentionRate": "Retention Rate",
+            "pendingModeration": "Pending Moderation",
+            "pendingCompanies": "Pending Approval (companies)",
+            "pendingUserVerifications": "Pending Verification (users)",
+            "perMonth": "per month",
+            "newPerMonth": "new this month"
+        },
+        "topBusinesses": {
+            "title": "Top 5 Businesses by Revenue",
+            "bookings": "bookings",
+            "orders": "orders",
+            "company": "Company",
+            "category": "Category",
+            "revenueCol": "Revenue",
+            "noData": "No data"
+        },
+        "pendingActions": {
+            "title": "Requires Attention",
+            "advertisements": "Advertisements Pending Moderation",
+            "companies": "New Companies Pending Approval",
+            "reviews": "Complaints / Reviews Pending Moderation",
+            "userVerifications": "Users Pending Verification",
+            "inactiveBusinesses": "Inactive Businesses",
+            "paymentIssues": "Payment Issues",
+            "items": "items",
+            "item": "item"
+        },
+        "businessEvents": {
+            "title": "Recent Business Events"
+        }
+    },
+    "billing": {
+        "title": "Billing",
+        "description": "Subscription and ad payments, reports and export",
+        "loadError": "Failed to load data",
+        "retry": "Retry",
+        "stripeWarning": "Stripe is not configured (STRIPE_SECRET_KEY). Cards and charts will show zeros.",
+        "toastSelectDates": "Select export date range",
+        "toastExportOk": "File downloaded",
+        "toastExportErr": "Could not export CSV",
+        "cards": {
+            "revenueMonth": "Revenue (month)",
+            "vsLastMonth": "vs last month",
+            "adRevenue": "Ads (month)",
+            "subscriptionRevenue": "Subscriptions (month)",
+            "avgCheck": "Average payment",
+            "today": "Today",
+            "transactions": "transactions:",
+            "openCheckouts": "Open checkouts",
+            "sessions": "sessions:"
+        },
+        "chart": {
+            "title": "Payment trends",
+            "selectPeriod": "Period",
+            "periods": {
+                "days7": "7 days",
+                "days14": "14 days",
+                "days30": "30 days",
+                "days90": "90 days"
+            },
+            "stats": {
+                "total": "Total",
+                "ads": "Ads",
+                "subscriptions": "Subscriptions"
+            },
+            "seriesTotal": "All payments",
+            "seriesAd": "Ads",
+            "seriesSub": "Subscriptions",
+            "chartError": "Chart failed to load",
+            "noData": "No data for this period"
+        },
+        "structure": {
+            "title": "Revenue mix",
+            "subtitle": "Current calendar month",
+            "total": "Total",
+            "ads": "Ads",
+            "subscriptions": "Subscriptions",
+            "other": "Other",
+            "error": "Failed to load",
+            "noData": "No payments this month"
+        },
+        "transactions": {
+            "title": "All transactions",
+            "empty": "No transactions",
+            "loadError": "Load error",
+            "prev": "Previous",
+            "next": "Next",
+            "filters": {
+                "type": "Type",
+                "allTypes": "All types"
+            },
+            "types": {
+                "advertisement": "Ad",
+                "subscription": "Subscription",
+                "unknown": "Other",
+                "other": "Other"
+            },
+            "columns": {
+                "date": "Date",
+                "company": "Company",
+                "type": "Type",
+                "description": "Description",
+                "amount": "Amount"
+            }
+        },
+        "topCompanies": {
+            "title": "Top companies",
+            "subtitle": "By payment volume this month",
+            "company": "Company",
+            "count": "Payments",
+            "amount": "Amount",
+            "empty": "No data",
+            "error": "Load error"
+        },
+        "reports": {
+            "stripeOff": "Stripe not connected — reports unavailable.",
+            "forecastTitle": "Forecast",
+            "forecastHint": "Based on last 7 days average",
+            "last7": "Last 7 days",
+            "dailyAvg": "Daily avg",
+            "projected": "30-day projection",
+            "adSpendTitle": "Ad spend",
+            "thisMonth": "This month",
+            "lastMonth": "Last month",
+            "adTx": "Ad payments:",
+            "recentAds": "Recent ad payments",
+            "noCampaigns": "No data",
+            "exportTitle": "Export",
+            "exportHint": "CSV up to 93 days",
+            "presetToday": "Today",
+            "presetWeek": "7 days",
+            "presetMonth": "30 days",
+            "from": "From",
+            "to": "To",
+            "downloadCsv": "Download CSV"
+        }
+    },
+    "reviews": {
+        "title": "Reviews",
+        "description": "Review moderation and responses",
+        "loadError": "Failed to load data",
+        "retry": "Retry",
+        "cards": {
+            "totalReviews": "Total reviews",
+            "avgRating": "Average rating",
+            "publishedReviews": "Published",
+            "pendingReviews": "Pending moderation",
+            "respondedReviews": "With response",
+            "withoutResponseReviews": "Without response"
+        },
+        "chart": {
+            "title": "Rating distribution",
+            "subtitle": "Only published reviews",
+            "total": "Total",
+            "error": "Failed to load",
+            "noData": "No data",
+            "labels": {
+                "rating_1": "1 star",
+                "rating_2": "2 stars",
+                "rating_3": "3 stars",
+                "rating_4": "4 stars",
+                "rating_5": "5 stars"
+            }
+        },
+        "table": {
+            "columns": {
+                "client": "Client",
+                "company": "Company",
+                "rating": "Rating",
+                "review": "Review",
+                "status": "Status",
+                "date": "Date"
+            },
+            "yourResponse": "Your response",
+            "statuses": {
+                "published": "Published",
+                "pending": "Pending moderation",
+                "rejected": "Rejected"
+            },
+            "actions": {
+                "respond": "Reply",
+                "editResponse": "Edit response",
+                "delete": "Delete"
+            },
+            "filters": {
+                "status": "Status",
+                "minRating": "Min. rating",
+                "allStatuses": "All",
+                "anyMinRating": "Any",
+                "minRatingFrom": ">= {value}"
+            },
+            "prev": "Previous",
+            "next": "Next",
+            "empty": "No reviews",
+            "deleteConfirm": {
+                "title": "Delete review?",
+                "message": "Are you sure you want to delete the review of \"{userName}\"? This action cannot be undone.",
+                "confirm": "Delete",
+                "cancel": "Cancel"
+            }
+        },
+        "responseModal": {
+            "title": "Reply to review",
+            "reviewFrom": "Review from",
+            "yourResponse": "Your response",
+            "placeholder": "Write your response...",
+            "cancel": "Cancel",
+            "save": "Save"
+        },
+        "notifications": {
+            "responseUpdated": "Response updated successfully",
+            "responseError": "Failed to update response",
+            "deleteSuccess": "Review deleted",
+            "deleteError": "Failed to delete review"
+        }
+    },
+    "platformUsers": {
+        "viewTitle": "User details",
+        "viewSubtitle": "Profile and status",
+        "edit": "Edit",
+        "block": "Block",
+        "unblock": "Unblock",
+        "contacts": "Contacts",
+        "emailLabel": "Email",
+        "registered": "Registered",
+        "userId": "ID",
+        "active": "Active",
+        "blocked": "Blocked",
+        "additionalInfo": "Additional",
+        "roleClient": "Client",
+        "roleBusiness": "Business owner",
+        "roleSuperadmin": "Superadmin"
+    },
+    "companyDetail": {
+        "back": "Back",
+        "backList": "Back to companies",
+        "subtitle": "Company profile",
+        "badId": "Invalid company ID",
+        "notFound": "Company not found",
+        "tabs": {
+            "info": "Overview",
+            "users": "Users",
+            "activity": "Activity",
+            "stats": "Statistics",
+            "edit": "Edit"
+        },
+        "status": {
+            "active": "Active",
+            "pending": "Pending",
+            "suspended": "Suspended",
+            "rejected": "Rejected"
+        },
+        "category": "Category",
+        "description": "Description",
+        "approve": "Approve",
+        "reject": "Reject",
+        "block": "Block",
+        "confirmApproveTitle": "Approve company?",
+        "confirmApproveMsg": "Approve \"{name}\"?",
+        "confirmRejectTitle": "Reject company?",
+        "confirmRejectMsg": "Reject \"{name}\"?",
+        "confirmBlockTitle": "Block company?",
+        "confirmBlockMsg": "Block \"{name}\"?",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "toastOk": "Success",
+        "toastErr": "Error",
+        "approved": "Company approved",
+        "rejected": "Company rejected",
+        "blocked": "Company blocked",
+        "approveFail": "Could not approve",
+        "rejectFail": "Could not reject",
+        "blockFail": "Could not block",
+        "stats": {
+            "revenueTotal": "Revenue (total)",
+            "bookingsTotal": "Bookings",
+            "clientsTotal": "Clients",
+            "rating": "Rating",
+            "chartTitle": "Revenue",
+            "revenue": "Revenue",
+            "periodWeek": "This week",
+            "periodMonth": "This month",
+            "periodYear": "This year",
+            "chartError": "Failed to load chart",
+            "noChartData": "No data",
+            "week": "This week",
+            "month": "This month",
+            "year": "This year",
+            "bookingsWord": "bookings",
+            "clientsSection": "Clients",
+            "clientsAll": "Total",
+            "clientsActive": "Active",
+            "clientsNew": "New (month)"
+        },
+        "edit": {
+            "title": "Company details",
+            "name": "Name",
+            "namePlaceholder": "Enter company name",
+            "slug": "Slug (URL)",
+            "slugHint": "Used in company URL. Only Latin letters, numbers and hyphens.",
+            "description": "Description",
+            "descriptionPlaceholder": "Enter company description",
+            "email": "Email",
+            "phone": "Phone",
+            "category": "Category",
+            "selectCategory": "Select category",
+            "owner": "Owner",
+            "selectOwner": "Select owner",
+            "ownerHint": "Changing owner will transfer company management rights to another user",
+            "status": "Status",
+            "subscription": "Subscription",
+            "save": "Save",
+            "successTitle": "Success",
+            "successMessage": "Company updated",
+            "errorTitle": "Error",
+            "errorMessage": "Could not save",
+            "statusPending": "Pending",
+            "statusActive": "Active",
+            "statusSuspended": "Suspended",
+            "statusRejected": "Rejected",
+            "subscriptionBasic": "Basic",
+            "subscriptionPremium": "Premium",
+            "subscriptionEnterprise": "Enterprise"
+        },
+        "users": {
+            "title": "Company users",
+            "total": "{count} users",
+            "noUsers": "No users",
+            "owner": "Owner",
+            "edit": "Edit",
+            "editTitle": "Edit user",
+            "firstName": "First name",
+            "lastName": "Last name",
+            "phone": "Phone",
+            "roleInCompany": "Role in company",
+            "blockedLabel": "Block account",
+            "save": "Save",
+            "saved": "Changes saved",
+            "saveError": "Could not save",
+            "ownerNote": "For the owner you can only edit name and phone. Cannot block owner.",
+            "table": {
+                "user": "User",
+                "role": "Role",
+                "contacts": "Contacts",
+                "status": "Status",
+                "lastLogin": "Last login",
+                "joined": "Joined",
+                "actions": "Actions"
+            },
+            "statuses": {
+                "active": "Active",
+                "blocked": "Blocked"
+            },
+            "neverLoggedIn": "Never logged in"
+        },
+        "activity": {
+            "title": "Activity history",
+            "noActivity": "No activity records",
+            "filters": {
+                "allCategories": "All categories",
+                "category": "Category"
+            },
+            "categories": {
+                "company": "Company",
+                "booking": "Bookings",
+                "user": "Users",
+                "advertisement": "Advertisements",
+                "review": "Reviews",
+                "service": "Services"
+            },
+            "actions": {
+                "create": "Create",
+                "update": "Update",
+                "delete": "Delete",
+                "login": "Login",
+                "logout": "Logout",
+                "approve": "Approve",
+                "reject": "Reject",
+                "block": "Block",
+                "unblock": "Unblock",
+                "cancel": "Cancel",
+                "complete": "Complete",
+                "confirm": "Confirm"
+            },
+            "table": {
+                "date": "Date",
+                "user": "User",
+                "action": "Action",
+                "description": "Description",
+                "system": "System",
+                "prev": "Prev",
+                "next": "Next"
+            }
+        }
+    },
+    "activity": {
+        "title": "Activity Log",
+        "subtitle": "All platform activity in one place",
+        "refresh": "Refresh",
+        "exportCsv": "Export CSV",
+        "notFound": "No records found",
+        "viewDetails": "View details",
+        "details": {
+            "title": "Activity details",
+            "idLabel": "ID",
+            "sectionMain": "Overview",
+            "sectionTech": "Technical",
+            "changes": "Changes",
+            "dateTime": "Date & time",
+            "user": "User",
+            "systemUser": "System",
+            "action": "Action",
+            "entityType": "Entity type",
+            "entityName": "Entity name",
+            "description": "Description",
+            "ip": "IP address",
+            "userAgent": "User agent",
+            "oldValues": "Previous values",
+            "newValues": "New values"
+        },
+        "stats": {
+            "total": "Total actions",
+            "today": "Today",
+            "adminActions": "Admin actions",
+            "clientActions": "Client actions"
+        },
+        "chart": {
+            "title": "Activity (last 7 days)",
+            "activity": "Actions",
+            "noData": "No data"
+        },
+        "segments": {
+            "admin": "Admin",
+            "business": "Business",
+            "client": "Client",
+            "system": "System"
+        },
+        "categories": {
+            "auth": "Authorization",
+            "company": "Companies",
+            "booking": "Bookings",
+            "user": "Users",
+            "advertisement": "Advertisements",
+            "review": "Reviews",
+            "settings": "Settings",
+            "service": "Services"
+        },
+        "actions": {
+            "create": "Create",
+            "update": "Update",
+            "delete": "Delete",
+            "login": "Login",
+            "logout": "Logout",
+            "approve": "Approve",
+            "reject": "Reject",
+            "block": "Block",
+            "unblock": "Unblock",
+            "cancel": "Cancel",
+            "complete": "Complete",
+            "confirm": "Confirm",
+            "register": "Register"
+        },
+        "filters": {
+            "allSegments": "All segments",
+            "allCategories": "All categories",
+            "allActions": "All actions",
+            "allEntities": "All entities",
+            "segment": "Segment",
+            "category": "Category",
+            "action": "Action",
+            "entityType": "Entity type",
+            "searchLabel": "Search",
+            "searchPlaceholder": "Text, email, description…",
+            "search": "Search...",
+            "apply": "Apply",
+            "clear": "Clear",
+            "dateFrom": "From",
+            "dateTo": "To",
+            "entityCategory": "Category"
+        },
+        "table": {
+            "date": "Date",
+            "user": "User",
+            "segment": "Segment",
+            "action": "Action",
+            "description": "Description",
+            "company": "Company",
+            "system": "System",
+            "prev": "Prev",
+            "next": "Next"
+        }
+    },
+    "companiesTable": {
+        "open": "Open",
+        "toStats": "Statistics",
+        "toEdit": "Edit",
+        "approve": "Approve",
+        "reject": "Reject",
+        "block": "Block",
+        "colName": "Name",
+        "colOwner": "Owner",
+        "colContacts": "Contacts",
+        "colStatus": "Status",
+        "colSubscription": "Plan",
+        "colRevenue": "Revenue",
+        "colBookings": "Bookings",
+        "empty": "No companies",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "toastOk": "Success",
+        "toastErr": "Error",
+        "approved": "Company approved",
+        "rejected": "Company rejected",
+        "blocked": "Company blocked",
+        "approveFail": "Could not approve",
+        "rejectFail": "Could not reject",
+        "blockFail": "Could not block",
+        "confirmApproveTitle": "Approve company?",
+        "confirmApproveMsg": "Approve \"{name}\"?",
+        "confirmRejectTitle": "Reject company?",
+        "confirmRejectMsg": "Reject \"{name}\"?",
+        "confirmBlockTitle": "Block company?",
+        "confirmBlockMsg": "Block \"{name}\"?",
+        "status": {
+            "active": "Active",
+            "pending": "Pending",
+            "suspended": "Suspended",
+            "rejected": "Rejected"
+        },
+        "subscription": {
+            "basic": "Basic",
+            "premium": "Premium",
+            "enterprise": "Enterprise"
+        }
+    },
+    "health": {
+        "title": "Platform Health Monitoring",
+        "systemStatus": {
+            "title": "System Status",
+            "database": "Database",
+            "databaseDesc": "PostgreSQL connection",
+            "application": "Application",
+            "applicationDesc": "Laravel API",
+            "operational": "Operational",
+            "error": "Error",
+            "checking": "Checking...",
+            "lastCheck": "Last check",
+            "loadError": "Failed to load system status"
+        },
+        "metrics": {
+            "title": "Health Metrics",
+            "totalActive": "Total Active Alerts",
+            "critical": "Critical Alerts",
+            "warnings": "Warnings",
+            "info": "Informational",
+            "allOk": "All systems operational. No active alerts.",
+            "criticalAttention": "Attention! {count} critical alerts detected. Immediate action required.",
+            "loadError": "Error loading metrics"
+        },
+        "alerts": {
+            "title": "Platform Alerts",
+            "allLevels": "All Levels",
+            "critical": "Critical",
+            "warning": "Warnings",
+            "info": "Information",
+            "active": "Active",
+            "resolved": "Resolved",
+            "all": "All",
+            "level": "Level",
+            "titleCol": "Title",
+            "description": "Description",
+            "source": "Source",
+            "created": "Created",
+            "status": "Status",
+            "actions": "Actions",
+            "resolve": "Resolve",
+            "activeStatus": "Active",
+            "noActive": "No active alerts",
+            "noAlerts": "No alerts",
+            "loadError": "Error loading alerts",
+            "confirmResolve": "Are you sure you want to mark this alert as resolved?"
+        }
+    },
+    "backups": {
+        "title": "Platform backups",
+        "description": "Full archive: code, PostgreSQL, env files, Docker images. Built in the background (queue worker) — the app stays responsive. Storage is AWS S3 only.",
+        "s3RequiredHint": "Backups require a configured S3 bucket and AWS keys — see docs/BACKUP_S3.md.",
+        "s3NotReadyTitle": "S3 not configured",
+        "create": "Create backup now",
+        "creating": "Creating…",
+        "createQueued": "Backup queued",
+        "createQueuedHint": "Running in the background — the site stays available. The list refreshes automatically.",
+        "conflictTitle": "A backup is already running",
+        "refresh": "Refresh",
+        "empty": "No backups yet",
+        "loadError": "Failed to load list",
+        "createSuccess": "Backup created",
+        "createError": "Failed to create backup",
+        "deleteSuccess": "Backup removed",
+        "deleteError": "Failed to delete",
+        "deleteConfirm": "Delete backup record?",
+        "deleteConfirmS3": "Delete the object in S3 and remove this row?",
+        "downloadError": "Could not get download link",
+        "cancel": "Cancel",
+        "hintDocs": "See docs/BACKUP_S3.md for restore on a new server and AWS setup.",
+        "config": {
+            "title": "Status",
+            "projectRoot": "Project root in container",
+            "docker": "Docker save",
+            "dockerOn": "enabled",
+            "dockerOff": "disabled",
+            "s3": "AWS S3",
+            "s3On": "configured",
+            "s3Off": "not configured (see BACKUP_S3.md)",
+            "s3FlagOff": "DISABLED in .env (BACKUP_S3_ENABLED=false)",
+            "s3Keep": "Keep in S3 (last successful; 0 = keep all)"
+        },
+        "table": {
+            "file": "File",
+            "size": "Size",
+            "created": "Created",
+            "trigger": "Type",
+            "status": "Status",
+            "statusQueued": "Queued",
+            "statusProcessing": "Processing",
+            "statusCompleted": "Done",
+            "statusFailedRun": "Failed",
+            "s3": "S3",
+            "actions": "Actions",
+            "download": "Download",
+            "delete": "Delete",
+            "triggerManual": "Manual",
+            "triggerScheduled": "scheduled",
+            "statusFailed": "Failed"
+        }
+    },
+    "businessEvents": {
+        "title": "Business Events",
+        "description": "Important platform events: registrations, orders, campaigns, achievements",
+        "filters": {
+            "search": "Search by title, description, company...",
+            "allTypes": "All Event Types",
+            "clear": "Clear"
+        },
+        "types": {
+            "business_registered": "Business Registered",
+            "large_order": "Large Order",
+            "campaign_started": "Campaign Started",
+            "complaint_received": "Complaint Received",
+            "milestone_reached": "Milestone Reached",
+            "payment_received": "Payment Received",
+            "business_verified": "Business Verified",
+            "review_flagged": "Review Flagged"
+        },
+        "timeline": {
+            "noEvents": "No business events to display",
+            "noEventsDesc": "Events will appear automatically when companies register, large orders are placed, and other important actions occur",
+            "company": "Company",
+            "user": "User"
+        }
+    },
+    "settingsPlatform": {
+        "pageSubtitle": "General options, integrations, subscriptions, backups, system health, realtime metrics, and logs",
+        "tabs": {
+            "realtime": "Realtime"
+        },
+        "realtime": {
+            "title": "Realtime",
+            "description": "Online users are tracked via heartbeat from open clients. One browser tab equals one session; a user may have multiple sessions.",
+            "thresholdHint": "Online threshold: activity within the last {seconds} s.",
+            "onlineUsers": "Users online",
+            "onlineSessions": "Active sessions",
+            "serverTime": "Server time",
+            "bookingsToday": "Bookings today",
+            "newUsersToday": "New signups today",
+            "usersTotal": "Total users (database)",
+            "companiesTotal": "Total companies",
+            "onlineByRole": "Online by role (unique users)",
+            "sessionsTitle": "Active sessions (recent rows)",
+            "colEmail": "Email",
+            "colRole": "Role",
+            "colLastSeen": "Last activity",
+            "colSession": "Session",
+            "colUa": "Client",
+            "colIp": "IP",
+            "empty": "No active sessions within the current threshold window",
+            "refresh": "Refresh",
+            "lastUpdated": "Data refreshed: {time}",
+            "roles": {
+                "CLIENT": "Client",
+                "BUSINESS_OWNER": "Business",
+                "SUPERADMIN": "Superadmin"
+            }
+        }
+    }
+}

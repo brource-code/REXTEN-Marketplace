@@ -1,0 +1,11 @@
+LOAD DATABASE
+    FROM sqlite:///home/byrelaxx/rexten/backend/database/database.sqlite
+    INTO postgresql://rexten_user:rexten_password@127.0.0.1/ecme_marketplace
+
+WITH data only,
+     truncate,
+     disable triggers,
+     reset sequences
+
+SET work_mem to '16MB',
+    maintenance_work_mem to '512 MB';

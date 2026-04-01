@@ -1,0 +1,19 @@
+.simplebar-placeholder {
+  width: auto !important;
+}
+
+/* Убираем focus outline у simplebar и всех его элементов */
+.simplebar-content-wrapper,
+.simplebar-content-wrapper:focus,
+.simplebar-content-wrapper:focus-visible,
+.simplebar-wrapper,
+.simplebar-wrapper:focus,
+.simplebar-wrapper:focus-visible,
+[data-simplebar],
+[data-simplebar]:focus,
+[data-simplebar]:focus-visible,
+[data-simplebar] *:focus,
+[data-simplebar] *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}

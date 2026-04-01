@@ -1,0 +1,617 @@
+{
+    "nav": {
+        "business": {
+            "business": "Бизнес",
+            "businessDesc": "Панель управления бизнесом",
+            "dashboard": "Дашборд",
+            "schedule": {
+                "schedule": "Расписание",
+                "calendar": "Календарь",
+                "reports": {
+                    "title": "Отчеты",
+                    "description": "Детальная аналитика по бронированиям, клиентам, заработку и исполнителям",
+                    "noData": "Нет данных за выбранный период",
+                    "overview": {
+                        "title": "Общая статистика",
+                        "totalBookings": "Всего бронирований",
+                        "completedBookings": "Завершенных бронирований",
+                        "cancelledBookings": "Отмененных бронирований",
+                        "activeBookings": "Активных бронирований",
+                        "totalRevenue": "Общий доход",
+                        "revenueInWork": "Доход в работе",
+                        "averageCheck": "Средний чек",
+                        "uniqueClients": "Уникальных клиентов",
+                        "activeSpecialists": "Активных исполнителей"
+                    },
+                    "bookings": {
+                        "title": "Отчеты по бронированиям",
+                        "byStatus": "Распределение по статусам",
+                        "byPeriod": "Динамика бронирований",
+                        "topServices": "Топ услуг"
+                    },
+                    "clients": {
+                        "title": "Отчеты по клиентам",
+                        "topByBookings": "Топ клиентов по бронированиям",
+                        "topByRevenue": "Топ клиентов по сумме заказов",
+                        "newClients": "Новые клиенты"
+                    },
+                    "revenue": {
+                        "title": "Отчеты по заработку",
+                        "byPeriod": "Динамика доходов",
+                        "byService": "Доход по услугам",
+                        "bySpecialist": "Доход по исполнителям"
+                    },
+                    "specialists": {
+                        "title": "Отчеты по исполнителям",
+                        "bookingsCount": "Бронирований",
+                        "revenue": "Заработок",
+                        "cancellations": "Отмен",
+                        "completed": "Завершено",
+                        "active": "Активных",
+                        "averageCheck": "Средний чек",
+                        "clients": "Клиенты"
+                    },
+                    "filters": {
+                        "dateFrom": "Дата начала",
+                        "dateTo": "Дата окончания",
+                        "period": "Период",
+                        "selectPeriod": "Выберите период",
+                        "specialist": "Исполнитель",
+                        "service": "Услуга",
+                        "status": "Статус",
+                        "apply": "Применить",
+                        "reset": "Сбросить",
+                        "today": "Сегодня",
+                        "week": "Неделя",
+                        "month": "Месяц",
+                        "quarter": "Квартал",
+                        "year": "Год"
+                    },
+                    "export": {
+                        "title": "Экспорт данных",
+                        "format": "Формат",
+                        "excel": "Excel",
+                        "csv": "CSV",
+                        "reportType": "Тип отчета",
+                        "download": "Скачать",
+                        "error": "Не удалось экспортировать отчет"
+                    },
+                    "table": {
+                        "number": "#",
+                        "service": "Услуга",
+                        "client": "Клиент",
+                        "specialist": "Исполнитель",
+                        "period": "Период",
+                        "count": "Количество",
+                        "status": "Статус"
+                    }
+                }
+            },
+            "clients": "Клиенты",
+            "advertisements": {
+                "advertisements": "Объявления",
+                "list": "Мои объявления",
+                "ads": "Рекламные объявления"
+            },
+            "reviews": "Отзывы",
+            "settings": "Настройки",
+            "marketplace": "Маркетплейс"
+        },
+        "client": {
+            "client": "Клиент",
+            "clientDesc": "Личный кабинет клиента",
+            "profile": "Профиль",
+            "orders": "Мои заказы",
+            "booking": "Бронирование"
+        },
+        "superadmin": {
+            "superadmin": "Суперадмин",
+            "superadminDesc": "Панель суперадминистратора",
+            "dashboard": "Дашборд",
+            "companies": "Компании",
+            "users": "Пользователи",
+            "advertisements": {
+                "advertisements": "Объявления",
+                "list": "Все объявления",
+                "ads": "Рекламные объявления"
+            },
+            "categories": "Категории",
+            "reviews": "Отзывы",
+            "modules": "Модули",
+            "settings": "Настройки"
+        },
+        "examples": "Примеры",
+        "examplesDesc": "Примеры дашбордов и концептов",
+        "components": "Компоненты",
+        "componentsDesc": "UI компоненты",
+        "guides": "Гайды",
+        "guidesDesc": "Документация и руководства",
+        "dashboard": {
+            "dashboard": "Дашборды",
+            "ecommerce": "Ecommerce",
+            "ecommerceDesc": "Ecommerce дашборд",
+            "analytic": "Аналитика",
+            "project": "Проекты",
+            "marketing": "Маркетинг"
+        },
+        "concepts": "Концепты",
+        "conceptsAi": {
+            "ai": "ИИ",
+            "chat": "Чат",
+            "image": "Изображения",
+            "aiDesc": "Инструменты и ресурсы ИИ",
+            "chatDesc": "Чат-системы на основе ИИ",
+            "imageDesc": "Обработка изображений ИИ"
+        },
+        "conceptsCustomers": {
+            "customers": "Клиенты",
+            "customerList": "Список",
+            "customerEdit": "Редактировать",
+            "customerCreate": "Создать",
+            "customerDetails": "Детали",
+            "customersDesc": "Управление клиентами",
+            "customerListDesc": "Список всех клиентов",
+            "customerEditDesc": "Редактировать информацию о клиенте",
+            "customerCreateDesc": "Добавить нового клиента",
+            "customerDetailsDesc": "Подробная информация о клиенте"
+        },
+        "conceptsProducts": {
+            "products": "Товары",
+            "productList": "Список",
+            "productEdit": "Редактировать",
+            "productCreate": "Создать",
+            "productsDesc": "Управление товарами",
+            "productListDesc": "Все товары",
+            "productEditDesc": "Редактировать товар",
+            "productCreateDesc": "Добавить новый товар"
+        },
+        "conceptsProjects": {
+            "projects": "Проекты",
+            "projectList": "Список",
+            "projectDetails": "Детали",
+            "projectTasks": "Задачи",
+            "projectIssue": "Проблемы",
+            "scrumBoard": "Scrum доска",
+            "projectsDesc": "Управление и отслеживание проектов",
+            "scrumBoardDesc": "Управление рабочим процессом Scrum",
+            "projectListDesc": "Организация всех проектов",
+            "projectDetailsDesc": "Подробная информация о проекте",
+            "projectTasksDesc": "Управление задачами проекта",
+            "projectIssueDesc": "Решение проблем проекта"
+        },
+        "conceptsOrders": {
+            "orders": "Заказы",
+            "orderList": "Список",
+            "orderEdit": "Редактировать",
+            "orderDetails": "Детали",
+            "orderCreate": "Создать",
+            "ordersDesc": "Управление заказами клиентов",
+            "orderListDesc": "Просмотр всех заказов",
+            "orderEditDesc": "Редактировать заказ",
+            "orderCreateDesc": "Создать новый заказ",
+            "orderDetailsDesc": "Подробная информация о заказе"
+        },
+        "conceptsAccount": {
+            "account": "Аккаунт",
+            "settings": "Настройки",
+            "activityLog": "Журнал активности",
+            "pricing": "Цены",
+            "rolesPermissions": "Роли и права",
+            "accountDesc": "Настройки и информация аккаунта",
+            "settingsDesc": "Настройка параметров",
+            "activityLogDesc": "Просмотр недавней активности",
+            "rolesPermissionsDesc": "Управление ролями и правами",
+            "pricingDesc": "Просмотр тарифных планов"
+        },
+        "conceptsHelpCenter": {
+            "helpCenter": "Центр помощи",
+            "supportHub": "Центр поддержки",
+            "article": "Статья",
+            "editArticle": "Редактировать статью",
+            "manageArticle": "Управление статьями",
+            "faq": "FAQ",
+            "helpCenterDesc": "Поддержка и статьи",
+            "supportHubDesc": "Центральный хаб поддержки",
+            "articleDesc": "Читать статьи поддержки",
+            "editArticleDesc": "Изменение содержимого статьи",
+            "manageArticleDesc": "Управление статьями"
+        },
+        "calendar": "Календарь",
+        "fileManager": "Файловый менеджер",
+        "mail": "Почта",
+        "chat": "Чат",
+        "uiComponents": "UI Компоненты",
+        "calendarDesc": "Расписание и события",
+        "fileManagerDesc": "Управление файлами",
+        "mailDesc": "Управление почтой",
+        "chatDesc": "Чат с друзьями",
+        "uiComponentsCommon": {
+            "common": "Общие",
+            "grid": "Сетка",
+            "button": "Кнопка",
+            "typography": "Типографика",
+            "icons": "Иконки",
+            "commonDesc": "Общие UI элементы",
+            "buttonDesc": "Интерактивные кнопки",
+            "gridDesc": "Система сетки макета",
+            "typographyDesc": "Инструменты стилизации текста",
+            "iconsDesc": "Набор визуальных иконок"
+        },
+        "uiComponentsFeedback": {
+            "feedback": "Обратная связь",
+            "alert": "Уведомление",
+            "dialog": "Диалог",
+            "drawer": "Выдвижная панель",
+            "progress": "Прогресс",
+            "skeleton": "Скелетон",
+            "spinner": "Спиннер",
+            "toast": "Всплывающее уведомление",
+            "feedbackDesc": "Компоненты обратной связи",
+            "alertDesc": "Уведомления",
+            "dialogDesc": "Модальные окна",
+            "drawerDesc": "Боковые панели",
+            "progressDesc": "Индикаторы прогресса",
+            "skeletonDesc": "Скелетоны загрузки",
+            "spinnerDesc": "Спиннеры загрузки",
+            "toastDesc": "Всплывающие уведомления"
+        },
+        "uiComponentsDataDisplay": {
+            "dataDisplay": "Отображение данных",
+            "avatar": "Аватар",
+            "badge": "Значок",
+            "calendar": "Календарь",
+            "cards": "Карточки",
+            "table": "Таблица",
+            "tag": "Тег",
+            "timeline": "Временная шкала",
+            "tooltip": "Подсказка",
+            "dataDisplayDesc": "Компоненты для отображения данных",
+            "avatarDesc": "Фотографии профиля",
+            "badgeDesc": "Индикаторы статуса",
+            "calendarDesc": "Выбор даты",
+            "cardsDesc": "Карточки контента",
+            "tableDesc": "Таблицы данных",
+            "tagDesc": "Теги меток",
+            "timelineDesc": "Временные шкалы событий",
+            "tooltipDesc": "Всплывающие подсказки"
+        },
+        "uiComponentsForms": {
+            "forms": "Формы",
+            "checkbox": "Чекбокс",
+            "datePicker": "Выбор даты",
+            "formControl": "Управление формой",
+            "input": "Поле ввода",
+            "inputGroup": "Группа полей",
+            "radio": "Радиокнопка",
+            "segment": "Сегмент",
+            "select": "Выпадающий список",
+            "slider": "Слайдер",
+            "switcher": "Переключатель",
+            "timeInput": "Ввод времени",
+            "upload": "Загрузка",
+            "formsDesc": "Элементы форм",
+            "checkboxDesc": "Чекбоксы",
+            "datePickerDesc": "Выбор дат",
+            "formControlDesc": "Элементы управления формой",
+            "inputDesc": "Текстовые поля",
+            "inputGroupDesc": "Группированные поля",
+            "radioDesc": "Радиокнопки",
+            "segmentDesc": "Сегменты ввода",
+            "selectDesc": "Выпадающие списки",
+            "sliderDesc": "Слайдеры ввода",
+            "switcherDesc": "Переключатели",
+            "timeInputDesc": "Поля ввода времени",
+            "uploadDesc": "Загрузка файлов"
+        },
+        "uiComponentsNavigation": {
+            "navigation": "Навигация",
+            "dropdown": "Выпадающее меню",
+            "menu": "Меню",
+            "pagination": "Пагинация",
+            "steps": "Шаги",
+            "tabs": "Вкладки",
+            "navigationDesc": "Элементы навигации",
+            "dropdownDesc": "Выпадающие меню",
+            "menuDesc": "Навигация меню",
+            "paginationDesc": "Элементы пагинации",
+            "stepsDesc": "Последовательные шаги",
+            "tabsDesc": "Навигация по вкладкам"
+        },
+        "uiComponentsGraph": {
+            "graph": "Графики",
+            "charts": "Диаграммы",
+            "maps": "Карты",
+            "graphDesc": "Графические элементы",
+            "chartsDesc": "Различные диаграммы",
+            "mapsDesc": "Географические карты"
+        },
+        "pages": {
+            "pages": "Pages",
+            "welcome": "Welcome",
+            "accessDenied": "Access Denied"
+        },
+        "authentication": {
+            "authentication": "Authentication",
+            "signIn": "Sign In",
+            "signInSimple": "Simple",
+            "signInSide": "Side",
+            "signInSplit": "Split",
+            "signUp": "Sign Up",
+            "signUpSimple": "Simple",
+            "signUpSide": "Side",
+            "signUpSplit": "Split",
+            "forgotPassword": "Forgot Password",
+            "forgotPasswordSimple": "Simple",
+            "forgotPasswordSide": "Side",
+            "forgotPasswordSplit": "Split",
+            "resetPassword": "Reset Password",
+            "resetPasswordSimple": "Simple",
+            "resetPasswordSide": "Side",
+            "resetPasswordSplit": "Split",
+            "otpVerification": "Otp Verification",
+            "otpVerificationSimple": "Simple",
+            "otpVerificationSide": "Side",
+            "otpVerificationSplit": "Split"
+        },
+        "others": {
+            "others": "Others",
+            "accessDenied": "Access Denied",
+            "accessDeniedDesc": "Access denied page",
+            "landing": "Landing",
+            "landingDesc": "Landing page"
+        },
+        "guide": {
+            "guide": "Гайды",
+            "documentation": "Документация",
+            "sharedComponentDoc": "Общие компоненты",
+            "utilsDoc": "Утилиты",
+            "changeLog": "История изменений"
+        }
+    },
+    "themeConfig": {
+        "title": "Настройки темы",
+        "darkMode": "Темная тема",
+        "darkModeDesc": "Переключить тему на темный режим",
+        "theme": "Тема",
+        "layout": "Макет",
+        "collapsible": "Сворачиваемый",
+        "topBar": "Верхняя панель",
+        "copyConfig": "Сохранить",
+        "copySuccess": "Успешно скопировано",
+        "copySuccessDesc": "Замените themeConfig в 'src/configs/theme.config.ts'"
+    },
+    "accountSettings": {
+        "title": "Настройки",
+        "navigation": "Навигация",
+        "profile": "Профиль",
+        "security": "Безопасность",
+        "personalInfo": "Личная информация",
+        "firstName": "Имя",
+        "firstNamePlaceholder": "Введите имя",
+        "lastName": "Фамилия",
+        "lastNamePlaceholder": "Введите фамилию",
+        "email": "Email",
+        "emailPlaceholder": "Email",
+        "phoneNumber": "Номер телефона",
+        "phoneNumberPlaceholder": "Номер телефона",
+        "addressInfo": "Адресная информация",
+        "country": "Страна",
+        "address": "Адрес",
+        "addressPlaceholder": "Адрес",
+        "city": "Город",
+        "cityPlaceholder": "Город",
+        "postalCode": "Почтовый индекс",
+        "postalCodePlaceholder": "Почтовый индекс",
+        "uploadImage": "Загрузить изображение",
+        "remove": "Удалить",
+        "save": "Сохранить",
+        "success": "Успешно",
+        "firstNameRequired": "Имя обязательно",
+        "lastNameRequired": "Фамилия обязательна",
+        "emailRequired": "Email обязателен",
+        "emailInvalid": "Неверный email",
+        "phoneRequired": "Выберите код страны",
+        "phoneNumberRequired": "Введите номер телефона",
+        "countryRequired": "Выберите страну",
+        "addressRequired": "Адрес обязателен",
+        "cityRequired": "Город обязателен",
+        "postcodeRequired": "Почтовый индекс обязателен",
+        "uploadError": "Загрузите файл .jpeg или .png!",
+        "avatarUploadedSuccessfully": "Аватар успешно загружен",
+        "avatarRemovedSuccessfully": "Аватар успешно удален",
+        "avatarUploadFailed": "Не удалось загрузить аватар",
+        "avatarRemoveFailed": "Не удалось удалить аватар",
+        "password": "Пароль",
+        "passwordDesc": "Помните, ваш пароль - это цифровой ключ к вашему аккаунту. Храните его в безопасности!",
+        "currentPassword": "Текущий пароль",
+        "currentPasswordPlaceholder": "•••••••••",
+        "currentPasswordRequired": "Введите текущий пароль!",
+        "newPassword": "Новый пароль",
+        "newPasswordPlaceholder": "•••••••••",
+        "newPasswordRequired": "Введите новый пароль!",
+        "confirmNewPassword": "Подтвердите новый пароль",
+        "confirmNewPasswordPlaceholder": "•••••••••",
+        "confirmNewPasswordRequired": "Подтвердите новый пароль!",
+        "passwordNotMatch": "Пароли не совпадают",
+        "update": "Обновить",
+        "updatePassword": "Обновить пароль",
+        "updatePasswordConfirm": "Вы уверены, что хотите изменить пароль?",
+        "twoStepVerification": "Двухфакторная аутентификация",
+        "twoStepVerificationDesc": "Ваш аккаунт имеет большую ценность для хакеров. Включите двухфакторную аутентификацию для защиты вашего аккаунта!",
+        "googleAuthenticator": "Google Authenticator",
+        "googleAuthenticatorDesc": "Использование приложения Google Authenticator генерирует коды, привязанные ко времени, для безопасного входа.",
+        "oktaVerify": "Okta Verify",
+        "oktaVerifyDesc": "Получайте push-уведомления от приложения Okta Verify на вашем телефоне для быстрого подтверждения входа.",
+        "emailVerification": "Проверка по Email",
+        "emailVerificationDesc": "Уникальные коды отправляются на email для подтверждения входа.",
+        "activated": "Активировано",
+        "enable": "Включить"
+    },
+    "onboarding": {
+        "title": "Добро пожаловать в REXTEN!",
+        "subtitle": "Давайте познакомим вас с платформой",
+        "skip": "Пропустить",
+        "back": "Назад",
+        "next": "Далее",
+        "complete": "Завершить",
+        "steps": {
+            "welcome": {
+                "title": "Добро пожаловать!",
+                "description": "REXTEN - это современная платформа для управления вашим бизнесом и продвижения услуг на маркетплейсе. Мы поможем вам эффективно управлять клиентами, бронированиями и рекламой.",
+                "features": {
+                    "1": "Управление всеми аспектами бизнеса в одном месте",
+                    "2": "Автоматизация процессов бронирования и заказов",
+                    "3": "Аналитика и статистика для принятия решений",
+                    "4": "Интеграция с маркетплейсом для привлечения клиентов"
+                }
+            },
+            "dashboard": {
+                "title": "Дашборд",
+                "description": "Ваш центральный центр управления. Здесь вы найдете всю важную информацию о вашем бизнесе: статистику продаж, количество клиентов, последние бронирования и быстрые действия.",
+                "features": {
+                    "1": "Обзор выручки за неделю, месяц и год",
+                    "2": "Статистика бронирований и клиентов",
+                    "3": "Графики и аналитика для визуализации данных",
+                    "4": "Быстрый доступ к основным функциям"
+                }
+            },
+            "advertisements": {
+                "title": "Объявления",
+                "description": "Создавайте и управляйте объявлениями о ваших услугах. Добавляйте описания, фотографии, цены и расписание. Ваши объявления будут видны клиентам на маркетплейсе.",
+                "features": {
+                    "1": "Создание объявлений с полной информацией об услугах",
+                    "2": "Загрузка фотографий и портфолио",
+                    "3": "Настройка цен и расписания работы",
+                    "4": "Управление статусами и модерацией"
+                }
+            },
+            "schedule": {
+                "title": "Расписание",
+                "description": "Управляйте расписанием работы вашего бизнеса и доступными слотами для бронирования. Клиенты смогут видеть свободное время и бронировать услуги онлайн.",
+                "features": {
+                    "1": "Настройка рабочего расписания по дням недели",
+                    "2": "Создание слотов для бронирования",
+                    "3": "Управление доступностью специалистов",
+                    "4": "Автоматическое обновление календаря"
+                }
+            },
+            "reports": {
+                "title": "Отчеты",
+                "description": "Детальная аналитика по бронированиям, клиентам, заработку и исполнителям. Экспортируйте данные для дальнейшего анализа.",
+                "overview": {
+                    "title": "Общая статистика",
+                    "totalBookings": "Всего бронирований",
+                    "completedBookings": "Завершено",
+                    "cancelledBookings": "Отменено",
+                    "activeBookings": "Активных",
+                    "totalRevenue": "Общий заработок",
+                    "revenueInWork": "Доход в работе",
+                    "averageCheck": "Средний чек",
+                    "uniqueClients": "Уникальных клиентов",
+                    "activeSpecialists": "Активных исполнителей"
+                },
+                "bookings": {
+                    "title": "Отчеты по бронированиям",
+                    "byStatus": "Распределение по статусам",
+                    "byPeriod": "Динамика бронирований",
+                    "topServices": "Топ услуг"
+                },
+                "clients": {
+                    "title": "Отчеты по клиентам",
+                    "topByBookings": "Топ клиентов по бронированиям",
+                    "topByRevenue": "Топ клиентов по сумме заказов",
+                    "newClients": "Новые клиенты"
+                },
+                "revenue": {
+                    "title": "Отчеты по заработку",
+                    "byPeriod": "Динамика доходов",
+                    "byService": "Доход по услугам",
+                    "bySpecialist": "Доход по исполнителям"
+                },
+                "specialists": {
+                    "title": "Отчеты по исполнителям",
+                    "bookingsCount": "Бронирований",
+                    "revenue": "Заработок",
+                    "cancellations": "Отмен",
+                    "completed": "Завершено",
+                    "active": "Активных",
+                    "averageCheck": "Средний чек",
+                    "clients": "Клиенты"
+                },
+                "filters": {
+                    "dateFrom": "Дата начала",
+                    "dateTo": "Дата окончания",
+                    "specialist": "Исполнитель",
+                    "service": "Услуга",
+                    "status": "Статус",
+                    "apply": "Применить",
+                    "reset": "Сбросить",
+                    "today": "Сегодня",
+                    "week": "Неделя",
+                    "month": "Месяц",
+                    "quarter": "Квартал",
+                    "year": "Год"
+                },
+                "export": {
+                    "title": "Экспорт данных",
+                    "format": "Формат",
+                    "excel": "Excel",
+                    "csv": "CSV",
+                    "reportType": "Тип отчета",
+                    "download": "Скачать",
+                    "error": "Ошибка экспорта"
+                },
+                "noData": "Нет данных за выбранный период",
+                "table": {
+                    "number": "#",
+                    "service": "Услуга",
+                    "client": "Клиент",
+                    "specialist": "Исполнитель",
+                    "period": "Период",
+                    "count": "Количество",
+                    "status": "Статус"
+                }
+            },
+            "clients": {
+                "title": "Клиенты",
+                "description": "Ваша CRM система для управления клиентами. Храните информацию о клиентах, их истории заказов, предпочтениях и статусах. Создавайте постоянных и VIP клиентов.",
+                "features": {
+                    "1": "База данных всех ваших клиентов",
+                    "2": "История заказов и бронирований",
+                    "3": "Категории клиентов (обычные, постоянные, VIP)",
+                    "4": "Быстрый поиск и фильтрация"
+                }
+            },
+            "reviews": {
+                "title": "Отзывы",
+                "description": "Управляйте отзывами клиентов о ваших услугах. Читайте отзывы, отвечайте на них и улучшайте репутацию вашего бизнеса. Отзывы помогают привлечь новых клиентов.",
+                "features": {
+                    "1": "Просмотр всех отзывов в одном месте",
+                    "2": "Ответы на отзывы клиентов",
+                    "3": "Группировка отзывов по объявлениям",
+                    "4": "Отслеживание рейтинга и статистики"
+                }
+            },
+            "settings": {
+                "title": "Настройки",
+                "description": "Настройте профиль вашего бизнеса, команду, услуги и портфолио. Добавьте логотип, описание, контакты и другую важную информацию для клиентов.",
+                "features": {
+                    "1": "Редактирование профиля и контактной информации",
+                    "2": "Управление командой и специалистами",
+                    "3": "Настройка услуг и портфолио",
+                    "4": "Загрузка логотипа и фотографий"
+                }
+            },
+            "advertising": {
+                "title": "Реклама",
+                "description": "Продвигайте свой бизнес с помощью рекламных объявлений. Покупайте рекламу для размещения на главной странице маркетплейса и привлечения больше клиентов.",
+                "features": {
+                    "1": "Покупка рекламных объявлений",
+                    "2": "Размещение на главной странице",
+                    "3": "Настройка периода показа рекламы",
+                    "4": "Отслеживание эффективности рекламы"
+                }
+            }
+        }
+    }
+}

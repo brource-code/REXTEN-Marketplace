@@ -1,0 +1,793 @@
+{
+    "dashboard": {
+        "title": "Огляд платформи",
+        "pageTitle": "Панель керування",
+        "cards": {
+            "companies": "Компанії",
+            "users": "Користувачі",
+            "bookingsToday": "Бронювання сьогодні",
+            "vsYesterday": "учора",
+            "revenueMonth": "Дохід цього місяця",
+            "vsLastMonth": "порівняно з минулим місяцем",
+            "adsActive": "Оголошення та реклама",
+            "marketplace": "маркетплейс",
+            "promo": "промо",
+            "onModeration": "на модерації",
+            "avgRating": "Середній рейтинг",
+            "active": "активний",
+            "pendingCompanies": "компаній очікують схвалення",
+            "clientsWord": "клієнти",
+            "businessesWord": "бізнеси"
+        },
+        "charts": {
+            "sectionTitle": "Щоденні тренди",
+            "activityTitle": "Реєстрації та бронювання",
+            "revenueTitle": "Дохід (оплачені замовлення)",
+            "days14": "14 днів",
+            "days30": "30 днів",
+            "seriesCompanies": "Нові компанії",
+            "seriesUsers": "Нові користувачі",
+            "seriesBookings": "Бронювання",
+            "seriesRevenue": "Дохід"
+        },
+        "activity": {
+            "title": "Остання активність",
+            "empty": "Записів ще немає",
+            "viewAll": "Повний журнал активності",
+            "columnTime": "Час",
+            "columnUser": "Користувач",
+            "columnAction": "Дія"
+        },
+        "activitySynthetic": {
+            "new_user": "Реєстрація: {email} ({role})",
+            "new_company": "Нова компанія: {name}",
+            "new_booking": "Бронювання #{id} · {company}",
+            "new_booking_short": "Бронювання #{id}"
+        },
+        "overviewChart": {
+            "title": "Тренди платформи",
+            "selectPeriod": "Період",
+            "periodTotal": "загалом за період",
+            "periods": {
+                "days7": "7 днів",
+                "days14": "14 днів",
+                "days30": "30 днів"
+            },
+            "stats": {
+                "companies": "Нові компанії",
+                "users": "Нові користувачі",
+                "bookings": "Бронювання",
+                "revenue": "Дохід"
+            },
+            "seriesCompanies": "Компанії",
+            "seriesUsers": "Користувачі",
+            "seriesBookings": "Бронювання",
+            "seriesRevenue": "Дохід",
+            "chartError": "Не вдалося завантажити графік",
+            "noData": "Немає даних за цей період"
+        },
+        "quickActions": {
+            "title": "Швидкі дії",
+            "manage": "Керувати",
+            "companies": "Компанії",
+            "companiesDesc": "Усі бізнеси на платформі",
+            "companiesDescPending": "{count} очікують схвалення",
+            "users": "Користувачі",
+            "usersDesc": "Облікові записи та ролі",
+            "advertisements": "Оголошення",
+            "adsDesc": "Маркетплейс і промо",
+            "adsDescPending": "{count} на модерації",
+            "activityLog": "Журнал активності",
+            "activityLogDesc": "Дії в системі",
+            "reviews": "Відгуки",
+            "reviewsDesc": "Модерація та відповіді",
+            "settings": "Налаштування",
+            "settingsDesc": "Платформа та інтеграції"
+        },
+        "topCategoriesTitle": "Топ категорій за послугами",
+        "servicesCount": "послуги",
+        "quickStats": "Швидка статистика",
+        "newUsers": "Нові користувачі (цього місяця)",
+        "newBusinesses": "Нові бізнеси (цього місяця)",
+        "revenue": "Дохід (цього місяця)",
+        "kpi": {
+            "gmv": "Валовий товарообіг (GMV)",
+            "takeRate": "Відсоток комісії",
+            "activeBusinesses": "Активні бізнеси",
+            "newUsers": "Нові користувачі",
+            "retentionRate": "Коефіцієнт утримання",
+            "pendingModeration": "На модерації",
+            "pendingCompanies": "Очікує схвалення (компанії)",
+            "pendingUserVerifications": "Очікує верифікації (користувачі)",
+            "perMonth": "на місяць",
+            "newPerMonth": "нових цього місяця"
+        },
+        "topBusinesses": {
+            "title": "Топ-5 бізнесів за доходом",
+            "bookings": "бронювання",
+            "orders": "замовлення",
+            "company": "Компанія",
+            "category": "Категорія",
+            "revenueCol": "Дохід",
+            "noData": "Немає даних"
+        },
+        "pendingActions": {
+            "title": "Потребує уваги",
+            "advertisements": "Оголошення на модерації",
+            "companies": "Нові компанії очікують схвалення",
+            "reviews": "Скарги / відгуки на модерації",
+            "userVerifications": "Користувачі на перевірці",
+            "inactiveBusinesses": "Неактивні бізнеси",
+            "paymentIssues": "Проблеми з оплатою",
+            "items": "елементів",
+            "item": "елемент"
+        },
+        "businessEvents": {
+            "title": "Останні бізнес-події"
+        }
+    },
+    "billing": {
+        "title": "Оплата",
+        "description": "Підписка та оплата реклами, звіти та експорт",
+        "loadError": "Не вдалося завантажити дані",
+        "retry": "Повторити",
+        "stripeWarning": "Stripe не налаштовано (STRIPE_SECRET_KEY). Картки та діаграми покажуть нулі.",
+        "toastSelectDates": "Оберіть діапазон дат для експорту",
+        "toastExportOk": "Файл завантажено",
+        "toastExportErr": "Не вдалося експортувати CSV",
+        "cards": {
+            "revenueMonth": "Дохід (місяць)",
+            "vsLastMonth": "порівняно з минулим місяцем",
+            "adRevenue": "Реклама (місяць)",
+            "subscriptionRevenue": "Підписки (місяць)",
+            "avgCheck": "Середній платіж",
+            "today": "Сьогодні",
+            "transactions": "транзакції:",
+            "openCheckouts": "Відкриті оплати",
+            "sessions": "сесії:"
+        },
+        "chart": {
+            "title": "Тренди платежів",
+            "selectPeriod": "Період",
+            "periods": {
+                "days7": "7 днів",
+                "days14": "14 днів",
+                "days30": "30 днів",
+                "days90": "90 днів"
+            },
+            "stats": {
+                "total": "Усього",
+                "ads": "Реклама",
+                "subscriptions": "Підписки"
+            },
+            "seriesTotal": "Усі платежі",
+            "seriesAd": "Реклама",
+            "seriesSub": "Підписки",
+            "chartError": "Не вдалося завантажити графік",
+            "noData": "Немає даних за цей період"
+        },
+        "structure": {
+            "title": "Структура доходу",
+            "subtitle": "Поточний календарний місяць",
+            "total": "Усього",
+            "ads": "Реклама",
+            "subscriptions": "Підписки",
+            "other": "Інше",
+            "error": "Не вдалося завантажити",
+            "noData": "Немає платежів цього місяця"
+        },
+        "transactions": {
+            "title": "Усі транзакції",
+            "empty": "Немає транзакцій",
+            "loadError": "Помилка завантаження",
+            "prev": "Назад",
+            "next": "Далі",
+            "filters": {
+                "type": "Тип",
+                "allTypes": "Усі типи"
+            },
+            "types": {
+                "advertisement": "Реклама",
+                "subscription": "Підписка",
+                "unknown": "Інше",
+                "other": "Інше"
+            },
+            "columns": {
+                "date": "Дата",
+                "company": "Компанія",
+                "type": "Тип",
+                "description": "Опис",
+                "amount": "Сума"
+            }
+        },
+        "topCompanies": {
+            "title": "Топ компаній",
+            "subtitle": "За обсягом платежів цього місяця",
+            "company": "Компанія",
+            "count": "Платежі",
+            "amount": "Сума",
+            "empty": "Немає даних",
+            "error": "Помилка завантаження"
+        },
+        "reports": {
+            "stripeOff": "Stripe не підключено — звіти недоступні.",
+            "forecastTitle": "Прогноз",
+            "forecastHint": "На основі середнього за останні 7 днів",
+            "last7": "Останні 7 днів",
+            "dailyAvg": "Середнє за день",
+            "projected": "прогноз на 30 днів",
+            "adSpendTitle": "Витрати на рекламу",
+            "thisMonth": "Цього місяця",
+            "lastMonth": "Минулий місяць",
+            "adTx": "Платежі за рекламу:",
+            "recentAds": "Останні платежі за рекламу",
+            "noCampaigns": "Немає даних",
+            "exportTitle": "Експорт",
+            "exportHint": "CSV до 93 днів",
+            "presetToday": "Сьогодні",
+            "presetWeek": "7 днів",
+            "presetMonth": "30 днів",
+            "from": "Від",
+            "to": "До",
+            "downloadCsv": "Завантажити CSV"
+        }
+    },
+    "reviews": {
+        "title": "Відгуки",
+        "description": "Модерація відгуків і відповіді",
+        "loadError": "Не вдалося завантажити дані",
+        "retry": "Повторити",
+        "cards": {
+            "totalReviews": "Усього відгуків",
+            "avgRating": "Середній рейтинг",
+            "publishedReviews": "Опубліковано",
+            "pendingReviews": "На модерації",
+            "respondedReviews": "З відповіддю",
+            "withoutResponseReviews": "Без відповіді"
+        },
+        "chart": {
+            "title": "Розподіл оцінок",
+            "subtitle": "Лише опубліковані відгуки",
+            "total": "Усього",
+            "error": "Не вдалося завантажити",
+            "noData": "Немає даних",
+            "labels": {
+                "rating_1": "1 зірка",
+                "rating_2": "2 зірки",
+                "rating_3": "3 зірки",
+                "rating_4": "4 зірки",
+                "rating_5": "5 зірок"
+            }
+        },
+        "table": {
+            "columns": {
+                "client": "Клієнт",
+                "company": "Компанія",
+                "rating": "Рейтинг",
+                "review": "Відгук",
+                "status": "Статус",
+                "date": "Дата"
+            },
+            "yourResponse": "Ваша відповідь",
+            "statuses": {
+                "published": "Опубліковано",
+                "pending": "На модерації",
+                "rejected": "Відхилено"
+            },
+            "actions": {
+                "respond": "Відповісти",
+                "editResponse": "Редагувати відповідь",
+                "delete": "Видалити"
+            },
+            "filters": {
+                "status": "Статус",
+                "minRating": "Мін. рейтинг",
+                "allStatuses": "Усі",
+                "anyMinRating": "Будь-який",
+                "minRatingFrom": ">= {value}"
+            },
+            "prev": "Назад",
+            "next": "Далі",
+            "empty": "Немає відгуків",
+            "deleteConfirm": {
+                "title": "Видалити відгук?",
+                "message": "Ви впевнені, що хочете видалити відгук від «{userName}»? Цю дію неможливо скасувати.",
+                "confirm": "Видалити",
+                "cancel": "Скасувати"
+            }
+        },
+        "responseModal": {
+            "title": "Відповісти на відгук",
+            "reviewFrom": "Відгук від",
+            "yourResponse": "Ваша відповідь",
+            "placeholder": "Напишіть відповідь…",
+            "cancel": "Скасувати",
+            "save": "Зберегти"
+        },
+        "notifications": {
+            "responseUpdated": "Відповідь успішно оновлено",
+            "responseError": "Не вдалося оновити відповідь",
+            "deleteSuccess": "Відгук видалено",
+            "deleteError": "Не вдалося видалити відгук"
+        }
+    },
+    "platformUsers": {
+        "viewTitle": "Дані користувача",
+        "viewSubtitle": "Профіль і статус",
+        "edit": "Редагувати",
+        "block": "Заблокувати",
+        "unblock": "Розблокувати",
+        "contacts": "Контакти",
+        "emailLabel": "Електронна пошта",
+        "registered": "Зареєстровано",
+        "userId": "ID",
+        "active": "Активні",
+        "blocked": "Заблоковано",
+        "additionalInfo": "Додатково",
+        "roleClient": "Клієнт",
+        "roleBusiness": "Власник бізнесу",
+        "roleSuperadmin": "Суперадмін"
+    },
+    "companyDetail": {
+        "back": "Назад",
+        "backList": "До компаній",
+        "subtitle": "Профіль компанії",
+        "badId": "Некоректний ID компанії",
+        "notFound": "Компанію не знайдено",
+        "tabs": {
+            "info": "Огляд",
+            "users": "Користувачі",
+            "activity": "Активність",
+            "stats": "Статистика",
+            "edit": "Редагувати"
+        },
+        "status": {
+            "active": "Активні",
+            "pending": "Очікує",
+            "suspended": "Призупинено",
+            "rejected": "Відхилено"
+        },
+        "category": "Категорія",
+        "description": "Опис",
+        "approve": "Схвалити",
+        "reject": "Відхилити",
+        "block": "Заблокувати",
+        "confirmApproveTitle": "Схвалити компанію?",
+        "confirmApproveMsg": "Схвалити «{name}»?",
+        "confirmRejectTitle": "Відхилити компанію?",
+        "confirmRejectMsg": "Відхилити «{name}»?",
+        "confirmBlockTitle": "Заблокувати компанію?",
+        "confirmBlockMsg": "Заблокувати «{name}»?",
+        "confirm": "Підтвердити",
+        "cancel": "Скасувати",
+        "toastOk": "Успіх",
+        "toastErr": "Помилка",
+        "approved": "Компанію схвалено",
+        "rejected": "Компанію відхилено",
+        "blocked": "Компанію заблоковано",
+        "approveFail": "Не вдалося схвалити",
+        "rejectFail": "Не вдалося відхилити",
+        "blockFail": "Не вдалося заблокувати",
+        "stats": {
+            "revenueTotal": "Дохід (усього)",
+            "bookingsTotal": "Бронювання",
+            "clientsTotal": "Клієнти",
+            "rating": "Рейтинг",
+            "chartTitle": "Дохід",
+            "revenue": "Дохід",
+            "periodWeek": "Цього тижня",
+            "periodMonth": "Цього місяця",
+            "periodYear": "Цього року",
+            "chartError": "Не вдалося завантажити діаграму",
+            "noChartData": "Немає даних",
+            "week": "Цього тижня",
+            "month": "Цього місяця",
+            "year": "Цього року",
+            "bookingsWord": "бронювання",
+            "clientsSection": "Клієнти",
+            "clientsAll": "Усього",
+            "clientsActive": "Активні",
+            "clientsNew": "Нові (місяць)"
+        },
+        "edit": {
+            "title": "Деталі компанії",
+            "name": "Назва",
+            "namePlaceholder": "Введіть назву компанії",
+            "slug": "Slug (URL)",
+            "slugHint": "Використовується в URL компанії. Лише латинські літери, цифри та дефіси.",
+            "description": "Опис",
+            "descriptionPlaceholder": "Введіть опис компанії",
+            "email": "Електронна пошта",
+            "phone": "Телефон",
+            "category": "Категорія",
+            "selectCategory": "Оберіть категорію",
+            "owner": "Власник",
+            "selectOwner": "Оберіть власника",
+            "ownerHint": "Зміна власника передасть права керування компанією іншому користувачу",
+            "status": "Статус",
+            "subscription": "Підписка",
+            "save": "Зберегти",
+            "successTitle": "Успіх",
+            "successMessage": "Компанію оновлено",
+            "errorTitle": "Помилка",
+            "errorMessage": "Не вдалося зберегти",
+            "statusPending": "Очікує",
+            "statusActive": "Активні",
+            "statusSuspended": "Призупинено",
+            "statusRejected": "Відхилено",
+            "subscriptionBasic": "Базові",
+            "subscriptionPremium": "Premium",
+            "subscriptionEnterprise": "Enterprise"
+        },
+        "users": {
+            "title": "Користувачі компанії",
+            "total": "{count} користувачів",
+            "noUsers": "Немає користувачів",
+            "owner": "Власник",
+            "edit": "Редагувати",
+            "editTitle": "Редагувати користувача",
+            "firstName": "Ім’я",
+            "lastName": "Прізвище",
+            "phone": "Телефон",
+            "roleInCompany": "Роль у компанії",
+            "blockedLabel": "Заблокувати обліковий запис",
+            "save": "Зберегти",
+            "saved": "Зміни збережено",
+            "saveError": "Не вдалося зберегти",
+            "ownerNote": "Для власника можна редагувати лише ім’я та телефон. Власника заблокувати не можна.",
+            "table": {
+                "user": "Користувач",
+                "role": "Роль",
+                "contacts": "Контакти",
+                "status": "Статус",
+                "lastLogin": "Останній вхід",
+                "joined": "Приєднався",
+                "actions": "Дії"
+            },
+            "statuses": {
+                "active": "Активні",
+                "blocked": "Заблоковано"
+            },
+            "neverLoggedIn": "Жодного разу не входив"
+        },
+        "activity": {
+            "title": "Історія активності",
+            "noActivity": "Немає записів активності",
+            "filters": {
+                "allCategories": "Усі категорії",
+                "category": "Категорія"
+            },
+            "categories": {
+                "company": "Компанія",
+                "booking": "Бронювання",
+                "user": "Користувачі",
+                "advertisement": "Оголошення",
+                "review": "Відгуки",
+                "service": "Послуги"
+            },
+            "actions": {
+                "create": "Створити",
+                "update": "Оновити",
+                "delete": "Видалити",
+                "login": "Увійти",
+                "logout": "Вийти",
+                "approve": "Схвалити",
+                "reject": "Відхилити",
+                "block": "Заблокувати",
+                "unblock": "Розблокувати",
+                "cancel": "Скасувати",
+                "complete": "Завершити",
+                "confirm": "Підтвердити"
+            },
+            "table": {
+                "date": "Дата",
+                "user": "Користувач",
+                "action": "Дія",
+                "description": "Опис",
+                "system": "Система",
+                "prev": "Назад",
+                "next": "Далі"
+            }
+        }
+    },
+    "activity": {
+        "title": "Журнал активності",
+        "subtitle": "Уся активність платформи в одному місці",
+        "refresh": "Оновити",
+        "exportCsv": "Експорт CSV",
+        "notFound": "Записів не знайдено",
+        "viewDetails": "Деталі",
+        "details": {
+            "title": "Деталі активності",
+            "idLabel": "ID",
+            "sectionMain": "Огляд",
+            "sectionTech": "Технічне",
+            "changes": "Зміни",
+            "dateTime": "Дата й час",
+            "user": "Користувач",
+            "systemUser": "Система",
+            "action": "Дія",
+            "entityType": "Тип сутності",
+            "entityName": "Назва сутності",
+            "description": "Опис",
+            "ip": "IP-адреса",
+            "userAgent": "User agent",
+            "oldValues": "Попередні значення",
+            "newValues": "Нові значення"
+        },
+        "stats": {
+            "total": "Усього дій",
+            "today": "Сьогодні",
+            "adminActions": "Дії адміністратора",
+            "clientActions": "Дії клієнта"
+        },
+        "chart": {
+            "title": "Активність (останні 7 днів)",
+            "activity": "Дії",
+            "noData": "Немає даних"
+        },
+        "segments": {
+            "admin": "Адмін",
+            "business": "Бізнес",
+            "client": "Клієнт",
+            "system": "Система"
+        },
+        "categories": {
+            "auth": "Авторизація",
+            "company": "Компанії",
+            "booking": "Бронювання",
+            "user": "Користувачі",
+            "advertisement": "Оголошення",
+            "review": "Відгуки",
+            "settings": "Налаштування",
+            "service": "Послуги"
+        },
+        "actions": {
+            "create": "Створити",
+            "update": "Оновити",
+            "delete": "Видалити",
+            "login": "Увійти",
+            "logout": "Вийти",
+            "approve": "Схвалити",
+            "reject": "Відхилити",
+            "block": "Заблокувати",
+            "unblock": "Розблокувати",
+            "cancel": "Скасувати",
+            "complete": "Завершити",
+            "confirm": "Підтвердити",
+            "register": "Зареєструватися"
+        },
+        "filters": {
+            "allSegments": "Усі сегменти",
+            "allCategories": "Усі категорії",
+            "allActions": "Усі дії",
+            "allEntities": "Усі сутності",
+            "segment": "Сегмент",
+            "category": "Категорія",
+            "action": "Дія",
+            "entityType": "Тип сутності",
+            "searchLabel": "Пошук",
+            "searchPlaceholder": "Текст, email, опис…",
+            "search": "Пошук…",
+            "apply": "Застосувати",
+            "clear": "Очистити",
+            "dateFrom": "Від",
+            "dateTo": "До",
+            "entityCategory": "Категорія"
+        },
+        "table": {
+            "date": "Дата",
+            "user": "Користувач",
+            "segment": "Сегмент",
+            "action": "Дія",
+            "description": "Опис",
+            "company": "Компанія",
+            "system": "Система",
+            "prev": "Назад",
+            "next": "Далі"
+        }
+    },
+    "companiesTable": {
+        "open": "Відкрити",
+        "toStats": "Статистика",
+        "toEdit": "Редагувати",
+        "approve": "Схвалити",
+        "reject": "Відхилити",
+        "block": "Заблокувати",
+        "colName": "Назва",
+        "colOwner": "Власник",
+        "colContacts": "Контакти",
+        "colStatus": "Статус",
+        "colSubscription": "План",
+        "colRevenue": "Дохід",
+        "colBookings": "Бронювання",
+        "empty": "Немає компаній",
+        "confirm": "Підтвердити",
+        "cancel": "Скасувати",
+        "toastOk": "Успіх",
+        "toastErr": "Помилка",
+        "approved": "Компанію схвалено",
+        "rejected": "Компанію відхилено",
+        "blocked": "Компанію заблоковано",
+        "approveFail": "Не вдалося схвалити",
+        "rejectFail": "Не вдалося відхилити",
+        "blockFail": "Не вдалося заблокувати",
+        "confirmApproveTitle": "Схвалити компанію?",
+        "confirmApproveMsg": "Схвалити «{name}»?",
+        "confirmRejectTitle": "Відхилити компанію?",
+        "confirmRejectMsg": "Відхилити «{name}»?",
+        "confirmBlockTitle": "Заблокувати компанію?",
+        "confirmBlockMsg": "Заблокувати «{name}»?",
+        "status": {
+            "active": "Активні",
+            "pending": "Очікує",
+            "suspended": "Призупинено",
+            "rejected": "Відхилено"
+        },
+        "subscription": {
+            "basic": "Базові",
+            "premium": "Premium",
+            "enterprise": "Enterprise"
+        }
+    },
+    "health": {
+        "title": "Моніторинг стану платформи",
+        "systemStatus": {
+            "title": "Статус системи",
+            "database": "База даних",
+            "databaseDesc": "З’єднання PostgreSQL",
+            "application": "Заявка",
+            "applicationDesc": "Laravel API",
+            "operational": "Працює",
+            "error": "Помилка",
+            "checking": "Перевірка…",
+            "lastCheck": "Остання перевірка",
+            "loadError": "Не вдалося завантажити стан системи"
+        },
+        "metrics": {
+            "title": "Метрики стану",
+            "totalActive": "Усього активних попереджень",
+            "critical": "Критичні сповіщення",
+            "warnings": "Попередження",
+            "info": "Інформаційний",
+            "allOk": "Усі системи працюють. Активних сповіщень немає.",
+            "criticalAttention": "Увага! Виявлено {count} критичних сповіщень. Потрібні негайні дії.",
+            "loadError": "Помилка завантаження метрик"
+        },
+        "alerts": {
+            "title": "Сповіщення платформи",
+            "allLevels": "Усі рівні",
+            "critical": "Критичний",
+            "warning": "Попередження",
+            "info": "Інформація",
+            "active": "Активні",
+            "resolved": "Вирішено",
+            "all": "Усі",
+            "level": "Рівень",
+            "titleCol": "Назва",
+            "description": "Опис",
+            "source": "Джерело",
+            "created": "Створено",
+            "status": "Статус",
+            "actions": "Дії",
+            "resolve": "Вирішити",
+            "activeStatus": "Активні",
+            "noActive": "Немає активних сповіщень",
+            "noAlerts": "Немає сповіщень",
+            "loadError": "Помилка завантаження сповіщень",
+            "confirmResolve": "Ви впевнені, що хочете позначити це сповіщення як вирішене?"
+        }
+    },
+    "backups": {
+        "title": "Резервні копії платформи",
+        "description": "Повний архів: код, PostgreSQL, env-файли, образи Docker. Збирається у фоні (черга) — застосунок залишається відзивчивим. Сховище лише AWS S3.",
+        "s3RequiredHint": "Для резервного копіювання потрібен налаштований S3 bucket і ключі AWS — див. docs/BACKUP_S3.md.",
+        "s3NotReadyTitle": "S3 не налаштовано",
+        "create": "Створити резервну копію зараз",
+        "creating": "Створення…",
+        "createQueued": "Резервне копіювання в черзі",
+        "createQueuedHint": "Виконується у фоні — сайт залишається доступним. Список оновлюється автоматично.",
+        "conflictTitle": "Резервне копіювання вже виконується",
+        "refresh": "Оновити",
+        "empty": "Резервних копій ще немає",
+        "loadError": "Не вдалося завантажити список",
+        "createSuccess": "Резервну копію створено",
+        "createError": "Не вдалося створити резервну копію",
+        "deleteSuccess": "Резервну копію видалено",
+        "deleteError": "Не вдалося видалити",
+        "deleteConfirm": "Видалити запис резервної копії?",
+        "deleteConfirmS3": "Видалити об’єкт у S3 і цей рядок?",
+        "downloadError": "Не вдалося отримати посилання на завантаження",
+        "cancel": "Скасувати",
+        "hintDocs": "Див. docs/BACKUP_S3.md щодо відновлення на новому сервері та налаштування AWS.",
+        "config": {
+            "title": "Статус",
+            "projectRoot": "Корінь проєкту в контейнері",
+            "docker": "Docker save",
+            "dockerOn": "увімкнено",
+            "dockerOff": "вимкнено",
+            "s3": "AWS S3",
+            "s3On": "налаштовано",
+            "s3Off": "не налаштовано (див. BACKUP_S3.md)",
+            "s3FlagOff": "ВИМКНЕНО в .env (BACKUP_S3_ENABLED=false)",
+            "s3Keep": "Зберігати в S3 (останній успішний; 0 = усі)"
+        },
+        "table": {
+            "file": "Файл",
+            "size": "Розмір",
+            "created": "Створено",
+            "trigger": "Тип",
+            "status": "Статус",
+            "statusQueued": "У черзі",
+            "statusProcessing": "Обробка",
+            "statusCompleted": "Готово",
+            "statusFailedRun": "Не вдалося",
+            "s3": "S3",
+            "actions": "Дії",
+            "download": "Завантажити",
+            "delete": "Видалити",
+            "triggerManual": "Вручну",
+            "triggerScheduled": "заплановано",
+            "statusFailed": "Не вдалося"
+        }
+    },
+    "businessEvents": {
+        "title": "Події бізнесу",
+        "description": "Важливі події платформи: реєстрації, замовлення, кампанії, досягнення",
+        "filters": {
+            "search": "Пошук за назвою, описом, компанією…",
+            "allTypes": "Усі типи подій",
+            "clear": "Очистити"
+        },
+        "types": {
+            "business_registered": "Бізнес зареєстровано",
+            "large_order": "Велике замовлення",
+            "campaign_started": "Кампанію запущено",
+            "complaint_received": "Отримано скаргу",
+            "milestone_reached": "Рубіж досягнуто",
+            "payment_received": "Платіж отримано",
+            "business_verified": "Бізнес верифіковано",
+            "review_flagged": "Відгук позначено"
+        },
+        "timeline": {
+            "noEvents": "Немає бізнес-подій для відображення",
+            "noEventsDesc": "Події з’являтимуться автоматично під час реєстрації компаній, великих замовлень та інших важливих дій",
+            "company": "Компанія",
+            "user": "Користувач"
+        }
+    },
+    "settingsPlatform": {
+        "pageSubtitle": "Загальні параметри, інтеграції, підписки, резервні копії, стан системи, метрики в реальному часі та журнали",
+        "tabs": {
+            "realtime": "У реальному часі"
+        },
+        "realtime": {
+            "title": "У реальному часі",
+            "description": "Онлайн-користувачі відстежуються через heartbeat від відкритих клієнтів. Одна вкладка браузера = одна сесія; у користувача може бути кілька сесій.",
+            "thresholdHint": "Поріг онлайну: активність за останні {seconds} с.",
+            "onlineUsers": "Користувачі онлайн",
+            "onlineSessions": "Активні сесії",
+            "serverTime": "Час сервера",
+            "bookingsToday": "Бронювання сьогодні",
+            "newUsersToday": "Нові реєстрації сьогодні",
+            "usersTotal": "Усього користувачів (база)",
+            "companiesTotal": "Усього компаній",
+            "onlineByRole": "Онлайн за роллю (унікальні користувачі)",
+            "sessionsTitle": "Активні сесії (останні записи)",
+            "colEmail": "Електронна пошта",
+            "colRole": "Роль",
+            "colLastSeen": "Остання активність",
+            "colSession": "Сесія",
+            "colUa": "Клієнт",
+            "colIp": "IP",
+            "empty": "Немає активних сесій у межах поточного вікна порогу",
+            "refresh": "Оновити",
+            "lastUpdated": "Дані оновлено: {time}",
+            "roles": {
+                "CLIENT": "Клієнт",
+                "BUSINESS_OWNER": "Бізнес",
+                "SUPERADMIN": "Суперадмін"
+            }
+        }
+    }
+}

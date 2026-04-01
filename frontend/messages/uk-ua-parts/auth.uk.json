@@ -1,0 +1,129 @@
+{
+    "signIn": {
+        "title": "Увійти",
+        "welcome": "Ласкаво просимо!",
+        "enterData": "Введіть дані для входу",
+        "email": "Електронна пошта",
+        "password": "Пароль",
+        "rememberMe": "Запам’ятати мене",
+        "forgotPassword": "Забули пароль?",
+        "signInButton": "Увійти",
+        "signingIn": "Вхід…",
+        "noAccount": "Немає облікового запису?",
+        "noAccountText": "Немає облікового запису?",
+        "signUp": "Зареєструватися",
+        "orContinue": "або продовжити з",
+        "validation": {
+            "emailRequired": "Введіть електронну пошту",
+            "passwordRequired": "Введіть пароль"
+        },
+        "registrationClosedNotice": "Реєстрацію нових облікових записів тимчасово вимкнено адміністратором."
+    },
+    "signUp": {
+        "title": "Зареєструватися",
+        "subtitle": "Створіть обліковий запис і почніть",
+        "registeringAs": "Реєструюся як",
+        "client": "Клієнт",
+        "businessOwner": "Власник бізнесу",
+        "firstName": "Ім’я",
+        "lastName": "Прізвище",
+        "email": "Електронна пошта",
+        "phone": "Телефон",
+        "phonePlaceholder": "+1 (555) 123-4567",
+        "password": "Пароль",
+        "passwordPlaceholder": "Пароль (мін. 8 символів)",
+        "confirmPassword": "Підтвердіть пароль",
+        "confirmPasswordPlaceholder": "Підтвердіть пароль",
+        "agreeTerms": "Я погоджуюся з",
+        "termsOfService": "умови використання",
+        "privacyPolicy": "політика конфіденційності",
+        "cookiePolicy": "політикою щодо файлів cookie",
+        "and": "і",
+        "signUpButton": "Зареєструватися",
+        "creatingAccount": "Створення облікового запису...",
+        "haveAccount": "Уже є обліковий запис?",
+        "signIn": "Увійти",
+        "validation": {
+            "emailRequired": "Введіть коректну електронну пошту",
+            "firstNameRequired": "Введіть ім'я",
+            "lastNameRequired": "Введіть прізвище",
+            "passwordMinLength": "Пароль має містити щонайменше 8 символів",
+            "confirmPasswordRequired": "Підтвердіть свій пароль",
+            "passwordsNotMatch": "Паролі не збігаються",
+            "agreeTermsRequired": "Потрібно погодитися з умовами використання"
+        },
+        "oauth": {
+            "agreeTerms": "Натискаючи кнопку, ви погоджуєтеся з",
+            "termsOfService": "умови використання",
+            "privacyPolicy": "політика конфіденційності",
+            "and": "і"
+        }
+    },
+    "forgotPassword": {
+        "title": "Забули пароль",
+        "description": "Введіть email — ми надішлемо посилання для скидання пароля",
+        "email": "Електронна пошта",
+        "sendButton": "Надіслати",
+        "backToSignIn": "Назад до входу"
+    },
+    "resetPassword": {
+        "title": "Скинути пароль",
+        "newPassword": "Новий пароль",
+        "confirmPassword": "Підтвердіть пароль",
+        "resetButton": "Скинути пароль"
+    },
+    "businessSignUp": {
+        "title": "Реєстрація бізнесу",
+        "subtitle": "Створіть обліковий запис для вашого бізнесу",
+        "backToSignUp": "Назад до реєстрації",
+        "steps": {
+            "step1": {
+                "title": "Особиста інформація",
+                "description": "Базова інформація про вас"
+            },
+            "step2": {
+                "title": "Безпека",
+                "description": "Створіть пароль"
+            },
+            "step3": {
+                "title": "Інформація про бізнес",
+                "description": "Дані вашого бізнесу"
+            }
+        },
+        "fields": {
+            "businessName": "Назва бізнесу",
+            "businessNamePlaceholder": "Назва бізнесу",
+            "businessDescription": "Опис",
+            "businessDescriptionPlaceholder": "Короткий опис вашого бізнесу",
+            "businessAddress": "Адреса",
+            "businessAddressPlaceholder": "Повна адреса бізнесу",
+            "businessPhone": "Телефон бізнесу",
+            "businessEmail": "Електронна пошта бізнесу",
+            "businessEmailPlaceholder": "business@example.com",
+            "businessWebsite": "Вебсайт",
+            "businessWebsitePlaceholder": "https://example.com"
+        },
+        "buttons": {
+            "back": "Назад",
+            "next": "Далі",
+            "register": "Зареєструватися",
+            "creating": "Створення облікового запису..."
+        },
+        "validation": {
+            "businessNameRequired": "Введіть назву бізнесу",
+            "businessAddressRequired": "Введіть адресу бізнесу",
+            "businessPhoneRequired": "Введіть телефон бізнесу",
+            "businessEmailInvalid": "Введіть коректну службову електронну пошту"
+        },
+        "messages": {
+            "accountCreated": "Обліковий запис створено!",
+            "welcomeRedirect": "Ласкаво просимо! Вас буде перенаправлено на інформаційну панель.",
+            "warning": "Попередження",
+            "accountCreatedButNotSaved": "Обліковий запис створено, але дані бізнесу не збережено. Ви можете заповнити їх у налаштуваннях.",
+            "registrationError": "Помилка реєстрації",
+            "validationError": "Помилка валідації",
+            "tryAgain": "Помилка реєстрації. Спробуйте ще раз."
+        }
+    },
+    "checkingAccess": "Перевірка доступу..."
+}

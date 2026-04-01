@@ -1,0 +1,6 @@
+services|6
+advertisements|31
+additional_services|2
+bookings|136
+advertisements (ad)|6
+advertisements (regular)|25

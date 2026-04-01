@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Console;
+
+use App\Services\PlatformBackupService;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+    protected function schedule(Schedule $schedule): void
+    {
+        // $schedule->command('inspire')->hourly();
+        
+        // Check alerts every 15 minutes
+        $schedule->command('alerts:check')->everyFifteenMinutes();
+
+        $schedule->call(function () {
+            app(PlatformBackupService::class)->releaseStaleBackups();
+        })->everyTenMinutes();
+
+        if (config('backups.schedule_enabled') && app(PlatformBackupService::class)->isS3Ready()) {
+            $schedule->command('platform:backup --scheduled')->twiceDaily(6, 18);
+        }
+    }
+
+    protected function commands(): void
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
+    }
+}
+

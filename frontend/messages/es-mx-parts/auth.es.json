@@ -1,0 +1,129 @@
+{
+    "signIn": {
+        "title": "Iniciar sesión",
+        "welcome": "¡Bienvenido!",
+        "enterData": "Ingresa tus datos para entrar",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "rememberMe": "Recordarme",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "signInButton": "Entrar",
+        "signingIn": "Iniciando sesión…",
+        "noAccount": "¿No tienes cuenta?",
+        "noAccountText": "¿No tienes cuenta?",
+        "signUp": "Registrarse",
+        "orContinue": "o continúa con",
+        "validation": {
+            "emailRequired": "Ingresa tu correo",
+            "passwordRequired": "Ingresa tu contraseña"
+        },
+        "registrationClosedNotice": "El administrador desactivó temporalmente el registro de cuentas nuevas."
+    },
+    "signUp": {
+        "title": "Crear cuenta",
+        "subtitle": "Crea una cuenta y empieza",
+        "registeringAs": "Me registro como",
+        "client": "Cliente",
+        "businessOwner": "Dueño de negocio",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "phonePlaceholder": "+1 (555) 123-4567",
+        "password": "Contraseña",
+        "passwordPlaceholder": "Contraseña (mín. 8 caracteres)",
+        "confirmPassword": "Confirmar contraseña",
+        "confirmPasswordPlaceholder": "Confirma tu contraseña",
+        "agreeTerms": "Acepto los",
+        "termsOfService": "términos del servicio",
+        "privacyPolicy": "aviso de privacidad",
+        "cookiePolicy": "política de cookies",
+        "and": "y el",
+        "signUpButton": "Registrarse",
+        "creatingAccount": "Creando cuenta…",
+        "haveAccount": "¿Ya tienes cuenta?",
+        "signIn": "Iniciar sesión",
+        "validation": {
+            "emailRequired": "Ingresa un correo válido",
+            "firstNameRequired": "Ingresa tu nombre",
+            "lastNameRequired": "Ingresa tu apellido",
+            "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+            "confirmPasswordRequired": "Confirma tu contraseña",
+            "passwordsNotMatch": "Las contraseñas no coinciden",
+            "agreeTermsRequired": "Debes aceptar los términos del servicio"
+        },
+        "oauth": {
+            "agreeTerms": "Al hacer clic aceptas los",
+            "termsOfService": "términos del servicio",
+            "privacyPolicy": "aviso de privacidad",
+            "and": "y el"
+        }
+    },
+    "forgotPassword": {
+        "title": "Recuperar contraseña",
+        "description": "Ingresa tu correo y te enviaremos un enlace para restablecerla",
+        "email": "Correo electrónico",
+        "sendButton": "Enviar",
+        "backToSignIn": "Volver al inicio de sesión"
+    },
+    "resetPassword": {
+        "title": "Restablecer contraseña",
+        "newPassword": "Nueva contraseña",
+        "confirmPassword": "Confirmar contraseña",
+        "resetButton": "Restablecer contraseña"
+    },
+    "businessSignUp": {
+        "title": "Registro de negocio",
+        "subtitle": "Crea una cuenta para tu negocio",
+        "backToSignUp": "Volver al registro",
+        "steps": {
+            "step1": {
+                "title": "Datos personales",
+                "description": "Información básica sobre ti"
+            },
+            "step2": {
+                "title": "Seguridad",
+                "description": "Crea una contraseña"
+            },
+            "step3": {
+                "title": "Datos del negocio",
+                "description": "Información de tu negocio"
+            }
+        },
+        "fields": {
+            "businessName": "Nombre del negocio",
+            "businessNamePlaceholder": "Nombre del negocio",
+            "businessDescription": "Descripción",
+            "businessDescriptionPlaceholder": "Breve descripción de tu negocio",
+            "businessAddress": "Dirección",
+            "businessAddressPlaceholder": "Dirección completa del negocio",
+            "businessPhone": "Teléfono del negocio",
+            "businessEmail": "Correo del negocio",
+            "businessEmailPlaceholder": "negocio@ejemplo.com",
+            "businessWebsite": "Sitio web",
+            "businessWebsitePlaceholder": "https://ejemplo.com"
+        },
+        "buttons": {
+            "back": "Atrás",
+            "next": "Siguiente",
+            "register": "Registrarse",
+            "creating": "Creando cuenta…"
+        },
+        "validation": {
+            "businessNameRequired": "Ingresa el nombre del negocio",
+            "businessAddressRequired": "Ingresa la dirección del negocio",
+            "businessPhoneRequired": "Ingresa el teléfono del negocio",
+            "businessEmailInvalid": "Ingresa un correo de negocio válido"
+        },
+        "messages": {
+            "accountCreated": "¡Cuenta creada!",
+            "welcomeRedirect": "¡Bienvenido! Te redirigiremos al panel.",
+            "warning": "Aviso",
+            "accountCreatedButNotSaved": "Cuenta creada, pero no se guardaron los datos del negocio. Puedes completarlos en configuración.",
+            "registrationError": "Error de registro",
+            "validationError": "Error de validación",
+            "tryAgain": "Error al registrarse. Intenta de nuevo."
+        }
+    },
+    "checkingAccess": "Verificando acceso…"
+}

@@ -1,0 +1,1464 @@
+{
+    "dashboard": {
+        "title": "Панель керування",
+        "overview": "Огляд бізнесу",
+        "selectPeriod": "Оберіть період",
+        "periods": {
+            "thisWeek": "Цього тижня",
+            "thisMonth": "Цього місяця",
+            "thisYear": "Цього року"
+        },
+        "stats": {
+            "sectionLifetime": "Загалом за весь час",
+            "sectionCurrent": "Зараз",
+            "viewLifetime": "За весь час",
+            "viewCurrent": "Зараз",
+            "statsHintLifetime": "Підсумки з моменту початку відстеження.",
+            "statsHintCurrent": "Майбутні бронювання, оцінка воронки, активна реклама.",
+            "revenue": "Дохід",
+            "bookings": "Бронювання",
+            "newClients": "Нові клієнти",
+            "activeBookings": "Майбутні",
+            "totalClients": "Клієнти",
+            "totalRevenue": "Дохід",
+            "revenueInWork": "У процесі",
+            "totalBookings": "Бронювання",
+            "activeAdvertisements": "Реклама",
+            "comparedToPrevious": "порівняно з попереднім періодом",
+            "includingOverdue": "+ {amount} прострочено",
+            "totalRevenueScope": "Усі завершені бронювання",
+            "allTimeScope": "За весь час у системі",
+            "fromTodayScope": "Від сьогодні",
+            "pipelineScope": "Сума нефінальних бронювань — оцінка, не визнаний дохід",
+            "adsNowScope": "Активні оголошення зараз",
+            "periodCardsRange": "Показники: {from} — {to}",
+            "revenuePeriodFootnote": "Завершені бронювання за період (дата послуги)."
+        },
+        "chart": {
+            "error": "Помилка завантаження даних діаграми",
+            "noData": "Немає даних для відображення"
+        },
+        "quickActions": {
+            "title": "Швидкі дії",
+            "viewProfile": "Профіль",
+            "profile": "Профіль",
+            "newBooking": "Нове бронювання",
+            "newBookingDesc": "Створити бронювання вручну",
+            "addClient": "Додати клієнта",
+            "addClientDesc": "Зареєструвати нового клієнта",
+            "settings": "Налаштування",
+            "settingsDesc": "Керувати налаштуваннями бізнесу",
+            "schedule": "Розклад",
+            "scheduleDesc": "Керувати розкладом"
+        },
+        "recentBookings": {
+            "title": "Останні бронювання",
+            "viewAll": "Усі бронювання",
+            "noBookings": "Немає бронювань",
+            "columns": {
+                "booking": "Бронювання",
+                "dateTime": "Дата й час",
+                "client": "Клієнт",
+                "service": "Послуга",
+                "status": "Статус",
+                "amount": "Сума"
+            },
+            "mobile": {
+                "service": "Послуга"
+            }
+        }
+    },
+    "schedule": {
+        "title": "Розклад",
+        "description": "Керувати бронюваннями та доступністю",
+        "newBooking": "Нове бронювання",
+        "stats": {
+            "revenue": "Дохід",
+            "inProgress": "У процесі",
+            "completed": "Завершено",
+            "total": "Усього",
+            "sumExcludingCancelled": "Сума без скасованих",
+            "sumCompleted": "Сума завершених",
+            "periodHint": "Видимий діапазон календаря. Суми за кожним слотом. «Без скасованих» = усі статуси, крім скасованих.",
+            "periodRangeLabel": "Суми за діапазон: {start} — {end}",
+            "periodGridNote": "Діапазон відповідає видимій сітці календаря (включно з днями сусідніх місяців). Назва місяця — для навігації, не межа суми."
+        },
+        "statuses": {
+            "new": "Новий",
+            "pending": "Очікує",
+            "confirmed": "Підтверджено",
+            "completed": "Завершено",
+            "cancelled": "Скасовано"
+        },
+        "notifications": {
+            "bookingCreated": "Бронювання успішно створено",
+            "bookingUpdated": "Бронювання успішно оновлено",
+            "bookingDeleted": "Бронювання успішно видалено",
+            "bookingCompletedReviewLink": "Бронювання завершено. Посилання для відгуку створено.",
+            "error": "Помилка",
+            "createError": "Не вдалося створити бронювання",
+            "updateError": "Не вдалося оновити бронювання",
+            "deleteError": "Не вдалося видалити бронювання",
+            "slotOccupied": "Обраний час зайнятий",
+            "changeTimeOrDate": "Змініть час або дату у формі.",
+            "timeOverlap": "Обраний час перетинається з наявним бронюванням. Перевірте розклад."
+        },
+        "deleteConfirm": {
+            "title": "Видалити бронювання?",
+            "message": "Ви впевнені, що хочете видалити це бронювання?",
+            "confirm": "Видалити",
+            "cancel": "Скасувати"
+        },
+        "modal": {
+            "newBooking": "Нове бронювання",
+            "editBooking": "Редагувати бронювання",
+            "timeOverlapWarning": "Увага: обраний час перетинається з наявним бронюванням",
+            "timeOverlapDescription": "Перед збереженням перевірте розклад. Можливо, потрібно обрати інший час.",
+            "labels": {
+                "service": "Послуга",
+                "client": "Клієнт",
+                "specialist": "Спеціаліст",
+                "executionType": "Тип виконання",
+                "executionTypeOffsite": "Мобільна послуга",
+                "executionTypeOnsite": "Клієнт приходить",
+                "address": "Адреса",
+                "addressPlaceholder": "Введіть адресу",
+                "clientAddress": "Адреса клієнта",
+                "city": "Місто",
+                "state": "Штат",
+                "zip": "Поштовий індекс",
+                "price": "Ціна",
+                "basePriceNote": "Базова ціна: {price} + додаткові послуги",
+                "total": "Усього:",
+                "baseServicePrice": "Базова ціна послуги",
+                "subtotal": "Підсумок (до знижки)",
+                "discount": "Знижка",
+                "discountLoyalty": "Лояльність ({tier})",
+                "discountPromo": "Промо {code}",
+                "date": "Дата",
+                "time": "Час",
+                "duration": "Тривалість (хвилини)",
+                "status": "Статус",
+                "notes": "Нотатки",
+                "notesPlaceholder": "Внутрішні нотатки до бронювання",
+                "eventType": "Тип події",
+                "customEvent": "Власна подія",
+                "title": "Назва події",
+                "titlePlaceholder": "Введіть назву події"
+            },
+            "titleRequired": "Введіть назву події",
+            "reviewLink": {
+                "title": "Посилання на відгук для клієнта:",
+                "copy": "Копіювати",
+                "copied": "Скопійовано",
+                "linkCopied": "Посилання скопійовано в буфер обміну",
+                "copyError": "Не вдалося скопіювати посилання. Скопіюйте вручну.",
+                "sendToClient": "Надішліть це посилання клієнту, щоб залишити відгук"
+            },
+            "client": {
+                "selectFromExisting": "Обрати з наявних",
+                "enterManually": "Ввести вручну",
+                "selectClient": "Оберіть клієнта",
+                "createNew": "Створити нового клієнта",
+                "name": "Ім’я клієнта",
+                "phone": "Телефон",
+                "email": "Електронна пошта"
+            },
+            "selectService": "Оберіть послугу",
+            "selectSpecialist": "Оберіть спеціаліста",
+            "notSpecified": "Не вказано",
+            "buttons": {
+                "cancel": "Скасувати",
+                "delete": "Видалити",
+                "save": "Зберегти",
+                "close": "Закрити"
+            }
+        },
+        "recurringBookings": "Повторювані бронювання",
+        "recurring": {
+            "list": "Список",
+            "create": "Створити",
+            "edit": "Редагувати повторюване бронювання",
+            "listDescription": "Керуйте ланцюгами повторюваних бронювань",
+            "createDescription": "Налаштувати автоматичні повторювані бронювання",
+            "editDescription": "Змінити налаштування повторюваних бронювань",
+            "serviceSection": "Послуга та спеціаліст",
+            "clientSection": "Клієнт",
+            "frequencySection": "Частота повторення",
+            "timeSection": "Час і тривалість",
+            "priceSection": "Ціна та нотатки",
+            "service": "Послуга",
+            "client": "Клієнт",
+            "selectClient": "Оберіть клієнта",
+            "enterManually": "Ввести вручну",
+            "createNewClient": "Створити нового клієнта",
+            "clientName": "Ім’я клієнта",
+            "clientPhone": "Телефон",
+            "clientEmail": "Електронна пошта",
+            "specialist": "Спеціаліст",
+            "selectSpecialist": "Оберіть спеціаліста",
+            "selectService": "Оберіть послугу",
+            "notSpecified": "Не вказано",
+            "frequency": "Періодичність",
+            "frequencies": {
+                "daily": "Щодня",
+                "every_n_days": "Кожні N днів",
+                "weekly": "Раз на тиждень",
+                "biweekly": "Двічі на тиждень",
+                "every_2_weeks": "Кожні 2 тижні",
+                "every_3_weeks": "Кожні 3 тижні",
+                "monthly": "Раз на місяць",
+                "bimonthly": "Двічі на місяць",
+                "every_2_months": "Кожні 2 місяці",
+                "every_3_months": "Кожні 3 місяці"
+            },
+            "intervalDays": "Інтервал (дні)",
+            "intervalDaysPlaceholder": "Введіть кількість днів",
+            "intervalDaysHint": "Бронювання повторюватиметься кожні N днів",
+            "intervalDaysRequired": "Введіть інтервал у днях",
+            "daysOfWeek": "Дні тижня",
+            "selectDaysOfWeek": "Оберіть дні тижня",
+            "dayOfMonth": "День місяця",
+            "selectDayOfMonth": "Оберіть день місяця",
+            "daysOfMonth": "Дні місяця",
+            "selectDaysOfMonth": "Оберіть два дні місяця",
+            "selectTwoDays": "Оберіть рівно два дні",
+            "time": "Час",
+            "selectTime": "Оберіть час",
+            "duration": "Тривалість",
+            "durationInMinutes": "Тривалість у хвилинах",
+            "startDate": "Дата початку",
+            "endDate": "Кінцева дата",
+            "endDateOptional": "Залиште порожнім для необмеженого терміну",
+            "price": "Ціна",
+            "notes": "Нотатки",
+            "notesPlaceholder": "Внутрішні нотатки",
+            "days": {
+                "sunday": "Неділя",
+                "monday": "Понеділок",
+                "tuesday": "Вівторок",
+                "wednesday": "Середа",
+                "thursday": "Четвер",
+                "friday": "П’ятниця",
+                "saturday": "Субота"
+            },
+            "day": "День",
+            "and": "і",
+            "period": "Період",
+            "indefinitely": "безстроково",
+            "frequencyDetails": "Деталі періодичності",
+            "upcomingBookings": "Майбутні бронювання",
+            "noChains": "Немає повторюваних бронювань",
+            "noChainsDescription": "Створіть перший ланцюг повторюваних бронювань",
+            "statuses": {
+                "active": "Активні",
+                "paused": "Призупинено",
+                "cancelled": "Скасовано"
+            },
+            "regenerate": "Згенерувати знову",
+            "created": "Повторюване бронювання успішно створено",
+            "createError": "Не вдалося створити повторюване бронювання",
+            "updated": "Повторюване бронювання успішно оновлено",
+            "updateError": "Не вдалося оновити повторюване бронювання",
+            "deleted": "Повторюване бронювання успішно видалено",
+            "deleteError": "Не вдалося видалити повторюване бронювання",
+            "regenerated": "Бронювання успішно перегенеровано",
+            "regenerateError": "Не вдалося повторно згенерувати бронювання",
+            "daysOfWeekRequired": "Оберіть дні тижня",
+            "dayOfMonthRequired": "Оберіть день місяця",
+            "daysOfMonthRequired": "Оберіть два дні місяця",
+            "deleteConfirm": {
+                "title": "Видалити повторюване бронювання?",
+                "message": "Ви впевнені, що хочете видалити цей ланцюг повторюваних бронювань? Усі майбутні бронювання буде видалено.",
+                "confirm": "Видалити",
+                "cancel": "Скасувати"
+            }
+        }
+    },
+    "reviews": {
+        "title": "Відгуки",
+        "description": "Керувати відгуками клієнтів",
+        "noReviews": "Немає відгуків",
+        "columns": {
+            "client": "Клієнт",
+            "advertisement": "Оголошення",
+            "rating": "Рейтинг",
+            "comment": "Коментар",
+            "date": "Дата",
+            "status": "Статус"
+        },
+        "statuses": {
+            "published": "Опубліковано",
+            "pending": "Очікує",
+            "rejected": "Відхилено"
+        },
+        "actions": {
+            "reply": "Відповісти",
+            "delete": "Видалити"
+        },
+        "table": {
+            "user": "Користувач",
+            "anonymous": "Анонімно",
+            "advertisement": "Оголошення",
+            "service": "Послуга",
+            "specialist": "Спеціаліст",
+            "rating": "Рейтинг",
+            "review": "Відгук",
+            "date": "Дата",
+            "yourResponse": "Ваша відповідь",
+            "respond": "Відповісти",
+            "open": "Відкрити",
+            "editResponse": "Редагувати відповідь",
+            "noReviews": "Відгуків ще немає",
+            "noAd": "Немає оголошення"
+        },
+        "responseModal": {
+            "title": "Відповісти на відгук",
+            "reviewFrom": "Відгук від",
+            "yourResponse": "Ваша відповідь",
+            "placeholder": "Напишіть відповідь…",
+            "cancel": "Скасувати",
+            "save": "Зберегти"
+        },
+        "notifications": {
+            "responseUpdated": "Відповідь успішно оновлено",
+            "responseError": "Не вдалося оновити відповідь"
+        }
+    },
+    "clients": {
+        "title": "Клієнти",
+        "description": "Керування клієнтами",
+        "features": {
+            "1": "База всіх ваших клієнтів",
+            "2": "Історія замовлень і бронювань",
+            "3": "Категорії клієнтів (звичайний, постійний, VIP)",
+            "4": "Швидкий пошук і фільтри"
+        },
+        "statuses": {
+            "regular": "Звичайний",
+            "permanent": "Постійний",
+            "vip": "VIP"
+        },
+        "detailsModal": {
+            "title": "Деталі клієнта",
+            "tabs": {
+                "info": "Інформація",
+                "bookings": "Бронювання",
+                "orders": "Замовлення",
+                "notes": "Нотатки"
+            },
+            "bookingsCount": "Бронювання",
+            "spent": "Витрачено",
+            "lastVisit": "Останній візит",
+            "noBookings": "Немає бронювань",
+            "noOrders": "Немає замовлень",
+            "noNotes": "Немає нотаток",
+            "serviceNotSpecified": "Послугу не вказано",
+            "dateNotSpecified": "Дату не вказано",
+            "specialist": "Спеціаліст",
+            "order": "Замовлення",
+            "addNote": "Додати нотатку",
+            "notePlaceholder": "Введіть нотатку…",
+            "addButton": "Додати",
+            "added": "Додано",
+            "noteSuccess": "Нотатку успішно додано",
+            "noteError": "Не вдалося додати нотатку",
+            "bookingStatuses": {
+                "new": "Новий",
+                "pending": "Очікує",
+                "confirmed": "Підтверджено",
+                "completed": "Завершено",
+                "cancelled": "Скасовано",
+                "unknown": "Невідомо"
+            },
+            "orderStatuses": {
+                "paid": "Оплачено",
+                "completed": "Завершено",
+                "processing": "Обробка"
+            },
+            "delete": "Видалити",
+            "deleteConfirmTitle": "Видалити клієнта?",
+            "deleteConfirm": "Видалити",
+            "deleteConfirmMessage": "Ви впевнені, що хочете видалити цього клієнта? Цю дію неможливо скасувати.",
+            "deleteSuccess": "Клієнта успішно видалено",
+            "deleteError": "Не вдалося видалити клієнта",
+            "edit": "Редагувати",
+            "changePhoto": "Змінити фото",
+            "avatarUploadSuccess": "Фото оновлено",
+            "avatarUploadError": "Не вдалося завантажити фото"
+        },
+        "detailsPage": {
+            "back": "Назад",
+            "title": "Деталі клієнта",
+            "subtitle": "Дані клієнта",
+            "clientNotFound": "Клієнта не знайдено",
+            "backToList": "До списку клієнтів",
+            "tabs": {
+                "info": "Інформація",
+                "bookings": "Бронювання",
+                "notes": "Нотатки"
+            },
+            "stats": {
+                "current": "Поточний",
+                "completed": "Завершено",
+                "cancelled": "Скасовано",
+                "spent": "Витрачено"
+            },
+            "bookings": {
+                "noBookings": "Немає бронювань",
+                "serviceNotSpecified": "Послугу не вказано",
+                "executionTypeOffsite": "Тип виконання: поза майданчиком",
+                "dateNotSpecified": "Дату не вказано",
+                "specialist": "Спеціаліст:",
+                "created": "Створено:",
+                "address": "Адреса:",
+                "clientNote": "Нотатка клієнта:",
+                "businessNote": "Нотатка бізнесу:",
+                "basePrice": "Базова ціна послуги",
+                "total": "Усього:"
+            },
+            "notes": {
+                "addNote": "Додати нотатку",
+                "notePlaceholder": "Введіть нотатку про клієнта…",
+                "addButton": "Додати",
+                "noNotes": "Немає нотаток",
+                "added": "Додано"
+            },
+            "notifications": {
+                "success": "Успіх",
+                "error": "Помилка"
+            },
+            "delete": "Видалити",
+            "deleteConfirmTitle": "Видалити клієнта?",
+            "deleteConfirm": "Видалити",
+            "cancel": "Скасувати",
+            "deleteConfirmMessage": "Ви впевнені, що хочете видалити цього клієнта? Цю дію неможливо скасувати.",
+            "deleteSuccess": "Клієнта успішно видалено",
+            "deleteError": "Не вдалося видалити клієнта",
+            "edit": "Редагувати",
+            "changePhoto": "Змінити фото",
+            "avatarUploadSuccess": "Фото оновлено",
+            "avatarUploadError": "Не вдалося завантажити фото"
+        },
+        "summary": {
+            "title": "Підсумок по клієнту",
+            "firstVisit": "Перший візит",
+            "lastVisit": "Останній візит",
+            "lastCompletedVisit": "Останній завершений візит",
+            "visitFrequency": "Частота відвідувань",
+            "visitFrequencyHint": "На основі завершених візитів",
+            "averageCheck": "Середній чек",
+            "conversionRate": "Конверсія",
+            "conversionHint": "Завершені бронювання / усі бронювання (у чисельнику лише завершені)",
+            "favoriteService": "Улюблена послуга",
+            "favoriteSpecialist": "Улюблений спеціаліст",
+            "timesPerMonth": "разів на місяць",
+            "times": {
+                "one": "раз",
+                "few": "разів",
+                "many": "разів"
+            }
+        },
+        "loyalty": {
+            "title": "Лояльність і знижки",
+            "notConfiguredShort": "Лояльність не налаштована — додайте рівні в «Знижки».",
+            "bookingsCounted": "Бронювання, що враховуються для лояльності",
+            "ruleLabel": "Правило підрахунку",
+            "ruleCompleted": "Лише завершені",
+            "ruleAll": "Усі не скасовані",
+            "currentTier": "Поточний рівень",
+            "nextTier": "Наступний рівень",
+            "bookingsToNext": "Бронювань до наступного рівня",
+            "progressLabel": "Прогрес до наступного рівня",
+            "untilNextHint": "Ще {count} бронювань до рівня «{tier}»",
+            "tierNone": "Рівня ще немає",
+            "nextNone": "Досягнуто найвищий рівень",
+            "subtotal": "Підсумок (до знижки)",
+            "discountLine": "Знижка",
+            "appliedLoyalty": "Лояльність: {tier}",
+            "appliedPromo": "Промо: {code}"
+        },
+        "bookingsFilter": {
+            "status": "Статус",
+            "allStatuses": "Усі статуси",
+            "dateFrom": "Дата від",
+            "dateTo": "Дата до",
+            "sortBy": "Сортувати за",
+            "sortByDate": "За датою",
+            "sortByPrice": "За сумою",
+            "sortOrder": "Замовлення",
+            "sortDesc": "За спаданням",
+            "sortAsc": "За зростанням",
+            "reset": "Скинути",
+            "found": "Знайдено",
+            "bookings": "бронювання",
+            "totalAmount": "загальна сума"
+        },
+        "addClient": "Додати клієнта",
+        "searchPlaceholder": "Пошук за ім’ям, email або телефоном…",
+        "columns": {
+            "client": "Клієнт",
+            "email": "Електронна пошта",
+            "bookings": "Бронювання",
+            "spent": "Витрачено",
+            "lastVisit": "Останній візит",
+            "status": "Статус"
+        },
+        "actions": {
+            "view": "Переглянути",
+            "edit": "Редагувати",
+            "details": "Деталі"
+        },
+        "createModal": {
+            "title": "Створити клієнта",
+            "name": "Назва",
+            "namePlaceholder": "Введіть ім’я клієнта",
+            "email": "Електронна пошта",
+            "emailPlaceholder": "Введіть електронну пошту",
+            "phone": "Телефон",
+            "phonePlaceholder": "Введіть телефон",
+            "address": "Адреса",
+            "addressPlaceholder": "Введіть адресу",
+            "status": "Статус",
+            "cancel": "Скасувати",
+            "create": "Створити",
+            "success": "Клієнта успішно створено",
+            "error": "Не вдалося створити клієнта"
+        },
+        "editModal": {
+            "title": "Редагувати клієнта",
+            "name": "Назва",
+            "namePlaceholder": "Введіть ім’я клієнта",
+            "email": "Електронна пошта",
+            "emailPlaceholder": "Введіть електронну пошту",
+            "phone": "Телефон",
+            "phonePlaceholder": "Введіть телефон",
+            "address": "Адреса",
+            "addressPlaceholder": "Введіть адресу",
+            "status": "Статус",
+            "cancel": "Скасувати",
+            "save": "Зберегти",
+            "success": "Клієнта успішно оновлено",
+            "error": "Не вдалося оновити клієнта"
+        }
+    },
+    "advertisements": {
+        "title": "Оголошення",
+        "description": "Керувати оголошеннями послуг",
+        "myAds": "Мої оголошення",
+        "myAdsDescription": "Керуйте своїми оголошеннями на маркетплейсі",
+        "create": {
+            "title": "Створити оголошення",
+            "editTitle": "Редагувати оголошення",
+            "subtitle": "Заповніть дані, щоб опублікувати оголошення на маркетплейсі",
+            "sections": {
+                "general": "Загальна інформація",
+                "pricing": "Ціни",
+                "services": "Послуги",
+                "schedule": "Розклад",
+                "team": "Команда",
+                "portfolio": "Портфоліо"
+            },
+            "general": {
+                "title": "Загальна інформація",
+                "name": "Назва оголошення",
+                "namePlaceholder": "Введіть назву оголошення",
+                "description": "Опис",
+                "descriptionPlaceholder": "Опишіть оголошення",
+                "category": "Категорія",
+                "categoryPlaceholder": "Оберіть категорію",
+                "state": "Штат",
+                "statePlaceholder": "Оберіть штат",
+                "city": "Місто",
+                "cityPlaceholder": "Оберіть місто",
+                "selectStateFirst": "Спочатку оберіть штат",
+                "citiesLoading": "Завантаження міст…",
+                "citiesNotFound": "Міст не знайдено",
+                "image": "Зображення",
+                "imageUploadHint": "Натисніть, щоб завантажити зображення",
+                "imageUploading": "Завантаження…",
+                "imageUrlHint": "Або введіть URL зображення нижче",
+                "link": "Посилання",
+                "linkHint": "Посилання на сайт або профіль",
+                "startDate": "Дата початку",
+                "startDateHint": "Залиште порожнім для необмеженого розміщення",
+                "endDate": "Кінцева дата",
+                "endDateHint": "Залиште порожнім для необмеженого розміщення"
+            },
+            "pricing": {
+                "title": "Ціни",
+                "priceFrom": "Ціна від",
+                "priceTo": "Ціна до",
+                "currency": "Валюта"
+            },
+            "services": {
+                "title": "Послуги",
+                "addService": "Додати послугу",
+                "serviceNumber": "Послуга #{number}",
+                "selectTemplate": "Оберіть шаблон",
+                "manualEntry": "Ручне введення",
+                "selectOrManual": "Оберіть шаблон або введіть вручну",
+                "createTemplates": "Створіть шаблони в Налаштуваннях",
+                "templateHint": "Створіть шаблони послуг у ",
+                "templateHintLink": "Налаштування",
+                "templateHintSuffix": " для швидкого вибору",
+                "serviceName": "Назва послуги",
+                "serviceNamePlaceholder": "Введіть назву послуги",
+                "price": "Ціна",
+                "duration": "Тривалість",
+                "durationUnit": "Одиниця",
+                "hours": "Години",
+                "days": "Дні",
+                "serviceDescription": "Опис",
+                "serviceDescriptionPlaceholder": "Опишіть послугу",
+                "noServices": "Послуги не додано"
+            },
+            "schedule": {
+                "title": "Робочий розклад",
+                "subtitle": "Встановити робочі години для кожного дня тижня",
+                "slotStep": "Крок слоту бронювання",
+                "slotStepHint": "Мінімальний інтервал між бронюваннями",
+                "minutes15": "15 хвилин",
+                "minutes30": "30 хвилин",
+                "hour1": "1 година",
+                "hours15": "1,5 години",
+                "hours2": "2 години",
+                "hours3": "3 години",
+                "hours4": "4 години",
+                "workDays": "Робочі дні",
+                "monday": "Понеділок",
+                "tuesday": "Вівторок",
+                "wednesday": "Середа",
+                "thursday": "Четвер",
+                "friday": "П’ятниця",
+                "saturday": "Субота",
+                "sunday": "Неділя"
+            },
+            "notifications": {
+                "created": "Оголошення успішно створено",
+                "createError": "Не вдалося створити оголошення",
+                "updated": "Оголошення успішно оновлено",
+                "updateError": "Не вдалося оновити оголошення",
+                "imageUploaded": "Зображення успішно завантажено",
+                "imageUploadError": "Не вдалося завантажити зображення",
+                "unknownError": "Сталася невідома помилка",
+                "authRequired": "Потрібна авторизація. Увійдіть у систему."
+            },
+            "additionalServices": {
+                "title": "Додаткові послуги",
+                "description": "Опис",
+                "serviceLabel": "Послуга",
+                "manageTitle": "Керувати додатковими послугами",
+                "fromDb": "з бази даних",
+                "addButton": "Додати",
+                "noServices": "Немає додаткових послуг. Натисніть «Додати», щоб створити першу.",
+                "deleteTitle": "Видалити додаткову послугу?",
+                "deleteMessage": "Ви впевнені, що хочете видалити цю додаткову послугу?",
+                "cancel": "Скасувати",
+                "delete": "Видалити",
+                "formTitle": "Додати додаткову послугу",
+                "editFormTitle": "Редагувати додаткову послугу",
+                "name": "Назва",
+                "namePlaceholder": "напр. Стайлінг",
+                "descriptionPlaceholder": "Опис послуги",
+                "price": "Ціна ($)",
+                "pricePlaceholder": "напр. 25.50",
+                "duration": "Тривалість (хв)",
+                "durationPlaceholder": "напр. 30",
+                "sortOrder": "Порядок сортування",
+                "isActive": "Активні",
+                "showInBooking": "Показувати в бронюванні",
+                "save": "Зберегти",
+                "active": "Активні",
+                "inactive": "Неактивний",
+                "added": "Додаткову послугу додано",
+                "addError": "Не вдалося додати додаткову послугу",
+                "updated": "Додаткову послугу оновлено",
+                "updateError": "Не вдалося оновити додаткову послугу",
+                "deleted": "Додаткову послугу видалено",
+                "deleteError": "Не вдалося видалити додаткову послугу",
+                "saveError": "Не вдалося зберегти додаткову послугу. Переконайтеся, що послугу збережено в базі даних.",
+                "validation": {
+                    "nameRequired": "Введіть назву послуги",
+                    "priceRequired": "Введіть ціну",
+                    "durationRequired": "Введіть тривалість"
+                },
+                "manage": "Керувати",
+                "loading": "Завантаження додаткових послуг…",
+                "noServicesManage": "Немає додаткових послуг. Натисніть «Керувати», щоб додати першу."
+            },
+            "portfolio": {
+                "title": "Портфоліо",
+                "description": "Опис",
+                "add": "Додати",
+                "addMore": "Додати ще",
+                "cancel": "Скасувати",
+                "itemTitle": "Назва",
+                "itemTitlePlaceholder": "Назва роботи",
+                "tag": "Тег",
+                "tagPlaceholder": "напр. Ремонт",
+                "descriptionPlaceholder": "Детальний опис роботи",
+                "images": "Зображення",
+                "imagesCount": "Зображення ({count})",
+                "uploading": "Завантаження…",
+                "uploadHint": "Натисніть або перетягніть файли (можна кілька)",
+                "uploadSuccess": "Завантажено зображень: {count}",
+                "uploadError": "Не вдалося завантажити зображення",
+                "uploadFileError": "Не вдалося завантажити файл {fileName}",
+                "image": "зображення",
+                "warning": "Попередження",
+                "success": "Успіх",
+                "error": "Помилка"
+            },
+            "save": "Зберегти",
+            "create": "Створити",
+            "draft": "Чернетка",
+            "imageLoadError": "Не вдалося завантажити зображення. Перевірте URL: {url}",
+            "buttons": {
+                "cancel": "Скасувати",
+                "back": "Назад",
+                "next": "Далі",
+                "addTeamMember": "Додати учасника команди"
+            },
+            "team": {
+                "title": "Учасники команди",
+                "selected": "Обрано",
+                "noMembers": "Немає учасників команди"
+            }
+        },
+        "createButton": "Створити оголошення",
+        "buyAds": "Купити рекламу",
+        "noAds": "Немає оголошень",
+        "noAdsDescription": "Створіть перше оголошення, щоб просувати свій бізнес",
+        "loadError": "Помилка завантаження",
+        "statuses": {
+            "draft": "Чернетка",
+            "active": "Активні",
+            "inactive": "Неактивний",
+            "pending": "Очікує",
+            "approved": "Схвалено",
+            "rejected": "Відхилено"
+        },
+        "columns": {
+            "photo": "Фото",
+            "title": "Назва",
+            "category": "Категорія",
+            "price": "Ціна",
+            "views": "Перегляди",
+            "status": "Статус",
+            "visible": "Видимість",
+            "createdAt": "Створено"
+        },
+        "noPhoto": "Немає фото",
+        "deleteConfirm": {
+            "title": "Видалити оголошення?",
+            "message": "Ви впевнені, що хочете видалити «{title}»? Цю дію неможливо скасувати.",
+            "confirm": "Видалити"
+        },
+        "notifications": {
+            "deleteSuccess": "Оголошення успішно видалено",
+            "deleteError": "Не вдалося видалити оголошення",
+            "loadError": "Не вдалося завантажити оголошення",
+            "visibilityUpdated": "Видимість оголошення оновлено",
+            "visibilityError": "Помилка оновлення видимості"
+        },
+        "viewModal": {
+            "title": "Переглянути оголошення",
+            "rejectionReason": "Причина відхилення",
+            "checkedAt": "Перевірено",
+            "status": "Статус",
+            "placement": "Розміщення",
+            "city": "Місто",
+            "state": "Штат",
+            "priceFrom": "Ціна від",
+            "priceTo": "Ціна до",
+            "link": "Посилання",
+            "createdAt": "Створено",
+            "updatedAt": "Оновлено"
+        },
+        "ads": {
+            "title": "Мої оголошення",
+            "description": "Керуйте оголошеннями з повною статистикою та налаштуваннями",
+            "buyAds": "Купити рекламу",
+            "noAds": "Немає оголошень",
+            "noAdsDescription": "Купіть рекламу, щоб просувати свій бізнес",
+            "adBadge": "Реклама",
+            "columns": {
+                "photo": "Фото",
+                "title": "Назва",
+                "placement": "Розміщення",
+                "status": "Статус",
+                "visible": "Видимість",
+                "stats": "Статистика",
+                "placementDates": "Дати розміщення",
+                "createdAt": "Створено"
+            },
+            "placements": {
+                "homepage": "Головна сторінка",
+                "services": "Послуги",
+                "sidebar": "Бічна панель",
+                "banner": "Банер"
+            },
+            "stats": {
+                "impressions": "Покази",
+                "clicks": "Кліки",
+                "created": "Створено"
+            },
+            "viewModal": {
+                "title": "Переглянути оголошення",
+                "placement": "Розміщення",
+                "status": "Статус",
+                "city": "Місто",
+                "state": "Штат",
+                "impressions": "Покази",
+                "clicks": "Кліки",
+                "startDate": "Дата початку",
+                "endDate": "Кінцева дата",
+                "link": "Посилання"
+            },
+            "notifications": {
+                "deleteSuccess": "Оголошення успішно видалено",
+                "deleteError": "Не вдалося видалити оголошення",
+                "visibilityUpdated": "Видимість оголошення оновлено",
+                "visibilityError": "Помилка оновлення видимості"
+            }
+        },
+        "purchase": {
+            "title": "Купити рекламу",
+            "description": "Оберіть оголошення та рекламний пакет",
+            "back": "Назад",
+            "noAdsToPromote": "Немає оголошень для просування",
+            "createFirst": "Спочатку створіть звичайне оголошення, щоб його можна було просувати",
+            "createAd": "Створити оголошення",
+            "selectAd": "Оберіть оголошення для просування",
+            "selectPackage": "Оберіть пакет",
+            "popular": "Популярні",
+            "pop": "Pop",
+            "days": "днів",
+            "for": "для",
+            "total": "Усього",
+            "duration": "Тривалість",
+            "buyButton": "Купити рекламу",
+            "stripeDisabled": "Платежі Stripe вимкнено адміністратором платформи. Купівля реклами тимчасово недоступна.",
+            "packages": {
+                "basic": {
+                    "name": "Базові",
+                    "feature1": "розміщення на 7 днів",
+                    "feature2": "Ротація з іншою рекламою",
+                    "feature3": "Статистика показів і кліків",
+                    "feature4": "Фільтр за місцем"
+                },
+                "standard": {
+                    "name": "Стандартний",
+                    "feature1": "розміщення на 14 днів",
+                    "feature2": "Ротація з іншою рекламою",
+                    "feature3": "Статистика показів і кліків",
+                    "feature4": "Фільтр за місцем"
+                },
+                "premium": {
+                    "name": "Premium",
+                    "feature1": "розміщення на 30 днів",
+                    "feature2": "Ротація з іншою рекламою",
+                    "feature3": "Статистика показів і кліків",
+                    "feature4": "Фільтр за місцем"
+                }
+            },
+            "notifications": {
+                "success": "Рекламу активовано! Оголошення надіслано на модерацію",
+                "selectAdError": "Оберіть оголошення для просування",
+                "selectPackageError": "Оберіть рекламний пакет",
+                "activationError": "Не вдалося активувати рекламу",
+                "paymentSuccess": "Оплату успішно проведено! Рекламу активовано.",
+                "paymentCancelled": "Платіж скасовано.",
+                "paymentError": "Помилка створення платіжної сесії"
+            },
+            "successModal": {
+                "advertisement": "Оголошення",
+                "package": "Пакет",
+                "amount": "Сума платежу",
+                "duration": "Тривалість",
+                "close": "Закрити",
+                "viewAds": "Реклама"
+            }
+        }
+    },
+    "discounts": {
+        "title": "Знижки та промокоди",
+        "description": "Налаштуйте рівні лояльності (за завершеними бронюваннями) та промокоди для клієнтів.",
+        "inactive": "Неактивний",
+        "tabs": {
+            "tiers": "Рівні лояльності",
+            "promos": "Промокоди",
+            "rule": "Правило підрахунку"
+        },
+        "rule": {
+            "hint": "Які бронювання враховуються для рівнів лояльності",
+            "completed": "Лише завершені",
+            "allNonCancelled": "Усі, крім скасованих"
+        },
+        "tiers": {
+            "add": "Додати рівень",
+            "empty": "Рівнів ще немає",
+            "sequenceHint": "Додавайте рівні за зростанням порогу (спочатку менший, потім більший). Клієнт отримує один рівень — найвищий поріг, якого він досяг. Поле «верхня межа» рідко потрібне; у більшості випадків залиште його порожнім.",
+            "name": "Назва",
+            "minBookings": "Поріг (бронювання, включно)",
+            "minBookingsHelp": "Мінімальна кількість урахованих бронювань для цього рівня. Для кожного наступного рівня вкажіть більше.",
+            "advancedCap": "За бажанням: обмежити діапазон зверху",
+            "maxBookingsOptional": "До (бронювання, включно)",
+            "maxBookingsHelp": "Зазвичай залишайте порожнім: рівень діє для будь-якої кількості вище порогу, доки не застосується вищий рівень. Заповнюйте лише якщо потрібна жорстка верхня межа для цього рівня.",
+            "cardFrom": "від {min} бронювань",
+            "cardRange": "{min}–{max} бронювань",
+            "discountType": "Тип знижки",
+            "percentage": "Відсоток",
+            "fixed": "Фіксована сума",
+            "value": "Значення",
+            "sortOrder": "Порядок сортування",
+            "active": "Активні",
+            "save": "Зберегти",
+            "cancel": "Скасувати",
+            "edit": "Редагувати",
+            "delete": "Видалити"
+        },
+        "promos": {
+            "add": "Додати промокод",
+            "empty": "Немає промокодів",
+            "percentage": "Відсоток",
+            "fixed": "Фіксована сума",
+            "code": "Код",
+            "name": "Назва",
+            "description": "Опис",
+            "discountType": "Тип знижки",
+            "value": "Значення",
+            "minOrder": "Мінімальна сума замовлення",
+            "maxDiscount": "Макс. знижка (для %)",
+            "usageLimit": "Загальний ліміт використання",
+            "perUser": "Використань на клієнта",
+            "validFrom": "Дійсно з",
+            "validUntil": "Дійсно до",
+            "active": "Активні",
+            "used": "Використано",
+            "save": "Зберегти",
+            "edit": "Редагувати",
+            "delete": "Видалити"
+        }
+    },
+    "billing": {
+        "title": "Оплата",
+        "description": "Усі транзакції та платежі",
+        "noTransactions": "Немає транзакцій",
+        "columns": {
+            "date": "Дата",
+            "type": "Тип",
+            "description": "Опис",
+            "amount": "Сума",
+            "status": "Статус"
+        },
+        "types": {
+            "advertisement": "Оголошення",
+            "subscription": "Підписка",
+            "unknown": "Невідомо"
+        },
+        "statuses": {
+            "succeeded": "Успішно",
+            "pending": "Очікує",
+            "failed": "Не вдалося",
+            "canceled": "Скасовано"
+        },
+        "filters": {
+            "type": "Тип транзакції",
+            "status": "Статус",
+            "allTypes": "Усі типи",
+            "allStatuses": "Усі статуси"
+        },
+        "errors": {
+            "loadError": "Не вдалося завантажити транзакції"
+        },
+        "pagination": {
+            "prev": "Назад",
+            "next": "Далі"
+        }
+    },
+    "settings": {
+        "title": "Налаштування",
+        "description": "Налаштування бізнесу",
+        "servicesHint": "Шаблони послуг можна створити тут і використовувати під час створення оголошень у розділі",
+        "advertisementsLink": "Оголошення",
+        "tabs": {
+            "profile": "Профіль",
+            "team": "Команда",
+            "services": "Послуги",
+            "users": "Користувачі",
+            "roles": "Ролі",
+            "schedule": "Розклад",
+            "portfolio": "Портфоліо",
+            "notifications": "Сповіщення",
+            "payments": "Платежі",
+            "marketplace": "Головне"
+        },
+        "users": {
+            "title": "Користувачі",
+            "description": "Менеджери та адміністратори з доступом до панелі",
+            "invite": "Запросити",
+            "inviteTitle": "Запросити користувача",
+            "inviteDescription": "Введіть дані користувача та оберіть роль",
+            "firstName": "Ім’я",
+            "firstNamePlaceholder": "John",
+            "lastName": "Прізвище",
+            "lastNamePlaceholder": "Doe",
+            "email": "Електронна пошта",
+            "emailPlaceholder": "user@example.com",
+            "role": "Роль",
+            "selectRole": "Оберіть роль",
+            "owner": "Власник",
+            "inactive": "Неактивний",
+            "noUsers": "Немає запрошених користувачів",
+            "inviteSuccess": "Користувача запрошено",
+            "removeSuccess": "Користувача видалено",
+            "tempPassword": "Тимчасовий пароль",
+            "inviteHint": "Якщо в користувача вже є обліковий запис, його додадуть до компанії. Якщо ні — буде створено новий обліковий запис із тимчасовим паролем, який потрібно передати йому.",
+            "removeConfirm": {
+                "title": "Прибрати користувача?",
+                "message": "Ви впевнені, що хочете прибрати {name} з компанії?",
+                "confirm": "Прибрати"
+            }
+        },
+        "roles": {
+            "title": "Ролі",
+            "description": "Стандартні та власні ролі з правами",
+            "add": "Створити роль",
+            "editRole": "Редагувати роль",
+            "name": "Назва",
+            "namePlaceholder": "Назва ролі",
+            "slug": "Slug",
+            "slugPlaceholder": "role_slug",
+            "permissions": "Дозволи",
+            "systemRole": "Система",
+            "systemRoles": "Системні ролі",
+            "customRoles": "Власні ролі",
+            "noRoles": "Немає власних ролей",
+            "createSuccess": "Роль створено",
+            "updateSuccess": "Роль оновлено",
+            "deleteSuccess": "Роль видалено",
+            "permissionNames": {
+                "view_dashboard": "Панель",
+                "view_schedule": "Розклад",
+                "manage_schedule": "Керувати розкладом",
+                "view_clients": "Клієнти",
+                "manage_clients": "Керувати клієнтами",
+                "view_reviews": "Відгуки",
+                "manage_reviews": "Керувати відгуками",
+                "view_reports": "Звіти",
+                "manage_settings": "Керувати налаштуваннями",
+                "manage_users": "Керувати користувачами",
+                "manage_roles": "Керувати ролями"
+            },
+            "deleteConfirm": {
+                "title": "Видалити роль?",
+                "message": "Ви впевнені, що хочете видалити роль «{name}»?",
+                "confirm": "Видалити"
+            }
+        },
+        "profile": {
+            "title": "Профіль бізнесу",
+            "businessName": "Назва бізнесу",
+            "companyName": "Назва бізнесу",
+            "description": "Опис",
+            "category": "Категорія",
+            "phone": "Телефон",
+            "email": "Електронна пошта",
+            "telegram": "Telegram",
+            "whatsapp": "WhatsApp",
+            "website": "Вебсайт",
+            "address": "Адреса",
+            "logo": "Логотип",
+            "uploadPhoto": "Завантажити фото",
+            "recommendedSize": "Рекомендований розмір: 400×400 px",
+            "enterName": "Введіть ім’я",
+            "describeYourBusiness": "Опишіть свій бізнес",
+            "enterAddress": "Введіть адресу",
+            "publicProfile": "Публічний профіль",
+            "viewOnPlatform": "Ваш бізнес на платформі",
+            "openProfile": "Відкрити профіль",
+            "cancel": "Скасувати",
+            "save": "Зберегти",
+            "success": "Профіль успішно оновлено",
+            "error": "Не вдалося оновити профіль",
+            "avatarSuccess": "Аватар успішно завантажено",
+            "avatarError": "Не вдалося завантажити аватар",
+            "phonePlaceholder": "+1 (555) 123-4567",
+            "emailPlaceholder": "email@example.com",
+            "telegramPlaceholder": "@username або username",
+            "whatsappPlaceholder": "+1234567890",
+            "websitePlaceholder": "https://example.com"
+        },
+        "team": {
+            "title": "Команда",
+            "description": "Керувати спеціалістами та співробітниками",
+            "addMember": "Додати співробітника",
+            "editMember": "Редагувати співробітника",
+            "salarySettings": "Налаштування зарплати",
+            "noMembers": "Немає учасників команди",
+            "noMembersDescription": "Додайте першого учасника команди",
+            "statuses": {
+                "active": "Активні",
+                "inactive": "Неактивний"
+            },
+            "form": {
+                "avatar": "Аватар",
+                "uploadAvatar": "Завантажити аватар",
+                "changeAvatar": "Змінити аватар",
+                "avatarHint": "Рекомендований розмір: 400×400 px",
+                "name": "Назва",
+                "namePlaceholder": "Ім’я Прізвище",
+                "role": "Посада",
+                "rolePlaceholder": "напр.: Спеціаліст, Адміністратор"
+            },
+            "deleteConfirm": {
+                "title": "Видалити учасника команди?",
+                "message": "Ви впевнені, що хочете видалити цього учасника команди?",
+                "confirm": "Видалити"
+            },
+            "notifications": {
+                "created": "Учасника команди успішно додано",
+                "createError": "Не вдалося додати учасника команди",
+                "updated": "Учасника команди успішно оновлено",
+                "updateError": "Не вдалося оновити учасника команди",
+                "deleted": "Учасника команди успішно видалено",
+                "deleteError": "Не вдалося видалити учасника команди",
+                "avatarUploaded": "Аватар завантажено",
+                "avatarUploadError": "Не вдалося завантажити аватар"
+            }
+        },
+        "services": {
+            "title": "Шаблони послуг",
+            "description": "Створіть шаблони послуг для швидкого додавання до оголошень",
+            "hint": "Ці шаблони можна використовувати під час створення оголошень, але вони не обов’язкові — послуги можна ввести вручну",
+            "addService": "Додати послугу",
+            "editService": "Редагувати послугу",
+            "noServices": "Немає послуг",
+            "noServicesDescription": "Додайте першу послугу, щоб приймати бронювання",
+            "columns": {
+                "name": "Назва",
+                "category": "Категорія",
+                "price": "Ціна",
+                "duration": "Тривалість",
+                "status": "Статус",
+                "actions": "Дії"
+            },
+            "statuses": {
+                "active": "Активні",
+                "inactive": "Неактивний"
+            },
+            "form": {
+                "name": "Назва послуги",
+                "namePlaceholder": "напр.: стрижка",
+                "category": "Категорія",
+                "categoryPlaceholder": "напр.: послуги для волосся",
+                "description": "Опис",
+                "descriptionPlaceholder": "Опишіть послугу",
+                "price": "Ціна ($)",
+                "pricePlaceholder": "Введіть ціну",
+                "duration": "Тривалість (хв)",
+                "durationPlaceholder": "Введіть тривалість",
+                "durationUnit": "Одиниця тривалості",
+                "minutes": "хв",
+                "hours": "год",
+                "status": "Статус",
+                "serviceType": "Тип послуги",
+                "onsite": "Клієнт приїжджає до вас (на місці)",
+                "offsite": "Ви їдете до клієнта (поза офісом)",
+                "hybrid": "Гібрид (обирає клієнт)",
+                "cancel": "Скасувати",
+                "save": "Зберегти",
+                "create": "Створити"
+            },
+            "deleteConfirm": {
+                "title": "Видалити послугу?",
+                "message": "Ви впевнені, що хочете видалити цю послугу?",
+                "confirm": "Видалити"
+            },
+            "notifications": {
+                "created": "Послугу успішно створено",
+                "createError": "Не вдалося створити послугу",
+                "updated": "Послугу успішно оновлено",
+                "updateError": "Не вдалося оновити послугу",
+                "deleted": "Послугу успішно видалено",
+                "deleteError": "Не вдалося видалити послугу"
+            },
+            "additionalServices": {
+                "title": "Додаткові послуги",
+                "forService": "Послуга",
+                "manageFor": "Керувати додатковими послугами для",
+                "add": "Додати",
+                "edit": "Редагувати додаткову послугу",
+                "noItems": "Немає додаткових послуг. Натисніть «Додати», щоб створити.",
+                "statuses": {
+                    "active": "Активні",
+                    "inactive": "Неактивний"
+                },
+                "form": {
+                    "name": "Назва",
+                    "namePlaceholder": "напр.: Стайлінг",
+                    "description": "Опис",
+                    "descriptionPlaceholder": "Опис послуги",
+                    "price": "Ціна ($)",
+                    "duration": "Тривалість (хв)",
+                    "sortOrder": "Порядок сортування",
+                    "active": "Активні",
+                    "showInBooking": "Показувати в бронюванні"
+                },
+                "deleteConfirm": {
+                    "title": "Видалити додаткову послугу?",
+                    "message": "Ви впевнені, що хочете видалити цю додаткову послугу?",
+                    "confirm": "Видалити"
+                },
+                "notifications": {
+                    "created": "Додаткову послугу додано",
+                    "createError": "Не вдалося додати додаткову послугу",
+                    "updated": "Додаткову послугу оновлено",
+                    "updateError": "Не вдалося оновити додаткову послугу",
+                    "deleted": "Додаткову послугу видалено",
+                    "deleteError": "Не вдалося видалити додаткову послугу"
+                }
+            }
+        },
+        "schedule": {
+            "title": "Робочий розклад",
+            "description": "Встановіть свої робочі години",
+            "workDays": "Робочі дні",
+            "breaks": "Перерви",
+            "enableBreaks": "Увімкнути перерви",
+            "additionalSettings": "Додаткові налаштування",
+            "minBookingHours": "Мінімальний час до бронювання (години)",
+            "maxBookingDays": "Макс. строк бронювання наперед (дні)",
+            "blockPastSlots": "Блокувати минулі слоти",
+            "weekStart": {
+                "title": "Тиждень починається з",
+                "monday": "Понеділок",
+                "sunday": "Неділя"
+            },
+            "days": {
+                "monday": "Понеділок",
+                "tuesday": "Вівторок",
+                "wednesday": "Середа",
+                "thursday": "Четвер",
+                "friday": "П’ятниця",
+                "saturday": "Субота",
+                "sunday": "Неділя"
+            },
+            "notifications": {
+                "saved": "Налаштування розкладу успішно збережено",
+                "saveError": "Не вдалося зберегти налаштування"
+            }
+        },
+        "notifications": {
+            "title": "Сповіщення",
+            "description": "Налаштування сповіщень електронною поштою та SMS",
+            "emailNotifications": "Сповіщення електронною поштою",
+            "smsNotifications": "SMS-сповіщення",
+            "newBookingsNotifications": "Сповіщення про нові бронювання",
+            "cancellationsNotifications": "Сповіщення про скасування",
+            "paymentsNotifications": "Сповіщення про платежі",
+            "reviewsNotifications": "Сповіщення про відгуки",
+            "notifications": {
+                "saved": "Налаштування сповіщень успішно збережено",
+                "saveError": "Не вдалося зберегти налаштування"
+            }
+        },
+        "payments": {
+            "title": "Платежі",
+            "description": "Stripe та налаштування оплати",
+            "settingsHere": "Тут будуть налаштування оплати",
+            "stripeManagement": "Підключіть Stripe та керуйте платежами",
+            "connectStripe": "Підключити Stripe"
+        },
+        "marketplace": {
+            "title": "Маркетплейс",
+            "description": "Видимість і налаштування на маркетплейсі",
+            "visibility": {
+                "title": "Видимість на маркетплейсі",
+                "tooltip": "Керуйте видимістю бізнесу на платформі",
+                "visible": "Видимо",
+                "hidden": "Приховано",
+                "visibleOnMarketplace": "Видимо на маркетплейсі",
+                "visibleHint": "Якщо вимкнено, ваш бізнес не відображатиметься в каталозі",
+                "showInSearch": "Показувати в пошуку",
+                "allowBooking": "Дозволити онлайн-бронювання"
+            },
+            "advertising": {
+                "title": "Просування",
+                "tooltip": "Налаштування показу вашого бізнесу в рекомендаціях",
+                "showInFeatured": "Показувати в розділі «Рекомендовані»",
+                "showInFeaturedHint": "Ваш бізнес з’явиться в розділі рекомендованих послуг на головній сторінці"
+            },
+            "content": {
+                "title": "Відображення контенту",
+                "showReviews": "Показати відгуки",
+                "showPortfolio": "Показати портфоліо"
+            },
+            "seo": {
+                "title": "Налаштування SEO",
+                "seoTitle": "SEO-заголовок",
+                "seoTitlePlaceholder": "Заголовок для пошукових систем",
+                "seoTitleHint": "Рекомендована довжина: 50–60 символів",
+                "seoDescription": "SEO-опис",
+                "seoDescriptionPlaceholder": "Опис для пошукових систем",
+                "seoDescriptionHint": "Рекомендована довжина: 150–160 символів",
+                "metaKeywords": "Meta-ключові слова",
+                "metaKeywordsPlaceholder": "Ключові слова через кому"
+            },
+            "advertisements": {
+                "title": "Мої оголошення",
+                "createAd": "Створити оголошення",
+                "noAds": "У вас ще немає оголошень",
+                "noAdsHint": "Створіть перше оголошення, щоб просувати свій бізнес",
+                "columns": {
+                    "title": "Назва",
+                    "type": "Тип",
+                    "status": "Статус",
+                    "placement": "Розміщення",
+                    "createdAt": "Створено",
+                    "actions": "Дії"
+                },
+                "types": {
+                    "advertisement": "Реклама",
+                    "regular": "Звичайний"
+                },
+                "statuses": {
+                    "pending": "Очікує",
+                    "approved": "Схвалено",
+                    "rejected": "Відхилено",
+                    "active": "Активні",
+                    "inactive": "Неактивний"
+                },
+                "edit": "Редагувати",
+                "delete": "Видалити",
+                "deleteConfirm": {
+                    "title": "Видалити оголошення?",
+                    "message": "Ви впевнені, що хочете видалити оголошення «{title}»? Цю дію неможливо скасувати."
+                }
+            },
+            "notifications": {
+                "saved": "Налаштування маркетплейсу збережено",
+                "saveError": "Не вдалося зберегти налаштування",
+                "adDeleted": "Оголошення успішно видалено",
+                "adDeleteError": "Не вдалося видалити оголошення"
+            }
+        },
+        "portfolio": {
+            "title": "Портфоліо",
+            "description": "Завантажуйте та керуйте своїми роботами",
+            "uploadWork": "Завантажити роботу",
+            "noWorks": "Немає завантажених робіт",
+            "noWorksHint": "Завантажте роботи, щоб показати їх клієнтам",
+            "form": {
+                "title": "Завантажити роботу",
+                "workTitle": "Назва роботи",
+                "workTitlePlaceholder": "напр.: чоловіча стрижка",
+                "category": "Категорія",
+                "categoryPlaceholder": "напр.: стрижки",
+                "image": "Зображення",
+                "imageHint": "Рекомендований розмір: 800×800 px",
+                "upload": "Завантажити"
+            },
+            "deleteConfirm": {
+                "title": "Видалити роботу?",
+                "message": "Ви впевнені, що хочете видалити цю роботу?",
+                "confirm": "Видалити"
+            },
+            "notifications": {
+                "created": "Роботу успішно додано",
+                "createError": "Не вдалося додати роботу",
+                "deleted": "Роботу успішно видалено",
+                "deleteError": "Не вдалося видалити роботу",
+                "selectImage": "Оберіть зображення"
+            }
+        }
+    },
+    "salary": {
+        "title": "Зарплати",
+        "description": "Розраховуйте та керуйте зарплатами",
+        "calculate": "Розрахувати зарплату",
+        "overview": {
+            "totalSalary": "Загальна зарплата",
+            "specialists": "Спеціалісти",
+            "averageSalary": "Середня зарплата на спеціаліста",
+            "paidSalary": "Оплачено",
+            "pendingSalary": "До сплати"
+        },
+        "columns": {
+            "specialist": "Спеціаліст",
+            "period": "Період",
+            "bookings": "Бронювання",
+            "hours": "Години",
+            "revenue": "Дохід",
+            "salary": "Зарплата",
+            "status": "Статус"
+        },
+        "statuses": {
+            "paid": "Оплачено",
+            "pending": "До сплати"
+        },
+        "detailsBySpecialist": "Деталі за спеціалістом",
+        "noSpecialistsData": "Немає даних про спеціалістів за обраний період",
+        "loadError": "Не вдалося завантажити звіт",
+        "unknownError": "Невідома помилка",
+        "noSettingsWarning": "Оплату не налаштовано",
+        "noSettingsDescription": "У деяких спеціалістів не налаштовано виплати. Зарплата для них не розраховується. Натисніть кнопку налаштувань біля імені спеціаліста.",
+        "noSettingsTooltip": "Оплату не налаштовано",
+        "settingsTooltip": "Налаштувати оплату",
+        "unassignedBookingsWarning": "Бронювання без спеціаліста",
+        "unassignedBookingsDescription": "{count} завершених бронювань на суму ${revenue} не мають призначеного спеціаліста і не враховуються в розрахунку зарплат."
+    },
+    "reports": {
+        "selectPeriodTitle": "Оберіть період для відображення звітів",
+        "selectPeriodDescription": "Вкажіть дату початку та кінця у фільтрах вище",
+        "salaryTitle": "Зарплата",
+        "exportSalary": "Зарплата"
+    },
+    "common": {
+        "success": "Успіх",
+        "error": "Помилка",
+        "warning": "Попередження",
+        "info": "Інформація",
+        "offsite": "Мобільний",
+        "edit": "Редагувати",
+        "delete": "Видалити",
+        "cancel": "Скасувати",
+        "save": "Зберегти"
+    },
+    "salarySettings": {
+        "title": "Налаштування оплати",
+        "loading": "Завантаження налаштувань…",
+        "saveSuccess": "Налаштування оплати успішно збережено",
+        "saveError": "Не вдалося зберегти налаштування оплати",
+        "labels": {
+            "paymentType": "Тип платежу",
+            "percentRate": "Відсоткова ставка (%)",
+            "fixedAmount": "Фіксована сума",
+            "hourlyRate": "Погодинна ставка",
+            "effectiveFrom": "Діє з",
+            "effectiveTo": "Діє до (необов’язково)",
+            "active": "Активні",
+            "settingActive": "Налаштування активне"
+        },
+        "paymentTypes": {
+            "percent": "Відсоток від бронювання",
+            "fixed": "Фіксована ставка",
+            "fixedPlusPercent": "Фіксована сума + відсоток",
+            "hourly": "Погодинна ставка"
+        },
+        "placeholders": {
+            "percent": "напр. 15",
+            "fixed": "напр. 1000",
+            "hourly": "напр. 25"
+        },
+        "errors": {
+            "invalidSpecialist": "Некоректний ID спеціаліста",
+            "percentRequired": "Введіть відсоток",
+            "fixedRequired": "Введіть фіксовану суму",
+            "fixedAndPercentRequired": "Введіть фіксовану суму та відсоткову ставку",
+            "hourlyRequired": "Введіть погодинну ставку"
+        }
+    }
+}

@@ -1,0 +1,1285 @@
+ for quick selection
+#
+(for service from database)
++ {amount} overdue
++1 (555) 123-4567
++1234567890
+1 hour
+1 star
+1.5 hours
+14 days
+14 days placement
+15 minutes
+2 hours
+2 stars
+3 hours
+3 stars
+30 days
+30 days placement
+30 minutes
+30-day projection
+4 hours
+4 stars
+5 stars
+7 days
+7 days placement
+90 days
+>= {value}
+@username or username
+A backup is already running
+AWS S3
+Accounts and roles
+Action
+Actions
+Actions in the system
+Active
+Active Businesses
+Active Specialists
+Active ads now
+Active sessions
+Active sessions (recent rows)
+Activity
+Activity (last 7 days)
+Activity Log
+Activity details
+Activity history
+Activity log
+Ad
+Ad payments:
+Ad spend
+Add
+Add Client
+Add Employee
+Add More
+Add Note
+Add Service
+Add Specialist
+Add Team Member
+Add additional service
+Add additional services to this main service
+Add examples of completed work. Images will be displayed on the advertisement page.
+Add more
+Add note
+Add promo code
+Add specialists in
+Add tier
+Add tiers in ascending order of the threshold (smaller first, then larger). The customer gets one tier — the highest threshold they have reached. The “upper cap” field is rarely needed; leave it empty in most cases.
+Add your first service
+Add your first service to start accepting bookings
+Add your first specialist
+Add your first team member
+Added
+Additional
+Additional Services
+Additional Settings
+Additional service added
+Additional service deleted
+Additional service updated
+Address
+Address:
+Admin
+Admin actions
+Ads
+Ads (month)
+Advertisement
+Advertisement Name
+Advertisement created and sent for moderation
+Advertisement deleted successfully
+Advertisement successfully created
+Advertisement successfully deleted
+Advertisement successfully updated
+Advertisement updated and sent for moderation
+Advertisement visibility updated
+Advertisements
+Advertisements Pending Moderation
+Advertising
+Advertising activated! Advertisement sent for moderation
+All
+All Bookings
+All Event Types
+All Levels
+All Statuses
+All Types
+All actions
+All businesses on the platform
+All categories
+All completed bookings
+All entities
+All except cancelled
+All non-cancelled
+All payments
+All platform activity in one place
+All segments
+All statuses
+All systems operational. No active alerts.
+All time
+All time in the system
+All transactions
+All types
+Allow online booking
+Amount
+Analytics and statistics for decision-making
+Anonymous
+Any
+Application
+Apply
+Approve
+Approve "{name}"?
+Approve company?
+Approved
+Are you sure you want to delete "{title}"? This action cannot be undone.
+Are you sure you want to delete advertisement "{title}"? This action cannot be undone.
+Are you sure you want to delete role "{name}"?
+Are you sure you want to delete the advertisement "{title}"?
+Are you sure you want to delete the review of "{userName}"? This action cannot be undone.
+Are you sure you want to delete the service "{name}"?
+Are you sure you want to delete this additional service?
+Are you sure you want to delete this booking?
+Are you sure you want to delete this client? This action cannot be undone.
+Are you sure you want to delete this recurring booking chain? All future bookings will be deleted.
+Are you sure you want to delete this service?
+Are you sure you want to delete this team member?
+Are you sure you want to delete this work?
+Are you sure you want to mark this alert as resolved?
+Are you sure you want to remove {name} from the company?
+Ascending
+Attention! {count} critical alerts detected. Immediate action required.
+Authorization
+Authorization required. Please sign in.
+Automate booking and order processes
+Automatic calendar updates
+Avatar
+Avatar uploaded
+Avatar uploaded successfully
+Average Check
+Average Salary per Specialist
+Average check
+Average payment
+Average rating
+Back
+Back to clients list
+Back to companies
+Backup created
+Backup queued
+Backup removed
+Backups require a configured S3 bucket and AWS keys — see docs/BACKUP_S3.md.
+Banner
+Base price: {price} + additional services
+Base service price
+Based on completed visits
+Based on last 7 days average
+Basic
+Billing
+Block
+Block "{name}"?
+Block account
+Block company?
+Block past slots
+Blocked
+Booking
+Booking #{id}
+Booking #{id} · {company}
+Booking Slot Step
+Booking cancellation
+Booking completed. Review link generated.
+Booking reminder
+Booking slot step
+Booking successfully created
+Booking successfully deleted
+Booking successfully updated
+Booking will repeat every N days
+Bookings
+Bookings Dynamics
+Bookings Reports
+Bookings and clients statistics
+Bookings counted for loyalty
+Bookings regenerated successfully
+Bookings today
+Bookings until next tier
+Bookings without specialist
+Breaks
+Business
+Business Events
+Business Name
+Business Overview
+Business Profile
+Business Registered
+Business Settings
+Business Verified
+Business note:
+Business owner
+Business settings
+Buy Advertising
+Buy advertising to promote your business
+By amount
+By date
+By payment volume this month
+CSV
+CSV up to 93 days
+Calculate Salary
+Calculate and manage salaries
+Campaign Started
+Cancel
+Canceled
+Cancellation notifications
+Cancellations
+Cancelled
+Category
+Change Avatar
+Change photo
+Change time or date in the form.
+Changes
+Changes saved
+Changing owner will transfer company management rights to another user
+Chart failed to load
+Charts and analytics for data visualization
+Check the schedule before saving. You may need to select a different time.
+Checked at
+Checking...
+City
+Clear
+Click "Add" to add the first work
+Click or drag file to upload
+Click or drag files to upload (multiple allowed)
+Click to upload an image
+Clicks
+Client
+Client Address
+Client Details
+Client Summary
+Client actions
+Client categories (regular, permanent, VIP)
+Client comes in
+Client comes to you (On-site)
+Client created successfully
+Client management
+Client name
+Client not found
+Client note:
+Client successfully deleted
+Client updated successfully
+Clients
+Clients Reports
+Close
+Code
+Coming soon
+Comment
+Companies
+Company
+Company approved
+Company blocked
+Company details
+Company not found
+Company profile
+Company rejected
+Company updated
+Company users
+Complaint Received
+Complaints / Reviews Pending Moderation
+Complete
+Completed
+Completed bookings / all bookings (numerator is completed only)
+Completed bookings in the period (service date).
+Completed only
+Configure loyalty tiers (by completed bookings) and promo codes for clients.
+Configure payment
+Configure services and portfolio
+Confirm
+Confirmed
+Connect Stripe
+Connect Stripe and manage payments
+Connect Stripe and payment settings
+Contacts
+Content Display
+Conversion rate
+Copied
+Copy
+Could not approve
+Could not block
+Could not export CSV
+Could not get download link
+Could not load chart
+Could not reject
+Could not save
+Could not upload photo
+Count
+Counting rule
+Create
+Create Advertisement
+Create Client
+Create advertisements with full service information
+Create and manage advertisements for your services. Add descriptions, photos, prices, and schedules. Your advertisements will be visible to clients on the marketplace.
+Create backup now
+Create booking manually
+Create booking slots
+Create new client
+Create role
+Create service templates for quick addition to advertisements
+Create service templates in 
+Create templates in Settings
+Create templates in business settings
+Create your first advertisement to promote your business
+Create your first recurring booking chain
+Created
+Created:
+Creating…
+Critical
+Critical Alerts
+Currency
+Current
+Current calendar month
+Current tier
+Custom Event
+Custom roles
+DISABLED in .env (BACKUP_S3_ENABLED=false)
+Daily
+Daily avg
+Daily trends
+Dashboard
+Data refreshed: {time}
+Database
+Database of all your clients
+Date
+Date & Time
+Date & time
+Date From
+Date To
+Date from
+Date not specified
+Date to
+Day
+Day of month
+Day off
+Days
+Days of month
+Days of week
+Delete
+Delete Additional Service?
+Delete Advertisement?
+Delete Role?
+Delete Service?
+Delete Team Member?
+Delete Work?
+Delete additional service?
+Delete advertisement?
+Delete backup record?
+Delete booking?
+Delete client?
+Delete recurring booking?
+Delete review?
+Delete service?
+Delete the object in S3 and remove this row?
+Descending
+Describe the service
+Describe your advertisement
+Describe your business
+Description
+Description for search engines
+Deselect All
+Detailed analytics on bookings, clients, revenue, and specialists. Export data for further analysis.
+Detailed description of the advertisement
+Detailed description of work
+Detailed work description
+Details
+Details by Specialist
+Discount
+Discount type
+Discounts & promo codes
+Distribution by Status
+Docker save
+Doe
+Done
+Download
+Download CSV
+Draft
+Duration
+Duration (min)
+Duration (minutes)
+Duration Unit
+Duration in minutes
+Edit
+Edit Additional Service
+Edit Advertisement
+Edit Booking
+Edit Client
+Edit Employee
+Edit Recurring Booking
+Edit Response
+Edit Service
+Edit additional service
+Edit profile and contact information
+Edit response
+Edit role
+Edit user
+Effective From
+Effective To (optional)
+Email
+Email and SMS notification settings
+Email notifications
+Enable Breaks
+End Date
+End date
+Enter address
+Enter advertisement name
+Enter client name
+Enter company description
+Enter company name
+Enter duration
+Enter email
+Enter event title
+Enter manually
+Enter name
+Enter note about client...
+Enter note...
+Enter number of days
+Enter phone
+Enter price
+Enter response to review...
+Enter service name
+Enter user details and select role
+Enter website
+Enterprise
+Entity name
+Entity type
+Error
+Error creating payment session
+Error loading alerts
+Error loading chart data
+Error loading metrics
+Error updating visibility
+Event Title
+Event Type
+Events will appear automatically when companies register, large orders are placed, and other important actions occur
+Every 2 months
+Every 2 weeks
+Every 3 months
+Every 3 weeks
+Every N days
+Excel
+Execution Type
+Execution type: Offsite
+Export
+Export CSV
+Export Data
+Export error
+Failed
+Failed to activate advertising
+Failed to add additional service
+Failed to add note
+Failed to add team member
+Failed to add work
+Failed to copy link. Copy manually.
+Failed to create advertisement
+Failed to create backup
+Failed to create booking
+Failed to create client
+Failed to create recurring booking
+Failed to create service
+Failed to delete
+Failed to delete additional service
+Failed to delete advertisement
+Failed to delete booking
+Failed to delete client
+Failed to delete recurring booking
+Failed to delete review
+Failed to delete service
+Failed to delete team member
+Failed to delete work
+Failed to load
+Failed to load advertisement
+Failed to load chart
+Failed to load data
+Failed to load image. Check URL: {url}
+Failed to load list
+Failed to load report
+Failed to load system status
+Failed to load transactions
+Failed to regenerate bookings
+Failed to save additional service. Make sure the service is saved in database.
+Failed to save additional service. Make sure the service is saved in the database.
+Failed to save payment settings
+Failed to save schedule
+Failed to save service
+Failed to save settings
+Failed to save specialist
+Failed to update additional service
+Failed to update advertisement
+Failed to update booking
+Failed to update client
+Failed to update profile
+Failed to update recurring booking
+Failed to update response
+Failed to update service
+Failed to update team member
+Failed to upload avatar
+Failed to upload file {fileName}
+Failed to upload image
+Failed to upload images
+Favorite service
+Favorite specialist
+Figures: {from} — {to}
+File
+File downloaded
+Fill in all sections to create an advertisement
+Fill in the information to publish your advertisement on the marketplace
+First Last Name
+First Name
+First create a regular advertisement so it can be promoted
+First name
+First visit
+Fixed + percentage
+Fixed Amount
+Fixed amount
+Fixed rate
+For the owner you can only edit name and phone. Cannot block owner.
+Forecast
+Format
+Found
+Frequency
+Frequency details
+Friday
+From
+From today onward
+Full activity log
+Full archive: code, PostgreSQL, env files, Docker images. Built in the background (queue worker) — the app stays responsive. Storage is AWS S3 only.
+General Information
+General options, integrations, subscriptions, backups, system health, realtime metrics, and logs
+Gross Merchandise Value (GMV)
+Group reviews by advertisements
+Health Metrics
+Hidden
+Highest tier reached
+Homepage
+Hourly Rate
+Hourly rate
+Hours
+Hybrid (client chooses)
+ID
+IP
+IP address
+If disabled, your business will not appear in the catalog
+If the user already has an account, they will be added to the company. If not, a new account will be created with a temporary password that you need to share with them.
+Image
+Image uploaded
+Image uploaded successfully
+Images
+Images ({count})
+Important platform events: registrations, orders, campaigns, achievements
+Impressions
+Impressions and clicks statistics
+In Progress
+In progress
+Inactive
+Inactive Businesses
+Info
+Information
+Informational
+Internal notes
+Internal notes for booking
+Interval (days)
+Interval between available booking slots. Default: 1 hour.
+Invalid company ID
+Invalid specialist ID
+Invite
+Invite User
+John
+Joined
+Keep in S3 (last successful; 0 = keep all)
+Keywords separated by commas
+Laravel API
+Large Order
+Last 7 days
+Last Name
+Last Visit
+Last activity
+Last check
+Last completed visit
+Last login
+Last month
+Last name
+Last visit
+Leave empty for immediate placement
+Leave empty for indefinite
+Leave empty for indefinite placement
+Let's introduce you to the platform
+Level
+Lifetime totals
+Link
+Link (auto-generated)
+Link copied to clipboard
+Link is auto-generated from title
+Link to your website or profile
+List
+Listings & ads
+Load error
+Loading additional services...
+Loading cities...
+Loading error
+Loading settings...
+Location filtering
+Login
+Logo
+Logout
+Loyalty & discounts
+Loyalty ({tier})
+Loyalty is not set up — add tiers in «Discounts».
+Loyalty tiers
+Loyalty: {tier}
+Main
+Main Page Display
+Manage
+Manage Clients
+Manage Reviews
+Manage Roles
+Manage Schedule
+Manage Settings
+Manage Users
+Manage additional services
+Manage additional services for
+Manage all aspects of your business in one place
+Manage bookings and availability
+Manage business settings
+Manage client reviews
+Manage profile, team, schedule and other business settings
+Manage reviews of your advertisements
+Manage schedule
+Manage service advertisements
+Manage specialist availability
+Manage specialists and employees
+Manage statuses and moderation
+Manage team and specialists
+Manage your advertisements on the marketplace
+Manage your advertisements with full statistics and settings
+Manage your business visibility on the platform
+Manage your business working hours and available booking slots. Clients will be able to see available times and book services online.
+Manage your recurring booking chains
+Managers and admins with panel access
+Managing additional services
+Manual
+Manual Entry
+Manual entry
+Marketplace
+Marketplace Visibility
+Marketplace and promo
+Marketplace integration to attract clients
+Marketplace settings successfully saved
+Marketplace visibility and settings
+Max discount (for %)
+Maximum booking ahead (days)
+Meta Keywords
+Milestone Reached
+Min. rating
+Minimum counted bookings for this tier to apply. Each next tier should use a higher number.
+Minimum interval between bookings
+Minimum order amount
+Minimum time before booking (hours)
+Mobile
+Mobile service
+Moderation and replies
+Modify recurring booking settings
+Monday
+Month
+My Advertisements
+Name
+Never logged in
+New
+New (month)
+New Booking
+New Businesses (this month)
+New Clients
+New Companies Pending Approval
+New Users
+New Users (this month)
+New booking
+New booking notifications
+New companies
+New company: {name}
+New review
+New signups today
+New users
+New values
+Next
+Next tier
+No Advertisements
+No active alerts
+No active sessions within the current threshold window
+No activity records
+No additional services. Click "Add" to create one.
+No additional services. Click "Add" to create the first one.
+No additional services. Click "Manage" to add the first one.
+No advertisement
+No advertisements
+No advertisements to promote
+No alerts
+No backups yet
+No bookings
+No business events to display
+No cities found
+No companies
+No custom roles
+No data
+No data for specialists for the selected period
+No data for the selected period
+No data for this period
+No data to display
+No entries yet
+No invited users
+No notes
+No orders
+No payments this month
+No photo
+No portfolio items
+No promo codes
+No records found
+No recurring bookings
+No reviews
+No reviews yet
+No services
+No services added
+No services. Click "Add Service" to add the first one.
+No specialists
+No specialists in team
+No team members
+No tier yet
+No tiers yet
+No transactions
+No uploaded works
+No users
+Not specified
+Note added successfully
+Notes
+Notification settings saved
+Notification settings successfully saved
+Notifications
+Now
+Once a month
+Once a week
+Online by role (unique users)
+Online threshold: activity within the last {seconds} s.
+Online users are tracked via heartbeat from open clients. One browser tab equals one session; a user may have multiple sessions.
+Only completed
+Only published reviews
+Open
+Open Profile
+Open checkouts
+Operational
+Optional: cap the range at the top
+Or enter image URL below
+Or enter image URL:
+Order
+Order and booking history
+Orders
+Other
+Overview
+Overview Statistics
+Owner
+Package
+Paid
+Paused
+Payment Issues
+Payment Received
+Payment Settings
+Payment Type
+Payment amount
+Payment cancelled.
+Payment not configured
+Payment notifications
+Payment settings saved successfully
+Payment settings will be available soon
+Payment settings will be here
+Payment successful! Advertising activated.
+Payment trends
+Payments
+Pending
+Pending Approval (companies)
+Pending Moderation
+Pending Verification (users)
+Pending moderation
+Percent
+Percentage Rate (%)
+Percentage of booking
+Period
+Permanent
+Permissions
+Phone
+Photo
+Photo updated
+Placement
+Placement Dates
+Placement on homepage
+Plan
+Platform Alerts
+Platform Health Monitoring
+Platform Overview
+Platform and integrations
+Platform backups
+Platform trends
+Please enter duration
+Please enter event title
+Please enter fixed amount
+Please enter fixed amount and percentage rate
+Please enter hourly rate
+Please enter interval in days
+Please enter percentage rate
+Please enter price
+Please enter service name
+Please select an image
+Please select day of month
+Please select days of week
+Please select two days of month
+Pop
+Popular
+Portfolio
+Position
+PostgreSQL connection
+Premium
+Prev
+Previous
+Previous values
+Price
+Price & Notes
+Price ($)
+Price From
+Price To
+Price from
+Price to
+Pricing
+Processing
+Profile
+Profile and status
+Profile successfully updated
+Profile updated successfully
+Progress to next tier
+Project root in container
+Promo codes
+Promo {code}
+Promo: {code}
+Promote your business with advertising. Buy advertisements to place on the marketplace homepage and attract more clients.
+Promotion
+Public Profile
+Publish
+Published
+Purchase advertising
+Push notifications
+Quarter
+Queued
+Quick Actions
+Quick Statistics
+Quick access to main features
+Quick actions
+Quick search and filtering
+REXTEN is a modern platform for managing your business and promoting services on the marketplace. We'll help you efficiently manage clients, bookings, and advertising.
+Rating
+Rating distribution
+Realtime
+Recent Bookings
+Recent Business Events
+Recent activity
+Recent ad payments
+Recommended length: 150-160 characters
+Recommended length: 50-60 characters
+Recommended size: 400x400px
+Recommended size: 800x800px
+Recurring Bookings
+Recurring booking created successfully
+Recurring booking deleted successfully
+Recurring booking updated successfully
+Refresh
+Regenerate
+Register
+Register new client
+Registered
+Regular
+Reject
+Reject "{name}"?
+Reject company?
+Rejected
+Rejection Reason
+Rejection reason
+Remove
+Remove User?
+Repeat Frequency
+Reply
+Reply to review
+Report Type
+Reports
+Requires Attention
+Reset
+Resolve
+Resolved
+Respond
+Respond to Review
+Respond to client reviews
+Response to review updated
+Response updated successfully
+Retention Rate
+Retry
+Revenue
+Revenue (month)
+Revenue (paid orders)
+Revenue (this month)
+Revenue (total)
+Revenue Dynamics
+Revenue Reports
+Revenue by Service
+Revenue by Specialist
+Revenue mix
+Revenue overview for week, month, and year
+Revenue this month
+Review
+Review Flagged
+Review deleted
+Review from
+Review link for client:
+Review moderation and responses
+Review notifications
+Reviews
+Right now
+Role
+Role created
+Role deleted
+Role in company
+Role name
+Role updated
+Roles
+Rotation with other ads
+Running in the background — the site stays available. The list refreshes automatically.
+S3
+S3 not configured
+SEO Description
+SEO Settings
+SEO Title
+SMS notifications
+Salaries
+Salary
+Salary Settings
+Saturday
+Save
+Saving...
+Schedule
+Schedule saved successfully
+Schedule settings successfully saved
+Search
+Search by name, email or phone...
+Search by title, description, company...
+Search...
+See docs/BACKUP_S3.md for restore on a new server and AWS setup.
+Segment
+Select All
+Select Template
+Select a package
+Select a state first
+Select an advertisement to promote
+Select an advertisement to promote and an advertising package
+Select an advertising package
+Select category
+Select city
+Select client
+Select day of month
+Select days of week
+Select exactly two days
+Select export date range
+Select from existing
+Select owner
+Select period
+Select period to display reports
+Select role
+Select service
+Select service template (optional)
+Select specialist
+Select specialists for this advertisement
+Select state
+Select state first
+Select template or enter manually
+Select time
+Select two days of month
+Selected
+Selected time is occupied
+Selected time overlaps with existing booking. Check the schedule.
+Send this link to the client to leave a review
+Server time
+Service
+Service #{number}
+Service & Specialist
+Service Name
+Service Templates
+Service Type
+Service deleted successfully
+Service description
+Service name
+Service not specified
+Service saved successfully
+Service successfully created
+Service successfully deleted
+Service successfully updated
+Service templates can be created here and used when creating advertisements in the section
+Services
+Session
+Set advertising display period
+Set prices and working hours
+Set up automatic recurring bookings
+Set working hours for each day of the week
+Set working schedule by day of week
+Set your working hours
+Setting is active
+Settings
+Settings for displaying your business on the marketplace main page
+Settings for showing your business in recommendations
+Show in "Recommended" section
+Show in booking
+Show in search
+Show portfolio
+Show reviews
+Sidebar
+Sign up: {email} ({role})
+Signups & bookings
+Size
+Skip
+Slug
+Slug (URL)
+Some specialists do not have payment settings configured. Salary is not calculated for them. Click the settings button next to the specialist's name.
+Sort Order
+Sort by
+Sort order
+Source
+Specialist
+Specialist deleted successfully
+Specialist saved successfully
+Specialist:
+Specialists
+Specialists Reports
+Specify the start and end date in the filters above
+Spent
+Standard
+Standard and custom roles with permissions
+Start Date
+Start date
+State
+Statistics
+Status
+Stripe is not configured (STRIPE_SECRET_KEY). Cards and charts will show zeros.
+Stripe not connected — reports unavailable.
+Stripe payments are disabled by the platform administrator. Advertising purchase is temporarily unavailable.
+Subscription
+Subscription and ad payments, reports and export
+Subscriptions
+Subscriptions (month)
+Subtotal (before discount)
+Succeeded
+Success
+Sum completed
+Sum excl. cancelled
+Sum of non-final bookings — an estimate, not recognized revenue
+Sums for range: {start} — {end}
+Sunday
+Superadmin
+Suspended
+System
+System Status
+System roles
+Tag
+Take Rate
+Team
+Team Members
+Team member successfully added
+Team member successfully deleted
+Team member successfully updated
+Technical
+Telegram
+Temporary password
+Text, email, description…
+The range matches the visible calendar grid (including days from adjacent months). The month title is for navigation, not the sum boundary.
+These templates can be used when creating advertisements, but they are not required - you can enter services manually
+This Month
+This Week
+This Year
+This month
+This week
+This year
+Threshold (bookings, inclusive)
+Thursday
+Time
+Time & Duration
+Title
+Title for search engines
+To
+To Pay
+Today
+Top 5 Businesses by Revenue
+Top Clients by Bookings
+Top Clients by Revenue
+Top Services
+Top categories by services
+Top companies
+Total
+Total Active Alerts
+Total Bookings
+Total Revenue
+Total Salary
+Total actions
+Total companies
+Total reviews
+Total usage limit
+Total users (database)
+Total:
+Totals since you started tracking.
+Track advertising effectiveness
+Track rating and statistics
+Transaction Type
+Tuesday
+Twice a month
+Twice a week
+Type
+Unblock
+Unique Clients
+Unit
+Unknown
+Unknown error
+Unknown error occurred
+Up to (bookings, inclusive)
+Upcoming
+Upcoming bookings
+Upcoming bookings, pipeline estimate, active ads.
+Update
+Updated
+Upload
+Upload Avatar
+Upload Images
+Upload Photo
+Upload Work
+Upload and manage your work
+Upload logo and photos
+Upload photos and portfolio
+Upload works to show them to clients
+Uploaded {count} images
+Uploading...
+Used
+Used in company URL. Only Latin letters, numbers and hyphens.
+User
+User agent
+User details
+User invited
+User removed
+Users
+Users Pending Verification
+Users online
+Uses per client
+Usually leave empty: the tier stays in effect for any count above the threshold until a higher tier applies. Use only if you need a hard ceiling for this tier.
+VIP
+Valid from
+Valid until
+Value
+View
+View Advertisement
+View Clients
+View Dashboard
+View Profile
+View Reports
+View Reviews
+View Schedule
+View all reviews in one place
+View all transactions and payments
+View client information
+View details
+View your business on the platform
+Views
+Visibility
+Visible
+Visible calendar range. Amounts use each slot’s total. “Excl. cancelled” = all statuses except cancelled.
+Visible on marketplace
+Visit frequency
+Warning
+Warning: Selected time overlaps with existing booking
+Warnings
+Website
+Wednesday
+Week
+Week starts on
+Welcome to REXTEN!
+Welcome!
+WhatsApp
+Which bookings count toward loyalty tiers
+With response
+Without response
+Work Days
+Work Schedule
+Work Title
+Work successfully added
+Work successfully deleted
+Work title
+Working Days
+Working Schedule
+Write your response...
+Year
+You go to client (Off-site)
+You have no advertisements yet
+Your Response
+Your business will appear in the recommended services section on the homepage
+Your central control center. Here you'll find all important information about your business: sales statistics, number of clients, recent bookings, and quick actions.
+Your response
+ZIP Code
+active
+and
+bookings
+business settings → Services
+business settings → Team
+businesses
+clients
+companies pending approval
+compared to previous period
+configured
+days
+disabled
+e.g. 25.50
+e.g. 30
+e.g. Repair
+e.g. Styling
+e.g., 1000
+e.g., 15
+e.g., 25
+e.g.: Hair Services
+e.g.: Haircut
+e.g.: Haircuts
+e.g.: Men's Haircut
+e.g.: Specialist, Administrator
+e.g.: Styling
+email@example.com
+enabled
+for
+from database
+from {min} bookings
+hours
+https://example.com
+image
+indefinitely
+item
+items
+marketplace
+minutes
+new this month
+not configured (see BACKUP_S3.md)
+orders
+pending moderation
+per month
+period total
+promo
+role_slug
+scheduled
+services
+sessions:
+time
+times
+times per month
+to quickly add them to advertisements
+total amount
+transactions:
+user@example.com
+vs last month
+yesterday
+{count} completed bookings totaling ${revenue} do not have an assigned specialist and are not included in salary calculations.
+{count} more booking(s) until «{tier}»
+{count} pending approval
+{count} pending moderation
+{count} users
+{min}–{max} bookings
+💡 Create service templates in

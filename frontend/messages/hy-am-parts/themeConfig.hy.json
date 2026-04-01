@@ -1,0 +1,12 @@
+{
+    "title": "Թեմայի կարգավորում",
+    "darkMode": "Մուգ ռեժիմ",
+    "darkModeDesc": "Միացնել մուգ թեման",
+    "theme": "Թեմա",
+    "layout": "Դասավորություն",
+    "collapsible": "Թաքցվող",
+    "topBar": "Վերին վահանակ",
+    "copyConfig": "Պահպանել",
+    "copySuccess": "Պատճենվել է",
+    "copySuccessDesc": "Խնդրում ենք փոխարինել themeConfig-ը «src/configs/theme.config.ts» ֆայլում"
+}

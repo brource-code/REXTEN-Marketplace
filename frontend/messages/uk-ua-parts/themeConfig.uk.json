@@ -1,0 +1,12 @@
+{
+    "title": "Конфігурація теми",
+    "darkMode": "Темний режим",
+    "darkModeDesc": "Перемкнути тему на темну",
+    "theme": "Тема",
+    "layout": "Макет",
+    "collapsible": "Згортання",
+    "topBar": "Верхня панель",
+    "copyConfig": "Зберегти",
+    "copySuccess": "Успішно скопійовано",
+    "copySuccessDesc": "Замініть themeConfig у 'src/configs/theme.config.ts'"
+}

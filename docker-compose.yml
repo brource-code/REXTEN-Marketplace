@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: rexten_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
+      - ./backend/public:/var/www/html/public:ro
+      - ./backend/storage:/var/www/html/storage:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - rexten_network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rexten_frontend
+    expose:
+      - "3003"
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      - NODE_ENV=production
+      - DOCKER_ENV=true
+      - NEXT_PUBLIC_DOCKER_ENV=true
+    networks:
+      - rexten_network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 2G
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rexten_backend
+    expose:
+      - "9000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - QUEUE_CONNECTION=database
+      # Логи в stderr — не зависят от прав на storage/logs (php-fpm / bind-mount)
+      - LOG_CHANNEL=stderr
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/storage:/var/www/html/storage
+      - ./backend/bootstrap/cache:/var/www/html/bootstrap/cache
+      - ./backend/database:/var/www/html/database
+      # Полный бэкап платформы: код репозитория + docker save (см. BACKUP_S3.md)
+      - ./:/var/www/rexten_project:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rexten_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+  # Laravel Scheduler (алерты, platform:backup 2×/день и т.д.)
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rexten_scheduler
+    command: php artisan schedule:work
+    env_file:
+      - ./backend/.env
+    environment:
+      - QUEUE_CONNECTION=database
+      - LOG_CHANNEL=stderr
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/storage:/var/www/html/storage
+      - ./backend/bootstrap/cache:/var/www/html/bootstrap/cache
+      - ./backend/database:/var/www/html/database
+      - ./:/var/www/rexten_project:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rexten_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rexten_queue
+    command: php artisan queue:work --queue=backups,default --tries=3 --timeout=7200
+    env_file:
+      - ./backend/.env
+    environment:
+      - QUEUE_CONNECTION=database
+      - LOG_CHANNEL=stderr
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/storage:/var/www/html/storage
+      - ./backend/bootstrap/cache:/var/www/html/bootstrap/cache
+      - ./backend/database:/var/www/html/database
+      - ./:/var/www/rexten_project:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rexten_network
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - postgres
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: rexten_postgres
+    environment:
+      POSTGRES_DB: ecme_marketplace
+      POSTGRES_USER: rexten_user
+      POSTGRES_PASSWORD: rexten_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rexten_network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+
+volumes:
+  postgres_data:
+
+networks:
+  rexten_network:
+    driver: bridge

@@ -1,0 +1,793 @@
+{
+    "dashboard": {
+        "title": "Resumen de la plataforma",
+        "pageTitle": "Panel",
+        "cards": {
+            "companies": "Empresas",
+            "users": "Usuarios",
+            "bookingsToday": "Reservas hoy",
+            "vsYesterday": "ayer",
+            "revenueMonth": "Ingresos del mes",
+            "vsLastMonth": "vs mes anterior",
+            "adsActive": "Anuncios y publicaciones",
+            "marketplace": "mercado",
+            "promo": "promo",
+            "onModeration": "pendientes de moderación",
+            "avgRating": "Calificación promedio",
+            "active": "activas",
+            "pendingCompanies": "empresas pendientes de aprobación",
+            "clientsWord": "clientes",
+            "businessesWord": "negocios"
+        },
+        "charts": {
+            "sectionTitle": "Tendencias diarias",
+            "activityTitle": "Altas y reservas",
+            "revenueTitle": "Ingresos (pedidos pagados)",
+            "days14": "14 días",
+            "days30": "30 días",
+            "seriesCompanies": "Empresas nuevas",
+            "seriesUsers": "Usuarios nuevos",
+            "seriesBookings": "Reservas",
+            "seriesRevenue": "Ingresos"
+        },
+        "activity": {
+            "title": "Actividad reciente",
+            "empty": "Aún no hay registros",
+            "viewAll": "Registro completo de actividad",
+            "columnTime": "Hora",
+            "columnUser": "Usuario",
+            "columnAction": "Acción"
+        },
+        "activitySynthetic": {
+            "new_user": "Alta: {email} ({role})",
+            "new_company": "Empresa nueva: {name}",
+            "new_booking": "Reserva #{id} · {company}",
+            "new_booking_short": "Reserva #{id}"
+        },
+        "overviewChart": {
+            "title": "Tendencias de la plataforma",
+            "selectPeriod": "Periodo",
+            "periodTotal": "total del periodo",
+            "periods": {
+                "days7": "7 días",
+                "days14": "14 días",
+                "days30": "30 días"
+            },
+            "stats": {
+                "companies": "Empresas nuevas",
+                "users": "Usuarios nuevos",
+                "bookings": "Reservas",
+                "revenue": "Ingresos"
+            },
+            "seriesCompanies": "Empresas",
+            "seriesUsers": "Usuarios",
+            "seriesBookings": "Reservas",
+            "seriesRevenue": "Ingresos",
+            "chartError": "No se pudo cargar el gráfico",
+            "noData": "No hay datos para este periodo"
+        },
+        "quickActions": {
+            "title": "Acciones rápidas",
+            "manage": "Gestionar",
+            "companies": "Empresas",
+            "companiesDesc": "Todos los negocios en la plataforma",
+            "companiesDescPending": "{count} pendientes de aprobación",
+            "users": "Usuarios",
+            "usersDesc": "Cuentas y roles",
+            "advertisements": "Anuncios",
+            "adsDesc": "Marketplace y promociones",
+            "adsDescPending": "{count} pendientes de moderación",
+            "activityLog": "Registro de actividad",
+            "activityLogDesc": "Acciones en el sistema",
+            "reviews": "Reseñas",
+            "reviewsDesc": "Moderación y respuestas",
+            "settings": "Configuración",
+            "settingsDesc": "Plataforma e integraciones"
+        },
+        "topCategoriesTitle": "Principales categorías por servicios",
+        "servicesCount": "servicios",
+        "quickStats": "Estadísticas rápidas",
+        "newUsers": "Usuarios nuevos (este mes)",
+        "newBusinesses": "Negocios nuevos (este mes)",
+        "revenue": "Ingresos (este mes)",
+        "kpi": {
+            "gmv": "Volumen bruto de transacciones (GMV)",
+            "takeRate": "Tasa de comisión",
+            "activeBusinesses": "Negocios activos",
+            "newUsers": "Usuarios nuevos",
+            "retentionRate": "Tasa de retención",
+            "pendingModeration": "Pendientes de moderación",
+            "pendingCompanies": "Pendientes de aprobación (empresas)",
+            "pendingUserVerifications": "Pendientes de verificación (usuarios)",
+            "perMonth": "por mes",
+            "newPerMonth": "nuevos este mes"
+        },
+        "topBusinesses": {
+            "title": "Top 5 negocios por ingresos",
+            "bookings": "reservas",
+            "orders": "pedidos",
+            "company": "Empresa",
+            "category": "Categoría",
+            "revenueCol": "Ingresos",
+            "noData": "Sin datos"
+        },
+        "pendingActions": {
+            "title": "Requiere atención",
+            "advertisements": "Anuncios pendientes de moderación",
+            "companies": "Empresas nuevas pendientes de aprobación",
+            "reviews": "Quejas / reseñas pendientes de moderación",
+            "userVerifications": "Usuarios pendientes de verificación",
+            "inactiveBusinesses": "Negocios inactivos",
+            "paymentIssues": "Problemas de pago",
+            "items": "elementos",
+            "item": "elemento"
+        },
+        "businessEvents": {
+            "title": "Eventos recientes del negocio"
+        }
+    },
+    "billing": {
+        "title": "Facturación",
+        "description": "Pagos de suscripción y anuncios, reportes y exportación",
+        "loadError": "Error al cargar los datos",
+        "retry": "Reintentar",
+        "stripeWarning": "Stripe no está configurado (STRIPE_SECRET_KEY). Las tarjetas y gráficos mostrarán ceros.",
+        "toastSelectDates": "Seleccione el rango de fechas para exportar",
+        "toastExportOk": "Archivo descargado",
+        "toastExportErr": "No se pudo exportar el CSV",
+        "cards": {
+            "revenueMonth": "Ingresos (mes)",
+            "vsLastMonth": "vs mes anterior",
+            "adRevenue": "Anuncios (mes)",
+            "subscriptionRevenue": "Suscripciones (mes)",
+            "avgCheck": "Pago promedio",
+            "today": "Hoy",
+            "transactions": "transacciones:",
+            "openCheckouts": "Checkouts abiertos",
+            "sessions": "sesiones:"
+        },
+        "chart": {
+            "title": "Tendencias de pagos",
+            "selectPeriod": "Periodo",
+            "periods": {
+                "days7": "7 días",
+                "days14": "14 días",
+                "days30": "30 días",
+                "days90": "90 días"
+            },
+            "stats": {
+                "total": "Total",
+                "ads": "Anuncios",
+                "subscriptions": "Suscripciones"
+            },
+            "seriesTotal": "Todos los pagos",
+            "seriesAd": "Anuncios",
+            "seriesSub": "Suscripciones",
+            "chartError": "Error al cargar el gráfico",
+            "noData": "No hay datos para este periodo"
+        },
+        "structure": {
+            "title": "Composición de ingresos",
+            "subtitle": "Mes calendario actual",
+            "total": "Total",
+            "ads": "Anuncios",
+            "subscriptions": "Suscripciones",
+            "other": "Otros",
+            "error": "Error al cargar",
+            "noData": "Sin pagos este mes"
+        },
+        "transactions": {
+            "title": "Todas las transacciones",
+            "empty": "Sin transacciones",
+            "loadError": "Error al cargar",
+            "prev": "Anterior",
+            "next": "Siguiente",
+            "filters": {
+                "type": "Tipo",
+                "allTypes": "Todos los tipos"
+            },
+            "types": {
+                "advertisement": "Anuncio",
+                "subscription": "Suscripción",
+                "unknown": "Otro",
+                "other": "Otro"
+            },
+            "columns": {
+                "date": "Fecha",
+                "company": "Empresa",
+                "type": "Tipo",
+                "description": "Descripción",
+                "amount": "Importe"
+            }
+        },
+        "topCompanies": {
+            "title": "Principales empresas",
+            "subtitle": "Por volumen de pagos este mes",
+            "company": "Empresa",
+            "count": "Pagos",
+            "amount": "Importe",
+            "empty": "Sin datos",
+            "error": "Error al cargar"
+        },
+        "reports": {
+            "stripeOff": "Stripe no conectado: reportes no disponibles.",
+            "forecastTitle": "Proyección",
+            "forecastHint": "Según el promedio de los últimos 7 días",
+            "last7": "Últimos 7 días",
+            "dailyAvg": "Promedio diario",
+            "projected": "Proyección a 30 días",
+            "adSpendTitle": "Gasto en anuncios",
+            "thisMonth": "Este mes",
+            "lastMonth": "Mes anterior",
+            "adTx": "Pagos por anuncios:",
+            "recentAds": "Pagos recientes por anuncios",
+            "noCampaigns": "Sin datos",
+            "exportTitle": "Exportar",
+            "exportHint": "CSV hasta 93 días",
+            "presetToday": "Hoy",
+            "presetWeek": "7 días",
+            "presetMonth": "30 días",
+            "from": "Desde",
+            "to": "Hasta",
+            "downloadCsv": "Descargar CSV"
+        }
+    },
+    "reviews": {
+        "title": "Reseñas",
+        "description": "Moderación de reseñas y respuestas",
+        "loadError": "Error al cargar los datos",
+        "retry": "Reintentar",
+        "cards": {
+            "totalReviews": "Reseñas totales",
+            "avgRating": "Calificación promedio",
+            "publishedReviews": "Publicadas",
+            "pendingReviews": "Pendientes de moderación",
+            "respondedReviews": "Con respuesta",
+            "withoutResponseReviews": "Sin respuesta"
+        },
+        "chart": {
+            "title": "Distribución de calificaciones",
+            "subtitle": "Solo reseñas publicadas",
+            "total": "Total",
+            "error": "Error al cargar",
+            "noData": "Sin datos",
+            "labels": {
+                "rating_1": "1 estrella",
+                "rating_2": "2 estrellas",
+                "rating_3": "3 estrellas",
+                "rating_4": "4 estrellas",
+                "rating_5": "5 estrellas"
+            }
+        },
+        "table": {
+            "columns": {
+                "client": "Cliente",
+                "company": "Empresa",
+                "rating": "Calificación",
+                "review": "Reseña",
+                "status": "Estado",
+                "date": "Fecha"
+            },
+            "yourResponse": "Su respuesta",
+            "statuses": {
+                "published": "Publicada",
+                "pending": "Pendiente de moderación",
+                "rejected": "Rechazada"
+            },
+            "actions": {
+                "respond": "Responder",
+                "editResponse": "Editar respuesta",
+                "delete": "Eliminar"
+            },
+            "filters": {
+                "status": "Estado",
+                "minRating": "Calif. mín.",
+                "allStatuses": "Todos",
+                "anyMinRating": "Cualquiera",
+                "minRatingFrom": ">= {value}"
+            },
+            "prev": "Anterior",
+            "next": "Siguiente",
+            "empty": "Sin reseñas",
+            "deleteConfirm": {
+                "title": "¿Eliminar reseña?",
+                "message": "¿Confirma que desea eliminar la reseña de \"{userName}\"? Esta acción no se puede deshacer.",
+                "confirm": "Eliminar",
+                "cancel": "Cancelar"
+            }
+        },
+        "responseModal": {
+            "title": "Responder a la reseña",
+            "reviewFrom": "Reseña de",
+            "yourResponse": "Su respuesta",
+            "placeholder": "Escriba su respuesta...",
+            "cancel": "Cancelar",
+            "save": "Guardar"
+        },
+        "notifications": {
+            "responseUpdated": "Respuesta actualizada correctamente",
+            "responseError": "No se pudo actualizar la respuesta",
+            "deleteSuccess": "Reseña eliminada",
+            "deleteError": "No se pudo eliminar la reseña"
+        }
+    },
+    "platformUsers": {
+        "viewTitle": "Detalle del usuario",
+        "viewSubtitle": "Perfil y estado",
+        "edit": "Editar",
+        "block": "Bloquear",
+        "unblock": "Desbloquear",
+        "contacts": "Contacto",
+        "emailLabel": "Correo",
+        "registered": "Registro",
+        "userId": "ID",
+        "active": "Activo",
+        "blocked": "Bloqueado",
+        "additionalInfo": "Adicional",
+        "roleClient": "Cliente",
+        "roleBusiness": "Dueño del negocio",
+        "roleSuperadmin": "Superadministrador"
+    },
+    "companyDetail": {
+        "back": "Volver",
+        "backList": "Volver a empresas",
+        "subtitle": "Perfil de la empresa",
+        "badId": "ID de empresa no válido",
+        "notFound": "Empresa no encontrada",
+        "tabs": {
+            "info": "Resumen",
+            "users": "Usuarios",
+            "activity": "Actividad",
+            "stats": "Estadísticas",
+            "edit": "Editar"
+        },
+        "status": {
+            "active": "Activa",
+            "pending": "Pendiente",
+            "suspended": "Suspendida",
+            "rejected": "Rechazada"
+        },
+        "category": "Categoría",
+        "description": "Descripción",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "block": "Bloquear",
+        "confirmApproveTitle": "¿Aprobar empresa?",
+        "confirmApproveMsg": "¿Aprobar \"{name}\"?",
+        "confirmRejectTitle": "¿Rechazar empresa?",
+        "confirmRejectMsg": "¿Rechazar \"{name}\"?",
+        "confirmBlockTitle": "¿Bloquear empresa?",
+        "confirmBlockMsg": "¿Bloquear \"{name}\"?",
+        "confirm": "Confirmar",
+        "cancel": "Cancelar",
+        "toastOk": "Correcto",
+        "toastErr": "Error",
+        "approved": "Empresa aprobada",
+        "rejected": "Empresa rechazada",
+        "blocked": "Empresa bloqueada",
+        "approveFail": "No se pudo aprobar",
+        "rejectFail": "No se pudo rechazar",
+        "blockFail": "No se pudo bloquear",
+        "stats": {
+            "revenueTotal": "Ingresos (total)",
+            "bookingsTotal": "Reservas",
+            "clientsTotal": "Clientes",
+            "rating": "Calificación",
+            "chartTitle": "Ingresos",
+            "revenue": "Ingresos",
+            "periodWeek": "Esta semana",
+            "periodMonth": "Este mes",
+            "periodYear": "Este año",
+            "chartError": "Error al cargar el gráfico",
+            "noChartData": "Sin datos",
+            "week": "Esta semana",
+            "month": "Este mes",
+            "year": "Este año",
+            "bookingsWord": "reservas",
+            "clientsSection": "Clientes",
+            "clientsAll": "Total",
+            "clientsActive": "Activos",
+            "clientsNew": "Nuevos (mes)"
+        },
+        "edit": {
+            "title": "Datos de la empresa",
+            "name": "Nombre",
+            "namePlaceholder": "Ingrese el nombre de la empresa",
+            "slug": "Slug (URL)",
+            "slugHint": "Se usa en la URL de la empresa. Solo letras latinas, números y guiones.",
+            "description": "Descripción",
+            "descriptionPlaceholder": "Ingrese la descripción de la empresa",
+            "email": "Correo",
+            "phone": "Teléfono",
+            "category": "Categoría",
+            "selectCategory": "Seleccione categoría",
+            "owner": "Propietario",
+            "selectOwner": "Seleccione propietario",
+            "ownerHint": "Al cambiar el propietario se transfieren los derechos de administración de la empresa a otro usuario",
+            "status": "Estado",
+            "subscription": "Suscripción",
+            "save": "Guardar",
+            "successTitle": "Correcto",
+            "successMessage": "Empresa actualizada",
+            "errorTitle": "Error",
+            "errorMessage": "No se pudo guardar",
+            "statusPending": "Pendiente",
+            "statusActive": "Activa",
+            "statusSuspended": "Suspendida",
+            "statusRejected": "Rechazada",
+            "subscriptionBasic": "Básica",
+            "subscriptionPremium": "Premium",
+            "subscriptionEnterprise": "Enterprise"
+        },
+        "users": {
+            "title": "Usuarios de la empresa",
+            "total": "{count} usuarios",
+            "noUsers": "Sin usuarios",
+            "owner": "Propietario",
+            "edit": "Editar",
+            "editTitle": "Editar usuario",
+            "firstName": "Nombre",
+            "lastName": "Apellido",
+            "phone": "Teléfono",
+            "roleInCompany": "Rol en la empresa",
+            "blockedLabel": "Bloquear cuenta",
+            "save": "Guardar",
+            "saved": "Cambios guardados",
+            "saveError": "No se pudo guardar",
+            "ownerNote": "Al propietario solo puede editarle nombre y teléfono. No se puede bloquear al propietario.",
+            "table": {
+                "user": "Usuario",
+                "role": "Rol",
+                "contacts": "Contacto",
+                "status": "Estado",
+                "lastLogin": "Último acceso",
+                "joined": "Alta",
+                "actions": "Acciones"
+            },
+            "statuses": {
+                "active": "Activo",
+                "blocked": "Bloqueado"
+            },
+            "neverLoggedIn": "Nunca ha iniciado sesión"
+        },
+        "activity": {
+            "title": "Historial de actividad",
+            "noActivity": "Sin registros de actividad",
+            "filters": {
+                "allCategories": "Todas las categorías",
+                "category": "Categoría"
+            },
+            "categories": {
+                "company": "Empresa",
+                "booking": "Reservas",
+                "user": "Usuarios",
+                "advertisement": "Anuncios",
+                "review": "Reseñas",
+                "service": "Servicios"
+            },
+            "actions": {
+                "create": "Crear",
+                "update": "Actualizar",
+                "delete": "Eliminar",
+                "login": "Inicio de sesión",
+                "logout": "Cierre de sesión",
+                "approve": "Aprobar",
+                "reject": "Rechazar",
+                "block": "Bloquear",
+                "unblock": "Desbloquear",
+                "cancel": "Cancelar",
+                "complete": "Completar",
+                "confirm": "Confirmar"
+            },
+            "table": {
+                "date": "Fecha",
+                "user": "Usuario",
+                "action": "Acción",
+                "description": "Descripción",
+                "system": "Sistema",
+                "prev": "Ant.",
+                "next": "Sig."
+            }
+        }
+    },
+    "activity": {
+        "title": "Registro de actividad",
+        "subtitle": "Toda la actividad de la plataforma en un solo lugar",
+        "refresh": "Actualizar",
+        "exportCsv": "Exportar CSV",
+        "notFound": "No se encontraron registros",
+        "viewDetails": "Ver detalle",
+        "details": {
+            "title": "Detalle de la actividad",
+            "idLabel": "ID",
+            "sectionMain": "Resumen",
+            "sectionTech": "Técnico",
+            "changes": "Cambios",
+            "dateTime": "Fecha y hora",
+            "user": "Usuario",
+            "systemUser": "Sistema",
+            "action": "Acción",
+            "entityType": "Tipo de entidad",
+            "entityName": "Nombre de la entidad",
+            "description": "Descripción",
+            "ip": "Dirección IP",
+            "userAgent": "User agent",
+            "oldValues": "Valores anteriores",
+            "newValues": "Valores nuevos"
+        },
+        "stats": {
+            "total": "Acciones totales",
+            "today": "Hoy",
+            "adminActions": "Acciones de administración",
+            "clientActions": "Acciones de clientes"
+        },
+        "chart": {
+            "title": "Actividad (últimos 7 días)",
+            "activity": "Acciones",
+            "noData": "Sin datos"
+        },
+        "segments": {
+            "admin": "Administración",
+            "business": "Negocio",
+            "client": "Cliente",
+            "system": "Sistema"
+        },
+        "categories": {
+            "auth": "Autorización",
+            "company": "Empresas",
+            "booking": "Reservas",
+            "user": "Usuarios",
+            "advertisement": "Anuncios",
+            "review": "Reseñas",
+            "settings": "Configuración",
+            "service": "Servicios"
+        },
+        "actions": {
+            "create": "Crear",
+            "update": "Actualizar",
+            "delete": "Eliminar",
+            "login": "Inicio de sesión",
+            "logout": "Cierre de sesión",
+            "approve": "Aprobar",
+            "reject": "Rechazar",
+            "block": "Bloquear",
+            "unblock": "Desbloquear",
+            "cancel": "Cancelar",
+            "complete": "Completar",
+            "confirm": "Confirmar",
+            "register": "Registro"
+        },
+        "filters": {
+            "allSegments": "Todos los segmentos",
+            "allCategories": "Todas las categorías",
+            "allActions": "Todas las acciones",
+            "allEntities": "Todas las entidades",
+            "segment": "Segmento",
+            "category": "Categoría",
+            "action": "Acción",
+            "entityType": "Tipo de entidad",
+            "searchLabel": "Buscar",
+            "searchPlaceholder": "Texto, correo, descripción…",
+            "search": "Buscar...",
+            "apply": "Aplicar",
+            "clear": "Limpiar",
+            "dateFrom": "Desde",
+            "dateTo": "Hasta",
+            "entityCategory": "Categoría"
+        },
+        "table": {
+            "date": "Fecha",
+            "user": "Usuario",
+            "segment": "Segmento",
+            "action": "Acción",
+            "description": "Descripción",
+            "company": "Empresa",
+            "system": "Sistema",
+            "prev": "Ant.",
+            "next": "Sig."
+        }
+    },
+    "companiesTable": {
+        "open": "Abrir",
+        "toStats": "Estadísticas",
+        "toEdit": "Editar",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "block": "Bloquear",
+        "colName": "Nombre",
+        "colOwner": "Propietario",
+        "colContacts": "Contacto",
+        "colStatus": "Estado",
+        "colSubscription": "Plan",
+        "colRevenue": "Ingresos",
+        "colBookings": "Reservas",
+        "empty": "Sin empresas",
+        "confirm": "Confirmar",
+        "cancel": "Cancelar",
+        "toastOk": "Correcto",
+        "toastErr": "Error",
+        "approved": "Empresa aprobada",
+        "rejected": "Empresa rechazada",
+        "blocked": "Empresa bloqueada",
+        "approveFail": "No se pudo aprobar",
+        "rejectFail": "No se pudo rechazar",
+        "blockFail": "No se pudo bloquear",
+        "confirmApproveTitle": "¿Aprobar empresa?",
+        "confirmApproveMsg": "¿Aprobar \"{name}\"?",
+        "confirmRejectTitle": "¿Rechazar empresa?",
+        "confirmRejectMsg": "¿Rechazar \"{name}\"?",
+        "confirmBlockTitle": "¿Bloquear empresa?",
+        "confirmBlockMsg": "¿Bloquear \"{name}\"?",
+        "status": {
+            "active": "Activa",
+            "pending": "Pendiente",
+            "suspended": "Suspendida",
+            "rejected": "Rechazada"
+        },
+        "subscription": {
+            "basic": "Básica",
+            "premium": "Premium",
+            "enterprise": "Enterprise"
+        }
+    },
+    "health": {
+        "title": "Monitoreo de salud de la plataforma",
+        "systemStatus": {
+            "title": "Estado del sistema",
+            "database": "Base de datos",
+            "databaseDesc": "Conexión a PostgreSQL",
+            "application": "Aplicación",
+            "applicationDesc": "API Laravel",
+            "operational": "Operativo",
+            "error": "Error",
+            "checking": "Comprobando...",
+            "lastCheck": "Última verificación",
+            "loadError": "Error al cargar el estado del sistema"
+        },
+        "metrics": {
+            "title": "Métricas de salud",
+            "totalActive": "Alertas activas totales",
+            "critical": "Alertas críticas",
+            "warnings": "Advertencias",
+            "info": "Informativas",
+            "allOk": "Todos los sistemas operativos. Sin alertas activas.",
+            "criticalAttention": "¡Atención! Se detectaron {count} alertas críticas. Se requiere acción inmediata.",
+            "loadError": "Error al cargar métricas"
+        },
+        "alerts": {
+            "title": "Alertas de la plataforma",
+            "allLevels": "Todos los niveles",
+            "critical": "Críticas",
+            "warning": "Advertencias",
+            "info": "Información",
+            "active": "Activas",
+            "resolved": "Resueltas",
+            "all": "Todas",
+            "level": "Nivel",
+            "titleCol": "Título",
+            "description": "Descripción",
+            "source": "Origen",
+            "created": "Creada",
+            "status": "Estado",
+            "actions": "Acciones",
+            "resolve": "Resolver",
+            "activeStatus": "Activa",
+            "noActive": "Sin alertas activas",
+            "noAlerts": "Sin alertas",
+            "loadError": "Error al cargar alertas",
+            "confirmResolve": "¿Confirma que desea marcar esta alerta como resuelta?"
+        }
+    },
+    "backups": {
+        "title": "Respaldos de la plataforma",
+        "description": "Archivo completo: código, PostgreSQL, archivos .env, imágenes Docker. Se genera en segundo plano (worker de cola); la aplicación sigue respondiendo. El almacenamiento es solo AWS S3.",
+        "s3RequiredHint": "Los respaldos requieren un bucket S3 configurado y claves AWS; consulte docs/BACKUP_S3.md.",
+        "s3NotReadyTitle": "S3 no configurado",
+        "create": "Crear respaldo ahora",
+        "creating": "Creando…",
+        "createQueued": "Respaldo en cola",
+        "createQueuedHint": "Se ejecuta en segundo plano; el sitio sigue disponible. La lista se actualiza sola.",
+        "conflictTitle": "Ya hay un respaldo en ejecución",
+        "refresh": "Actualizar",
+        "empty": "Aún no hay respaldos",
+        "loadError": "Error al cargar la lista",
+        "createSuccess": "Respaldo creado",
+        "createError": "No se pudo crear el respaldo",
+        "deleteSuccess": "Respaldo eliminado",
+        "deleteError": "No se pudo eliminar",
+        "deleteConfirm": "¿Eliminar el registro del respaldo?",
+        "deleteConfirmS3": "¿Eliminar el objeto en S3 y quitar esta fila?",
+        "downloadError": "No se pudo obtener el enlace de descarga",
+        "cancel": "Cancelar",
+        "hintDocs": "Consulte docs/BACKUP_S3.md para restaurar en un servidor nuevo y la configuración de AWS.",
+        "config": {
+            "title": "Estado",
+            "projectRoot": "Raíz del proyecto en el contenedor",
+            "docker": "Docker save",
+            "dockerOn": "activado",
+            "dockerOff": "desactivado",
+            "s3": "AWS S3",
+            "s3On": "configurado",
+            "s3Off": "no configurado (ver BACKUP_S3.md)",
+            "s3FlagOff": "DESACTIVADO en .env (BACKUP_S3_ENABLED=false)",
+            "s3Keep": "Conservar en S3 (último exitoso; 0 = conservar todos)"
+        },
+        "table": {
+            "file": "Archivo",
+            "size": "Tamaño",
+            "created": "Creado",
+            "trigger": "Tipo",
+            "status": "Estado",
+            "statusQueued": "En cola",
+            "statusProcessing": "Procesando",
+            "statusCompleted": "Listo",
+            "statusFailedRun": "Fallido",
+            "s3": "S3",
+            "actions": "Acciones",
+            "download": "Descargar",
+            "delete": "Eliminar",
+            "triggerManual": "Manual",
+            "triggerScheduled": "programado",
+            "statusFailed": "Fallido"
+        }
+    },
+    "businessEvents": {
+        "title": "Eventos del negocio",
+        "description": "Eventos importantes de la plataforma: altas, pedidos, campañas, logros",
+        "filters": {
+            "search": "Buscar por título, descripción, empresa...",
+            "allTypes": "Todos los tipos de evento",
+            "clear": "Limpiar"
+        },
+        "types": {
+            "business_registered": "Negocio registrado",
+            "large_order": "Pedido grande",
+            "campaign_started": "Campaña iniciada",
+            "complaint_received": "Queja recibida",
+            "milestone_reached": "Hito alcanzado",
+            "payment_received": "Pago recibido",
+            "business_verified": "Negocio verificado",
+            "review_flagged": "Reseña marcada"
+        },
+        "timeline": {
+            "noEvents": "No hay eventos del negocio para mostrar",
+            "noEventsDesc": "Los eventos aparecerán automáticamente cuando se registren empresas, se realicen pedidos grandes y ocurran otras acciones importantes",
+            "company": "Empresa",
+            "user": "Usuario"
+        }
+    },
+    "settingsPlatform": {
+        "pageSubtitle": "Opciones generales, integraciones, suscripciones, respaldos, salud del sistema, métricas en tiempo real y registros",
+        "tabs": {
+            "realtime": "Tiempo real"
+        },
+        "realtime": {
+            "title": "Tiempo real",
+            "description": "Los usuarios en línea se registran con latidos desde los clientes abiertos. Una pestaña del navegador equivale a una sesión; un usuario puede tener varias sesiones.",
+            "thresholdHint": "Umbral en línea: actividad en los últimos {seconds} s.",
+            "onlineUsers": "Usuarios en línea",
+            "onlineSessions": "Sesiones activas",
+            "serverTime": "Hora del servidor",
+            "bookingsToday": "Reservas hoy",
+            "newUsersToday": "Altas hoy",
+            "usersTotal": "Usuarios totales (base de datos)",
+            "companiesTotal": "Empresas totales",
+            "onlineByRole": "En línea por rol (usuarios únicos)",
+            "sessionsTitle": "Sesiones activas (filas recientes)",
+            "colEmail": "Correo",
+            "colRole": "Rol",
+            "colLastSeen": "Última actividad",
+            "colSession": "Sesión",
+            "colUa": "Cliente",
+            "colIp": "IP",
+            "empty": "No hay sesiones activas dentro de la ventana de umbral actual",
+            "refresh": "Actualizar",
+            "lastUpdated": "Datos actualizados: {time}",
+            "roles": {
+                "CLIENT": "Cliente",
+                "BUSINESS_OWNER": "Negocio",
+                "SUPERADMIN": "Superadministrador"
+            }
+        }
+    }
+}

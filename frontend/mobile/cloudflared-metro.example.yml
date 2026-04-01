@@ -1,0 +1,7 @@
+# Добавь в config туннеля или через UI: Zero Trust → Tunnels → Public Hostname
+# metro.rexten.live → http://127.0.0.1:8081
+#
+# ingress:
+#   - hostname: metro.rexten.live
+#     service: http://127.0.0.1:8081
+#   - service: http_status:404

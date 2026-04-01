@@ -1,0 +1,129 @@
+{
+    "signIn": {
+        "title": "Մուտք",
+        "welcome": "Բարի գալուստ։",
+        "enterData": "Մուտք գործելու համար մուտքագրեք ձեր տվյալները",
+        "email": "Էլ․ փոստ",
+        "password": "Գաղտնաբառ",
+        "rememberMe": "Հիշել ինձ",
+        "forgotPassword": "Մոռացե՞լ եք գաղտնաբառը",
+        "signInButton": "Մուտք",
+        "signingIn": "Մուտք է կատարվում…",
+        "noAccount": "Հաշիվ չունե՞ք",
+        "noAccountText": "Հաշիվ չունե՞ք",
+        "signUp": "Գրանցվել",
+        "orContinue": "կամ շարունակել",
+        "validation": {
+            "emailRequired": "Մուտքագրեք էլ․ փոստը",
+            "passwordRequired": "Մուտքագրեք գաղտնաբառը"
+        },
+        "registrationClosedNotice": "Նոր հաշվի գրանցումը ժամանակավորապես անջատված է ադմինիստրատորի կողմից։"
+    },
+    "signUp": {
+        "title": "Գրանցում",
+        "subtitle": "Ստեղծեք հաշիվ և սկսեք աշխատել",
+        "registeringAs": "Գրանցվում եմ որպես",
+        "client": "Հաճախորդ",
+        "businessOwner": "Բիզնեսի սեփականատեր",
+        "firstName": "Անուն",
+        "lastName": "Ազգանուն",
+        "email": "Էլ․ փոստ",
+        "phone": "Հեռախոս",
+        "phonePlaceholder": "+1 (555) 123-4567",
+        "password": "Գաղտնաբառ",
+        "passwordPlaceholder": "Գաղտնաբառ (առնվազն 8 նիշ)",
+        "confirmPassword": "Հաստատել գաղտնաբառը",
+        "confirmPasswordPlaceholder": "Կրկին մուտքագրեք գաղտնաբառը",
+        "agreeTerms": "Համաձայն եմ",
+        "termsOfService": "օգտագործման պայմաններին",
+        "privacyPolicy": "գաղտնիության քաղաքականությանը",
+        "cookiePolicy": "թխուկների քաղաքականությանը",
+        "and": "և",
+        "signUpButton": "Գրանցվել",
+        "creatingAccount": "Հաշիվը ստեղծվում է…",
+        "haveAccount": "Արդեն ունե՞ք հաշիվ",
+        "signIn": "Մուտք",
+        "validation": {
+            "emailRequired": "Մուտքագրեք վավեր էլ․ փոստ",
+            "firstNameRequired": "Մուտքագրեք անունը",
+            "lastNameRequired": "Մուտքագրեք ազգանունը",
+            "passwordMinLength": "Գաղտնաբառը պետք է լինի առնվազն 8 նիշ",
+            "confirmPasswordRequired": "Հաստատեք գաղտնաբառը",
+            "passwordsNotMatch": "Գաղտնաբառերը չեն համընկնում",
+            "agreeTermsRequired": "Պետք է համաձայնեք օգտագործման պայմաններին"
+        },
+        "oauth": {
+            "agreeTerms": "Կոճակը սեղմելով՝ համաձայն եք",
+            "termsOfService": "օգտագործման պայմաններին",
+            "privacyPolicy": "գաղտնիության քաղաքականությանը",
+            "and": "և"
+        }
+    },
+    "forgotPassword": {
+        "title": "Մոռացված գաղտնաբառ",
+        "description": "Մուտքագրեք էլ․ փոստը, և մենք կուղարկենք հղում գաղտնաբառը վերակայելու համար",
+        "email": "Էլ․ փոստ",
+        "sendButton": "Ուղարկել",
+        "backToSignIn": "Վերադառնալ մուտք"
+    },
+    "resetPassword": {
+        "title": "Գաղտնաբառի վերակայում",
+        "newPassword": "Նոր գաղտնաբառ",
+        "confirmPassword": "Հաստատել գաղտնաբառը",
+        "resetButton": "Վերակայել գաղտնաբառը"
+    },
+    "businessSignUp": {
+        "title": "Բիզնեսի գրանցում",
+        "subtitle": "Ստեղծեք հաշիվ ձեր բիզնեսի համար",
+        "backToSignUp": "Վերադառնալ գրանցմանը",
+        "steps": {
+            "step1": {
+                "title": "Անձնական տվյալներ",
+                "description": "Ձեր մասին հիմնական տեղեկություն"
+            },
+            "step2": {
+                "title": "Անվտանգություն",
+                "description": "Ստեղծեք գաղտնաբառ"
+            },
+            "step3": {
+                "title": "Բիզնեսի տվյալներ",
+                "description": "Ձեր բիզնեսի տեղեկություն"
+            }
+        },
+        "fields": {
+            "businessName": "Բիզնեսի անվանում",
+            "businessNamePlaceholder": "Բիզնեսի անվանում",
+            "businessDescription": "Նկարագրություն",
+            "businessDescriptionPlaceholder": "Կարճ նկարագրություն ձեր բիզնեսի մասին",
+            "businessAddress": "Հասցե",
+            "businessAddressPlaceholder": "Բիզնեսի լրիվ հասցե",
+            "businessPhone": "Բիզնեսի հեռախոս",
+            "businessEmail": "Բիզնեսի էլ․ փոստ",
+            "businessEmailPlaceholder": "business@example.com",
+            "businessWebsite": "Կայք",
+            "businessWebsitePlaceholder": "https://example.com"
+        },
+        "buttons": {
+            "back": "Հետ",
+            "next": "Հաջորդը",
+            "register": "Գրանցվել",
+            "creating": "Հաշիվը ստեղծվում է…"
+        },
+        "validation": {
+            "businessNameRequired": "Մուտքագրեք բիզնեսի անվանումը",
+            "businessAddressRequired": "Մուտքագրեք բիզնեսի հասցեն",
+            "businessPhoneRequired": "Մուտքագրեք բիզնեսի հեռախոսը",
+            "businessEmailInvalid": "Մուտքագրեք վավեր բիզնեսի էլ․ փոստ"
+        },
+        "messages": {
+            "accountCreated": "Հաշիվը ստեղծվել է։",
+            "welcomeRedirect": "Բարի գալուստ։ Կուղղորդվեք ձեր վահանակ։",
+            "warning": "Զգուշացում",
+            "accountCreatedButNotSaved": "Հաշիվը ստեղծվել է, բայց բիզնեսի տվյալները չեն պահպանվել։ Կարող եք լրացնել դրանք կարգավորումներում։",
+            "registrationError": "Գրանցման սխալ",
+            "validationError": "Վավերացման սխալ",
+            "tryAgain": "Գրանցման սխալ։ Խնդրում ենք կրկին փորձել։"
+        }
+    },
+    "checkingAccess": "Մուտքի ստուգում…"
+}

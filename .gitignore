@@ -1,0 +1,50 @@
+# Секреты и локальная конфигурация
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Зависимости
+**/node_modules/
+backend/vendor/
+
+# Laravel (кэш и логи — не в git)
+backend/storage/*.key
+backend/storage/framework/cache/**
+backend/storage/framework/sessions/**
+backend/storage/framework/views/**
+backend/storage/logs/**
+!backend/storage/**/.gitignore
+backend/bootstrap/cache/**
+!backend/bootstrap/cache/.gitignore
+
+# Next.js / фронт
+frontend/.next/
+frontend/out/
+
+# Expo / мобильное
+frontend/mobile/.expo/
+frontend/mobile/dist/
+
+# IDE и ОС
+.DS_Store
+.idea/
+.vscode/
+.cursor/
+.trae/
+
+# Логи
+*.log
+npm-debug.log*
+
+# Большие локальные архивы в корне (не коммитить — гигабайты)
+/ecme-admin.zip
+/mobile 2.zip
+
+# Опционально: тяжёлые временные файлы в корне
+translations_review*.xlsx
+
+# Крупные архивы во frontend (сотни МБ; иначе push на GitHub падает)
+frontend/*.zip
+frontend/*.tar.gz
+!frontend/logo-complete.tar.gz

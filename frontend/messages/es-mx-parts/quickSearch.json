@@ -1,0 +1,34 @@
+{
+    "placeholder": "Search data…",
+    "loading": "Searching…",
+    "noResults": "No results for",
+    "hintWrongArea": "Search available in business or superadmin areas",
+    "hint": {
+        "title": "Smart search",
+        "descBusiness": "Search by part of a name, email, US phone like +1 (555) 234-5678, booking or service text — substring match in any relevant field.",
+        "descAdmin": "Companies & users — name, email, phone (including US formats), address, city; listings & categories — text and slug.",
+        "tryIt": "Example queries",
+        "minChars": "Type at least 2 characters to search"
+    },
+    "examples": {
+        "bizName": "part of a client’s first or last name",
+        "bizUsPhone": "fragment of a US number, e.g. (555) or 234",
+        "bizEmail": "part of an email (e.g. domain)",
+        "adminCompany": "part of a company name (Inc, LLC…)",
+        "adminEmail": "part of a user’s email",
+        "adminAddress": "street or city as stored on the company"
+    },
+    "sections": {
+        "clients": "Clients",
+        "bookings": "Bookings",
+        "services": "Services",
+        "team": "Team",
+        "advertisements": "Listings & ads",
+        "promo_codes": "Promo codes",
+        "reviews": "Reviews",
+        "recurring": "Recurring bookings",
+        "companies": "Companies",
+        "users": "Users",
+        "categories": "Categories"
+    }
+}

@@ -1,0 +1,14 @@
+@layer components {
+  .toast {
+    @apply fixed z-[9999];
+  }
+  
+  /* Исправление центрирования для top-center на мобильных устройствах */
+  @media (max-width: 640px) {
+    .toast-wrapper {
+      width: 100%;
+      max-width: calc(100vw - 32px);
+      margin: 0 auto;
+    }
+  }
+}

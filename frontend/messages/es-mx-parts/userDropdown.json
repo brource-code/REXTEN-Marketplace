@@ -1,0 +1,11 @@
+{
+    "accountSettings": "Account Settings",
+    "signOut": "Sign Out",
+    "anonymous": "Anonymous",
+    "emailNotSpecified": "Email not specified",
+    "roles": {
+        "businessOwner": "Business Owner",
+        "superadmin": "Superadmin",
+        "client": "Client"
+    }
+}

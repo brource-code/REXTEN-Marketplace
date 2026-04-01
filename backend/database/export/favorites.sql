@@ -1,0 +1,7 @@
+INSERT INTO favorites (id, user_id, favoriteable_type, favoriteable_id, created_at, updated_at) VALUES (9, 3, 'advertisement', 75, '2025-12-13 23:18:21', '2025-12-13 23:18:21');
+INSERT INTO favorites (id, user_id, favoriteable_type, favoriteable_id, created_at, updated_at) VALUES (10, 3, 'advertisement', 74, '2025-12-13 23:34:38', '2025-12-13 23:34:38');
+INSERT INTO favorites (id, user_id, favoriteable_type, favoriteable_id, created_at, updated_at) VALUES (13, 3, 'advertisement', 71, '2025-12-14 17:57:40', '2025-12-14 17:57:40');
+INSERT INTO favorites (id, user_id, favoriteable_type, favoriteable_id, created_at, updated_at) VALUES (15, 3, 'advertisement', 80, '2025-12-14 20:19:23', '2025-12-14 20:19:23');
+INSERT INTO favorites (id, user_id, favoriteable_type, favoriteable_id, created_at, updated_at) VALUES (16, 3, 'advertisement', 102, '2025-12-22 21:34:23', '2025-12-22 21:34:23');
+INSERT INTO favorites (id, user_id, favoriteable_type, favoriteable_id, created_at, updated_at) VALUES (17, 11, 'advertisement', 103, '2025-12-24 16:13:29', '2025-12-24 16:13:29');
+INSERT INTO favorites (id, user_id, favoriteable_type, favoriteable_id, created_at, updated_at) VALUES (18, 14, 'advertisement', 104, '2025-12-25 20:11:32', '2025-12-25 20:11:32');

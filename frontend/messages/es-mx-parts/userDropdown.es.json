@@ -1,0 +1,11 @@
+{
+    "accountSettings": "Configuración de la cuenta",
+    "signOut": "Cerrar sesión",
+    "anonymous": "Anónimo",
+    "emailNotSpecified": "Correo no indicado",
+    "roles": {
+        "businessOwner": "Dueño del negocio",
+        "superadmin": "Superadministrador",
+        "client": "Cliente"
+    }
+}

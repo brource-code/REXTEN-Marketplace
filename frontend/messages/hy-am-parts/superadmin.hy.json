@@ -1,0 +1,793 @@
+{
+    "dashboard": {
+        "title": "Հարթակի ակնարկ",
+        "pageTitle": "Վահանակ",
+        "cards": {
+            "companies": "Ընկերություններ",
+            "users": "Օգտատերեր",
+            "bookingsToday": "Ամրագրումներ այսօր",
+            "vsYesterday": "երեկ",
+            "revenueMonth": "Եկամուտ այս ամիս",
+            "vsLastMonth": "նախորդ ամսվա համեմատ",
+            "adsActive": "Առաջարկներ և գովազդներ",
+            "marketplace": "շուկա",
+            "promo": "պրոմո",
+            "onModeration": "մոդերացիայի սպասում",
+            "avgRating": "Միջին գնահատական",
+            "active": "ակտիվ",
+            "pendingCompanies": "ընկերություններ հաստատման սպասում",
+            "clientsWord": "հաճախորդներ",
+            "businessesWord": "բիզնեսներ"
+        },
+        "charts": {
+            "sectionTitle": "Օրական միտումներ",
+            "activityTitle": "Գրանցումներ և ամրագրումներ",
+            "revenueTitle": "Եկամուտ (վճարված պատվերներ)",
+            "days14": "14 օր",
+            "days30": "30 օր",
+            "seriesCompanies": "Նոր ընկերություններ",
+            "seriesUsers": "Նոր օգտատերեր",
+            "seriesBookings": "Ամրագրումներ",
+            "seriesRevenue": "Եկամուտ"
+        },
+        "activity": {
+            "title": "Վերջին ակտիվություն",
+            "empty": "Գրառումներ դեռ չկան",
+            "viewAll": "Ամբողջ ակտիվության մատյան",
+            "columnTime": "Ժամ",
+            "columnUser": "Օգտատեր",
+            "columnAction": "Գործողություն"
+        },
+        "activitySynthetic": {
+            "new_user": "Գրանցում՝ {email} ({role})",
+            "new_company": "Նոր ընկերություն՝ {name}",
+            "new_booking": "Ամրագրում #{id} · {company}",
+            "new_booking_short": "Ամրագրում #{id}"
+        },
+        "overviewChart": {
+            "title": "Հարթակի միտումներ",
+            "selectPeriod": "Ժամանակահատված",
+            "periodTotal": "ժամանակահատվածի ընդհանուր",
+            "periods": {
+                "days7": "7 օր",
+                "days14": "14 օր",
+                "days30": "30 օր"
+            },
+            "stats": {
+                "companies": "Նոր ընկերություններ",
+                "users": "Նոր օգտատերեր",
+                "bookings": "Ամրագրումներ",
+                "revenue": "Եկամուտ"
+            },
+            "seriesCompanies": "Ընկերություններ",
+            "seriesUsers": "Օգտատերեր",
+            "seriesBookings": "Ամրագրումներ",
+            "seriesRevenue": "Եկամուտ",
+            "chartError": "Հնարավոր չէր բեռնել գրաֆիկը",
+            "noData": "Տվյալներ չկան այս ժամանակահատվածում"
+        },
+        "quickActions": {
+            "title": "Արագ գործողություններ",
+            "manage": "Կառավարել",
+            "companies": "Ընկերություններ",
+            "companiesDesc": "Բոլոր բիզնեսները հարթակում",
+            "companiesDescPending": "{count} հաստատման սպասում",
+            "users": "Օգտատերեր",
+            "usersDesc": "Հաշիվներ և դերեր",
+            "advertisements": "Հայտարարություններ",
+            "adsDesc": "Շուկա և պրոմո",
+            "adsDescPending": "{count} մոդերացիայի սպասում",
+            "activityLog": "Ակտիվության մատյան",
+            "activityLogDesc": "Գործողություններ համակարգում",
+            "reviews": "Կարծիքներ",
+            "reviewsDesc": "Մոդերացիա և պատասխաններ",
+            "settings": "Կարգավորումներ",
+            "settingsDesc": "Հարթակ և ինտեգրացիաներ"
+        },
+        "topCategoriesTitle": "Թոփ կատեգորիաներ ըստ ծառայությունների",
+        "servicesCount": "ծառայություններ",
+        "quickStats": "Արագ վիճակագրություն",
+        "newUsers": "Նոր օգտատերեր (այս ամիս)",
+        "newBusinesses": "Նոր բիզնեսներ (այս ամիս)",
+        "revenue": "Եկամուտ (այս ամիս)",
+        "kpi": {
+            "gmv": "Ընդհանուր ապրանքաշրջանառություն (GMV)",
+            "takeRate": "Միջնորդավճարի տոկոս",
+            "activeBusinesses": "Ակտիվ բիզնեսներ",
+            "newUsers": "Նոր օգտատերեր",
+            "retentionRate": "Պահպանման աստիճան",
+            "pendingModeration": "Մոդերացիայի սպասում",
+            "pendingCompanies": "Հաստատման սպասում (ընկերություններ)",
+            "pendingUserVerifications": "Ստուգման սպասում (օգտատերեր)",
+            "perMonth": "ամիսը",
+            "newPerMonth": "նոր այս ամիս"
+        },
+        "topBusinesses": {
+            "title": "Թոփ 5 բիզնես եկամտով",
+            "bookings": "ամրագրումներ",
+            "orders": "պատվերներ",
+            "company": "Ընկերություն",
+            "category": "Կատեգորիա",
+            "revenueCol": "Եկամուտ",
+            "noData": "Տվյալներ չկան"
+        },
+        "pendingActions": {
+            "title": "Պահանջում է ուշադրություն",
+            "advertisements": "Հայտարարություններ մոդերացիայի սպասում",
+            "companies": "Նոր ընկերություններ հաստատման սպասում",
+            "reviews": "Բողոքներ / կարծիքներ մոդերացիայի սպասում",
+            "userVerifications": "Օգտատերեր ստուգման սպասում",
+            "inactiveBusinesses": "Ոչ ակտիվ բիզնեսներ",
+            "paymentIssues": "Վճարման խնդիրներ",
+            "items": "տարրեր",
+            "item": "տարր"
+        },
+        "businessEvents": {
+            "title": "Վերջին բիզնես իրադարձություններ"
+        }
+    },
+    "billing": {
+        "title": "Վճարումներ",
+        "description": "Բաժանորդագրություն և գովազդային վճարումներ, հաշվետվություններ և արտահանում",
+        "loadError": "Հնարավոր չէր բեռնել տվյալները",
+        "retry": "Կրկնել",
+        "stripeWarning": "Stripe-ը կարգավորված չէ (STRIPE_SECRET_KEY)։ Քարտերն ու գրաֆիկները կլինեն զրո։",
+        "toastSelectDates": "Ընտրեք արտահանման ամսաթվերի միջակայք",
+        "toastExportOk": "Ֆայլը ներբեռնվել է",
+        "toastExportErr": "Հնարավոր չէր արտահանել CSV",
+        "cards": {
+            "revenueMonth": "Եկամուտ (ամիս)",
+            "vsLastMonth": "նախորդ ամսվա համեմատ",
+            "adRevenue": "Գովազդներ (ամիս)",
+            "subscriptionRevenue": "Բաժանորդագրություններ (ամիս)",
+            "avgCheck": "Միջին վճար",
+            "today": "Այսօր",
+            "transactions": "գործարքներ՝",
+            "openCheckouts": "Բաց վճարումներ",
+            "sessions": "սեսիաներ՝"
+        },
+        "chart": {
+            "title": "Վճարումների միտումներ",
+            "selectPeriod": "Ժամանակահատված",
+            "periods": {
+                "days7": "7 օր",
+                "days14": "14 օր",
+                "days30": "30 օր",
+                "days90": "90 օր"
+            },
+            "stats": {
+                "total": "Ընդհանուր",
+                "ads": "Գովազդներ",
+                "subscriptions": "Բաժանորդագրություններ"
+            },
+            "seriesTotal": "Բոլոր վճարումները",
+            "seriesAd": "Գովազդներ",
+            "seriesSub": "Բաժանորդագրություններ",
+            "chartError": "Գրաֆիկը չբեռնվեց",
+            "noData": "Տվյալներ չկան այս ժամանակահատվածում"
+        },
+        "structure": {
+            "title": "Եկամտի կազմ",
+            "subtitle": "Ընթացիկ օրացուցային ամիս",
+            "total": "Ընդհանուր",
+            "ads": "Գովազդներ",
+            "subscriptions": "Բաժանորդագրություններ",
+            "other": "Այլ",
+            "error": "Չբեռնվեց",
+            "noData": "Այս ամիս վճարումներ չկան"
+        },
+        "transactions": {
+            "title": "Բոլոր գործարքները",
+            "empty": "Գործարքներ չկան",
+            "loadError": "Բեռնման սխալ",
+            "prev": "Նախորդ",
+            "next": "Հաջորդ",
+            "filters": {
+                "type": "Տեսակ",
+                "allTypes": "Բոլոր տեսակները"
+            },
+            "types": {
+                "advertisement": "Գովազդ",
+                "subscription": "Բաժանորդագրություն",
+                "unknown": "Այլ",
+                "other": "Այլ"
+            },
+            "columns": {
+                "date": "Ամսաթիվ",
+                "company": "Ընկերություն",
+                "type": "Տեսակ",
+                "description": "Նկարագրություն",
+                "amount": "Գումար"
+            }
+        },
+        "topCompanies": {
+            "title": "Թոփ ընկերություններ",
+            "subtitle": "Այս ամիս վճարումների ծավալով",
+            "company": "Ընկերություն",
+            "count": "Վճարումներ",
+            "amount": "Գումար",
+            "empty": "Տվյալներ չկան",
+            "error": "Բեռնման սխալ"
+        },
+        "reports": {
+            "stripeOff": "Stripe-ը միացված չէ — հաշվետվություններ չկան։",
+            "forecastTitle": "Պրոգնոզ",
+            "forecastHint": "Վերջին 7 օրվա միջինի հիման վրա",
+            "last7": "Վերջին 7 օր",
+            "dailyAvg": "Օրական միջին",
+            "projected": "30-օրյա прогноз",
+            "adSpendTitle": "Գովազդի ծախս",
+            "thisMonth": "Այս ամիս",
+            "lastMonth": "Անցած ամիս",
+            "adTx": "Գովազդի վճարումներ՝",
+            "recentAds": "Վերջին գովազդային վճարումներ",
+            "noCampaigns": "Տվյալներ չկան",
+            "exportTitle": "Արտահանել",
+            "exportHint": "CSV մինչև 93 օր",
+            "presetToday": "Այսօր",
+            "presetWeek": "7 օր",
+            "presetMonth": "30 օր",
+            "from": "Սկսած",
+            "to": "Մինչև",
+            "downloadCsv": "Ներբեռնել CSV"
+        }
+    },
+    "reviews": {
+        "title": "Կարծիքներ",
+        "description": "Կարծիքների մոդերացիա և պատասխաններ",
+        "loadError": "Հնարավոր չէր բեռնել տվյալները",
+        "retry": "Կրկնել",
+        "cards": {
+            "totalReviews": "Ընդհանուր կարծիքներ",
+            "avgRating": "Միջին գնահատական",
+            "publishedReviews": "Հրապարակված",
+            "pendingReviews": "Մոդերացիայի սպասում",
+            "respondedReviews": "Պատասխանով",
+            "withoutResponseReviews": "Առանց պատասխանի"
+        },
+        "chart": {
+            "title": "Գնահատականների բաշխում",
+            "subtitle": "Միայն հրապարակված կարծիքներ",
+            "total": "Ընդհանուր",
+            "error": "Չբեռնվեց",
+            "noData": "Տվյալներ չկան",
+            "labels": {
+                "rating_1": "1 աստղ",
+                "rating_2": "2 աստղ",
+                "rating_3": "3 աստղ",
+                "rating_4": "4 աստղ",
+                "rating_5": "5 աստղ"
+            }
+        },
+        "table": {
+            "columns": {
+                "client": "Հաճախորդ",
+                "company": "Ընկերություն",
+                "rating": "Գնահատական",
+                "review": "Կարծիք",
+                "status": "Կարգավիճակ",
+                "date": "Ամսաթիվ"
+            },
+            "yourResponse": "Ձեր պատասխանը",
+            "statuses": {
+                "published": "Հրապարակված",
+                "pending": "Մոդերացիայի սպասում",
+                "rejected": "Մերժված"
+            },
+            "actions": {
+                "respond": "Պատասխանել",
+                "editResponse": "Խմբագրել պատասխանը",
+                "delete": "Ջնջել"
+            },
+            "filters": {
+                "status": "Կարգավիճակ",
+                "minRating": "Նվազ. գնահատական",
+                "allStatuses": "Բոլորը",
+                "anyMinRating": "Ցանկացած",
+                "minRatingFrom": ">= {value}"
+            },
+            "prev": "Նախորդ",
+            "next": "Հաջորդ",
+            "empty": "Կարծիքներ չկան",
+            "deleteConfirm": {
+                "title": "Ջնջե՞լ կարծիքը",
+                "message": "Վստա՞հ եք, որ ցանկանում եք ջնջել «{userName}»-ի կարծիքը։ Գործողությունը հնարավոր չէ հետ կանչել։",
+                "confirm": "Ջնջել",
+                "cancel": "Չեղարկել"
+            }
+        },
+        "responseModal": {
+            "title": "Պատասխանել կարծիքին",
+            "reviewFrom": "Կարծիք՝",
+            "yourResponse": "Ձեր պատասխանը",
+            "placeholder": "Գրեք ձեր պատասխանը…",
+            "cancel": "Չեղարկել",
+            "save": "Պահել"
+        },
+        "notifications": {
+            "responseUpdated": "Պատասխանը հաջողությամբ թարմացվել է",
+            "responseError": "Հնարավոր չէր թարմացնել պատասխանը",
+            "deleteSuccess": "Կարծիքը ջնջվել է",
+            "deleteError": "Հնարավոր չէր ջնջել կարծիքը"
+        }
+    },
+    "platformUsers": {
+        "viewTitle": "Օգտատիրոջ մանրամասներ",
+        "viewSubtitle": "Պրոֆիլ և կարգավիճակ",
+        "edit": "Խմբագրել",
+        "block": "Արգելել",
+        "unblock": "Բացել արգելքը",
+        "contacts": "Կոնտակտներ",
+        "emailLabel": "Էլ. փոստ",
+        "registered": "Գրանցված",
+        "userId": "ID",
+        "active": "Ակտիվ",
+        "blocked": "Արգելված",
+        "additionalInfo": "Լրացուցիչ",
+        "roleClient": "Հաճախորդ",
+        "roleBusiness": "Բիզնեսի սեփականատեր",
+        "roleSuperadmin": "Սուպերադմին"
+    },
+    "companyDetail": {
+        "back": "Հետ",
+        "backList": "Հետ ընկերություններ",
+        "subtitle": "Ընկերության պրոֆիլ",
+        "badId": "Անվավեր ընկերության ID",
+        "notFound": "Ընկերությունը չի գտնվել",
+        "tabs": {
+            "info": "Ակնարկ",
+            "users": "Օգտատերեր",
+            "activity": "Ակտիվություն",
+            "stats": "Վիճակագրություն",
+            "edit": "Խմբագրել"
+        },
+        "status": {
+            "active": "Ակտիվ",
+            "pending": "Սպասում",
+            "suspended": "Կասեցված",
+            "rejected": "Մերժված"
+        },
+        "category": "Կատեգորիա",
+        "description": "Նկարագրություն",
+        "approve": "Հաստատել",
+        "reject": "Մերժել",
+        "block": "Արգելել",
+        "confirmApproveTitle": "Հաստատե՞լ ընկերությունը",
+        "confirmApproveMsg": "Հաստատե՞լ «{name}»-ը",
+        "confirmRejectTitle": "Մերժե՞լ ընկերությունը",
+        "confirmRejectMsg": "Մերժե՞լ «{name}»-ը",
+        "confirmBlockTitle": "Արգելե՞լ ընկերությունը",
+        "confirmBlockMsg": "Արգելե՞լ «{name}»-ը",
+        "confirm": "Հաստատել",
+        "cancel": "Չեղարկել",
+        "toastOk": "Հաջողություն",
+        "toastErr": "Սխալ",
+        "approved": "Ընկերությունը հաստատվել է",
+        "rejected": "Ընկերությունը մերժվել է",
+        "blocked": "Ընկերությունը արգելվել է",
+        "approveFail": "Հնարավոր չէր հաստատել",
+        "rejectFail": "Հնարավոր չէր մերժել",
+        "blockFail": "Հնարավոր չէր արգելել",
+        "stats": {
+            "revenueTotal": "Եկամուտ (ընդհանուր)",
+            "bookingsTotal": "Ամրագրումներ",
+            "clientsTotal": "Հաճախորդներ",
+            "rating": "Գնահատական",
+            "chartTitle": "Եկամուտ",
+            "revenue": "Եկամուտ",
+            "periodWeek": "Այս շաբաթ",
+            "periodMonth": "Այս ամիս",
+            "periodYear": "Այս տարի",
+            "chartError": "Հնարավոր չէր բեռնել գրաֆիկը",
+            "noChartData": "Տվյալներ չկան",
+            "week": "Այս շաբաթ",
+            "month": "Այս ամիս",
+            "year": "Այս տարի",
+            "bookingsWord": "ամրագրումներ",
+            "clientsSection": "Հաճախորդներ",
+            "clientsAll": "Ընդհանուր",
+            "clientsActive": "Ակտիվ",
+            "clientsNew": "Նոր (ամիս)"
+        },
+        "edit": {
+            "title": "Ընկերության մանրամասներ",
+            "name": "Անուն",
+            "namePlaceholder": "Մուտքագրեք ընկերության անունը",
+            "slug": "Slug (URL)",
+            "slugHint": "Օգտագործվում է ընկերության URL-ում։ Միայն լատինական տառեր, թվեր և գծիկներ։",
+            "description": "Նկարագրություն",
+            "descriptionPlaceholder": "Մուտքագրեք ընկերության նկարագրությունը",
+            "email": "Էլ. փոստ",
+            "phone": "Հեռախոս",
+            "category": "Կատեգորիա",
+            "selectCategory": "Ընտրեք կատեգորիա",
+            "owner": "Սեփականատեր",
+            "selectOwner": "Ընտրեք սեփականատիրոջը",
+            "ownerHint": "Սեփականատիրոջ փոխումը կփոխանցի կառավարման իրավունքները այլ օգտատիրոջ",
+            "status": "Կարգավիճակ",
+            "subscription": "Բաժանորդագրություն",
+            "save": "Պահել",
+            "successTitle": "Հաջողություն",
+            "successMessage": "Ընկերությունը թարմացվել է",
+            "errorTitle": "Սխալ",
+            "errorMessage": "Հնարավոր չէր պահել",
+            "statusPending": "Սպասում",
+            "statusActive": "Ակտիվ",
+            "statusSuspended": "Կասեցված",
+            "statusRejected": "Մերժված",
+            "subscriptionBasic": "Հիմնական",
+            "subscriptionPremium": "Premium",
+            "subscriptionEnterprise": "Enterprise"
+        },
+        "users": {
+            "title": "Ընկերության օգտատերեր",
+            "total": "{count} օգտատեր",
+            "noUsers": "Օգտատերեր չկան",
+            "owner": "Սեփականատեր",
+            "edit": "Խմբագրել",
+            "editTitle": "Խմբագրել օգտատիրոջը",
+            "firstName": "Անուն",
+            "lastName": "Ազգանուն",
+            "phone": "Հեռախոս",
+            "roleInCompany": "Դեր ընկերությունում",
+            "blockedLabel": "Արգելել հաշիվը",
+            "save": "Պահել",
+            "saved": "Փոփոխությունները պահվել են",
+            "saveError": "Հնարավոր չէր պահել",
+            "ownerNote": "Սեփականատիրոջ համար կարող եք խմբագրել միայն անունը և հեռախոսը։ Սեփականատիրոջը արգելել հնարավոր չէ։",
+            "table": {
+                "user": "Օգտատեր",
+                "role": "Դեր",
+                "contacts": "Կոնտակտներ",
+                "status": "Կարգավիճակ",
+                "lastLogin": "Վերջին մուտք",
+                "joined": "Միացել է",
+                "actions": "Գործողություններ"
+            },
+            "statuses": {
+                "active": "Ակտիվ",
+                "blocked": "Արգելված"
+            },
+            "neverLoggedIn": "Երբեք չի մուտք գործել"
+        },
+        "activity": {
+            "title": "Ակտիվության պատմություն",
+            "noActivity": "Ակտիվության գրառումներ չկան",
+            "filters": {
+                "allCategories": "Բոլոր կատեգորիաները",
+                "category": "Կատեգորիա"
+            },
+            "categories": {
+                "company": "Ընկերություն",
+                "booking": "Ամրագրումներ",
+                "user": "Օգտատերեր",
+                "advertisement": "Հայտարարություններ",
+                "review": "Կարծիքներ",
+                "service": "Ծառայություններ"
+            },
+            "actions": {
+                "create": "Ստեղծել",
+                "update": "Թարմացնել",
+                "delete": "Ջնջել",
+                "login": "Մուտք",
+                "logout": "Ելք",
+                "approve": "Հաստատել",
+                "reject": "Մերժել",
+                "block": "Արգելել",
+                "unblock": "Բացել արգելքը",
+                "cancel": "Չեղարկել",
+                "complete": "Ավարտել",
+                "confirm": "Հաստատել"
+            },
+            "table": {
+                "date": "Ամսաթիվ",
+                "user": "Օգտատեր",
+                "action": "Գործողություն",
+                "description": "Նկարագրություն",
+                "system": "Համակարգ",
+                "prev": "Նախորդ",
+                "next": "Հաջորդ"
+            }
+        }
+    },
+    "activity": {
+        "title": "Ակտիվության մատյան",
+        "subtitle": "Համակարգի ամբողջ ակտիվությունը մեկ տեղում",
+        "refresh": "Թարմացնել",
+        "exportCsv": "Արտահանել CSV",
+        "notFound": "Գրառումներ չեն գտնվել",
+        "viewDetails": "Դիտել մանրամասները",
+        "details": {
+            "title": "Ակտիվության մանրամասներ",
+            "idLabel": "ID",
+            "sectionMain": "Ակնարկ",
+            "sectionTech": "Տեխնիկական",
+            "changes": "Փոփոխություններ",
+            "dateTime": "Ամսաթիվ և ժամ",
+            "user": "Օգտատեր",
+            "systemUser": "Համակարգ",
+            "action": "Գործողություն",
+            "entityType": "Օբյեկտի տեսակ",
+            "entityName": "Օբյեկտի անուն",
+            "description": "Նկարագրություն",
+            "ip": "IP հասցե",
+            "userAgent": "User agent",
+            "oldValues": "Նախորդ արժեքներ",
+            "newValues": "Նոր արժեքներ"
+        },
+        "stats": {
+            "total": "Ընդհանուր գործողություններ",
+            "today": "Այսօր",
+            "adminActions": "Ադմին գործողություններ",
+            "clientActions": "Հաճախորդի գործողություններ"
+        },
+        "chart": {
+            "title": "Ակտիվություն (վերջին 7 օր)",
+            "activity": "Գործողություններ",
+            "noData": "Տվյալներ չկան"
+        },
+        "segments": {
+            "admin": "Ադմին",
+            "business": "Բիզնես",
+            "client": "Հաճախորդ",
+            "system": "Համակարգ"
+        },
+        "categories": {
+            "auth": "Լիազորում",
+            "company": "Ընկերություններ",
+            "booking": "Ամրագրումներ",
+            "user": "Օգտատերեր",
+            "advertisement": "Հայտարարություններ",
+            "review": "Կարծիքներ",
+            "settings": "Կարգավորումներ",
+            "service": "Ծառայություններ"
+        },
+        "actions": {
+            "create": "Ստեղծել",
+            "update": "Թարմացնել",
+            "delete": "Ջնջել",
+            "login": "Մուտք",
+            "logout": "Ելք",
+            "approve": "Հաստատել",
+            "reject": "Մերժել",
+            "block": "Արգելել",
+            "unblock": "Բացել արգելքը",
+            "cancel": "Չեղարկել",
+            "complete": "Ավարտել",
+            "confirm": "Հաստատել",
+            "register": "Գրանցվել"
+        },
+        "filters": {
+            "allSegments": "Բոլոր սեգմենտները",
+            "allCategories": "Բոլոր կատեգորիաները",
+            "allActions": "Բոլոր գործողությունները",
+            "allEntities": "Բոլոր օբյեկտները",
+            "segment": "Սեգմենտ",
+            "category": "Կատեգորիա",
+            "action": "Գործողություն",
+            "entityType": "Օբյեկտի տեսակ",
+            "searchLabel": "Որոնում",
+            "searchPlaceholder": "Տեքստ, էլ. փոստ, նկարագրություն…",
+            "search": "Որոնում…",
+            "apply": "Կիրառել",
+            "clear": "Մաքրել",
+            "dateFrom": "Սկսած",
+            "dateTo": "Մինչև",
+            "entityCategory": "Կատեգորիա"
+        },
+        "table": {
+            "date": "Ամսաթիվ",
+            "user": "Օգտատեր",
+            "segment": "Սեգմենտ",
+            "action": "Գործողություն",
+            "description": "Նկարագրություն",
+            "company": "Ընկերություն",
+            "system": "Համակարգ",
+            "prev": "Նախորդ",
+            "next": "Հաջորդ"
+        }
+    },
+    "companiesTable": {
+        "open": "Բացել",
+        "toStats": "Վիճակագրություն",
+        "toEdit": "Խմբագրել",
+        "approve": "Հաստատել",
+        "reject": "Մերժել",
+        "block": "Արգելել",
+        "colName": "Անուն",
+        "colOwner": "Սեփականատեր",
+        "colContacts": "Կոնտակտներ",
+        "colStatus": "Կարգավիճակ",
+        "colSubscription": "Պլան",
+        "colRevenue": "Եկամուտ",
+        "colBookings": "Ամրագրումներ",
+        "empty": "Ընկերություններ չկան",
+        "confirm": "Հաստատել",
+        "cancel": "Չեղարկել",
+        "toastOk": "Հաջողություն",
+        "toastErr": "Սխալ",
+        "approved": "Ընկերությունը հաստատվել է",
+        "rejected": "Ընկերությունը մերժվել է",
+        "blocked": "Ընկերությունը արգելվել է",
+        "approveFail": "Հնարավոր չէր հաստատել",
+        "rejectFail": "Հնարավոր չէր մերժել",
+        "blockFail": "Հնարավոր չէր արգելել",
+        "confirmApproveTitle": "Հաստատե՞լ ընկերությունը",
+        "confirmApproveMsg": "Հաստատե՞լ «{name}»-ը",
+        "confirmRejectTitle": "Մերժե՞լ ընկերությունը",
+        "confirmRejectMsg": "Մերժե՞լ «{name}»-ը",
+        "confirmBlockTitle": "Արգելե՞լ ընկերությունը",
+        "confirmBlockMsg": "Արգելե՞լ «{name}»-ը",
+        "status": {
+            "active": "Ակտիվ",
+            "pending": "Սպասում",
+            "suspended": "Կասեցված",
+            "rejected": "Մերժված"
+        },
+        "subscription": {
+            "basic": "Հիմնական",
+            "premium": "Premium",
+            "enterprise": "Enterprise"
+        }
+    },
+    "health": {
+        "title": "Հարթակի առողջության մոնիտորինգ",
+        "systemStatus": {
+            "title": "Համակարգի կարգավիճակ",
+            "database": "Տվյալների բազա",
+            "databaseDesc": "PostgreSQL կապ",
+            "application": "Դիմում",
+            "applicationDesc": "Laravel API",
+            "operational": "Աշխատում է",
+            "error": "Սխալ",
+            "checking": "Ստուգում…",
+            "lastCheck": "Վերջին ստուգում",
+            "loadError": "Հնարավոր չէր բեռնել համակարգի կարգավիճակը"
+        },
+        "metrics": {
+            "title": "Առողջության ցուցանիշներ",
+            "totalActive": "Ընդհանուր ակտիվ զգուշացումներ",
+            "critical": "Կրիտիկ զգուշացումներ",
+            "warnings": "Զգուշացումներ",
+            "info": "Տեղեկատու",
+            "allOk": "Բոլոր համակարգերը աշխատում են։ Ակտիվ զգուշացումներ չկան։",
+            "criticalAttention": "Ուշադրություն։ Հայտնաբերվել է {count} կրիտիկ զգուշացում։ Անհրաժեշտ է անհապաղ գործողություն։",
+            "loadError": "Սխալ ցուցանիշները բեռնելիս"
+        },
+        "alerts": {
+            "title": "Հարթակի զգուշացումներ",
+            "allLevels": "Բոլոր մակարդակները",
+            "critical": "Կրիտիկ",
+            "warning": "Զգուշացումներ",
+            "info": "Տեղեկություն",
+            "active": "Ակտիվ",
+            "resolved": "Լուծված",
+            "all": "Բոլորը",
+            "level": "Մակարդակ",
+            "titleCol": "Վերնագիր",
+            "description": "Նկարագրություն",
+            "source": "Աղբյուր",
+            "created": "Ստեղծվել է",
+            "status": "Կարգավիճակ",
+            "actions": "Գործողություններ",
+            "resolve": "Լուծել",
+            "activeStatus": "Ակտիվ",
+            "noActive": "Ակտիվ զգուշացումներ չկան",
+            "noAlerts": "Զգուշացումներ չկան",
+            "loadError": "Սխալ զգուշացումները բեռնելիս",
+            "confirmResolve": "Վստա՞հ եք, որ ցանկանում եք նշել այս զգուշացումը լուծված"
+        }
+    },
+    "backups": {
+        "title": "Հարթակի կրկնօրինակներ",
+        "description": "Լրիվ արխիվ՝ կոդ, PostgreSQL, env, Docker պատկերներ։ Կառուցվում է ֆոնում (queue) — հավելվածը արձագանքում է։ Պահեստ՝ միայն AWS S3։",
+        "s3RequiredHint": "Կրկնօրինակման համար անհրաժեշտ է կարգավորված S3 և AWS բանալիներ՝ տե՛ս docs/BACKUP_S3.md։",
+        "s3NotReadyTitle": "S3-ը կարգավորված չէ",
+        "create": "Ստեղծել կրկնօրինակը հիմա",
+        "creating": "Ստեղծում…",
+        "createQueued": "Կրկնօրինակը հերթում է",
+        "createQueuedHint": "Ընթանում է ֆոնում — կայքը հասանելի է։ Ցանկը ավտոմատ թարմացվում է։",
+        "conflictTitle": "Կրկնօրինակումն արդեն ընթանում է",
+        "refresh": "Թարմացնել",
+        "empty": "Կրկնօրինակներ դեռ չկան",
+        "loadError": "Հնարավոր չէր բեռնել ցանկը",
+        "createSuccess": "Կրկնօրինակը ստեղծվել է",
+        "createError": "Հնարավոր չէր ստեղծել կրկնօրինակ",
+        "deleteSuccess": "Կրկնօրինակը հեռացվել է",
+        "deleteError": "Հնարավոր չէր ջնջել",
+        "deleteConfirm": "Ջնջե՞լ կրկնօրինակի գրառումը",
+        "deleteConfirmS3": "Ջնջե՞լ օբյեկտը S3-ում և այս տողը",
+        "downloadError": "Հնարավոր չէր ստանալ ներբեռնման հղում",
+        "cancel": "Չեղարկել",
+        "hintDocs": "Տե՛ս docs/BACKUP_S3.md՝ նոր սերվեր վերականգնելու և AWS կարգավորելու համար։",
+        "config": {
+            "title": "Կարգավիճակ",
+            "projectRoot": "Պրոյեկտի արմատ կոնտեյներում",
+            "docker": "Docker save",
+            "dockerOn": "միացված",
+            "dockerOff": "անջատված",
+            "s3": "AWS S3",
+            "s3On": "կարգավորված",
+            "s3Off": "կարգավորված չէ (տե՛ս BACKUP_S3.md)",
+            "s3FlagOff": "ԱՆՋԱՏՎԱԾ է .env-ում (BACKUP_S3_ENABLED=false)",
+            "s3Keep": "Պահել S3-ում (վերջին հաջողվածը; 0 = բոլորը)"
+        },
+        "table": {
+            "file": "Ֆայլ",
+            "size": "Չափ",
+            "created": "Ստեղծվել է",
+            "trigger": "Տեսակ",
+            "status": "Կարգավիճակ",
+            "statusQueued": "Հերթում",
+            "statusProcessing": "Մշակում",
+            "statusCompleted": "Պատրաստ",
+            "statusFailedRun": "Ձախողված",
+            "s3": "S3",
+            "actions": "Գործողություններ",
+            "download": "Ներբեռնել",
+            "delete": "Ջնջել",
+            "triggerManual": "Ձեռքով",
+            "triggerScheduled": "պլանավորված",
+            "statusFailed": "Ձախողված"
+        }
+    },
+    "businessEvents": {
+        "title": "Բիզնես իրադարձություններ",
+        "description": "Կարևոր իրադարձություններ՝ գրանցումներ, պատվերներ, կամպանիաներ, նվաճումներ",
+        "filters": {
+            "search": "Որոնել վերնագրով, նկարագրությամբ, ընկերությամբ…",
+            "allTypes": "Բոլոր իրադարձության տեսակները",
+            "clear": "Մաքրել"
+        },
+        "types": {
+            "business_registered": "Բիզնեսը գրանցվել է",
+            "large_order": "Մեծ պատվեր",
+            "campaign_started": "Կամպանիան սկսվել է",
+            "complaint_received": "Բողոք է ստացվել",
+            "milestone_reached": "Նվաճում",
+            "payment_received": "Վճարումը ստացվել է",
+            "business_verified": "Բիզնեսը հաստատված է",
+            "review_flagged": "Կարծիքը նշված է"
+        },
+        "timeline": {
+            "noEvents": "Ցուցադրելու բիզնես իրադարձություններ չկան",
+            "noEventsDesc": "Իրադարձությունները կհայտնվեն ավտոմատ՝ ընկերությունների գրանցման, մեծ պատվերների և այլ կարևոր գործողությունների ժամանակ",
+            "company": "Ընկերություն",
+            "user": "Օգտատեր"
+        }
+    },
+    "settingsPlatform": {
+        "pageSubtitle": "Ընդհանուր ընտրանքներ, ինտեգրացիաներ, բաժանորդագրություններ, կրկնօրինակներ, առողջություն, իրական ժամանակի ցուցանիշներ և մատյաններ",
+        "tabs": {
+            "realtime": "Իրական ժամանակ"
+        },
+        "realtime": {
+            "title": "Իրական ժամանակ",
+            "description": "Օնլայն օգտատերերը հետևվում են heartbeat-ով։ Մեկ ներդիր = մեկ սեսիա; օգտատերը կարող է ունենալ մի քանի սեսիա։",
+            "thresholdHint": "Օնլայն շեմ՝ ակտիվությունը վերջին {seconds} վրկ-ում։",
+            "onlineUsers": "Օգտատերեր օնլայն",
+            "onlineSessions": "Ակտիվ սեսիաներ",
+            "serverTime": "Սերվերի ժամ",
+            "bookingsToday": "Ամրագրումներ այսօր",
+            "newUsersToday": "Նոր գրանցումներ այսօր",
+            "usersTotal": "Ընդհանուր օգտատերեր (բազա)",
+            "companiesTotal": "Ընդհանուր ընկերություններ",
+            "onlineByRole": "Օնլայն ըստ դերի (յուրահատուկ օգտատերեր)",
+            "sessionsTitle": "Ակտիվ սեսիաներ (վերջին տողեր)",
+            "colEmail": "Էլ. փոստ",
+            "colRole": "Դեր",
+            "colLastSeen": "Վերջին ակտիվություն",
+            "colSession": "Սեսիա",
+            "colUa": "Հաճախորդ",
+            "colIp": "IP",
+            "empty": "Ակտիվ սեսիաներ չկան ընթացիկ շեմի պատուհանում",
+            "refresh": "Թարմացնել",
+            "lastUpdated": "Տվյալները թարմացվել են՝ {time}",
+            "roles": {
+                "CLIENT": "Հաճախորդ",
+                "BUSINESS_OWNER": "Բիզնես",
+                "SUPERADMIN": "Սուպերադմին"
+            }
+        }
+    }
+}

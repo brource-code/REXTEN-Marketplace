@@ -1,0 +1,57 @@
+Паритет ru.json ↔ es-MX.json
+
+es-MX совпадает с en.json (3627 строковых листьев).
+Если ru отличается от en — пары неполные; синхронизируйте ru.json с en.json по ключам.
+
+Только в ru (36 ключей):
+  legal.terms.section6.content
+  legal.terms.section6.note
+  legal.terms.section6.title
+  legal.terms.section7.content
+  legal.terms.section7.note
+  legal.terms.section7.title
+  legal.terms.section8.content
+  legal.terms.section8.title
+  nav.business.schedule.reports.noData
+  nav.client.booking
+  nav.client.client
+  nav.client.clientDesc
+  nav.client.discounts
+  nav.client.orders
+  nav.client.profile
+  nav.components
+  nav.componentsDesc
+  nav.dashboard.ecommerceDesc
+  nav.examplesDesc
+  nav.guides
+  nav.guidesDesc
+  onboarding.steps.advertisements.ads.columns.visible
+  onboarding.steps.advertisements.ads.notifications.deleteError
+  onboarding.steps.advertisements.ads.notifications.deleteSuccess
+  onboarding.steps.advertisements.ads.notifications.visibilityError
+  onboarding.steps.advertisements.ads.notifications.visibilityUpdated
+  onboarding.steps.advertisements.purchase.notifications.paymentCancelled
+  onboarding.steps.advertisements.purchase.notifications.paymentError
+  onboarding.steps.advertisements.purchase.notifications.paymentSuccess
+  onboarding.steps.advertisements.purchase.successModal.advertisement
+  onboarding.steps.advertisements.purchase.successModal.amount
+  onboarding.steps.advertisements.purchase.successModal.close
+  onboarding.steps.advertisements.purchase.successModal.duration
+  onboarding.steps.advertisements.purchase.successModal.package
+  onboarding.steps.advertisements.purchase.successModal.viewAds
+  onboarding.steps.reports.overview.revenueInWork
+
+Только в es-MX (13 ключей):
+  business.advertisements.columns.category
+  business.advertisements.columns.price
+  business.advertisements.columns.views
+  business.advertisements.notifications.visibilityError
+  business.advertisements.notifications.visibilityUpdated
+  legal.terms.section5.section6.content
+  legal.terms.section5.section6.note
+  legal.terms.section5.section6.title
+  legal.terms.section5.section7.content
+  legal.terms.section5.section7.note
+  legal.terms.section5.section7.title
+  legal.terms.section5.section8.content
+  legal.terms.section5.section8.title

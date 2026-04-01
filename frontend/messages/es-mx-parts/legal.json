@@ -1,0 +1,318 @@
+{
+    "cookies": {
+        "title": "Cookie Policy",
+        "lastUpdate": "Last Updated",
+        "section1": {
+            "title": "1. What are Cookies",
+            "content": "Cookies are small text files that are stored on your device (computer, tablet, or mobile phone) when you visit a website. Cookies help the platform remember your preferences and improve your user experience."
+        },
+        "section2": {
+            "title": "2. Types of Cookies Used",
+            "subsection1": {
+                "title": "2.1. Essential Cookies",
+                "content": "These cookies are necessary for the platform to function and cannot be switched off. They are usually set in response to actions made by you, such as logging in or filling in forms.",
+                "list": {
+                    "item1": "Session cookies to maintain your login session",
+                    "item2": "Security cookies to protect against fraud",
+                    "item3": "Preference cookies to save your settings"
+                }
+            },
+            "subsection2": {
+                "title": "2.2. Functional Cookies",
+                "content": "These cookies allow the platform to remember your choices and provide enhanced features:",
+                "list": {
+                    "item1": "Saving interface language",
+                    "item2": "Remembering search filters",
+                    "item3": "Saving favorite services"
+                }
+            },
+            "subsection3": {
+                "title": "2.3. Analytical Cookies",
+                "content": "These cookies help us understand how visitors use the platform, allowing us to improve functionality and user experience:",
+                "list": {
+                    "item1": "Counting visitor numbers",
+                    "item2": "Analyzing popular pages and features",
+                    "item3": "Tracking errors and issues"
+                }
+            }
+        },
+        "section3": {
+            "title": "3. Purposes of Cookie Usage",
+            "content": "We use cookies for the following purposes:",
+            "list": {
+                "item1": "Ensuring security and preventing fraud",
+                "item2": "Improving platform functionality",
+                "item3": "Personalizing content and recommendations",
+                "item4": "Analyzing platform usage to improve service",
+                "item5": "Ensuring correct operation of all features"
+            }
+        },
+        "section4": {
+            "title": "4. Third-Party Cookies",
+            "content": "Some cookies may be set by third-party services we use on the platform. These may include:",
+            "list": {
+                "item1": "Analytics services (e.g., Google Analytics)",
+                "item2": "Map and geolocation services",
+                "item3": "Payment processing services"
+            },
+            "note": "These third-party services have their own privacy and cookie policies. We recommend reviewing their policies."
+        },
+        "section5": {
+            "title": "5. Managing Cookies",
+            "subsection1": {
+                "title": "5.1. Browser Settings",
+                "content": "Most browsers allow you to manage cookies through settings. You can:",
+                "list": {
+                    "item1": "Block all cookies",
+                    "item2": "Allow only essential cookies",
+                    "item3": "Delete existing cookies",
+                    "item4": "Receive notifications before cookies are set"
+                },
+                "note": "Please note that disabling cookies may affect platform functionality and your user experience."
+            },
+            "subsection2": {
+                "title": "5.2. Platform Settings",
+                "content": "You can manage some cookies through your account settings on the platform. Access to settings is available in the profile section."
+            }
+        },
+        "section6": {
+            "title": "6. Cookie Duration",
+            "content": "Different cookies have different durations:",
+            "list": {
+                "item1": "<strong>Session Cookies</strong> — deleted when you close your browser",
+                "item2": "<strong>Persistent Cookies</strong> — remain on your device for a specific period or until manually deleted"
+            }
+        },
+        "section7": {
+            "title": "7. Compliance with US Law",
+            "content": "The use of cookies on the platform complies with US legal requirements, including Federal Trade Commission (FTC) requirements and specific California state requirements (CCPA), where applicable.",
+            "note": "We adhere to principles of transparency and provide users with the ability to manage cookie usage in accordance with legal requirements."
+        },
+        "section8": {
+            "title": "8. Cookie Policy Updates",
+            "content": "We may update this Cookie Policy. We will notify you of significant changes via the platform or email."
+        },
+        "section9": {
+            "title": "9. Contact Information",
+            "content": "For questions related to cookie usage, you can contact us via the feedback form on the platform or by email."
+        }
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "lastUpdate": "Last Updated",
+        "section1": {
+            "title": "1. Introduction",
+            "content": "REXTEN Marketplace takes your privacy seriously. This privacy policy describes what data we collect, how we use it, and how we protect it in accordance with US law, including the California Consumer Privacy Act (CCPA) and other applicable data protection laws."
+        },
+        "section2": {
+            "title": "2. What Data We Collect",
+            "subsection1": {
+                "title": "2.1. Registration Data",
+                "list": {
+                    "item1": "First and Last Name",
+                    "item2": "Email Address",
+                    "item3": "Phone Number",
+                    "item4": "Password (stored encrypted)"
+                }
+            },
+            "subsection2": {
+                "title": "2.2. Usage Data",
+                "list": {
+                    "item1": "Service search history",
+                    "item2": "Booking history",
+                    "item3": "Reviews and ratings",
+                    "item4": "Messages to service providers",
+                    "item5": "Location information (if provided)"
+                }
+            },
+            "subsection3": {
+                "title": "2.3. Technical Data",
+                "list": {
+                    "item1": "IP Address",
+                    "item2": "Browser and device type",
+                    "item3": "Visited pages information",
+                    "item4": "Cookies and similar technologies"
+                }
+            }
+        },
+        "section3": {
+            "title": "3. How We Use Your Data",
+            "content": "We use collected data for the following purposes:",
+            "list": {
+                "item1": "Providing access to the platform and its features",
+                "item2": "Processing bookings and managing your orders",
+                "item3": "Communicating with you regarding bookings and services",
+                "item4": "Improving platform quality and user experience",
+                "item5": "Sending important notifications and updates",
+                "item6": "Preventing fraud and ensuring security",
+                "item7": "Complying with legal obligations"
+            }
+        },
+        "section4": {
+            "title": "4. Data Sharing with Third Parties",
+            "subsection1": {
+                "title": "4.1. Sharing with Service Providers",
+                "content": "When booking a service, we share necessary information with the service provider to fulfill the booking:",
+                "list": {
+                    "item1": "Your name and contact details",
+                    "item2": "Booking details (date, time, service)",
+                    "item3": "Additional requests or comments"
+                }
+            },
+            "subsection2": {
+                "title": "4.2. Sharing with Service Vendors",
+                "content": "We may share data with third-party services that assist us in operating the platform (hosting, analytics, payment processing). These providers are obligated to protect your data and use it only to provide services to us."
+            },
+            "subsection3": {
+                "title": "4.3. Legal Requirements",
+                "content": "We may disclose your data if required by law or upon request by government authorities."
+            }
+        },
+        "section5": {
+            "title": "5. Data Retention",
+            "content": "We retain your personal data for the period necessary to fulfill the purposes outlined in this policy, or for the period required by law.",
+            "note": "Upon account deletion, we delete or anonymize your personal data, unless law requires its retention."
+        },
+        "section6": {
+            "title": "6. Your Rights",
+            "subsection1": {
+                "title": "6.1. General Rights",
+                "content": "You have the right to:",
+                "list": {
+                    "item1": "Access your personal data",
+                    "item2": "Correct inaccurate or incomplete data",
+                    "item3": "Request deletion of your data",
+                    "item4": "Restrict processing of your data",
+                    "item5": "Receive a copy of your data in a structured format",
+                    "item6": "Withdraw consent for data processing"
+                }
+            },
+            "subsection2": {
+                "title": "6.2. California Consumer Rights (CCPA)",
+                "content": "If you are a California resident, you have additional rights under the CCPA:",
+                "list": {
+                    "item1": "Right to know what personal data is collected and how it is used",
+                    "item2": "Right to know if your data is sold to third parties",
+                    "item3": "Right to opt-out of the sale of personal data",
+                    "item4": "Right to non-discrimination for exercising your rights",
+                    "item5": "Right to delete personal data (with some exceptions)"
+                },
+                "note": "To exercise your rights, including CCPA rights, contact us via the feedback form on the platform or use the dedicated CCPA request form."
+            }
+        },
+        "section7": {
+            "title": "7. Data Security",
+            "content": "We implement modern technical and organizational measures to protect your data from unauthorized access, alteration, disclosure, or destruction:",
+            "list": {
+                "item1": "Data encryption during transmission",
+                "item2": "Secure data storage",
+                "item3": "Restricted access to data only for authorized employees",
+                "item4": "Regular monitoring and updating of security systems"
+            }
+        },
+        "section8": {
+            "title": "8. Cookies and Tracking",
+            "content": "We use cookies and similar technologies to improve platform performance, analyze usage, and personalize content. Detailed information about cookies is available in our <a href=\"/cookies\" className=\"text-blue-600 dark:text-blue-400 hover:underline\">Cookie Policy</a>.",
+            "note": "In accordance with US legal requirements, we provide the ability to manage cookies through browser settings and cookie usage notifications."
+        },
+        "section9": {
+            "title": "9. Children's Privacy (COPPA)",
+            "content": "Our platform is not intended for children under 13. We do not knowingly collect personal data from children under 13 without parental consent in accordance with COPPA (Children's Online Privacy Protection Act).",
+            "note": "If you are a parent or guardian and believe your child has provided us with personal data, please contact us to remove such information."
+        },
+        "section10": {
+            "title": "10. Changes to Privacy Policy",
+            "content": "We may update this Privacy Policy. We will notify you of significant changes via the platform or email."
+        },
+        "section11": {
+            "title": "11. Contact Information",
+            "content": "For questions related to personal data processing, you can contact us via the feedback form on the platform or by email.",
+            "note": "For requests related to California consumer rights (CCPA), use the special form on the platform or contact us directly with 'CCPA Request' in the subject line."
+        }
+    },
+    "terms": {
+        "title": "Terms of Service",
+        "lastUpdate": "Last Updated",
+        "section1": {
+            "title": "1. General Provisions",
+            "content1": "Welcome to the REXTEN Marketplace platform — a service marketplace connecting clients and service providers in the US. By using our service, you agree to these Terms of Service, governed by US law.",
+            "content2": "The REXTEN Marketplace platform provides the ability to search, book, and receive various services from businesses and professionals registered on the platform. These terms apply to all platform users, including residents of all US states, including California."
+        },
+        "section2": {
+            "title": "2. Account Registration and Usage",
+            "subsection1": {
+                "title": "2.1. Client Registration",
+                "content": "To use the platform as a client, you can:",
+                "list": {
+                    "item1": "Register an account by providing accurate information",
+                    "item2": "Use the platform without registration to browse services and book",
+                    "item3": "Leave reviews for services received"
+                }
+            },
+            "subsection2": {
+                "title": "2.2. User Obligations",
+                "list": {
+                    "item1": "Provide accurate and up-to-date information",
+                    "item2": "Not transfer account credentials to third parties",
+                    "item3": "Comply with platform rules and legislation",
+                    "item4": "Not use the platform for illegal purposes"
+                }
+            }
+        },
+        "section3": {
+            "title": "3. Service Search and Booking",
+            "subsection1": {
+                "title": "3.1. Service Search",
+                "content": "The platform provides service search capabilities by various criteria: categories, location, rating, price, and other parameters."
+            },
+            "subsection2": {
+                "title": "3.2. Booking",
+                "content": "When booking a service, you agree to the terms specified by the service provider. Booking creates obligations between you and the service provider. The platform acts only as an intermediary facilitating search and booking."
+            },
+            "subsection3": {
+                "title": "3.3. Booking Cancellation",
+                "content": "Cancellation terms are determined by the specific service provider's policy. We recommend checking cancellation terms before confirming a booking."
+            }
+        },
+        "section4": {
+            "title": "4. Review System",
+            "content": "After receiving a service, you can leave a review about the service quality. Reviews must:",
+            "list": {
+                "item1": "Be based on actual service experience",
+                "item2": "Be objective and constructive",
+                "item3": "Not contain insults, defamation, or false information",
+                "item4": "Comply with community guidelines"
+            },
+            "note": "The platform reserves the right to moderate and remove reviews violating usage rules."
+        },
+        "section5": {
+            "title": "5. Liability of Parties",
+            "subsection1": {
+                "title": "5.1. Platform Liability",
+                "content": "REXTEN Marketplace provides a platform for interaction between clients and service providers. The platform is not responsible for the quality of services provided, actions of service providers, or results of service usage."
+            },
+            "subsection2": {
+                "title": "5.2. User Liability",
+                "content": "You are responsible for the accuracy of provided information, compliance with booking terms, and timely payment for services (if applicable)."
+            },
+            "subsection3": {
+                "title": "5.3. Service Provider Liability",
+                "content": "The service provider is fully responsible for the quality of services provided, compliance with agreements, and fulfillment of obligations to the client."
+            },
+            "section6": {
+                "title": "6. Intellectual Property",
+                "content": "All platform materials, including design, text, images, logos, and software, are intellectual property of REXTEN Marketplace or used with permission of rights holders.",
+                "note": "Use of platform materials without written permission is prohibited, except as provided by law."
+            },
+            "section7": {
+                "title": "7. Modification of Terms",
+                "content": "We reserve the right to modify these Terms of Service at any time. We will notify users of significant changes via the platform or email.",
+                "note": "Continued use of the platform after changes constitutes your acceptance of the new terms."
+            },
+            "section8": {
+                "title": "8. Contact Information",
+                "content": "For questions related to Terms of Service, you can contact us via the feedback form on the platform or by email."
+            }
+        }
+    }
+}

@@ -1,0 +1,96 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use App\Models\Company;
+
+class TenantMiddleware
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        // Логируем запросы к salary для отладки
+        $path = $request->path();
+        if (str_contains($path, 'salary')) {
+            \Log::info('TenantMiddleware: salary request', [
+                'path' => $path,
+                'method' => $request->method(),
+                'url' => $request->fullUrl(),
+            ]);
+        }
+        
+        $user = auth('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        // Суперадмин: используем current_company_id из запроса, если передан
+        if ($user->isSuperAdmin()) {
+            $companyId = $request->input('current_company_id') ?? $request->header('X-Company-Id');
+            if ($companyId) {
+                $company = Company::find($companyId);
+                if ($company) {
+                    $request->merge(['current_company_id' => $company->id]);
+                }
+            }
+            return $next($request);
+        }
+
+        // Для владельцев бизнеса и staff - изоляция по company_id
+        if ($user->isBusinessOwner()) {
+            $companyIdFromRequest = $request->input('current_company_id') ?? $request->header('X-Company-Id');
+            $company = null;
+
+            // Если передан company_id, проверяем что у пользователя есть доступ (owner или staff)
+            if ($companyIdFromRequest) {
+                if ($user->hasAccessToCompany((int) $companyIdFromRequest)) {
+                    $company = Company::find($companyIdFromRequest);
+                }
+            }
+            // Иначе используем первую компанию: owned или staff
+            if (!$company) {
+                $company = $user->ownedCompanies()->first();
+                if (!$company) {
+                    $companyUser = $user->companyUsers()->where('is_active', true)->with('company')->first();
+                    $company = $companyUser?->company;
+                }
+            }
+
+            // Разрешаем запросы на создание/обновление профиля компании, даже если компании еще нет
+            $isProfileUpdate = (str_contains($path, 'business/settings/profile') || 
+                               str_contains($path, 'api/business/settings/profile')) && 
+                              in_array($request->method(), ['PUT', 'POST']);
+            
+            if (!$company && !$isProfileUpdate) {
+                \Log::warning('TenantMiddleware: Company not found', [
+                    'path' => $path,
+                    'method' => $request->method(),
+                    'user_id' => $user->id,
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Бизнес не найден',
+                ], 404);
+            }
+
+            // Добавляем company_id в request для использования в контроллерах (если компания есть)
+            if ($company) {
+                $request->merge(['current_company_id' => $company->id]);
+            }
+        }
+
+        return $next($request);
+    }
+}
+

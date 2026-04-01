@@ -1,0 +1,318 @@
+{
+    "cookies": {
+        "title": "Política de cookies",
+        "lastUpdate": "Última actualización",
+        "section1": {
+            "title": "1. Qué son las cookies",
+            "content": "Las cookies son pequeños archivos de texto que se guardan en tu dispositivo (computadora, tableta o teléfono) cuando visitas un sitio web. Ayudan a la plataforma a recordar tus preferencias y mejorar tu experiencia."
+        },
+        "section2": {
+            "title": "2. Tipos de cookies que usamos",
+            "subsection1": {
+                "title": "2.1. Cookies esenciales",
+                "content": "Son necesarias para que la plataforma funcione y no se pueden desactivar. Por lo general se establecen en respuesta a acciones tuyas, como iniciar sesión o llenar formularios.",
+                "list": {
+                    "item1": "Cookies de sesión para mantener tu sesión iniciada",
+                    "item2": "Cookies de seguridad para proteger contra fraude",
+                    "item3": "Cookies de preferencias para guardar tu configuración"
+                }
+            },
+            "subsection2": {
+                "title": "2.2. Cookies funcionales",
+                "content": "Permiten que la plataforma recuerde tus elecciones y ofrezca funciones mejoradas:",
+                "list": {
+                    "item1": "Guardar el idioma de la interfaz",
+                    "item2": "Recordar filtros de búsqueda",
+                    "item3": "Guardar servicios favoritos"
+                }
+            },
+            "subsection3": {
+                "title": "2.3. Cookies analíticas",
+                "content": "Nos ayudan a entender cómo los visitantes usan la plataforma para mejorar funciones y experiencia:",
+                "list": {
+                    "item1": "Contar visitantes",
+                    "item2": "Analizar páginas y funciones populares",
+                    "item3": "Detectar errores e incidencias"
+                }
+            }
+        },
+        "section3": {
+            "title": "3. Fines del uso de cookies",
+            "content": "Usamos cookies para:",
+            "list": {
+                "item1": "Garantizar seguridad y prevenir fraude",
+                "item2": "Mejorar el funcionamiento de la plataforma",
+                "item3": "Personalizar contenido y recomendaciones",
+                "item4": "Analizar el uso para mejorar el servicio",
+                "item5": "Asegurar el correcto funcionamiento de todas las funciones"
+            }
+        },
+        "section4": {
+            "title": "4. Cookies de terceros",
+            "content": "Algunas cookies pueden ser establecidas por servicios de terceros que usamos en la plataforma, por ejemplo:",
+            "list": {
+                "item1": "Servicios de analítica (p. ej., Google Analytics)",
+                "item2": "Mapas y geolocalización",
+                "item3": "Procesamiento de pagos"
+            },
+            "note": "Esos servicios tienen sus propias políticas de privacidad y cookies. Te recomendamos revisarlas."
+        },
+        "section5": {
+            "title": "5. Administrar cookies",
+            "subsection1": {
+                "title": "5.1. Configuración del navegador",
+                "content": "La mayoría de los navegadores permiten administrar cookies en la configuración. Puedes:",
+                "list": {
+                    "item1": "Bloquear todas las cookies",
+                    "item2": "Permitir solo cookies esenciales",
+                    "item3": "Eliminar cookies existentes",
+                    "item4": "Recibir avisos antes de que se instalen cookies"
+                },
+                "note": "Desactivar cookies puede afectar el funcionamiento de la plataforma y tu experiencia."
+            },
+            "subsection2": {
+                "title": "5.2. Configuración en la plataforma",
+                "content": "Puedes administrar algunas cookies desde la configuración de tu cuenta en la plataforma. El acceso está en la sección de perfil."
+            }
+        },
+        "section6": {
+            "title": "6. Duración de las cookies",
+            "content": "Las cookies tienen distintas duraciones:",
+            "list": {
+                "item1": "<strong>Cookies de sesión</strong>: se eliminan al cerrar el navegador",
+                "item2": "<strong>Cookies persistentes</strong>: permanecen en tu dispositivo por un tiempo determinado o hasta que las borres manualmente"
+            }
+        },
+        "section7": {
+            "title": "7. Cumplimiento con la ley de EE. UU.",
+            "content": "El uso de cookies en la plataforma cumple con los requisitos legales de Estados Unidos, incluidos los de la Comisión Federal de Comercio (FTC) y, cuando aplique, requisitos del estado de California (CCPA).",
+            "note": "Actuamos con transparencia y damos a los usuarios la posibilidad de administrar cookies conforme a la ley."
+        },
+        "section8": {
+            "title": "8. Actualizaciones de esta política",
+            "content": "Podemos actualizar esta Política de cookies. Te avisaremos de cambios importantes por la plataforma o por correo."
+        },
+        "section9": {
+            "title": "9. Contacto",
+            "content": "Para preguntas sobre el uso de cookies, contáctanos por el formulario de la plataforma o por correo electrónico."
+        }
+    },
+    "privacy": {
+        "title": "Aviso de privacidad",
+        "lastUpdate": "Última actualización",
+        "section1": {
+            "title": "1. Introducción",
+            "content": "REXTEN Marketplace se toma en serio tu privacidad. Este aviso describe qué datos recopilamos, cómo los usamos y cómo los protegemos de conformidad con la ley de EE. UU., incluida la California Consumer Privacy Act (CCPA) y otras normas aplicables."
+        },
+        "section2": {
+            "title": "2. Qué datos recopilamos",
+            "subsection1": {
+                "title": "2.1. Datos de registro",
+                "list": {
+                    "item1": "Nombre y apellido",
+                    "item2": "Correo electrónico",
+                    "item3": "Número de teléfono",
+                    "item4": "Contraseña (almacenada cifrada)"
+                }
+            },
+            "subsection2": {
+                "title": "2.2. Datos de uso",
+                "list": {
+                    "item1": "Historial de búsqueda de servicios",
+                    "item2": "Historial de reservas",
+                    "item3": "Reseñas y calificaciones",
+                    "item4": "Mensajes a proveedores de servicios",
+                    "item5": "Información de ubicación (si la proporcionas)"
+                }
+            },
+            "subsection3": {
+                "title": "2.3. Datos técnicos",
+                "list": {
+                    "item1": "Dirección IP",
+                    "item2": "Tipo de navegador y dispositivo",
+                    "item3": "Información de páginas visitadas",
+                    "item4": "Cookies y tecnologías similares"
+                }
+            }
+        },
+        "section3": {
+            "title": "3. Cómo usamos tus datos",
+            "content": "Usamos los datos recopilados para:",
+            "list": {
+                "item1": "Brindar acceso a la plataforma y sus funciones",
+                "item2": "Procesar reservas y administrar pedidos",
+                "item3": "Comunicarnos contigo sobre reservas y servicios",
+                "item4": "Mejorar la calidad de la plataforma y la experiencia de usuario",
+                "item5": "Enviar avisos e información importantes",
+                "item6": "Prevenir fraude y garantizar la seguridad",
+                "item7": "Cumplir obligaciones legales"
+            }
+        },
+        "section4": {
+            "title": "4. Compartición con terceros",
+            "subsection1": {
+                "title": "4.1. Con proveedores de servicios",
+                "content": "Al reservar un servicio, compartimos la información necesaria con el proveedor para cumplir la reserva:",
+                "list": {
+                    "item1": "Tu nombre y datos de contacto",
+                    "item2": "Detalles de la reserva (fecha, hora, servicio)",
+                    "item3": "Solicitudes o comentarios adicionales"
+                }
+            },
+            "subsection2": {
+                "title": "4.2. Con proveedores tecnológicos",
+                "content": "Podemos compartir datos con terceros que nos ayudan a operar la plataforma (alojamiento, analítica, pagos). Están obligados a proteger tus datos y usarlos solo para prestarnos servicios."
+            },
+            "subsection3": {
+                "title": "4.3. Requisitos legales",
+                "content": "Podemos divulgar tus datos si la ley lo exige o a petición de autoridades."
+            }
+        },
+        "section5": {
+            "title": "5. Conservación de datos",
+            "content": "Conservamos tus datos personales el tiempo necesario para los fines de este aviso o el que exija la ley.",
+            "note": "Al eliminar la cuenta, borramos o anonimizamos tus datos personales, salvo que la ley exija conservarlos."
+        },
+        "section6": {
+            "title": "6. Tus derechos",
+            "subsection1": {
+                "title": "6.1. Derechos generales",
+                "content": "Tienes derecho a:",
+                "list": {
+                    "item1": "Acceder a tus datos personales",
+                    "item2": "Corregir datos inexactos o incompletos",
+                    "item3": "Solicitar la eliminación de tus datos",
+                    "item4": "Restringir el tratamiento de tus datos",
+                    "item5": "Recibir una copia de tus datos en formato estructurado",
+                    "item6": "Retirar el consentimiento al tratamiento"
+                }
+            },
+            "subsection2": {
+                "title": "6.2. Derechos del consumidor en California (CCPA)",
+                "content": "Si eres residente de California, tienes derechos adicionales bajo la CCPA:",
+                "list": {
+                    "item1": "Saber qué datos personales se recopilan y cómo se usan",
+                    "item2": "Saber si tus datos se venden a terceros",
+                    "item3": "Oponerte a la venta de datos personales",
+                    "item4": "No ser discriminado por ejercer tus derechos",
+                    "item5": "Solicitar la eliminación de datos personales (con excepciones)"
+                },
+                "note": "Para ejercer tus derechos, incluidos los de la CCPA, contáctanos por el formulario de la plataforma o el formulario dedicado de solicitudes CCPA."
+            }
+        },
+        "section7": {
+            "title": "7. Seguridad de los datos",
+            "content": "Aplicamos medidas técnicas y organizativas para proteger tus datos contra acceso no autorizado, alteración, divulgación o destrucción:",
+            "list": {
+                "item1": "Cifrado de datos en tránsito",
+                "item2": "Almacenamiento seguro",
+                "item3": "Acceso restringido solo a personal autorizado",
+                "item4": "Monitoreo y actualización periódica de la seguridad"
+            }
+        },
+        "section8": {
+            "title": "8. Cookies y seguimiento",
+            "content": "Usamos cookies y tecnologías similares para mejorar el rendimiento, analizar el uso y personalizar contenido. Más información en nuestra <a href=\"/cookies\" className=\"text-blue-600 dark:text-blue-400 hover:underline\">Política de cookies</a>.",
+            "note": "Conforme a la ley de EE. UU., ofrecemos opciones para administrar cookies mediante el navegador y avisos de uso de cookies."
+        },
+        "section9": {
+            "title": "9. Privacidad infantil (COPPA)",
+            "content": "La plataforma no está dirigida a menores de 13 años. No recopilamos a sabiendas datos personales de menores de 13 sin consentimiento parental, conforme a COPPA.",
+            "note": "Si eres padre, madre o tutor y crees que un menor nos proporcionó datos, contáctanos para eliminarlos."
+        },
+        "section10": {
+            "title": "10. Cambios al aviso de privacidad",
+            "content": "Podemos actualizar este aviso. Te notificaremos cambios importantes por la plataforma o por correo."
+        },
+        "section11": {
+            "title": "11. Contacto",
+            "content": "Para preguntas sobre el tratamiento de datos personales, contáctanos por el formulario de la plataforma o por correo.",
+            "note": "Para solicitudes relacionadas con derechos de consumidores en California (CCPA), usa el formulario especial en la plataforma o escríbenos con el asunto \"Solicitud CCPA\"."
+        }
+    },
+    "terms": {
+        "title": "Términos del servicio",
+        "lastUpdate": "Última actualización",
+        "section1": {
+            "title": "1. Disposiciones generales",
+            "content1": "Bienvenido a REXTEN Marketplace, un mercado de servicios que conecta clientes y proveedores en EE. UU. Al usar el servicio aceptas estos Términos del servicio, regidos por la ley de Estados Unidos.",
+            "content2": "REXTEN Marketplace permite buscar, reservar y recibir diversos servicios de negocios y profesionales registrados. Estos términos aplican a todos los usuarios, residentes de cualquier estado de EE. UU., incluida California."
+        },
+        "section2": {
+            "title": "2. Registro y uso de la cuenta",
+            "subsection1": {
+                "title": "2.1. Registro como cliente",
+                "content": "Para usar la plataforma como cliente puedes:",
+                "list": {
+                    "item1": "Crear una cuenta con información veraz",
+                    "item2": "Usar la plataforma sin registrarte para explorar servicios y reservar",
+                    "item3": "Dejar reseñas sobre los servicios recibidos"
+                }
+            },
+            "subsection2": {
+                "title": "2.2. Obligaciones del usuario",
+                "list": {
+                    "item1": "Proporcionar información exacta y actualizada",
+                    "item2": "No compartir credenciales de la cuenta con terceros",
+                    "item3": "Cumplir las reglas de la plataforma y la legislación",
+                    "item4": "No usar la plataforma con fines ilícitos"
+                }
+            }
+        },
+        "section3": {
+            "title": "3. Búsqueda y reserva de servicios",
+            "subsection1": {
+                "title": "3.1. Búsqueda",
+                "content": "La plataforma ofrece búsqueda por categoría, ubicación, calificación, precio y otros criterios."
+            },
+            "subsection2": {
+                "title": "3.2. Reserva",
+                "content": "Al reservar aceptas las condiciones del proveedor. La reserva genera obligaciones entre tú y el proveedor. La plataforma solo facilita la búsqueda y la reserva como intermediario."
+            },
+            "subsection3": {
+                "title": "3.3. Cancelación",
+                "content": "Las condiciones de cancelación las define cada proveedor. Revisa la política de cancelación antes de confirmar."
+            }
+        },
+        "section4": {
+            "title": "4. Sistema de reseñas",
+            "content": "Tras recibir un servicio puedes dejar una reseña. Las reseñas deben:",
+            "list": {
+                "item1": "Basarse en experiencia real",
+                "item2": "Ser objetivas y constructivas",
+                "item3": "No incluir insultos, difamación ni información falsa",
+                "item4": "Cumplir las normas de la comunidad"
+            },
+            "note": "La plataforma puede moderar y eliminar reseñas que infrinjan las reglas."
+        },
+        "section5": {
+            "title": "5. Responsabilidad de las partes",
+            "subsection1": {
+                "title": "5.1. Responsabilidad de la plataforma",
+                "content": "REXTEN Marketplace ofrece un espacio de interacción entre clientes y proveedores. No somos responsables de la calidad de los servicios, las acciones de los proveedores ni los resultados del uso de los servicios."
+            },
+            "subsection2": {
+                "title": "5.2. Responsabilidad del usuario",
+                "content": "Eres responsable de la veracidad de la información, del cumplimiento de las condiciones de la reserva y del pago oportuno cuando corresponda."
+            },
+            "subsection3": {
+                "title": "5.3. Responsabilidad del proveedor",
+                "content": "El proveedor es responsable de la calidad del servicio, el cumplimiento de acuerdos y las obligaciones con el cliente."
+            },
+            "section6": {
+                "title": "6. Propiedad intelectual",
+                "content": "Todo el material de la plataforma (diseño, textos, imágenes, logotipos, software) es propiedad de REXTEN Marketplace o se usa con licencia de los titulares.",
+                "note": "Queda prohibido usar el material sin autorización por escrito, salvo lo permitido por la ley."
+            },
+            "section7": {
+                "title": "7. Modificación de los términos",
+                "content": "Podemos modificar estos Términos en cualquier momento. Te avisaremos de cambios importantes por la plataforma o por correo.",
+                "note": "El uso continuado de la plataforma tras los cambios implica la aceptación de los nuevos términos."
+            },
+            "section8": {
+                "title": "8. Contacto",
+                "content": "Para preguntas sobre estos Términos, contáctanos por el formulario de la plataforma o por correo."
+            }
+        }
+    }
+}

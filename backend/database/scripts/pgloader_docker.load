@@ -1,0 +1,7 @@
+LOAD DATABASE
+     FROM sqlite:///var/www/html/database/database.sqlite
+     INTO pgsql://rexten_user:rexten_password@postgres:5432/ecme_marketplace
+
+WITH data only, truncate, reset sequences
+
+SET client_encoding to 'utf8';

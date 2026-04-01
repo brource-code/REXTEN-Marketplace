@@ -1,0 +1,34 @@
+{
+    "placeholder": "Buscar datos…",
+    "loading": "Buscando…",
+    "noResults": "Sin resultados para",
+    "hintWrongArea": "La búsqueda está disponible en el área de negocio o de superadministración",
+    "hint": {
+        "title": "Búsqueda inteligente",
+        "descBusiness": "Busca por parte del nombre, correo, teléfono de EE. UU. como +1 (555) 234-5678, texto de reserva o servicio: coincidencia parcial en cualquier campo relevante.",
+        "descAdmin": "Empresas y usuarios: nombre, correo, teléfono (incluidos formatos de EE. UU.), dirección, ciudad; anuncios y categorías: texto y slug.",
+        "tryIt": "Ejemplos de consultas",
+        "minChars": "Escribe al menos 2 caracteres para buscar"
+    },
+    "examples": {
+        "bizName": "parte del nombre o apellido del cliente",
+        "bizUsPhone": "fragmento de un número de EE. UU., p. ej. (555) o 234",
+        "bizEmail": "parte de un correo (p. ej. el dominio)",
+        "adminCompany": "parte del nombre de la empresa (Inc, LLC…)",
+        "adminEmail": "parte del correo del usuario",
+        "adminAddress": "calle o ciudad tal como figuran en la empresa"
+    },
+    "sections": {
+        "clients": "Clientes",
+        "bookings": "Reservas",
+        "services": "Servicios",
+        "team": "Equipo",
+        "advertisements": "Anuncios y publicidad",
+        "promo_codes": "Códigos promocionales",
+        "reviews": "Reseñas",
+        "recurring": "Reservas recurrentes",
+        "companies": "Empresas",
+        "users": "Usuarios",
+        "categories": "Categorías"
+    }
+}

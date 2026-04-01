@@ -1,0 +1,3 @@
+INSERT INTO additional_services (id, service_id, name, description, price, duration, is_active, sort_order, created_at, updated_at) VALUES (2, 1, 'Камни', NULL, 10, 0, 1, 0, '2025-12-23 21:01:11', '2025-12-23 21:01:11');
+INSERT INTO additional_services (id, service_id, name, description, price, duration, is_active, sort_order, created_at, updated_at) VALUES (3, 8, 'Глубокая проверка', NULL, 100, 0, 1, 0, '2025-12-24 16:19:13', '2025-12-24 16:19:13');
+INSERT INTO additional_services (id, service_id, name, description, price, duration, is_active, sort_order, created_at, updated_at) VALUES (4, 9, 'Холодильник', 'Мытье', 50, 60, 1, 1, '2025-12-25 19:59:12', '2025-12-25 19:59:12');

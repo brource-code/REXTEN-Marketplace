@@ -1,0 +1,773 @@
+{
+    "title": "Welcome to REXTEN!",
+    "subtitle": "Let's introduce you to the platform",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "complete": "Complete",
+    "steps": {
+        "welcome": {
+            "title": "Welcome!",
+            "description": "REXTEN is a modern platform for managing your business and promoting services on the marketplace. We'll help you efficiently manage clients, bookings, and advertising.",
+            "features": {
+                "1": "Manage all aspects of your business in one place",
+                "2": "Automate booking and order processes",
+                "3": "Analytics and statistics for decision-making",
+                "4": "Marketplace integration to attract clients"
+            }
+        },
+        "dashboard": {
+            "title": "Dashboard",
+            "description": "Your central control center. Here you'll find all important information about your business: sales statistics, number of clients, recent bookings, and quick actions.",
+            "features": {
+                "1": "Revenue overview for week, month, and year",
+                "2": "Bookings and clients statistics",
+                "3": "Charts and analytics for data visualization",
+                "4": "Quick access to main features"
+            }
+        },
+        "advertisements": {
+            "title": "Advertisements",
+            "description": "Create and manage advertisements for your services. Add descriptions, photos, prices, and schedules. Your advertisements will be visible to clients on the marketplace.",
+            "features": {
+                "1": "Create advertisements with full service information",
+                "2": "Upload photos and portfolio",
+                "3": "Set prices and working hours",
+                "4": "Manage statuses and moderation"
+            },
+            "myAds": "My Advertisements",
+            "myAdsDescription": "Manage your advertisements on the marketplace",
+            "buyAds": "Buy Advertising",
+            "createButton": "Create Advertisement",
+            "noAds": "No Advertisements",
+            "noAdsDescription": "Create your first advertisement to promote your business",
+            "loadError": "Loading error",
+            "noPhoto": "No photo",
+            "columns": {
+                "photo": "Photo",
+                "title": "Title",
+                "status": "Status",
+                "visible": "Visibility",
+                "createdAt": "Created"
+            },
+            "statuses": {
+                "draft": "Draft",
+                "pending": "Pending",
+                "approved": "Approved",
+                "rejected": "Rejected",
+                "active": "Active",
+                "inactive": "Inactive"
+            },
+            "viewModal": {
+                "title": "View Advertisement",
+                "rejectionReason": "Rejection Reason",
+                "checkedAt": "Checked at",
+                "status": "Status",
+                "placement": "Placement",
+                "city": "City",
+                "state": "State",
+                "priceFrom": "Price From",
+                "priceTo": "Price To",
+                "link": "Link",
+                "createdAt": "Created",
+                "updatedAt": "Updated"
+            },
+            "deleteConfirm": {
+                "title": "Delete Advertisement?",
+                "confirm": "Delete",
+                "message": "Are you sure you want to delete the advertisement \"{title}\"?"
+            },
+            "notifications": {
+                "deleteSuccess": "Advertisement deleted successfully",
+                "deleteError": "Failed to delete advertisement",
+                "loadError": "Failed to load advertisement"
+            },
+            "ads": {
+                "title": "My Advertisements",
+                "description": "Manage your advertisements with full statistics and settings",
+                "buyAds": "Buy Advertising",
+                "noAds": "No advertisements",
+                "noAdsDescription": "Buy advertising to promote your business",
+                "adBadge": "Ad",
+                "columns": {
+                    "photo": "Photo",
+                    "title": "Title",
+                    "placement": "Placement",
+                    "status": "Status",
+                    "stats": "Statistics",
+                    "placementDates": "Placement Dates",
+                    "createdAt": "Created"
+                },
+                "placements": {
+                    "homepage": "Homepage",
+                    "services": "Services",
+                    "sidebar": "Sidebar",
+                    "banner": "Banner"
+                },
+                "stats": {
+                    "impressions": "Impressions",
+                    "clicks": "Clicks",
+                    "created": "Created"
+                },
+                "viewModal": {
+                    "title": "View Advertisement",
+                    "placement": "Placement",
+                    "status": "Status",
+                    "city": "City",
+                    "state": "State",
+                    "impressions": "Impressions",
+                    "clicks": "Clicks",
+                    "startDate": "Start Date",
+                    "endDate": "End Date",
+                    "link": "Link"
+                }
+            },
+            "purchase": {
+                "title": "Buy Advertising",
+                "description": "Select an advertisement to promote and an advertising package",
+                "back": "Back",
+                "noAdsToPromote": "No advertisements to promote",
+                "createFirst": "First create a regular advertisement so it can be promoted",
+                "createAd": "Create Advertisement",
+                "selectAd": "Select an advertisement to promote",
+                "selectPackage": "Select a package",
+                "popular": "Popular",
+                "pop": "Pop",
+                "days": "days",
+                "for": "for",
+                "total": "Total",
+                "duration": "Duration",
+                "buyButton": "Buy Advertising",
+                "packages": {
+                    "basic": {
+                        "name": "Basic",
+                        "feature1": "7 days placement",
+                        "feature2": "Rotation with other ads",
+                        "feature3": "Impressions and clicks statistics",
+                        "feature4": "Location filtering"
+                    },
+                    "standard": {
+                        "name": "Standard",
+                        "feature1": "14 days placement",
+                        "feature2": "Rotation with other ads",
+                        "feature3": "Impressions and clicks statistics",
+                        "feature4": "Location filtering"
+                    },
+                    "premium": {
+                        "name": "Premium",
+                        "feature1": "30 days placement",
+                        "feature2": "Rotation with other ads",
+                        "feature3": "Impressions and clicks statistics",
+                        "feature4": "Location filtering"
+                    }
+                },
+                "notifications": {
+                    "success": "Advertising activated! Advertisement sent for moderation",
+                    "selectAdError": "Select an advertisement to promote",
+                    "selectPackageError": "Select an advertising package",
+                    "activationError": "Failed to activate advertising"
+                }
+            },
+            "create": {
+                "title": "Create Advertisement",
+                "editTitle": "Edit Advertisement",
+                "subtitle": "Fill in all sections to create an advertisement",
+                "sections": {
+                    "general": "General Information",
+                    "pricing": "Price",
+                    "services": "Services",
+                    "schedule": "Schedule",
+                    "team": "Team",
+                    "portfolio": "Portfolio"
+                },
+                "general": {
+                    "title": "General Information",
+                    "name": "Name",
+                    "namePlaceholder": "Enter advertisement name",
+                    "description": "Description",
+                    "descriptionPlaceholder": "Detailed description of the advertisement",
+                    "category": "Category",
+                    "categoryPlaceholder": "Select category",
+                    "state": "State",
+                    "statePlaceholder": "Select state",
+                    "city": "City",
+                    "cityPlaceholder": "Select city",
+                    "citiesLoading": "Loading cities...",
+                    "citiesNotFound": "No cities found",
+                    "selectStateFirst": "Select state first",
+                    "image": "Image",
+                    "imageUploading": "Uploading...",
+                    "imageUploadHint": "Click or drag file to upload",
+                    "imageUrlHint": "Or enter image URL:",
+                    "link": "Link (auto-generated)",
+                    "linkHint": "Link is auto-generated from title",
+                    "startDate": "Start Date",
+                    "startDateHint": "Leave empty for immediate placement",
+                    "endDate": "End Date",
+                    "endDateHint": "Leave empty for indefinite placement"
+                },
+                "pricing": {
+                    "title": "Price",
+                    "priceFrom": "Price From",
+                    "priceTo": "Price To",
+                    "currency": "Currency"
+                },
+                "services": {
+                    "title": "Services",
+                    "addService": "Add Service",
+                    "serviceNumber": "Service #{number}",
+                    "selectTemplate": "Select service template (optional)",
+                    "manualEntry": "Manual entry",
+                    "selectOrManual": "Select template or enter manually",
+                    "createTemplates": "Create templates in business settings",
+                    "templateHint": "💡 Create service templates in",
+                    "templateHintLink": "business settings → Services",
+                    "templateHintSuffix": "to quickly add them to advertisements",
+                    "serviceName": "Service Name",
+                    "serviceNamePlaceholder": "Service name",
+                    "price": "Price",
+                    "duration": "Duration",
+                    "durationUnit": "Unit",
+                    "hours": "Hours",
+                    "days": "Days",
+                    "serviceDescription": "Description",
+                    "serviceDescriptionPlaceholder": "Service description",
+                    "noServices": "No services. Click \"Add Service\" to add the first one."
+                },
+                "additionalServices": {
+                    "title": "Additional Services",
+                    "subtitle": "Add additional services to this main service",
+                    "manage": "Manage",
+                    "loading": "Loading additional services...",
+                    "noServices": "No additional services. Click \"Manage\" to add the first one.",
+                    "noServicesModal": "No additional services. Click \"Add\" to create the first one.",
+                    "management": "Managing additional services",
+                    "forDbService": "(for service from database)",
+                    "add": "Add",
+                    "active": "Active",
+                    "inactive": "Inactive",
+                    "deleteTitle": "Delete additional service?",
+                    "deleteMessage": "Are you sure you want to delete this additional service?",
+                    "editTitle": "Edit additional service",
+                    "addTitle": "Add additional service",
+                    "name": "Name",
+                    "namePlaceholder": "e.g. Styling",
+                    "description": "Description",
+                    "descriptionPlaceholder": "Service description",
+                    "price": "Price ($)",
+                    "pricePlaceholder": "e.g. 25.50",
+                    "duration": "Duration (min)",
+                    "durationPlaceholder": "e.g. 30",
+                    "sortOrder": "Sort Order",
+                    "isActive": "Active",
+                    "showInBooking": "Show in booking",
+                    "save": "Save",
+                    "nameRequired": "Please enter service name",
+                    "priceRequired": "Please enter price",
+                    "durationRequired": "Please enter duration",
+                    "addedSuccess": "Additional service added",
+                    "updatedSuccess": "Additional service updated",
+                    "deletedSuccess": "Additional service deleted",
+                    "addError": "Failed to add additional service",
+                    "updateError": "Failed to update additional service",
+                    "deleteError": "Failed to delete additional service",
+                    "saveDbError": "Failed to save additional service. Make sure the service is saved in database."
+                },
+                "schedule": {
+                    "title": "Work Schedule",
+                    "subtitle": "Set working hours for each day of the week",
+                    "slotStep": "Booking slot step",
+                    "slotStepHint": "Interval between available booking slots. Default: 1 hour.",
+                    "workDays": "Work Days",
+                    "monday": "Monday",
+                    "tuesday": "Tuesday",
+                    "wednesday": "Wednesday",
+                    "thursday": "Thursday",
+                    "friday": "Friday",
+                    "saturday": "Saturday",
+                    "sunday": "Sunday",
+                    "minutes15": "15 minutes",
+                    "minutes30": "30 minutes",
+                    "hour1": "1 hour",
+                    "hours15": "1.5 hours",
+                    "hours2": "2 hours",
+                    "hours3": "3 hours",
+                    "hours4": "4 hours"
+                },
+                "team": {
+                    "title": "Team",
+                    "subtitle": "Select specialists for this advertisement",
+                    "selectAll": "Select All",
+                    "deselectAll": "Deselect All",
+                    "noTeam": "No specialists in team",
+                    "noTeamHint": "Add specialists in",
+                    "noTeamLink": "business settings → Team"
+                },
+                "portfolio": {
+                    "title": "Portfolio",
+                    "subtitle": "Add examples of completed work. Images will be displayed on the advertisement page.",
+                    "add": "Add",
+                    "addMore": "Add more",
+                    "cancel": "Cancel",
+                    "workTitle": "Title",
+                    "workTitlePlaceholder": "Work title",
+                    "tag": "Tag",
+                    "tagPlaceholder": "e.g. Repair",
+                    "workDescription": "Description",
+                    "workDescriptionPlaceholder": "Detailed description of work",
+                    "images": "Images",
+                    "uploadImages": "Upload Images",
+                    "noPortfolio": "No portfolio items",
+                    "noPortfolioHint": "Click \"Add\" to add the first work"
+                },
+                "buttons": {
+                    "back": "Back",
+                    "next": "Next",
+                    "publish": "Publish",
+                    "save": "Save",
+                    "cancel": "Cancel",
+                    "delete": "Delete"
+                },
+                "notifications": {
+                    "imageUploaded": "Image uploaded",
+                    "imageUploadError": "Failed to upload image",
+                    "created": "Advertisement created and sent for moderation",
+                    "updated": "Advertisement updated and sent for moderation",
+                    "createError": "Failed to create advertisement",
+                    "updateError": "Failed to update advertisement",
+                    "unknownError": "Unknown error"
+                }
+            }
+        },
+        "schedule": {
+            "title": "Schedule",
+            "description": "Manage your business working hours and available booking slots. Clients will be able to see available times and book services online.",
+            "features": {
+                "1": "Set working schedule by day of week",
+                "2": "Create booking slots",
+                "3": "Manage specialist availability",
+                "4": "Automatic calendar updates"
+            }
+        },
+        "reports": {
+            "title": "Reports",
+            "description": "Detailed analytics on bookings, clients, revenue, and specialists. Export data for further analysis.",
+            "overview": {
+                "title": "Overview Statistics",
+                "totalBookings": "Total Bookings",
+                "completedBookings": "Completed",
+                "cancelledBookings": "Cancelled",
+                "activeBookings": "Active",
+                "totalRevenue": "Total Revenue",
+                "averageCheck": "Average Check",
+                "uniqueClients": "Unique Clients",
+                "activeSpecialists": "Active Specialists"
+            },
+            "bookings": {
+                "title": "Bookings Reports",
+                "byStatus": "Distribution by Status",
+                "byPeriod": "Bookings Dynamics",
+                "topServices": "Top Services"
+            },
+            "clients": {
+                "title": "Clients Reports",
+                "topByBookings": "Top Clients by Bookings",
+                "topByRevenue": "Top Clients by Revenue",
+                "newClients": "New Clients"
+            },
+            "revenue": {
+                "title": "Revenue Reports",
+                "byPeriod": "Revenue Dynamics",
+                "byService": "Revenue by Service",
+                "bySpecialist": "Revenue by Specialist"
+            },
+            "specialists": {
+                "title": "Specialists Reports",
+                "bookingsCount": "Bookings",
+                "revenue": "Revenue",
+                "cancellations": "Cancellations",
+                "completed": "Completed",
+                "active": "Active",
+                "averageCheck": "Average Check",
+                "clients": "Clients"
+            },
+            "filters": {
+                "dateFrom": "Date From",
+                "dateTo": "Date To",
+                "specialist": "Specialist",
+                "service": "Service",
+                "status": "Status",
+                "apply": "Apply",
+                "reset": "Reset",
+                "today": "Today",
+                "week": "Week",
+                "month": "Month",
+                "quarter": "Quarter",
+                "year": "Year"
+            },
+            "export": {
+                "title": "Export Data",
+                "format": "Format",
+                "excel": "Excel",
+                "csv": "CSV",
+                "reportType": "Report Type",
+                "download": "Download",
+                "error": "Export error"
+            },
+            "noData": "No data for the selected period",
+            "table": {
+                "number": "#",
+                "service": "Service",
+                "client": "Client",
+                "specialist": "Specialist",
+                "period": "Period",
+                "count": "Count",
+                "status": "Status"
+            }
+        },
+        "clients": {
+            "title": "Clients",
+            "description": "Client management",
+            "features": {
+                "1": "Database of all your clients",
+                "2": "Order and booking history",
+                "3": "Client categories (regular, permanent, VIP)",
+                "4": "Quick search and filtering"
+            },
+            "statuses": {
+                "regular": "Regular",
+                "permanent": "Permanent",
+                "vip": "VIP"
+            },
+            "detailsModal": {
+                "title": "Client Details",
+                "tabs": {
+                    "info": "Info",
+                    "bookings": "Bookings",
+                    "orders": "Orders",
+                    "notes": "Notes"
+                },
+                "bookingsCount": "Bookings",
+                "spent": "Spent",
+                "lastVisit": "Last visit",
+                "noBookings": "No bookings",
+                "noOrders": "No orders",
+                "noNotes": "No notes",
+                "serviceNotSpecified": "Service not specified",
+                "dateNotSpecified": "Date not specified",
+                "specialist": "Specialist",
+                "order": "Order",
+                "addNote": "Add Note",
+                "notePlaceholder": "Enter note...",
+                "addButton": "Add",
+                "added": "Added",
+                "noteSuccess": "Note added successfully",
+                "noteError": "Failed to add note",
+                "bookingStatuses": {
+                    "new": "New",
+                    "pending": "Pending",
+                    "confirmed": "Confirmed",
+                    "completed": "Completed",
+                    "cancelled": "Cancelled",
+                    "unknown": "Unknown"
+                },
+                "orderStatuses": {
+                    "paid": "Paid",
+                    "completed": "Completed",
+                    "processing": "Processing"
+                },
+                "delete": "Delete",
+                "deleteConfirmTitle": "Delete client?",
+                "deleteConfirm": "Delete",
+                "deleteConfirmMessage": "Are you sure you want to delete this client? This action cannot be undone.",
+                "deleteSuccess": "Client successfully deleted",
+                "deleteError": "Failed to delete client"
+            },
+            "detailsPage": {
+                "back": "Back",
+                "title": "Client Details",
+                "subtitle": "View client information",
+                "clientNotFound": "Client not found",
+                "backToList": "Back to clients list",
+                "tabs": {
+                    "info": "Information",
+                    "bookings": "Bookings",
+                    "notes": "Notes"
+                },
+                "stats": {
+                    "current": "Current",
+                    "completed": "Completed",
+                    "cancelled": "Cancelled",
+                    "spent": "Spent"
+                },
+                "bookings": {
+                    "noBookings": "No bookings",
+                    "serviceNotSpecified": "Service not specified",
+                    "executionTypeOffsite": "Execution type: Offsite",
+                    "dateNotSpecified": "Date not specified",
+                    "specialist": "Specialist:",
+                    "created": "Created:",
+                    "address": "Address:",
+                    "clientNote": "Client note:",
+                    "businessNote": "Business note:",
+                    "basePrice": "Base service price",
+                    "total": "Total:"
+                },
+                "notes": {
+                    "addNote": "Add note",
+                    "notePlaceholder": "Enter note about client...",
+                    "addButton": "Add",
+                    "noNotes": "No notes",
+                    "added": "Added"
+                },
+                "notifications": {
+                    "success": "Success",
+                    "error": "Error"
+                },
+                "delete": "Delete",
+                "deleteConfirmTitle": "Delete client?",
+                "deleteConfirm": "Delete",
+                "cancel": "Cancel",
+                "deleteConfirmMessage": "Are you sure you want to delete this client? This action cannot be undone.",
+                "deleteSuccess": "Client successfully deleted",
+                "deleteError": "Failed to delete client"
+            },
+            "summary": {
+                "title": "Client Summary",
+                "firstVisit": "First visit",
+                "lastVisit": "Last visit",
+                "lastCompletedVisit": "Last completed visit",
+                "visitFrequency": "Visit frequency",
+                "visitFrequencyHint": "Based on completed visits",
+                "averageCheck": "Average check",
+                "conversionRate": "Conversion rate",
+                "conversionHint": "Completed bookings / all bookings (numerator is completed only)",
+                "favoriteService": "Favorite service",
+                "favoriteSpecialist": "Favorite specialist",
+                "timesPerMonth": "times per month",
+                "times": {
+                    "one": "time",
+                    "few": "times",
+                    "many": "times"
+                }
+            },
+            "bookingsFilter": {
+                "status": "Status",
+                "allStatuses": "All statuses",
+                "dateFrom": "Date from",
+                "dateTo": "Date to",
+                "sortBy": "Sort by",
+                "sortByDate": "By date",
+                "sortByPrice": "By amount",
+                "sortOrder": "Order",
+                "sortDesc": "Descending",
+                "sortAsc": "Ascending",
+                "reset": "Reset",
+                "found": "Found",
+                "bookings": "bookings",
+                "totalAmount": "total amount"
+            }
+        },
+        "reviews": {
+            "title": "Reviews",
+            "description": "Manage reviews of your advertisements",
+            "features": {
+                "1": "View all reviews in one place",
+                "2": "Respond to client reviews",
+                "3": "Group reviews by advertisements",
+                "4": "Track rating and statistics"
+            },
+            "table": {
+                "user": "User",
+                "advertisement": "Advertisement",
+                "rating": "Rating",
+                "review": "Review",
+                "date": "Date",
+                "anonymous": "Anonymous",
+                "open": "Open",
+                "noAd": "No advertisement",
+                "service": "Service",
+                "specialist": "Specialist",
+                "yourResponse": "Your response",
+                "noReviews": "No reviews",
+                "editResponse": "Edit response",
+                "respond": "Respond"
+            },
+            "responseModal": {
+                "title": "Reply to review",
+                "reviewFrom": "Review from",
+                "yourResponse": "Your response",
+                "placeholder": "Enter response to review...",
+                "cancel": "Cancel",
+                "save": "Save"
+            },
+            "notifications": {
+                "responseUpdated": "Response to review updated",
+                "responseError": "Failed to update response"
+            }
+        },
+        "settings": {
+            "title": "Business Settings",
+            "description": "Manage profile, team, schedule and other business settings",
+            "servicesHint": "Service templates can be created here and used when creating advertisements in the section",
+            "advertisementsLink": "Advertisements",
+            "features": {
+                "1": "Edit profile and contact information",
+                "2": "Manage team and specialists",
+                "3": "Configure services and portfolio",
+                "4": "Upload logo and photos"
+            },
+            "tabs": {
+                "profile": "Profile",
+                "services": "Services",
+                "team": "Team",
+                "users": "Users",
+                "roles": "Roles",
+                "schedule": "Schedule",
+                "notifications": "Notifications",
+                "payments": "Payments",
+                "marketplace": "Main"
+            },
+            "profile": {
+                "title": "Profile",
+                "companyName": "Business Name",
+                "description": "Description",
+                "phone": "Phone",
+                "email": "Email",
+                "telegram": "Telegram",
+                "whatsapp": "WhatsApp",
+                "website": "Website",
+                "address": "Address",
+                "city": "City",
+                "state": "State",
+                "zipCode": "ZIP Code",
+                "logo": "Logo",
+                "uploadPhoto": "Upload Photo",
+                "recommendedSize": "Recommended size: 400x400px",
+                "enterName": "Enter name",
+                "describeYourBusiness": "Describe your business",
+                "enterAddress": "Enter address",
+                "publicProfile": "Public Profile",
+                "viewOnPlatform": "View your business on the platform",
+                "openProfile": "Open Profile",
+                "cancel": "Cancel",
+                "save": "Save",
+                "saving": "Saving...",
+                "success": "Profile updated successfully",
+                "error": "Failed to update profile",
+                "avatarSuccess": "Avatar uploaded successfully",
+                "avatarError": "Failed to upload avatar",
+                "phonePlaceholder": "Enter phone",
+                "emailPlaceholder": "Enter email",
+                "telegramPlaceholder": "@username or username",
+                "whatsappPlaceholder": "+1234567890",
+                "websitePlaceholder": "Enter website"
+            },
+            "services": {
+                "title": "Services",
+                "add": "Add Service",
+                "edit": "Edit",
+                "delete": "Delete",
+                "name": "Name",
+                "price": "Price",
+                "duration": "Duration (min)",
+                "category": "Category",
+                "noServices": "No services",
+                "noServicesDescription": "Add your first service",
+                "deleteConfirm": "Delete service?",
+                "deleteConfirmMessage": "Are you sure you want to delete the service \"{name}\"?",
+                "success": "Service saved successfully",
+                "deleteSuccess": "Service deleted successfully",
+                "error": "Failed to save service"
+            },
+            "team": {
+                "title": "Team",
+                "add": "Add Specialist",
+                "edit": "Edit",
+                "delete": "Delete",
+                "name": "Name",
+                "position": "Position",
+                "phone": "Phone",
+                "email": "Email",
+                "noTeam": "No specialists",
+                "noTeamDescription": "Add your first specialist",
+                "success": "Specialist saved successfully",
+                "deleteSuccess": "Specialist deleted successfully",
+                "error": "Failed to save specialist"
+            },
+            "users": {
+                "title": "Users",
+                "description": "Managers and admins with panel access",
+                "invite": "Invite",
+                "email": "Email",
+                "role": "Role",
+                "owner": "Owner",
+                "noUsers": "No invited users",
+                "inviteSuccess": "User invited",
+                "removeSuccess": "User removed",
+                "tempPassword": "Temporary password"
+            },
+            "roles": {
+                "title": "Roles",
+                "description": "Standard and custom roles with permissions",
+                "add": "Create role",
+                "name": "Name",
+                "slug": "Slug",
+                "permissions": "Permissions",
+                "systemRole": "System",
+                "noRoles": "No custom roles",
+                "createSuccess": "Role created",
+                "updateSuccess": "Role updated",
+                "deleteSuccess": "Role deleted"
+            },
+            "schedule": {
+                "title": "Working Schedule",
+                "monday": "Monday",
+                "tuesday": "Tuesday",
+                "wednesday": "Wednesday",
+                "thursday": "Thursday",
+                "friday": "Friday",
+                "saturday": "Saturday",
+                "sunday": "Sunday",
+                "dayOff": "Day off",
+                "from": "From",
+                "to": "To",
+                "save": "Save",
+                "success": "Schedule saved successfully",
+                "error": "Failed to save schedule"
+            },
+            "notifications": {
+                "title": "Notifications",
+                "email": "Email notifications",
+                "sms": "SMS notifications",
+                "push": "Push notifications",
+                "newBooking": "New booking",
+                "bookingCancellation": "Booking cancellation",
+                "bookingReminder": "Booking reminder",
+                "newReview": "New review",
+                "save": "Save",
+                "success": "Notification settings saved",
+                "error": "Failed to save settings"
+            },
+            "payments": {
+                "title": "Payments",
+                "description": "Payment settings will be available soon",
+                "comingSoon": "Coming soon"
+            },
+            "marketplace": {
+                "title": "Main Page Display",
+                "description": "Settings for displaying your business on the marketplace main page"
+            }
+        },
+        "advertising": {
+            "title": "Advertising",
+            "description": "Promote your business with advertising. Buy advertisements to place on the marketplace homepage and attract more clients.",
+            "features": {
+                "1": "Purchase advertising",
+                "2": "Placement on homepage",
+                "3": "Set advertising display period",
+                "4": "Track advertising effectiveness"
+            }
+        }
+    }
+}

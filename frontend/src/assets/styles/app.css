@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import './tailwind/index.css';
+@import './components/index.css';
+@import './template/index.css';
+@import './others/index.css';
+@import './vendors/index.css';
+@import './docs/index.css';
+
+/* Отключаем scroll anchoring глобально для предотвращения прыжков при изменении высоты контента */
+html,
+body {
+  overflow-anchor: none;
+}
+

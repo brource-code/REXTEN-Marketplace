@@ -1,0 +1,11 @@
+{
+    "accountSettings": "Налаштування облікового запису",
+    "signOut": "Вийти",
+    "anonymous": "Анонімно",
+    "emailNotSpecified": "Email не вказано",
+    "roles": {
+        "businessOwner": "Власник бізнесу",
+        "superadmin": "Суперадмін",
+        "client": "Клієнт"
+    }
+}

@@ -1,0 +1,773 @@
+{
+    "title": "¡Bienvenido a REXTEN!",
+    "subtitle": "Te presentamos la plataforma",
+    "skip": "Omitir",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "complete": "Finalizar",
+    "steps": {
+        "welcome": {
+            "title": "¡Bienvenido!",
+            "description": "REXTEN es una plataforma moderna para administrar tu negocio y promocionar servicios en el marketplace. Te ayudamos a gestionar clientes, reservas y publicidad de forma eficiente.",
+            "features": {
+                "1": "Administra todos los aspectos de tu negocio en un solo lugar",
+                "2": "Automatiza procesos de reservas y pedidos",
+                "3": "Analíticas y estadísticas para tomar decisiones",
+                "4": "Integración con el marketplace para atraer clientes"
+            }
+        },
+        "dashboard": {
+            "title": "Panel",
+            "description": "Tu centro de control. Aquí encontrarás la información clave de tu negocio: estadísticas de ventas, número de clientes, reservas recientes y accesos rápidos.",
+            "features": {
+                "1": "Resumen de ingresos por semana, mes y año",
+                "2": "Estadísticas de reservas y clientes",
+                "3": "Gráficas y analíticas para visualizar datos",
+                "4": "Acceso rápido a las funciones principales"
+            }
+        },
+        "advertisements": {
+            "title": "Anuncios",
+            "description": "Crea y administra anuncios de tus servicios. Agrega descripciones, fotos, precios y horarios. Tus anuncios serán visibles para los clientes en el marketplace.",
+            "features": {
+                "1": "Crea anuncios con información completa del servicio",
+                "2": "Sube fotos y portafolio",
+                "3": "Define precios y horario de atención",
+                "4": "Administra estados y moderación"
+            },
+            "myAds": "Mis anuncios",
+            "myAdsDescription": "Administra tus anuncios en el marketplace",
+            "buyAds": "Comprar publicidad",
+            "createButton": "Crear anuncio",
+            "noAds": "Sin anuncios",
+            "noAdsDescription": "Crea tu primer anuncio para promocionar tu negocio",
+            "loadError": "Error al cargar",
+            "noPhoto": "Sin foto",
+            "columns": {
+                "photo": "Foto",
+                "title": "Título",
+                "status": "Estado",
+                "visible": "Visibilidad",
+                "createdAt": "Creado"
+            },
+            "statuses": {
+                "draft": "Borrador",
+                "pending": "Pendiente",
+                "approved": "Aprobado",
+                "rejected": "Rechazado",
+                "active": "Activo",
+                "inactive": "Inactivo"
+            },
+            "viewModal": {
+                "title": "Ver anuncio",
+                "rejectionReason": "Motivo del rechazo",
+                "checkedAt": "Revisado el",
+                "status": "Estado",
+                "placement": "Ubicación",
+                "city": "Ciudad",
+                "state": "Estado",
+                "priceFrom": "Precio desde",
+                "priceTo": "Precio hasta",
+                "link": "Enlace",
+                "createdAt": "Creado",
+                "updatedAt": "Actualizado"
+            },
+            "deleteConfirm": {
+                "title": "¿Eliminar anuncio?",
+                "confirm": "Eliminar",
+                "message": "¿Seguro que deseas eliminar el anuncio \"{title}\"?"
+            },
+            "notifications": {
+                "deleteSuccess": "Anuncio eliminado correctamente",
+                "deleteError": "No se pudo eliminar el anuncio",
+                "loadError": "No se pudo cargar el anuncio"
+            },
+            "ads": {
+                "title": "Mis anuncios",
+                "description": "Administra tus anuncios con estadísticas y configuración completas",
+                "buyAds": "Comprar publicidad",
+                "noAds": "Sin anuncios",
+                "noAdsDescription": "Compra publicidad para promocionar tu negocio",
+                "adBadge": "Anuncio",
+                "columns": {
+                    "photo": "Foto",
+                    "title": "Título",
+                    "placement": "Ubicación",
+                    "status": "Estado",
+                    "stats": "Estadísticas",
+                    "placementDates": "Fechas de ubicación",
+                    "createdAt": "Creado"
+                },
+                "placements": {
+                    "homepage": "Inicio",
+                    "services": "Servicios",
+                    "sidebar": "Barra lateral",
+                    "banner": "Banner"
+                },
+                "stats": {
+                    "impressions": "Impresiones",
+                    "clicks": "Clics",
+                    "created": "Creado"
+                },
+                "viewModal": {
+                    "title": "Ver anuncio",
+                    "placement": "Ubicación",
+                    "status": "Estado",
+                    "city": "Ciudad",
+                    "state": "Estado",
+                    "impressions": "Impresiones",
+                    "clicks": "Clics",
+                    "startDate": "Fecha de inicio",
+                    "endDate": "Fecha de fin",
+                    "link": "Enlace"
+                }
+            },
+            "purchase": {
+                "title": "Comprar publicidad",
+                "description": "Selecciona un anuncio para promocionar y un paquete publicitario",
+                "back": "Atrás",
+                "noAdsToPromote": "No hay anuncios para promocionar",
+                "createFirst": "Primero crea un anuncio regular para poder promocionarlo",
+                "createAd": "Crear anuncio",
+                "selectAd": "Selecciona un anuncio para promocionar",
+                "selectPackage": "Selecciona un paquete",
+                "popular": "Popular",
+                "pop": "Pop",
+                "days": "días",
+                "for": "por",
+                "total": "Total",
+                "duration": "Duración",
+                "buyButton": "Comprar publicidad",
+                "packages": {
+                    "basic": {
+                        "name": "Básico",
+                        "feature1": "Ubicación por 7 días",
+                        "feature2": "Rotación con otros anuncios",
+                        "feature3": "Estadísticas de impresiones y clics",
+                        "feature4": "Filtrado por ubicación"
+                    },
+                    "standard": {
+                        "name": "Estándar",
+                        "feature1": "Ubicación por 14 días",
+                        "feature2": "Rotación con otros anuncios",
+                        "feature3": "Estadísticas de impresiones y clics",
+                        "feature4": "Filtrado por ubicación"
+                    },
+                    "premium": {
+                        "name": "Premium",
+                        "feature1": "Ubicación por 30 días",
+                        "feature2": "Rotación con otros anuncios",
+                        "feature3": "Estadísticas de impresiones y clics",
+                        "feature4": "Filtrado por ubicación"
+                    }
+                },
+                "notifications": {
+                    "success": "¡Publicidad activada! El anuncio se envió a moderación",
+                    "selectAdError": "Selecciona un anuncio para promocionar",
+                    "selectPackageError": "Selecciona un paquete publicitario",
+                    "activationError": "No se pudo activar la publicidad"
+                }
+            },
+            "create": {
+                "title": "Crear anuncio",
+                "editTitle": "Editar anuncio",
+                "subtitle": "Completa todas las secciones para crear un anuncio",
+                "sections": {
+                    "general": "Información general",
+                    "pricing": "Precio",
+                    "services": "Servicios",
+                    "schedule": "Horario",
+                    "team": "Equipo",
+                    "portfolio": "Portafolio"
+                },
+                "general": {
+                    "title": "Información general",
+                    "name": "Nombre",
+                    "namePlaceholder": "Ingresa el nombre del anuncio",
+                    "description": "Descripción",
+                    "descriptionPlaceholder": "Descripción detallada del anuncio",
+                    "category": "Categoría",
+                    "categoryPlaceholder": "Selecciona categoría",
+                    "state": "Estado",
+                    "statePlaceholder": "Selecciona estado",
+                    "city": "Ciudad",
+                    "cityPlaceholder": "Selecciona ciudad",
+                    "citiesLoading": "Cargando ciudades...",
+                    "citiesNotFound": "No se encontraron ciudades",
+                    "selectStateFirst": "Primero selecciona el estado",
+                    "image": "Imagen",
+                    "imageUploading": "Subiendo...",
+                    "imageUploadHint": "Haz clic o arrastra un archivo para subirlo",
+                    "imageUrlHint": "O ingresa la URL de la imagen:",
+                    "link": "Enlace (generado automáticamente)",
+                    "linkHint": "El enlace se genera automáticamente a partir del título",
+                    "startDate": "Fecha de inicio",
+                    "startDateHint": "Déjalo vacío para publicar de inmediato",
+                    "endDate": "Fecha de fin",
+                    "endDateHint": "Déjalo vacío para ubicación indefinida"
+                },
+                "pricing": {
+                    "title": "Precio",
+                    "priceFrom": "Precio desde",
+                    "priceTo": "Precio hasta",
+                    "currency": "Moneda"
+                },
+                "services": {
+                    "title": "Servicios",
+                    "addService": "Agregar servicio",
+                    "serviceNumber": "Servicio #{number}",
+                    "selectTemplate": "Seleccionar plantilla de servicio (opcional)",
+                    "manualEntry": "Entrada manual",
+                    "selectOrManual": "Selecciona plantilla o ingresa manualmente",
+                    "createTemplates": "Crea plantillas en la configuración del negocio",
+                    "templateHint": "💡 Crea plantillas de servicio en",
+                    "templateHintLink": "configuración del negocio → Servicios",
+                    "templateHintSuffix": "para agregarlas rápido a los anuncios",
+                    "serviceName": "Nombre del servicio",
+                    "serviceNamePlaceholder": "Nombre del servicio",
+                    "price": "Precio",
+                    "duration": "Duración",
+                    "durationUnit": "Unidad",
+                    "hours": "Horas",
+                    "days": "Días",
+                    "serviceDescription": "Descripción",
+                    "serviceDescriptionPlaceholder": "Descripción del servicio",
+                    "noServices": "No hay servicios. Haz clic en \"Agregar servicio\" para agregar el primero."
+                },
+                "additionalServices": {
+                    "title": "Servicios adicionales",
+                    "subtitle": "Agrega servicios adicionales a este servicio principal",
+                    "manage": "Administrar",
+                    "loading": "Cargando servicios adicionales...",
+                    "noServices": "No hay servicios adicionales. Haz clic en \"Administrar\" para agregar el primero.",
+                    "noServicesModal": "No hay servicios adicionales. Haz clic en \"Agregar\" para crear el primero.",
+                    "management": "Administración de servicios adicionales",
+                    "forDbService": "(para servicio de la base de datos)",
+                    "add": "Agregar",
+                    "active": "Activo",
+                    "inactive": "Inactivo",
+                    "deleteTitle": "¿Eliminar servicio adicional?",
+                    "deleteMessage": "¿Seguro que deseas eliminar este servicio adicional?",
+                    "editTitle": "Editar servicio adicional",
+                    "addTitle": "Agregar servicio adicional",
+                    "name": "Nombre",
+                    "namePlaceholder": "p. ej., Peinado",
+                    "description": "Descripción",
+                    "descriptionPlaceholder": "Descripción del servicio",
+                    "price": "Precio ($)",
+                    "pricePlaceholder": "p. ej., 25.50",
+                    "duration": "Duración (min)",
+                    "durationPlaceholder": "p. ej., 30",
+                    "sortOrder": "Orden",
+                    "isActive": "Activo",
+                    "showInBooking": "Mostrar en la reserva",
+                    "save": "Guardar",
+                    "nameRequired": "Ingresa el nombre del servicio",
+                    "priceRequired": "Ingresa el precio",
+                    "durationRequired": "Ingresa la duración",
+                    "addedSuccess": "Servicio adicional agregado",
+                    "updatedSuccess": "Servicio adicional actualizado",
+                    "deletedSuccess": "Servicio adicional eliminado",
+                    "addError": "No se pudo agregar el servicio adicional",
+                    "updateError": "No se pudo actualizar el servicio adicional",
+                    "deleteError": "No se pudo eliminar el servicio adicional",
+                    "saveDbError": "No se pudo guardar el servicio adicional. Asegúrate de que el servicio esté guardado en la base de datos."
+                },
+                "schedule": {
+                    "title": "Horario de trabajo",
+                    "subtitle": "Define el horario de atención para cada día de la semana",
+                    "slotStep": "Intervalo entre cupos",
+                    "slotStepHint": "Intervalo entre cupos disponibles para reservar. Predeterminado: 1 hora.",
+                    "workDays": "Días laborables",
+                    "monday": "Lunes",
+                    "tuesday": "Martes",
+                    "wednesday": "Miércoles",
+                    "thursday": "Jueves",
+                    "friday": "Viernes",
+                    "saturday": "Sábado",
+                    "sunday": "Domingo",
+                    "minutes15": "15 minutos",
+                    "minutes30": "30 minutos",
+                    "hour1": "1 hora",
+                    "hours15": "1.5 horas",
+                    "hours2": "2 horas",
+                    "hours3": "3 horas",
+                    "hours4": "4 horas"
+                },
+                "team": {
+                    "title": "Equipo",
+                    "subtitle": "Selecciona especialistas para este anuncio",
+                    "selectAll": "Seleccionar todo",
+                    "deselectAll": "Quitar selección",
+                    "noTeam": "No hay especialistas en el equipo",
+                    "noTeamHint": "Agrega especialistas en",
+                    "noTeamLink": "configuración del negocio → Equipo"
+                },
+                "portfolio": {
+                    "title": "Portafolio",
+                    "subtitle": "Agrega ejemplos de trabajos realizados. Las imágenes se mostrarán en la página del anuncio.",
+                    "add": "Agregar",
+                    "addMore": "Agregar más",
+                    "cancel": "Cancelar",
+                    "workTitle": "Título",
+                    "workTitlePlaceholder": "Título del trabajo",
+                    "tag": "Etiqueta",
+                    "tagPlaceholder": "p. ej., Reparación",
+                    "workDescription": "Descripción",
+                    "workDescriptionPlaceholder": "Descripción detallada del trabajo",
+                    "images": "Imágenes",
+                    "uploadImages": "Subir imágenes",
+                    "noPortfolio": "Sin elementos en el portafolio",
+                    "noPortfolioHint": "Haz clic en \"Agregar\" para agregar el primer trabajo"
+                },
+                "buttons": {
+                    "back": "Atrás",
+                    "next": "Siguiente",
+                    "publish": "Publicar",
+                    "save": "Guardar",
+                    "cancel": "Cancelar",
+                    "delete": "Eliminar"
+                },
+                "notifications": {
+                    "imageUploaded": "Imagen subida",
+                    "imageUploadError": "No se pudo subir la imagen",
+                    "created": "Anuncio creado y enviado a moderación",
+                    "updated": "Anuncio actualizado y enviado a moderación",
+                    "createError": "No se pudo crear el anuncio",
+                    "updateError": "No se pudo actualizar el anuncio",
+                    "unknownError": "Error desconocido"
+                }
+            }
+        },
+        "schedule": {
+            "title": "Horario",
+            "description": "Administra el horario de tu negocio y los cupos disponibles para reservar. Los clientes podrán ver horarios disponibles y reservar servicios en línea.",
+            "features": {
+                "1": "Define horario por día de la semana",
+                "2": "Crea cupos de reserva",
+                "3": "Administra disponibilidad de especialistas",
+                "4": "Actualización automática del calendario"
+            }
+        },
+        "reports": {
+            "title": "Reportes",
+            "description": "Analíticas detalladas de reservas, clientes, ingresos y especialistas. Exporta datos para analizarlos después.",
+            "overview": {
+                "title": "Resumen estadístico",
+                "totalBookings": "Reservas totales",
+                "completedBookings": "Completadas",
+                "cancelledBookings": "Canceladas",
+                "activeBookings": "Activas",
+                "totalRevenue": "Ingresos totales",
+                "averageCheck": "Ticket promedio",
+                "uniqueClients": "Clientes únicos",
+                "activeSpecialists": "Especialistas activos"
+            },
+            "bookings": {
+                "title": "Reportes de reservas",
+                "byStatus": "Distribución por estado",
+                "byPeriod": "Tendencia de reservas",
+                "topServices": "Servicios destacados"
+            },
+            "clients": {
+                "title": "Reportes de clientes",
+                "topByBookings": "Principales clientes por reservas",
+                "topByRevenue": "Principales clientes por ingresos",
+                "newClients": "Clientes nuevos"
+            },
+            "revenue": {
+                "title": "Reportes de ingresos",
+                "byPeriod": "Tendencia de ingresos",
+                "byService": "Ingresos por servicio",
+                "bySpecialist": "Ingresos por especialista"
+            },
+            "specialists": {
+                "title": "Reportes de especialistas",
+                "bookingsCount": "Reservas",
+                "revenue": "Ingresos",
+                "cancellations": "Cancelaciones",
+                "completed": "Completadas",
+                "active": "Activas",
+                "averageCheck": "Ticket promedio",
+                "clients": "Clientes"
+            },
+            "filters": {
+                "dateFrom": "Fecha desde",
+                "dateTo": "Fecha hasta",
+                "specialist": "Especialista",
+                "service": "Servicio",
+                "status": "Estado",
+                "apply": "Aplicar",
+                "reset": "Restablecer",
+                "today": "Hoy",
+                "week": "Semana",
+                "month": "Mes",
+                "quarter": "Trimestre",
+                "year": "Año"
+            },
+            "export": {
+                "title": "Exportar datos",
+                "format": "Formato",
+                "excel": "Excel",
+                "csv": "CSV",
+                "reportType": "Tipo de reporte",
+                "download": "Descargar",
+                "error": "Error al exportar"
+            },
+            "noData": "No hay datos para el periodo seleccionado",
+            "table": {
+                "number": "#",
+                "service": "Servicio",
+                "client": "Cliente",
+                "specialist": "Especialista",
+                "period": "Periodo",
+                "count": "Cantidad",
+                "status": "Estado"
+            }
+        },
+        "clients": {
+            "title": "Clientes",
+            "description": "Gestión de clientes",
+            "features": {
+                "1": "Base de datos de todos tus clientes",
+                "2": "Historial de pedidos y reservas",
+                "3": "Categorías de clientes (regular, frecuente, VIP)",
+                "4": "Búsqueda y filtrado rápidos"
+            },
+            "statuses": {
+                "regular": "Regular",
+                "permanent": "Frecuente",
+                "vip": "VIP"
+            },
+            "detailsModal": {
+                "title": "Detalle del cliente",
+                "tabs": {
+                    "info": "Info",
+                    "bookings": "Reservas",
+                    "orders": "Pedidos",
+                    "notes": "Notas"
+                },
+                "bookingsCount": "Reservas",
+                "spent": "Gastado",
+                "lastVisit": "Última visita",
+                "noBookings": "Sin reservas",
+                "noOrders": "Sin pedidos",
+                "noNotes": "Sin notas",
+                "serviceNotSpecified": "Servicio no especificado",
+                "dateNotSpecified": "Fecha no especificada",
+                "specialist": "Especialista",
+                "order": "Pedido",
+                "addNote": "Agregar nota",
+                "notePlaceholder": "Escribe una nota...",
+                "addButton": "Agregar",
+                "added": "Agregada",
+                "noteSuccess": "Nota agregada correctamente",
+                "noteError": "No se pudo agregar la nota",
+                "bookingStatuses": {
+                    "new": "Nueva",
+                    "pending": "Pendiente",
+                    "confirmed": "Confirmada",
+                    "completed": "Completada",
+                    "cancelled": "Cancelada",
+                    "unknown": "Desconocido"
+                },
+                "orderStatuses": {
+                    "paid": "Pagado",
+                    "completed": "Completado",
+                    "processing": "En proceso"
+                },
+                "delete": "Eliminar",
+                "deleteConfirmTitle": "¿Eliminar cliente?",
+                "deleteConfirm": "Eliminar",
+                "deleteConfirmMessage": "¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer.",
+                "deleteSuccess": "Cliente eliminado correctamente",
+                "deleteError": "No se pudo eliminar el cliente"
+            },
+            "detailsPage": {
+                "back": "Atrás",
+                "title": "Detalle del cliente",
+                "subtitle": "Ver información del cliente",
+                "clientNotFound": "Cliente no encontrado",
+                "backToList": "Volver a la lista de clientes",
+                "tabs": {
+                    "info": "Información",
+                    "bookings": "Reservas",
+                    "notes": "Notas"
+                },
+                "stats": {
+                    "current": "Actuales",
+                    "completed": "Completadas",
+                    "cancelled": "Canceladas",
+                    "spent": "Gastado"
+                },
+                "bookings": {
+                    "noBookings": "Sin reservas",
+                    "serviceNotSpecified": "Servicio no especificado",
+                    "executionTypeOffsite": "Tipo de ejecución: fuera del establecimiento",
+                    "dateNotSpecified": "Fecha no especificada",
+                    "specialist": "Especialista:",
+                    "created": "Creada:",
+                    "address": "Dirección:",
+                    "clientNote": "Nota del cliente:",
+                    "businessNote": "Nota del negocio:",
+                    "basePrice": "Precio base del servicio",
+                    "total": "Total:"
+                },
+                "notes": {
+                    "addNote": "Agregar nota",
+                    "notePlaceholder": "Escribe una nota sobre el cliente...",
+                    "addButton": "Agregar",
+                    "noNotes": "Sin notas",
+                    "added": "Agregada"
+                },
+                "notifications": {
+                    "success": "Correcto",
+                    "error": "Error"
+                },
+                "delete": "Eliminar",
+                "deleteConfirmTitle": "¿Eliminar cliente?",
+                "deleteConfirm": "Eliminar",
+                "cancel": "Cancelar",
+                "deleteConfirmMessage": "¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer.",
+                "deleteSuccess": "Cliente eliminado correctamente",
+                "deleteError": "No se pudo eliminar el cliente"
+            },
+            "summary": {
+                "title": "Resumen del cliente",
+                "firstVisit": "Primera visita",
+                "lastVisit": "Última visita",
+                "lastCompletedVisit": "Última visita completada",
+                "visitFrequency": "Frecuencia de visitas",
+                "visitFrequencyHint": "Según visitas completadas",
+                "averageCheck": "Ticket promedio",
+                "conversionRate": "Tasa de conversión",
+                "conversionHint": "Reservas completadas / todas las reservas (el numerador solo cuenta completadas)",
+                "favoriteService": "Servicio favorito",
+                "favoriteSpecialist": "Especialista favorito",
+                "timesPerMonth": "veces al mes",
+                "times": {
+                    "one": "vez",
+                    "few": "veces",
+                    "many": "veces"
+                }
+            },
+            "bookingsFilter": {
+                "status": "Estado",
+                "allStatuses": "Todos los estados",
+                "dateFrom": "Fecha desde",
+                "dateTo": "Fecha hasta",
+                "sortBy": "Ordenar por",
+                "sortByDate": "Por fecha",
+                "sortByPrice": "Por monto",
+                "sortOrder": "Orden",
+                "sortDesc": "Descendente",
+                "sortAsc": "Ascendente",
+                "reset": "Restablecer",
+                "found": "Encontradas",
+                "bookings": "reservas",
+                "totalAmount": "monto total"
+            }
+        },
+        "reviews": {
+            "title": "Reseñas",
+            "description": "Administra las reseñas de tus anuncios",
+            "features": {
+                "1": "Ve todas las reseñas en un solo lugar",
+                "2": "Responde a las reseñas de los clientes",
+                "3": "Agrupa reseñas por anuncio",
+                "4": "Supervisa calificación y estadísticas"
+            },
+            "table": {
+                "user": "Usuario",
+                "advertisement": "Anuncio",
+                "rating": "Calificación",
+                "review": "Reseña",
+                "date": "Fecha",
+                "anonymous": "Anónimo",
+                "open": "Abrir",
+                "noAd": "Sin anuncio",
+                "service": "Servicio",
+                "specialist": "Especialista",
+                "yourResponse": "Tu respuesta",
+                "noReviews": "Sin reseñas",
+                "editResponse": "Editar respuesta",
+                "respond": "Responder"
+            },
+            "responseModal": {
+                "title": "Responder a la reseña",
+                "reviewFrom": "Reseña de",
+                "yourResponse": "Tu respuesta",
+                "placeholder": "Escribe una respuesta a la reseña...",
+                "cancel": "Cancelar",
+                "save": "Guardar"
+            },
+            "notifications": {
+                "responseUpdated": "Respuesta a la reseña actualizada",
+                "responseError": "No se pudo actualizar la respuesta"
+            }
+        },
+        "settings": {
+            "title": "Configuración del negocio",
+            "description": "Administra perfil, equipo, horario y demás ajustes del negocio",
+            "servicesHint": "Aquí puedes crear plantillas de servicio y usarlas al crear anuncios en la sección",
+            "advertisementsLink": "Anuncios",
+            "features": {
+                "1": "Edita perfil y datos de contacto",
+                "2": "Administra equipo y especialistas",
+                "3": "Configura servicios y portafolio",
+                "4": "Sube logo y fotos"
+            },
+            "tabs": {
+                "profile": "Perfil",
+                "services": "Servicios",
+                "team": "Equipo",
+                "users": "Usuarios",
+                "roles": "Roles",
+                "schedule": "Horario",
+                "notifications": "Notificaciones",
+                "payments": "Pagos",
+                "marketplace": "Principal"
+            },
+            "profile": {
+                "title": "Perfil",
+                "companyName": "Nombre del negocio",
+                "description": "Descripción",
+                "phone": "Teléfono",
+                "email": "Correo electrónico",
+                "telegram": "Telegram",
+                "whatsapp": "WhatsApp",
+                "website": "Sitio web",
+                "address": "Dirección",
+                "city": "Ciudad",
+                "state": "Estado",
+                "zipCode": "Código postal",
+                "logo": "Logo",
+                "uploadPhoto": "Subir foto",
+                "recommendedSize": "Tamaño recomendado: 400×400 px",
+                "enterName": "Ingresa el nombre",
+                "describeYourBusiness": "Describe tu negocio",
+                "enterAddress": "Ingresa la dirección",
+                "publicProfile": "Perfil público",
+                "viewOnPlatform": "Ve tu negocio en la plataforma",
+                "openProfile": "Abrir perfil",
+                "cancel": "Cancelar",
+                "save": "Guardar",
+                "saving": "Guardando...",
+                "success": "Perfil actualizado correctamente",
+                "error": "No se pudo actualizar el perfil",
+                "avatarSuccess": "Avatar subido correctamente",
+                "avatarError": "No se pudo subir el avatar",
+                "phonePlaceholder": "Ingresa el teléfono",
+                "emailPlaceholder": "Ingresa el correo",
+                "telegramPlaceholder": "@usuario o nombre de usuario",
+                "whatsappPlaceholder": "+1234567890",
+                "websitePlaceholder": "Ingresa el sitio web"
+            },
+            "services": {
+                "title": "Servicios",
+                "add": "Agregar servicio",
+                "edit": "Editar",
+                "delete": "Eliminar",
+                "name": "Nombre",
+                "price": "Precio",
+                "duration": "Duración (min)",
+                "category": "Categoría",
+                "noServices": "Sin servicios",
+                "noServicesDescription": "Agrega tu primer servicio",
+                "deleteConfirm": "¿Eliminar servicio?",
+                "deleteConfirmMessage": "¿Seguro que deseas eliminar el servicio \"{name}\"?",
+                "success": "Servicio guardado correctamente",
+                "deleteSuccess": "Servicio eliminado correctamente",
+                "error": "No se pudo guardar el servicio"
+            },
+            "team": {
+                "title": "Equipo",
+                "add": "Agregar especialista",
+                "edit": "Editar",
+                "delete": "Eliminar",
+                "name": "Nombre",
+                "position": "Puesto",
+                "phone": "Teléfono",
+                "email": "Correo electrónico",
+                "noTeam": "Sin especialistas",
+                "noTeamDescription": "Agrega tu primer especialista",
+                "success": "Especialista guardado correctamente",
+                "deleteSuccess": "Especialista eliminado correctamente",
+                "error": "No se pudo guardar el especialista"
+            },
+            "users": {
+                "title": "Usuarios",
+                "description": "Gestores y administradores con acceso al panel",
+                "invite": "Invitar",
+                "email": "Correo electrónico",
+                "role": "Rol",
+                "owner": "Propietario",
+                "noUsers": "No hay usuarios invitados",
+                "inviteSuccess": "Usuario invitado",
+                "removeSuccess": "Usuario eliminado",
+                "tempPassword": "Contraseña temporal"
+            },
+            "roles": {
+                "title": "Roles",
+                "description": "Roles estándar y personalizados con permisos",
+                "add": "Crear rol",
+                "name": "Nombre",
+                "slug": "Slug",
+                "permissions": "Permisos",
+                "systemRole": "Sistema",
+                "noRoles": "Sin roles personalizados",
+                "createSuccess": "Rol creado",
+                "updateSuccess": "Rol actualizado",
+                "deleteSuccess": "Rol eliminado"
+            },
+            "schedule": {
+                "title": "Horario de trabajo",
+                "monday": "Lunes",
+                "tuesday": "Martes",
+                "wednesday": "Miércoles",
+                "thursday": "Jueves",
+                "friday": "Viernes",
+                "saturday": "Sábado",
+                "sunday": "Domingo",
+                "dayOff": "Día libre",
+                "from": "Desde",
+                "to": "Hasta",
+                "save": "Guardar",
+                "success": "Horario guardado correctamente",
+                "error": "No se pudo guardar el horario"
+            },
+            "notifications": {
+                "title": "Notificaciones",
+                "email": "Notificaciones por correo",
+                "sms": "Notificaciones por SMS",
+                "push": "Notificaciones push",
+                "newBooking": "Nueva reserva",
+                "bookingCancellation": "Cancelación de reserva",
+                "bookingReminder": "Recordatorio de reserva",
+                "newReview": "Nueva reseña",
+                "save": "Guardar",
+                "success": "Configuración de notificaciones guardada",
+                "error": "No se pudo guardar la configuración"
+            },
+            "payments": {
+                "title": "Pagos",
+                "description": "La configuración de pagos estará disponible pronto",
+                "comingSoon": "Próximamente"
+            },
+            "marketplace": {
+                "title": "Visualización en la página principal",
+                "description": "Ajustes para mostrar tu negocio en la página principal del marketplace"
+            }
+        },
+        "advertising": {
+            "title": "Publicidad",
+            "description": "Promociona tu negocio con publicidad. Compra anuncios para aparecer en la página principal del marketplace y atraer más clientes.",
+            "features": {
+                "1": "Compra publicidad",
+                "2": "Ubicación en la página de inicio",
+                "3": "Define el periodo de visualización",
+                "4": "Mide la efectividad de la publicidad"
+            }
+        }
+    }
+}

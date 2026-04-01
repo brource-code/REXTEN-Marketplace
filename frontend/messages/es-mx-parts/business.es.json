@@ -1,0 +1,1464 @@
+{
+    "dashboard": {
+        "title": "Panel",
+        "overview": "Resumen del negocio",
+        "selectPeriod": "Seleccionar período",
+        "periods": {
+            "thisWeek": "Esta semana",
+            "thisMonth": "Este mes",
+            "thisYear": "Este año"
+        },
+        "stats": {
+            "sectionLifetime": "Totales históricos",
+            "sectionCurrent": "En este momento",
+            "viewLifetime": "Todo el tiempo",
+            "viewCurrent": "Ahora",
+            "statsHintLifetime": "Totales desde que empezaste a registrar.",
+            "statsHintCurrent": "Próximas reservas, estimación del pipeline, anuncios activos.",
+            "revenue": "Ingresos",
+            "bookings": "Reservas",
+            "newClients": "Clientes nuevos",
+            "activeBookings": "Próximas",
+            "totalClients": "Clientes",
+            "totalRevenue": "Ingresos",
+            "revenueInWork": "En curso",
+            "totalBookings": "Reservas",
+            "activeAdvertisements": "Anuncios",
+            "comparedToPrevious": "respecto al período anterior",
+            "includingOverdue": "+ {amount} vencido(s)",
+            "totalRevenueScope": "Todas las reservas completadas",
+            "allTimeScope": "Todo el tiempo en el sistema",
+            "fromTodayScope": "Desde hoy en adelante",
+            "pipelineScope": "Suma de reservas no finales: es una estimación, no ingreso reconocido",
+            "adsNowScope": "Anuncios activos ahora",
+            "periodCardsRange": "Cifras: {from} — {to}",
+            "revenuePeriodFootnote": "Reservas completadas en el período (fecha del servicio)."
+        },
+        "chart": {
+            "error": "Error al cargar los datos del gráfico",
+            "noData": "No hay datos para mostrar"
+        },
+        "quickActions": {
+            "title": "Acciones rápidas",
+            "viewProfile": "Ver perfil",
+            "profile": "Perfil",
+            "newBooking": "Nueva reserva",
+            "newBookingDesc": "Crear reserva manualmente",
+            "addClient": "Agregar cliente",
+            "addClientDesc": "Registrar cliente nuevo",
+            "settings": "Configuración",
+            "settingsDesc": "Gestionar la configuración del negocio",
+            "schedule": "Agenda",
+            "scheduleDesc": "Gestionar la agenda"
+        },
+        "recentBookings": {
+            "title": "Reservas recientes",
+            "viewAll": "Todas las reservas",
+            "noBookings": "Sin reservas",
+            "columns": {
+                "booking": "Reserva",
+                "dateTime": "Fecha y hora",
+                "client": "Cliente",
+                "service": "Servicio",
+                "status": "Estado",
+                "amount": "Monto"
+            },
+            "mobile": {
+                "service": "Servicio"
+            }
+        }
+    },
+    "schedule": {
+        "title": "Agenda",
+        "description": "Administra reservas y disponibilidad",
+        "newBooking": "Nueva reserva",
+        "stats": {
+            "revenue": "Ingresos",
+            "inProgress": "En curso",
+            "completed": "Completadas",
+            "total": "Total",
+            "sumExcludingCancelled": "Suma sin canceladas",
+            "sumCompleted": "Suma completadas",
+            "periodHint": "Rango visible del calendario. Los montos usan el total de cada franja. «Sin canceladas» = todos los estados excepto cancelado.",
+            "periodRangeLabel": "Sumas del rango: {start} — {end}",
+            "periodGridNote": "El rango coincide con la cuadrícula visible del calendario (incluye días de meses adyacentes). El título del mes es para navegación, no delimita la suma."
+        },
+        "statuses": {
+            "new": "Nueva",
+            "pending": "Pendiente",
+            "confirmed": "Confirmada",
+            "completed": "Completada",
+            "cancelled": "Cancelada"
+        },
+        "notifications": {
+            "bookingCreated": "Reserva creada correctamente",
+            "bookingUpdated": "Reserva actualizada correctamente",
+            "bookingDeleted": "Reserva eliminada correctamente",
+            "bookingCompletedReviewLink": "Reserva completada. Se generó el enlace de reseña.",
+            "error": "Error",
+            "createError": "No se pudo crear la reserva",
+            "updateError": "No se pudo actualizar la reserva",
+            "deleteError": "No se pudo eliminar la reserva",
+            "slotOccupied": "El horario seleccionado está ocupado",
+            "changeTimeOrDate": "Cambia la hora o la fecha en el formulario.",
+            "timeOverlap": "El horario seleccionado se traslapa con otra reserva. Revisa la agenda."
+        },
+        "deleteConfirm": {
+            "title": "¿Eliminar reserva?",
+            "message": "¿Seguro que quieres eliminar esta reserva?",
+            "confirm": "Eliminar",
+            "cancel": "Cancelar"
+        },
+        "modal": {
+            "newBooking": "Nueva reserva",
+            "editBooking": "Editar reserva",
+            "timeOverlapWarning": "Aviso: el horario se traslapa con otra reserva",
+            "timeOverlapDescription": "Revisa la agenda antes de guardar. Puede que necesites otro horario.",
+            "labels": {
+                "service": "Servicio",
+                "client": "Cliente",
+                "specialist": "Especialista",
+                "executionType": "Tipo de ejecución",
+                "executionTypeOffsite": "Servicio a domicilio",
+                "executionTypeOnsite": "El cliente va al local",
+                "address": "Dirección",
+                "addressPlaceholder": "Ingresa la dirección",
+                "clientAddress": "Dirección del cliente",
+                "city": "Ciudad",
+                "state": "Estado",
+                "zip": "Código postal",
+                "price": "Precio",
+                "basePriceNote": "Precio base: {price} + servicios adicionales",
+                "total": "Total:",
+                "baseServicePrice": "Precio base del servicio",
+                "subtotal": "Subtotal (antes del descuento)",
+                "discount": "Descuento",
+                "discountLoyalty": "Lealtad ({tier})",
+                "discountPromo": "Promo {code}",
+                "date": "Fecha",
+                "time": "Hora",
+                "duration": "Duración (minutos)",
+                "status": "Estado",
+                "notes": "Notas",
+                "notesPlaceholder": "Notas internas de la reserva",
+                "eventType": "Tipo de evento",
+                "customEvent": "Evento personalizado",
+                "title": "Título del evento",
+                "titlePlaceholder": "Ingresa el título del evento"
+            },
+            "titleRequired": "Ingresa el título del evento",
+            "reviewLink": {
+                "title": "Enlace de reseña para el cliente:",
+                "copy": "Copiar",
+                "copied": "Copiado",
+                "linkCopied": "Enlace copiado al portapapeles",
+                "copyError": "No se pudo copiar el enlace. Cópialo manualmente.",
+                "sendToClient": "Envía este enlace al cliente para que deje una reseña"
+            },
+            "client": {
+                "selectFromExisting": "Elegir de existentes",
+                "enterManually": "Ingresar manualmente",
+                "selectClient": "Seleccionar cliente",
+                "createNew": "Crear cliente nuevo",
+                "name": "Nombre del cliente",
+                "phone": "Teléfono",
+                "email": "Correo"
+            },
+            "selectService": "Seleccionar servicio",
+            "selectSpecialist": "Seleccionar especialista",
+            "notSpecified": "Sin especificar",
+            "buttons": {
+                "cancel": "Cancelar",
+                "delete": "Eliminar",
+                "save": "Guardar",
+                "close": "Cerrar"
+            }
+        },
+        "recurringBookings": "Reservas recurrentes",
+        "recurring": {
+            "list": "Lista",
+            "create": "Crear",
+            "edit": "Editar reserva recurrente",
+            "listDescription": "Administra tus cadenas de reservas recurrentes",
+            "createDescription": "Configura reservas recurrentes automáticas",
+            "editDescription": "Modifica la configuración de la reserva recurrente",
+            "serviceSection": "Servicio y especialista",
+            "clientSection": "Cliente",
+            "frequencySection": "Frecuencia de repetición",
+            "timeSection": "Hora y duración",
+            "priceSection": "Precio y notas",
+            "service": "Servicio",
+            "client": "Cliente",
+            "selectClient": "Seleccionar cliente",
+            "enterManually": "Ingresar manualmente",
+            "createNewClient": "Crear cliente nuevo",
+            "clientName": "Nombre del cliente",
+            "clientPhone": "Teléfono",
+            "clientEmail": "Correo",
+            "specialist": "Especialista",
+            "selectSpecialist": "Seleccionar especialista",
+            "selectService": "Seleccionar servicio",
+            "notSpecified": "Sin especificar",
+            "frequency": "Frecuencia",
+            "frequencies": {
+                "daily": "Diaria",
+                "every_n_days": "Cada N días",
+                "weekly": "Una vez por semana",
+                "biweekly": "Dos veces por semana",
+                "every_2_weeks": "Cada 2 semanas",
+                "every_3_weeks": "Cada 3 semanas",
+                "monthly": "Una vez al mes",
+                "bimonthly": "Dos veces al mes",
+                "every_2_months": "Cada 2 meses",
+                "every_3_months": "Cada 3 meses"
+            },
+            "intervalDays": "Intervalo (días)",
+            "intervalDaysPlaceholder": "Ingresa el número de días",
+            "intervalDaysHint": "La reserva se repetirá cada N días",
+            "intervalDaysRequired": "Ingresa el intervalo en días",
+            "daysOfWeek": "Días de la semana",
+            "selectDaysOfWeek": "Selecciona los días de la semana",
+            "dayOfMonth": "Día del mes",
+            "selectDayOfMonth": "Selecciona el día del mes",
+            "daysOfMonth": "Días del mes",
+            "selectDaysOfMonth": "Selecciona dos días del mes",
+            "selectTwoDays": "Selecciona exactamente dos días",
+            "time": "Hora",
+            "selectTime": "Seleccionar hora",
+            "duration": "Duración",
+            "durationInMinutes": "Duración en minutos",
+            "startDate": "Fecha de inicio",
+            "endDate": "Fecha de fin",
+            "endDateOptional": "Déjala vacía para indefinido",
+            "price": "Precio",
+            "notes": "Notas",
+            "notesPlaceholder": "Notas internas",
+            "days": {
+                "sunday": "Domingo",
+                "monday": "Lunes",
+                "tuesday": "Martes",
+                "wednesday": "Miércoles",
+                "thursday": "Jueves",
+                "friday": "Viernes",
+                "saturday": "Sábado"
+            },
+            "day": "Día",
+            "and": "y",
+            "period": "Período",
+            "indefinitely": "indefinidamente",
+            "frequencyDetails": "Detalles de frecuencia",
+            "upcomingBookings": "Próximas reservas",
+            "noChains": "Sin reservas recurrentes",
+            "noChainsDescription": "Crea tu primera cadena de reservas recurrentes",
+            "statuses": {
+                "active": "Activa",
+                "paused": "En pausa",
+                "cancelled": "Cancelada"
+            },
+            "regenerate": "Regenerar",
+            "created": "Reserva recurrente creada correctamente",
+            "createError": "No se pudo crear la reserva recurrente",
+            "updated": "Reserva recurrente actualizada correctamente",
+            "updateError": "No se pudo actualizar la reserva recurrente",
+            "deleted": "Reserva recurrente eliminada correctamente",
+            "deleteError": "No se pudo eliminar la reserva recurrente",
+            "regenerated": "Reservas regeneradas correctamente",
+            "regenerateError": "No se pudieron regenerar las reservas",
+            "daysOfWeekRequired": "Selecciona los días de la semana",
+            "dayOfMonthRequired": "Selecciona el día del mes",
+            "daysOfMonthRequired": "Selecciona dos días del mes",
+            "deleteConfirm": {
+                "title": "¿Eliminar reserva recurrente?",
+                "message": "¿Seguro que quieres eliminar esta cadena? Se eliminarán todas las reservas futuras.",
+                "confirm": "Eliminar",
+                "cancel": "Cancelar"
+            }
+        }
+    },
+    "reviews": {
+        "title": "Reseñas",
+        "description": "Administra las reseñas de clientes",
+        "noReviews": "Sin reseñas",
+        "columns": {
+            "client": "Cliente",
+            "advertisement": "Anuncio",
+            "rating": "Calificación",
+            "comment": "Comentario",
+            "date": "Fecha",
+            "status": "Estado"
+        },
+        "statuses": {
+            "published": "Publicada",
+            "pending": "Pendiente",
+            "rejected": "Rechazada"
+        },
+        "actions": {
+            "reply": "Responder",
+            "delete": "Eliminar"
+        },
+        "table": {
+            "user": "Usuario",
+            "anonymous": "Anónimo",
+            "advertisement": "Anuncio",
+            "service": "Servicio",
+            "specialist": "Especialista",
+            "rating": "Calificación",
+            "review": "Reseña",
+            "date": "Fecha",
+            "yourResponse": "Tu respuesta",
+            "respond": "Responder",
+            "open": "Abrir",
+            "editResponse": "Editar respuesta",
+            "noReviews": "Aún no hay reseñas",
+            "noAd": "Sin anuncio"
+        },
+        "responseModal": {
+            "title": "Responder a la reseña",
+            "reviewFrom": "Reseña de",
+            "yourResponse": "Tu respuesta",
+            "placeholder": "Escribe tu respuesta...",
+            "cancel": "Cancelar",
+            "save": "Guardar"
+        },
+        "notifications": {
+            "responseUpdated": "Respuesta actualizada correctamente",
+            "responseError": "No se pudo actualizar la respuesta"
+        }
+    },
+    "clients": {
+        "title": "Clientes",
+        "description": "Gestión de clientes",
+        "features": {
+            "1": "Base de datos de todos tus clientes",
+            "2": "Historial de pedidos y reservas",
+            "3": "Categorías de cliente (regular, frecuente, VIP)",
+            "4": "Búsqueda y filtros rápidos"
+        },
+        "statuses": {
+            "regular": "Regular",
+            "permanent": "Frecuente",
+            "vip": "VIP"
+        },
+        "detailsModal": {
+            "title": "Detalle del cliente",
+            "tabs": {
+                "info": "Info",
+                "bookings": "Reservas",
+                "orders": "Pedidos",
+                "notes": "Notas"
+            },
+            "bookingsCount": "Reservas",
+            "spent": "Gastado",
+            "lastVisit": "Última visita",
+            "noBookings": "Sin reservas",
+            "noOrders": "Sin pedidos",
+            "noNotes": "Sin notas",
+            "serviceNotSpecified": "Servicio sin especificar",
+            "dateNotSpecified": "Fecha sin especificar",
+            "specialist": "Especialista",
+            "order": "Pedido",
+            "addNote": "Agregar nota",
+            "notePlaceholder": "Escribe una nota...",
+            "addButton": "Agregar",
+            "added": "Agregada",
+            "noteSuccess": "Nota agregada correctamente",
+            "noteError": "No se pudo agregar la nota",
+            "bookingStatuses": {
+                "new": "Nueva",
+                "pending": "Pendiente",
+                "confirmed": "Confirmada",
+                "completed": "Completada",
+                "cancelled": "Cancelada",
+                "unknown": "Desconocido"
+            },
+            "orderStatuses": {
+                "paid": "Pagado",
+                "completed": "Completado",
+                "processing": "En proceso"
+            },
+            "delete": "Eliminar",
+            "deleteConfirmTitle": "¿Eliminar cliente?",
+            "deleteConfirm": "Eliminar",
+            "deleteConfirmMessage": "¿Seguro que quieres eliminar este cliente? Esta acción no se puede deshacer.",
+            "deleteSuccess": "Cliente eliminado correctamente",
+            "deleteError": "No se pudo eliminar el cliente",
+            "edit": "Editar",
+            "changePhoto": "Cambiar foto",
+            "avatarUploadSuccess": "Foto actualizada",
+            "avatarUploadError": "No se pudo subir la foto"
+        },
+        "detailsPage": {
+            "back": "Volver",
+            "title": "Detalle del cliente",
+            "subtitle": "Ver información del cliente",
+            "clientNotFound": "Cliente no encontrado",
+            "backToList": "Volver a la lista de clientes",
+            "tabs": {
+                "info": "Información",
+                "bookings": "Reservas",
+                "notes": "Notas"
+            },
+            "stats": {
+                "current": "Actuales",
+                "completed": "Completadas",
+                "cancelled": "Canceladas",
+                "spent": "Gastado"
+            },
+            "bookings": {
+                "noBookings": "Sin reservas",
+                "serviceNotSpecified": "Servicio sin especificar",
+                "executionTypeOffsite": "Tipo de ejecución: fuera del local",
+                "dateNotSpecified": "Fecha sin especificar",
+                "specialist": "Especialista:",
+                "created": "Creada:",
+                "address": "Dirección:",
+                "clientNote": "Nota del cliente:",
+                "businessNote": "Nota del negocio:",
+                "basePrice": "Precio base del servicio",
+                "total": "Total:"
+            },
+            "notes": {
+                "addNote": "Agregar nota",
+                "notePlaceholder": "Escribe una nota sobre el cliente...",
+                "addButton": "Agregar",
+                "noNotes": "Sin notas",
+                "added": "Agregada"
+            },
+            "notifications": {
+                "success": "Éxito",
+                "error": "Error"
+            },
+            "delete": "Eliminar",
+            "deleteConfirmTitle": "¿Eliminar cliente?",
+            "deleteConfirm": "Eliminar",
+            "cancel": "Cancelar",
+            "deleteConfirmMessage": "¿Seguro que quieres eliminar este cliente? Esta acción no se puede deshacer.",
+            "deleteSuccess": "Cliente eliminado correctamente",
+            "deleteError": "No se pudo eliminar el cliente",
+            "edit": "Editar",
+            "changePhoto": "Cambiar foto",
+            "avatarUploadSuccess": "Foto actualizada",
+            "avatarUploadError": "No se pudo subir la foto"
+        },
+        "summary": {
+            "title": "Resumen del cliente",
+            "firstVisit": "Primera visita",
+            "lastVisit": "Última visita",
+            "lastCompletedVisit": "Última visita completada",
+            "visitFrequency": "Frecuencia de visitas",
+            "visitFrequencyHint": "Según visitas completadas",
+            "averageCheck": "Ticket promedio",
+            "conversionRate": "Tasa de conversión",
+            "conversionHint": "Reservas completadas / todas las reservas (el numerador solo cuenta completadas)",
+            "favoriteService": "Servicio favorito",
+            "favoriteSpecialist": "Especialista favorito",
+            "timesPerMonth": "veces al mes",
+            "times": {
+                "one": "vez",
+                "few": "veces",
+                "many": "veces"
+            }
+        },
+        "loyalty": {
+            "title": "Lealtad y descuentos",
+            "notConfiguredShort": "La lealtad no está configurada — agrega niveles en «Descuentos».",
+            "bookingsCounted": "Reservas que cuentan para lealtad",
+            "ruleLabel": "Regla de conteo",
+            "ruleCompleted": "Solo completadas",
+            "ruleAll": "Todas excepto canceladas",
+            "currentTier": "Nivel actual",
+            "nextTier": "Siguiente nivel",
+            "bookingsToNext": "Reservas para el siguiente nivel",
+            "progressLabel": "Progreso al siguiente nivel",
+            "untilNextHint": "{count} reserva(s) más para «{tier}»",
+            "tierNone": "Aún sin nivel",
+            "nextNone": "Nivel máximo alcanzado",
+            "subtotal": "Subtotal (antes del descuento)",
+            "discountLine": "Descuento",
+            "appliedLoyalty": "Lealtad: {tier}",
+            "appliedPromo": "Promo: {code}"
+        },
+        "bookingsFilter": {
+            "status": "Estado",
+            "allStatuses": "Todos los estados",
+            "dateFrom": "Fecha desde",
+            "dateTo": "Fecha hasta",
+            "sortBy": "Ordenar por",
+            "sortByDate": "Por fecha",
+            "sortByPrice": "Por monto",
+            "sortOrder": "Orden",
+            "sortDesc": "Descendente",
+            "sortAsc": "Ascendente",
+            "reset": "Restablecer",
+            "found": "Encontradas",
+            "bookings": "reservas",
+            "totalAmount": "monto total"
+        },
+        "addClient": "Agregar cliente",
+        "searchPlaceholder": "Buscar por nombre, correo o teléfono...",
+        "columns": {
+            "client": "Cliente",
+            "email": "Correo",
+            "bookings": "Reservas",
+            "spent": "Gastado",
+            "lastVisit": "Última visita",
+            "status": "Estado"
+        },
+        "actions": {
+            "view": "Ver",
+            "edit": "Editar",
+            "details": "Detalles"
+        },
+        "createModal": {
+            "title": "Crear cliente",
+            "name": "Nombre",
+            "namePlaceholder": "Ingresa el nombre del cliente",
+            "email": "Correo",
+            "emailPlaceholder": "Ingresa el correo",
+            "phone": "Teléfono",
+            "phonePlaceholder": "Ingresa el teléfono",
+            "address": "Dirección",
+            "addressPlaceholder": "Ingresa la dirección",
+            "status": "Estado",
+            "cancel": "Cancelar",
+            "create": "Crear",
+            "success": "Cliente creado correctamente",
+            "error": "No se pudo crear el cliente"
+        },
+        "editModal": {
+            "title": "Editar cliente",
+            "name": "Nombre",
+            "namePlaceholder": "Ingresa el nombre del cliente",
+            "email": "Correo",
+            "emailPlaceholder": "Ingresa el correo",
+            "phone": "Teléfono",
+            "phonePlaceholder": "Ingresa el teléfono",
+            "address": "Dirección",
+            "addressPlaceholder": "Ingresa la dirección",
+            "status": "Estado",
+            "cancel": "Cancelar",
+            "save": "Guardar",
+            "success": "Cliente actualizado correctamente",
+            "error": "No se pudo actualizar el cliente"
+        }
+    },
+    "advertisements": {
+        "title": "Anuncios",
+        "description": "Administra los anuncios de tus servicios",
+        "myAds": "Mis anuncios",
+        "myAdsDescription": "Administra tus anuncios en el marketplace",
+        "create": {
+            "title": "Crear anuncio",
+            "editTitle": "Editar anuncio",
+            "subtitle": "Completa la información para publicar tu anuncio en el marketplace",
+            "sections": {
+                "general": "Información general",
+                "pricing": "Precios",
+                "services": "Servicios",
+                "schedule": "Horario",
+                "team": "Equipo",
+                "portfolio": "Portafolio"
+            },
+            "general": {
+                "title": "Información general",
+                "name": "Nombre del anuncio",
+                "namePlaceholder": "Ingresa el nombre del anuncio",
+                "description": "Descripción",
+                "descriptionPlaceholder": "Describe tu anuncio",
+                "category": "Categoría",
+                "categoryPlaceholder": "Selecciona categoría",
+                "state": "Estado",
+                "statePlaceholder": "Selecciona estado",
+                "city": "Ciudad",
+                "cityPlaceholder": "Selecciona ciudad",
+                "selectStateFirst": "Primero selecciona un estado",
+                "citiesLoading": "Cargando ciudades...",
+                "citiesNotFound": "No se encontraron ciudades",
+                "image": "Imagen",
+                "imageUploadHint": "Haz clic para subir una imagen",
+                "imageUploading": "Subiendo...",
+                "imageUrlHint": "O ingresa la URL de la imagen abajo",
+                "link": "Enlace",
+                "linkHint": "Enlace a tu sitio o perfil",
+                "startDate": "Fecha de inicio",
+                "startDateHint": "Déjala vacía para publicación indefinida",
+                "endDate": "Fecha de fin",
+                "endDateHint": "Déjala vacía para publicación indefinida"
+            },
+            "pricing": {
+                "title": "Precios",
+                "priceFrom": "Precio desde",
+                "priceTo": "Precio hasta",
+                "currency": "Moneda"
+            },
+            "services": {
+                "title": "Servicios",
+                "addService": "Agregar servicio",
+                "serviceNumber": "Servicio n.º {number}",
+                "selectTemplate": "Seleccionar plantilla",
+                "manualEntry": "Entrada manual",
+                "selectOrManual": "Elige plantilla o ingresa manualmente",
+                "createTemplates": "Crea plantillas en Configuración",
+                "templateHint": "Crea plantillas de servicio en ",
+                "templateHintLink": "Configuración",
+                "templateHintSuffix": " para elegirlas rápido",
+                "serviceName": "Nombre del servicio",
+                "serviceNamePlaceholder": "Ingresa el nombre del servicio",
+                "price": "Precio",
+                "duration": "Duración",
+                "durationUnit": "Unidad",
+                "hours": "Horas",
+                "days": "Días",
+                "serviceDescription": "Descripción",
+                "serviceDescriptionPlaceholder": "Describe el servicio",
+                "noServices": "No hay servicios agregados"
+            },
+            "schedule": {
+                "title": "Horario laboral",
+                "subtitle": "Define el horario de cada día de la semana",
+                "slotStep": "Intervalo entre reservas",
+                "slotStepHint": "Intervalo mínimo entre reservas",
+                "minutes15": "15 minutos",
+                "minutes30": "30 minutos",
+                "hour1": "1 hora",
+                "hours15": "1.5 horas",
+                "hours2": "2 horas",
+                "hours3": "3 horas",
+                "hours4": "4 horas",
+                "workDays": "Días laborables",
+                "monday": "Lunes",
+                "tuesday": "Martes",
+                "wednesday": "Miércoles",
+                "thursday": "Jueves",
+                "friday": "Viernes",
+                "saturday": "Sábado",
+                "sunday": "Domingo"
+            },
+            "notifications": {
+                "created": "Anuncio creado correctamente",
+                "createError": "No se pudo crear el anuncio",
+                "updated": "Anuncio actualizado correctamente",
+                "updateError": "No se pudo actualizar el anuncio",
+                "imageUploaded": "Imagen subida correctamente",
+                "imageUploadError": "No se pudo subir la imagen",
+                "unknownError": "Ocurrió un error desconocido",
+                "authRequired": "Se requiere iniciar sesión."
+            },
+            "additionalServices": {
+                "title": "Servicios adicionales",
+                "description": "Descripción",
+                "serviceLabel": "Servicio",
+                "manageTitle": "Administrar servicios adicionales",
+                "fromDb": "desde la base de datos",
+                "addButton": "Agregar",
+                "noServices": "No hay servicios adicionales. Haz clic en «Agregar» para crear el primero.",
+                "deleteTitle": "¿Eliminar servicio adicional?",
+                "deleteMessage": "¿Seguro que quieres eliminar este servicio adicional?",
+                "cancel": "Cancelar",
+                "delete": "Eliminar",
+                "formTitle": "Agregar servicio adicional",
+                "editFormTitle": "Editar servicio adicional",
+                "name": "Nombre",
+                "namePlaceholder": "p. ej. peinado",
+                "descriptionPlaceholder": "Descripción del servicio",
+                "price": "Precio ($)",
+                "pricePlaceholder": "p. ej. 25.50",
+                "duration": "Duración (min)",
+                "durationPlaceholder": "p. ej. 30",
+                "sortOrder": "Orden",
+                "isActive": "Activo",
+                "showInBooking": "Mostrar en la reserva",
+                "save": "Guardar",
+                "active": "Activo",
+                "inactive": "Inactivo",
+                "added": "Servicio adicional agregado",
+                "addError": "No se pudo agregar el servicio adicional",
+                "updated": "Servicio adicional actualizado",
+                "updateError": "No se pudo actualizar el servicio adicional",
+                "deleted": "Servicio adicional eliminado",
+                "deleteError": "No se pudo eliminar el servicio adicional",
+                "saveError": "No se pudo guardar el servicio adicional. Asegúrate de que el servicio esté guardado en la base de datos.",
+                "validation": {
+                    "nameRequired": "Ingresa el nombre del servicio",
+                    "priceRequired": "Ingresa el precio",
+                    "durationRequired": "Ingresa la duración"
+                },
+                "manage": "Administrar",
+                "loading": "Cargando servicios adicionales...",
+                "noServicesManage": "No hay servicios adicionales. Haz clic en «Administrar» para agregar el primero."
+            },
+            "portfolio": {
+                "title": "Portafolio",
+                "description": "Descripción",
+                "add": "Agregar",
+                "addMore": "Agregar más",
+                "cancel": "Cancelar",
+                "itemTitle": "Título",
+                "itemTitlePlaceholder": "Título del trabajo",
+                "tag": "Etiqueta",
+                "tagPlaceholder": "p. ej. reparación",
+                "descriptionPlaceholder": "Descripción detallada del trabajo",
+                "images": "Imágenes",
+                "imagesCount": "Imágenes ({count})",
+                "uploading": "Subiendo...",
+                "uploadHint": "Haz clic o arrastra archivos para subir (varios permitidos)",
+                "uploadSuccess": "Se subieron {count} imágenes",
+                "uploadError": "No se pudieron subir las imágenes",
+                "uploadFileError": "No se pudo subir el archivo {fileName}",
+                "image": "imagen",
+                "warning": "Aviso",
+                "success": "Éxito",
+                "error": "Error"
+            },
+            "save": "Guardar",
+            "create": "Crear",
+            "draft": "Borrador",
+            "imageLoadError": "No se pudo cargar la imagen. Revisa la URL: {url}",
+            "buttons": {
+                "cancel": "Cancelar",
+                "back": "Atrás",
+                "next": "Siguiente",
+                "addTeamMember": "Agregar miembro del equipo"
+            },
+            "team": {
+                "title": "Miembros del equipo",
+                "selected": "Seleccionados",
+                "noMembers": "Sin miembros en el equipo"
+            }
+        },
+        "createButton": "Crear anuncio",
+        "buyAds": "Comprar publicidad",
+        "noAds": "Sin anuncios",
+        "noAdsDescription": "Crea tu primer anuncio para promocionar tu negocio",
+        "loadError": "Error al cargar",
+        "statuses": {
+            "draft": "Borrador",
+            "active": "Activo",
+            "inactive": "Inactivo",
+            "pending": "Pendiente",
+            "approved": "Aprobado",
+            "rejected": "Rechazado"
+        },
+        "columns": {
+            "photo": "Foto",
+            "title": "Título",
+            "category": "Categoría",
+            "price": "Precio",
+            "views": "Vistas",
+            "status": "Estado",
+            "visible": "Visibilidad",
+            "createdAt": "Creado"
+        },
+        "noPhoto": "Sin foto",
+        "deleteConfirm": {
+            "title": "¿Eliminar anuncio?",
+            "message": "¿Seguro que quieres eliminar «{title}»? Esta acción no se puede deshacer.",
+            "confirm": "Eliminar"
+        },
+        "notifications": {
+            "deleteSuccess": "Anuncio eliminado correctamente",
+            "deleteError": "No se pudo eliminar el anuncio",
+            "loadError": "No se pudo cargar el anuncio",
+            "visibilityUpdated": "Visibilidad del anuncio actualizada",
+            "visibilityError": "Error al actualizar la visibilidad"
+        },
+        "viewModal": {
+            "title": "Ver anuncio",
+            "rejectionReason": "Motivo del rechazo",
+            "checkedAt": "Revisado el",
+            "status": "Estado",
+            "placement": "Ubicación",
+            "city": "Ciudad",
+            "state": "Estado",
+            "priceFrom": "Precio desde",
+            "priceTo": "Precio hasta",
+            "link": "Enlace",
+            "createdAt": "Creado",
+            "updatedAt": "Actualizado"
+        },
+        "ads": {
+            "title": "Mis anuncios",
+            "description": "Administra tus anuncios con estadísticas y configuración completas",
+            "buyAds": "Comprar publicidad",
+            "noAds": "Sin anuncios",
+            "noAdsDescription": "Compra publicidad para promocionar tu negocio",
+            "adBadge": "Anuncio",
+            "columns": {
+                "photo": "Foto",
+                "title": "Título",
+                "placement": "Ubicación",
+                "status": "Estado",
+                "visible": "Visibilidad",
+                "stats": "Estadísticas",
+                "placementDates": "Fechas de publicación",
+                "createdAt": "Creado"
+            },
+            "placements": {
+                "homepage": "Inicio",
+                "services": "Servicios",
+                "sidebar": "Barra lateral",
+                "banner": "Banner"
+            },
+            "stats": {
+                "impressions": "Impresiones",
+                "clicks": "Clics",
+                "created": "Creado"
+            },
+            "viewModal": {
+                "title": "Ver anuncio",
+                "placement": "Ubicación",
+                "status": "Estado",
+                "city": "Ciudad",
+                "state": "Estado",
+                "impressions": "Impresiones",
+                "clicks": "Clics",
+                "startDate": "Fecha de inicio",
+                "endDate": "Fecha de fin",
+                "link": "Enlace"
+            },
+            "notifications": {
+                "deleteSuccess": "Anuncio eliminado correctamente",
+                "deleteError": "No se pudo eliminar el anuncio",
+                "visibilityUpdated": "Visibilidad del anuncio actualizada",
+                "visibilityError": "Error al actualizar la visibilidad"
+            }
+        },
+        "purchase": {
+            "title": "Comprar publicidad",
+            "description": "Elige un anuncio a promocionar y un paquete publicitario",
+            "back": "Atrás",
+            "noAdsToPromote": "No hay anuncios para promocionar",
+            "createFirst": "Primero crea un anuncio regular para poder promocionarlo",
+            "createAd": "Crear anuncio",
+            "selectAd": "Selecciona un anuncio a promocionar",
+            "selectPackage": "Selecciona un paquete",
+            "popular": "Popular",
+            "pop": "Pop",
+            "days": "días",
+            "for": "por",
+            "total": "Total",
+            "duration": "Duración",
+            "buyButton": "Comprar publicidad",
+            "stripeDisabled": "Los pagos con Stripe están desactivados por el administrador de la plataforma. La compra de publicidad no está disponible por ahora.",
+            "packages": {
+                "basic": {
+                    "name": "Básico",
+                    "feature1": "7 días de publicación",
+                    "feature2": "Rotación con otros anuncios",
+                    "feature3": "Estadísticas de impresiones y clics",
+                    "feature4": "Filtro por ubicación"
+                },
+                "standard": {
+                    "name": "Estándar",
+                    "feature1": "14 días de publicación",
+                    "feature2": "Rotación con otros anuncios",
+                    "feature3": "Estadísticas de impresiones y clics",
+                    "feature4": "Filtro por ubicación"
+                },
+                "premium": {
+                    "name": "Premium",
+                    "feature1": "30 días de publicación",
+                    "feature2": "Rotación con otros anuncios",
+                    "feature3": "Estadísticas de impresiones y clics",
+                    "feature4": "Filtro por ubicación"
+                }
+            },
+            "notifications": {
+                "success": "¡Publicidad activada! El anuncio se envió a moderación",
+                "selectAdError": "Selecciona un anuncio a promocionar",
+                "selectPackageError": "Selecciona un paquete publicitario",
+                "activationError": "No se pudo activar la publicidad",
+                "paymentSuccess": "¡Pago exitoso! Publicidad activada.",
+                "paymentCancelled": "Pago cancelado.",
+                "paymentError": "Error al crear la sesión de pago"
+            },
+            "successModal": {
+                "advertisement": "Anuncio",
+                "package": "Paquete",
+                "amount": "Monto del pago",
+                "duration": "Duración",
+                "close": "Cerrar",
+                "viewAds": "Publicidad"
+            }
+        }
+    },
+    "discounts": {
+        "title": "Descuentos y códigos promo",
+        "description": "Configura niveles de lealtad (por reservas completadas) y códigos promocionales para clientes.",
+        "inactive": "Inactivo",
+        "tabs": {
+            "tiers": "Niveles de lealtad",
+            "promos": "Códigos promo",
+            "rule": "Regla de conteo"
+        },
+        "rule": {
+            "hint": "Qué reservas cuentan para los niveles de lealtad",
+            "completed": "Solo completadas",
+            "allNonCancelled": "Todas excepto canceladas"
+        },
+        "tiers": {
+            "add": "Agregar nivel",
+            "empty": "Aún no hay niveles",
+            "sequenceHint": "Agrega niveles en orden ascendente del umbral (el menor primero, luego el mayor). El cliente obtiene un solo nivel: el umbral más alto que alcanzó. El campo de «tope superior» rara vez se usa; en la mayoría de los casos déjalo vacío.",
+            "name": "Nombre",
+            "minBookings": "Umbral (reservas, inclusive)",
+            "minBookingsHelp": "Mínimo de reservas contadas para aplicar este nivel. Cada nivel siguiente debe usar un número mayor.",
+            "advancedCap": "Opcional: limitar el rango arriba",
+            "maxBookingsOptional": "Hasta (reservas, inclusive)",
+            "maxBookingsHelp": "Normalmente déjalo vacío: el nivel sigue vigente para cualquier cantidad sobre el umbral hasta que aplique uno mayor. Úsalo solo si necesitas un tope duro para este nivel.",
+            "cardFrom": "desde {min} reservas",
+            "cardRange": "{min}–{max} reservas",
+            "discountType": "Tipo de descuento",
+            "percentage": "Porcentaje",
+            "fixed": "Monto fijo",
+            "value": "Valor",
+            "sortOrder": "Orden",
+            "active": "Activo",
+            "save": "Guardar",
+            "cancel": "Cancelar",
+            "edit": "Editar",
+            "delete": "Eliminar"
+        },
+        "promos": {
+            "add": "Agregar código promo",
+            "empty": "Sin códigos promo",
+            "percentage": "Porcentaje",
+            "fixed": "Monto fijo",
+            "code": "Código",
+            "name": "Título",
+            "description": "Descripción",
+            "discountType": "Tipo de descuento",
+            "value": "Valor",
+            "minOrder": "Monto mínimo del pedido",
+            "maxDiscount": "Descuento máximo (para %)",
+            "usageLimit": "Límite total de usos",
+            "perUser": "Usos por cliente",
+            "validFrom": "Válido desde",
+            "validUntil": "Válido hasta",
+            "active": "Activo",
+            "used": "Usado",
+            "save": "Guardar",
+            "edit": "Editar",
+            "delete": "Eliminar"
+        }
+    },
+    "billing": {
+        "title": "Facturación",
+        "description": "Consulta todas las transacciones y pagos",
+        "noTransactions": "Sin transacciones",
+        "columns": {
+            "date": "Fecha",
+            "type": "Tipo",
+            "description": "Descripción",
+            "amount": "Monto",
+            "status": "Estado"
+        },
+        "types": {
+            "advertisement": "Anuncio",
+            "subscription": "Suscripción",
+            "unknown": "Desconocido"
+        },
+        "statuses": {
+            "succeeded": "Exitoso",
+            "pending": "Pendiente",
+            "failed": "Fallido",
+            "canceled": "Cancelado"
+        },
+        "filters": {
+            "type": "Tipo de transacción",
+            "status": "Estado",
+            "allTypes": "Todos los tipos",
+            "allStatuses": "Todos los estados"
+        },
+        "errors": {
+            "loadError": "No se pudieron cargar las transacciones"
+        },
+        "pagination": {
+            "prev": "Anterior",
+            "next": "Siguiente"
+        }
+    },
+    "settings": {
+        "title": "Configuración",
+        "description": "Configuración del negocio",
+        "servicesHint": "Aquí puedes crear plantillas de servicio y usarlas al crear anuncios en la sección",
+        "advertisementsLink": "Anuncios",
+        "tabs": {
+            "profile": "Perfil",
+            "team": "Equipo",
+            "services": "Servicios",
+            "users": "Usuarios",
+            "roles": "Roles",
+            "schedule": "Horario",
+            "portfolio": "Portafolio",
+            "notifications": "Notificaciones",
+            "payments": "Pagos",
+            "marketplace": "Principal"
+        },
+        "users": {
+            "title": "Usuarios",
+            "description": "Gerentes y administradores con acceso al panel",
+            "invite": "Invitar",
+            "inviteTitle": "Invitar usuario",
+            "inviteDescription": "Ingresa los datos del usuario y selecciona el rol",
+            "firstName": "Nombre",
+            "firstNamePlaceholder": "Juan",
+            "lastName": "Apellido",
+            "lastNamePlaceholder": "Pérez",
+            "email": "Correo",
+            "emailPlaceholder": "usuario@ejemplo.com",
+            "role": "Rol",
+            "selectRole": "Seleccionar rol",
+            "owner": "Propietario",
+            "inactive": "Inactivo",
+            "noUsers": "No hay usuarios invitados",
+            "inviteSuccess": "Usuario invitado",
+            "removeSuccess": "Usuario eliminado",
+            "tempPassword": "Contraseña temporal",
+            "inviteHint": "Si el usuario ya tiene cuenta, se agregará a la empresa. Si no, se creará una cuenta nueva con contraseña temporal que debes compartir.",
+            "removeConfirm": {
+                "title": "¿Quitar usuario?",
+                "message": "¿Seguro que quieres quitar a {name} de la empresa?",
+                "confirm": "Quitar"
+            }
+        },
+        "roles": {
+            "title": "Roles",
+            "description": "Roles estándar y personalizados con permisos",
+            "add": "Crear rol",
+            "editRole": "Editar rol",
+            "name": "Nombre",
+            "namePlaceholder": "Nombre del rol",
+            "slug": "Slug",
+            "slugPlaceholder": "slug_del_rol",
+            "permissions": "Permisos",
+            "systemRole": "Sistema",
+            "systemRoles": "Roles del sistema",
+            "customRoles": "Roles personalizados",
+            "noRoles": "Sin roles personalizados",
+            "createSuccess": "Rol creado",
+            "updateSuccess": "Rol actualizado",
+            "deleteSuccess": "Rol eliminado",
+            "permissionNames": {
+                "view_dashboard": "Ver panel",
+                "view_schedule": "Ver agenda",
+                "manage_schedule": "Gestionar agenda",
+                "view_clients": "Ver clientes",
+                "manage_clients": "Gestionar clientes",
+                "view_reviews": "Ver reseñas",
+                "manage_reviews": "Gestionar reseñas",
+                "view_reports": "Ver reportes",
+                "manage_settings": "Gestionar configuración",
+                "manage_users": "Gestionar usuarios",
+                "manage_roles": "Gestionar roles"
+            },
+            "deleteConfirm": {
+                "title": "¿Eliminar rol?",
+                "message": "¿Seguro que quieres eliminar el rol «{name}»?",
+                "confirm": "Eliminar"
+            }
+        },
+        "profile": {
+            "title": "Perfil del negocio",
+            "businessName": "Nombre del negocio",
+            "companyName": "Nombre del negocio",
+            "description": "Descripción",
+            "category": "Categoría",
+            "phone": "Teléfono",
+            "email": "Correo",
+            "telegram": "Telegram",
+            "whatsapp": "WhatsApp",
+            "website": "Sitio web",
+            "address": "Dirección",
+            "logo": "Logo",
+            "uploadPhoto": "Subir foto",
+            "recommendedSize": "Tamaño recomendado: 400×400 px",
+            "enterName": "Ingresa el nombre",
+            "describeYourBusiness": "Describe tu negocio",
+            "enterAddress": "Ingresa la dirección",
+            "publicProfile": "Perfil público",
+            "viewOnPlatform": "Ve tu negocio en la plataforma",
+            "openProfile": "Abrir perfil",
+            "cancel": "Cancelar",
+            "save": "Guardar",
+            "success": "Perfil actualizado correctamente",
+            "error": "No se pudo actualizar el perfil",
+            "avatarSuccess": "Avatar subido correctamente",
+            "avatarError": "No se pudo subir el avatar",
+            "phonePlaceholder": "+1 (555) 123-4567",
+            "emailPlaceholder": "correo@ejemplo.com",
+            "telegramPlaceholder": "@usuario o usuario",
+            "whatsappPlaceholder": "+1234567890",
+            "websitePlaceholder": "https://ejemplo.com"
+        },
+        "team": {
+            "title": "Equipo",
+            "description": "Administra especialistas y empleados",
+            "addMember": "Agregar empleado",
+            "editMember": "Editar empleado",
+            "salarySettings": "Configuración de pagos",
+            "noMembers": "Sin miembros en el equipo",
+            "noMembersDescription": "Agrega tu primer miembro del equipo",
+            "statuses": {
+                "active": "Activo",
+                "inactive": "Inactivo"
+            },
+            "form": {
+                "avatar": "Avatar",
+                "uploadAvatar": "Subir avatar",
+                "changeAvatar": "Cambiar avatar",
+                "avatarHint": "Tamaño recomendado: 400×400 px",
+                "name": "Nombre",
+                "namePlaceholder": "Nombre y apellido",
+                "role": "Puesto",
+                "rolePlaceholder": "p. ej.: especialista, administrador"
+            },
+            "deleteConfirm": {
+                "title": "¿Eliminar miembro del equipo?",
+                "message": "¿Seguro que quieres eliminar a este miembro del equipo?",
+                "confirm": "Eliminar"
+            },
+            "notifications": {
+                "created": "Miembro agregado correctamente",
+                "createError": "No se pudo agregar al miembro",
+                "updated": "Miembro actualizado correctamente",
+                "updateError": "No se pudo actualizar al miembro",
+                "deleted": "Miembro eliminado correctamente",
+                "deleteError": "No se pudo eliminar al miembro",
+                "avatarUploaded": "Avatar subido",
+                "avatarUploadError": "No se pudo subir el avatar"
+            }
+        },
+        "services": {
+            "title": "Plantillas de servicio",
+            "description": "Crea plantillas para agregar servicios rápido a los anuncios",
+            "hint": "Puedes usar estas plantillas al crear anuncios, pero no es obligatorio: también puedes ingresar servicios manualmente",
+            "addService": "Agregar servicio",
+            "editService": "Editar servicio",
+            "noServices": "Sin servicios",
+            "noServicesDescription": "Agrega tu primer servicio para empezar a recibir reservas",
+            "columns": {
+                "name": "Nombre",
+                "category": "Categoría",
+                "price": "Precio",
+                "duration": "Duración",
+                "status": "Estado",
+                "actions": "Acciones"
+            },
+            "statuses": {
+                "active": "Activo",
+                "inactive": "Inactivo"
+            },
+            "form": {
+                "name": "Nombre del servicio",
+                "namePlaceholder": "p. ej.: corte de cabello",
+                "category": "Categoría",
+                "categoryPlaceholder": "p. ej.: cuidado del cabello",
+                "description": "Descripción",
+                "descriptionPlaceholder": "Describe el servicio",
+                "price": "Precio ($)",
+                "pricePlaceholder": "Ingresa el precio",
+                "duration": "Duración (min)",
+                "durationPlaceholder": "Ingresa la duración",
+                "durationUnit": "Unidad de duración",
+                "minutes": "minutos",
+                "hours": "horas",
+                "status": "Estado",
+                "serviceType": "Tipo de servicio",
+                "onsite": "El cliente va a tu local (en sitio)",
+                "offsite": "Tú vas al cliente (fuera)",
+                "hybrid": "Híbrido (el cliente elige)",
+                "cancel": "Cancelar",
+                "save": "Guardar",
+                "create": "Crear"
+            },
+            "deleteConfirm": {
+                "title": "¿Eliminar servicio?",
+                "message": "¿Seguro que quieres eliminar este servicio?",
+                "confirm": "Eliminar"
+            },
+            "notifications": {
+                "created": "Servicio creado correctamente",
+                "createError": "No se pudo crear el servicio",
+                "updated": "Servicio actualizado correctamente",
+                "updateError": "No se pudo actualizar el servicio",
+                "deleted": "Servicio eliminado correctamente",
+                "deleteError": "No se pudo eliminar el servicio"
+            },
+            "additionalServices": {
+                "title": "Servicios adicionales",
+                "forService": "Servicio",
+                "manageFor": "Administrar servicios adicionales para",
+                "add": "Agregar",
+                "edit": "Editar servicio adicional",
+                "noItems": "No hay servicios adicionales. Haz clic en «Agregar» para crear uno.",
+                "statuses": {
+                    "active": "Activo",
+                    "inactive": "Inactivo"
+                },
+                "form": {
+                    "name": "Nombre",
+                    "namePlaceholder": "p. ej.: peinado",
+                    "description": "Descripción",
+                    "descriptionPlaceholder": "Descripción del servicio",
+                    "price": "Precio ($)",
+                    "duration": "Duración (min)",
+                    "sortOrder": "Orden",
+                    "active": "Activo",
+                    "showInBooking": "Mostrar en la reserva"
+                },
+                "deleteConfirm": {
+                    "title": "¿Eliminar servicio adicional?",
+                    "message": "¿Seguro que quieres eliminar este servicio adicional?",
+                    "confirm": "Eliminar"
+                },
+                "notifications": {
+                    "created": "Servicio adicional agregado",
+                    "createError": "No se pudo agregar el servicio adicional",
+                    "updated": "Servicio adicional actualizado",
+                    "updateError": "No se pudo actualizar el servicio adicional",
+                    "deleted": "Servicio adicional eliminado",
+                    "deleteError": "No se pudo eliminar el servicio adicional"
+                }
+            }
+        },
+        "schedule": {
+            "title": "Horario laboral",
+            "description": "Define tu horario de trabajo",
+            "workDays": "Días laborables",
+            "breaks": "Descansos",
+            "enableBreaks": "Activar descansos",
+            "additionalSettings": "Ajustes adicionales",
+            "minBookingHours": "Tiempo mínimo antes de la reserva (horas)",
+            "maxBookingDays": "Reserva máxima con anticipación (días)",
+            "blockPastSlots": "Bloquear horarios pasados",
+            "weekStart": {
+                "title": "La semana empieza en",
+                "monday": "Lunes",
+                "sunday": "Domingo"
+            },
+            "days": {
+                "monday": "Lunes",
+                "tuesday": "Martes",
+                "wednesday": "Miércoles",
+                "thursday": "Jueves",
+                "friday": "Viernes",
+                "saturday": "Sábado",
+                "sunday": "Domingo"
+            },
+            "notifications": {
+                "saved": "Horario guardado correctamente",
+                "saveError": "No se pudo guardar la configuración"
+            }
+        },
+        "notifications": {
+            "title": "Notificaciones",
+            "description": "Configuración de notificaciones por correo y SMS",
+            "emailNotifications": "Notificaciones por correo",
+            "smsNotifications": "Notificaciones por SMS",
+            "newBookingsNotifications": "Notificaciones de reservas nuevas",
+            "cancellationsNotifications": "Notificaciones de cancelaciones",
+            "paymentsNotifications": "Notificaciones de pagos",
+            "reviewsNotifications": "Notificaciones de reseñas",
+            "notifications": {
+                "saved": "Configuración de notificaciones guardada",
+                "saveError": "No se pudo guardar la configuración"
+            }
+        },
+        "payments": {
+            "title": "Pagos",
+            "description": "Conecta Stripe y la configuración de pagos",
+            "settingsHere": "Aquí irá la configuración de pagos",
+            "stripeManagement": "Conecta Stripe y administra los pagos",
+            "connectStripe": "Conectar Stripe"
+        },
+        "marketplace": {
+            "title": "Marketplace",
+            "description": "Visibilidad y ajustes en el marketplace",
+            "visibility": {
+                "title": "Visibilidad en el marketplace",
+                "tooltip": "Administra la visibilidad de tu negocio en la plataforma",
+                "visible": "Visible",
+                "hidden": "Oculto",
+                "visibleOnMarketplace": "Visible en el marketplace",
+                "visibleHint": "Si está desactivado, tu negocio no aparecerá en el catálogo",
+                "showInSearch": "Mostrar en búsqueda",
+                "allowBooking": "Permitir reserva en línea"
+            },
+            "advertising": {
+                "title": "Promoción",
+                "tooltip": "Ajustes para mostrar tu negocio en recomendaciones",
+                "showInFeatured": "Mostrar en la sección «Recomendados»",
+                "showInFeaturedHint": "Tu negocio aparecerá entre los servicios recomendados en el inicio"
+            },
+            "content": {
+                "title": "Mostrar contenido",
+                "showReviews": "Mostrar reseñas",
+                "showPortfolio": "Mostrar portafolio"
+            },
+            "seo": {
+                "title": "SEO",
+                "seoTitle": "Título SEO",
+                "seoTitlePlaceholder": "Título para buscadores",
+                "seoTitleHint": "Longitud recomendada: 50–60 caracteres",
+                "seoDescription": "Descripción SEO",
+                "seoDescriptionPlaceholder": "Descripción para buscadores",
+                "seoDescriptionHint": "Longitud recomendada: 150–160 caracteres",
+                "metaKeywords": "Meta palabras clave",
+                "metaKeywordsPlaceholder": "Palabras separadas por comas"
+            },
+            "advertisements": {
+                "title": "Mis anuncios",
+                "createAd": "Crear anuncio",
+                "noAds": "Aún no tienes anuncios",
+                "noAdsHint": "Crea tu primer anuncio para promocionar tu negocio",
+                "columns": {
+                    "title": "Título",
+                    "type": "Tipo",
+                    "status": "Estado",
+                    "placement": "Ubicación",
+                    "createdAt": "Creado",
+                    "actions": "Acciones"
+                },
+                "types": {
+                    "advertisement": "Publicidad",
+                    "regular": "Regular"
+                },
+                "statuses": {
+                    "pending": "Pendiente",
+                    "approved": "Aprobado",
+                    "rejected": "Rechazado",
+                    "active": "Activo",
+                    "inactive": "Inactivo"
+                },
+                "edit": "Editar",
+                "delete": "Eliminar",
+                "deleteConfirm": {
+                    "title": "¿Eliminar anuncio?",
+                    "message": "¿Seguro que quieres eliminar el anuncio «{title}»? Esta acción no se puede deshacer."
+                }
+            },
+            "notifications": {
+                "saved": "Configuración del marketplace guardada",
+                "saveError": "No se pudo guardar la configuración",
+                "adDeleted": "Anuncio eliminado correctamente",
+                "adDeleteError": "No se pudo eliminar el anuncio"
+            }
+        },
+        "portfolio": {
+            "title": "Portafolio",
+            "description": "Sube y administra tu trabajo",
+            "uploadWork": "Subir trabajo",
+            "noWorks": "No hay trabajos subidos",
+            "noWorksHint": "Sube trabajos para mostrarlos a los clientes",
+            "form": {
+                "title": "Subir trabajo",
+                "workTitle": "Título del trabajo",
+                "workTitlePlaceholder": "p. ej.: corte caballero",
+                "category": "Categoría",
+                "categoryPlaceholder": "p. ej.: cortes",
+                "image": "Imagen",
+                "imageHint": "Tamaño recomendado: 800×800 px",
+                "upload": "Subir"
+            },
+            "deleteConfirm": {
+                "title": "¿Eliminar trabajo?",
+                "message": "¿Seguro que quieres eliminar este trabajo?",
+                "confirm": "Eliminar"
+            },
+            "notifications": {
+                "created": "Trabajo agregado correctamente",
+                "createError": "No se pudo agregar el trabajo",
+                "deleted": "Trabajo eliminado correctamente",
+                "deleteError": "No se pudo eliminar el trabajo",
+                "selectImage": "Selecciona una imagen"
+            }
+        }
+    },
+    "salary": {
+        "title": "Sueldos",
+        "description": "Calcula y administra sueldos",
+        "calculate": "Calcular sueldo",
+        "overview": {
+            "totalSalary": "Sueldo total",
+            "specialists": "Especialistas",
+            "averageSalary": "Sueldo promedio por especialista",
+            "paidSalary": "Pagado",
+            "pendingSalary": "Por pagar"
+        },
+        "columns": {
+            "specialist": "Especialista",
+            "period": "Período",
+            "bookings": "Reservas",
+            "hours": "Horas",
+            "revenue": "Ingresos",
+            "salary": "Sueldo",
+            "status": "Estado"
+        },
+        "statuses": {
+            "paid": "Pagado",
+            "pending": "Por pagar"
+        },
+        "detailsBySpecialist": "Detalle por especialista",
+        "noSpecialistsData": "No hay datos de especialistas para el período seleccionado",
+        "loadError": "No se pudo cargar el reporte",
+        "unknownError": "Error desconocido",
+        "noSettingsWarning": "Pagos no configurados",
+        "noSettingsDescription": "Algunos especialistas no tienen configuración de pagos. No se calcula sueldo para ellos. Haz clic en el botón de configuración junto al nombre del especialista.",
+        "noSettingsTooltip": "Pagos no configurados",
+        "settingsTooltip": "Configurar pagos",
+        "unassignedBookingsWarning": "Reservas sin especialista",
+        "unassignedBookingsDescription": "{count} reservas completadas por un total de ${revenue} no tienen especialista asignado y no se incluyen en el cálculo de sueldos."
+    },
+    "reports": {
+        "selectPeriodTitle": "Selecciona un período para ver los reportes",
+        "selectPeriodDescription": "Indica la fecha de inicio y fin en los filtros de arriba",
+        "salaryTitle": "Sueldos",
+        "exportSalary": "Sueldos"
+    },
+    "common": {
+        "success": "Éxito",
+        "error": "Error",
+        "warning": "Aviso",
+        "info": "Información",
+        "offsite": "A domicilio",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "cancel": "Cancelar",
+        "save": "Guardar"
+    },
+    "salarySettings": {
+        "title": "Configuración de pagos",
+        "loading": "Cargando configuración...",
+        "saveSuccess": "Configuración de pagos guardada",
+        "saveError": "No se pudo guardar la configuración de pagos",
+        "labels": {
+            "paymentType": "Tipo de pago",
+            "percentRate": "Porcentaje (%)",
+            "fixedAmount": "Monto fijo",
+            "hourlyRate": "Tarifa por hora",
+            "effectiveFrom": "Vigente desde",
+            "effectiveTo": "Vigente hasta (opcional)",
+            "active": "Activo",
+            "settingActive": "La configuración está activa"
+        },
+        "paymentTypes": {
+            "percent": "Porcentaje de la reserva",
+            "fixed": "Tarifa fija",
+            "fixedPlusPercent": "Fijo + porcentaje",
+            "hourly": "Tarifa por hora"
+        },
+        "placeholders": {
+            "percent": "p. ej. 15",
+            "fixed": "p. ej. 1000",
+            "hourly": "p. ej. 25"
+        },
+        "errors": {
+            "invalidSpecialist": "ID de especialista no válido",
+            "percentRequired": "Ingresa el porcentaje",
+            "fixedRequired": "Ingresa el monto fijo",
+            "fixedAndPercentRequired": "Ingresa el monto fijo y el porcentaje",
+            "hourlyRequired": "Ingresa la tarifa por hora"
+        }
+    }
+}

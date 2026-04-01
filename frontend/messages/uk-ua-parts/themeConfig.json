@@ -1,0 +1,12 @@
+{
+    "title": "Theme Config",
+    "darkMode": "Dark Mode",
+    "darkModeDesc": "Switch theme to dark mode",
+    "theme": "Theme",
+    "layout": "Layout",
+    "collapsible": "Collapsible",
+    "topBar": "Top bar",
+    "copyConfig": "Save",
+    "copySuccess": "Copy Success",
+    "copySuccessDesc": "Please replace themeConfig in 'src/configs/theme.config.ts'"
+}

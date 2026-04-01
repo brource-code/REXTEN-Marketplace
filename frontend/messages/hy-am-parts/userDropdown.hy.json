@@ -1,0 +1,11 @@
+{
+    "accountSettings": "Հաշվի կարգավորումներ",
+    "signOut": "Ելք",
+    "anonymous": "Անանուն",
+    "emailNotSpecified": "Էլ․ փոստը նշված չէ",
+    "roles": {
+        "businessOwner": "Բիզնեսի սեփականատեր",
+        "superadmin": "Գերակայուն ադմինիստրատոր",
+        "client": "Հաճախորդ"
+    }
+}

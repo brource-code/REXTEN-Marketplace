@@ -1,0 +1,51 @@
+{
+    "status": {
+        "pending": "Pendiente",
+        "confirmed": "Confirmada",
+        "completed": "Completada",
+        "cancelled": "Cancelada",
+        "all": "Todos los estados"
+    },
+    "buttons": {
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "view": "Ver",
+        "close": "Cerrar",
+        "submit": "Enviar",
+        "back": "Atrás",
+        "next": "Siguiente",
+        "yes": "Sí",
+        "no": "No",
+        "confirm": "Confirmar",
+        "search": "Buscar",
+        "filter": "Filtrar",
+        "reset": "Restablecer",
+        "apply": "Aplicar",
+        "loading": "Cargando…"
+    },
+    "labels": {
+        "date": "Fecha",
+        "time": "Hora",
+        "price": "Precio",
+        "total": "Total",
+        "status": "Estado",
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "address": "Dirección",
+        "description": "Descripción",
+        "notes": "Notas"
+    },
+    "messages": {
+        "noData": "Sin datos",
+        "loading": "Cargando…",
+        "error": "Ocurrió un error",
+        "success": "Correcto",
+        "saved": "Guardado",
+        "deleted": "Eliminado",
+        "updated": "Actualizado",
+        "created": "Creado"
+    }
+}

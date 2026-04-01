@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Providers;
+
+use App\Models\Advertisement;
+use App\Models\Booking;
+use App\Models\Company;
+use App\Observers\AdvertisementEventObserver;
+use App\Observers\BookingEventObserver;
+use App\Observers\BusinessEventObserver;
+use App\Support\PasswordResetMailLocale;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            $base = rtrim((string) config('app.frontend_url'), '/');
+
+            return $base.'/reset-password?'.http_build_query([
+                'token' => $token,
+                'email' => $user->getEmailForPasswordReset(),
+            ]);
+        });
+
+        ResetPassword::toMailUsing(function ($notifiable, string $token) {
+            $resolveLocale = static function ($notifiable): string {
+                // Язык страницы при сбросе пароля важнее профиля: пользователь сам выбрал язык формы
+                if (app()->bound('password_reset_mail_locale')) {
+                    $fromRequest = PasswordResetMailLocale::toMailLang(app('password_reset_mail_locale'));
+                    if ($fromRequest !== null) {
+                        return $fromRequest;
+                    }
+                }
+
+                $fromUser = PasswordResetMailLocale::toMailLang($notifiable->locale ?? null);
+                if ($fromUser !== null) {
+                    return $fromUser;
+                }
+
+                return (string) config('app.locale');
+            };
+
+            $locale = $resolveLocale($notifiable);
+
+            $base = rtrim((string) config('app.frontend_url'), '/');
+            $url = $base.'/reset-password?'.http_build_query([
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ]);
+
+            $expireMinutes = (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
+            $appName = (string) config('app.name');
+
+            $data = [
+                'appName' => $appName,
+                'url' => $url,
+                'expireMinutes' => $expireMinutes,
+                'locale' => $locale,
+            ];
+
+            return (new MailMessage)
+                ->subject(__('mail.reset_password.subject', ['app' => $appName], $locale))
+                ->view([
+                    'html' => 'mail.rexten.reset-password',
+                    'text' => 'mail.rexten.reset-password-text',
+                ], $data);
+        });
+
+        // Register observers for business events
+        Company::observe(BusinessEventObserver::class);
+        Booking::observe(BookingEventObserver::class);
+        Advertisement::observe(AdvertisementEventObserver::class);
+    }
+}

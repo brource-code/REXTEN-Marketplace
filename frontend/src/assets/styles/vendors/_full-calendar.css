@@ -1,0 +1,389 @@
+.calendar {
+  @apply h-full min-h-[600px] md:min-h-[700px];
+
+  .fc {
+    @apply h-full min-h-[600px] md:min-h-[700px];
+  }
+
+  .fc-theme-standard .fc-scrollgrid {
+    @apply border-0;
+  }
+
+  .fc-theme-standard td,
+  .fc-theme-standard th {
+    @apply border-gray-200 dark:border-gray-600;
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+
+  .fc-theme-standard td {
+    @apply bg-gray-50 dark:bg-gray-900;
+  }
+
+  .fc .fc-col-header-cell-cushion {
+    @apply text-gray-900 dark:text-gray-100 py-3;
+  }
+
+  .fc-col-header-cell {
+    border-width: 0px 0px 1px;
+  }
+
+  .fc .fc-daygrid-day-number {
+    @apply font-semibold h-[30px] w-[30px] rounded-full flex items-center justify-center;
+  }
+
+  .fc-view {
+    @apply rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800;
+  }
+
+  .fc-daygrid-dot-event .fc-event-title {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+
+  .fc .fc-button {
+    @apply rounded-xl py-2 h-12 font-bold;
+  }
+
+  .fc .fc-toolbar {
+    @apply lg:flex-row flex-col items-start lg:items-center gap-2;
+  }
+
+  .fc .fc-button-primary {
+    @apply bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700 text-gray-600 dark:text-gray-100 font-semibold;
+
+    &:focus {
+      @apply shadow-none;
+    }
+
+    &:hover {
+      @apply hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-900 hover:dark:text-gray-100;
+    }
+
+    &:disabled {
+      @apply cursor-not-allowed bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700 text-gray-600 dark:text-gray-100;
+
+      &:hover {
+        @apply bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700 text-gray-600 dark:text-gray-100;
+      }
+    }
+  }
+
+  .fc .fc-button-primary:not(:disabled):active:focus,
+  .fc .fc-button-primary:not(:disabled).fc-button-active:focus {
+    @apply shadow-none;
+  }
+
+  .fc .fc-button-primary:not(:disabled):active {
+    @apply bg-gray-50 dark:bg-gray-700 text-primary border-gray-300 dark:border-gray-500;
+  }
+
+  .fc .fc-button-primary:not(:disabled).fc-button-active {
+    @apply bg-primary border text-neutral border-gray-300 dark:bg-primary dark:border-gray-500;
+  }
+
+  .fc {
+    .fc-dayGridMonth-button,
+    .fc-timeGridDay-button,
+    .fc-timeGridWeek-button,
+    .fc-today-button {
+      @apply px-8 capitalize;
+    }
+  }
+
+  .fc .fc-daygrid-day-top {
+    @apply p-1;
+  }
+
+  .fc .fc-highlight {
+    @apply bg-transparent;
+  }
+
+  .fc-daygrid-dot-event:hover,
+  .fc-daygrid-dot-event.fc-event-mirror {
+    @apply bg-transparent;
+  }
+
+  .fc .fc-daygrid-day.fc-day-today {
+    @apply bg-transparent;
+
+    .fc-daygrid-day-number {
+      @apply text-primary border border-primary;
+    }
+  }
+
+  .fc .fc-daygrid-event {
+    @apply p-0 rounded-md mb-2;
+  }
+
+  .fc-h-event {
+    @apply bg-transparent border-0;
+  }
+
+  .fc-event-selected,
+  .fc-event:focus {
+    @apply shadow-none;
+
+    &:after {
+      @apply bg-transparent;
+    }
+  }
+
+  .fc .fc-cell-shaded,
+  .fc .fc-day-disabled {
+    @apply bg-gray-200 dark:bg-gray-500;
+  }
+
+  .fc-daygrid-bg-harness {
+    .fc-highlight {
+      @apply bg-gray-100 dark:bg-gray-700;
+    }
+  }
+
+  .fc-daygrid-event {
+    @apply text-xs;
+  }
+
+  .fc .custom-calendar-event {
+    @apply flex items-center min-h-[28px] p-2 rounded-md w-full overflow-hidden text-ellipsis h-full;
+  }
+
+  .fc-v-event {
+    @apply border-0 bg-transparent;
+  }
+
+  .fc .fc-scrollgrid-section table {
+    @apply !w-full;
+  }
+
+  .fc .fc-daygrid-body {
+    @apply !w-full;
+  }
+
+  .fc-direction-ltr .fc-toolbar > * > :not(:first-child) {
+    @apply mx-0;
+  }
+
+  .fc-toolbar-chunk {
+    @apply flex flex-col sm:flex-row gap-2 w-full sm:w-auto;
+  }
+
+  .fc .fc-day-other {
+    @apply bg-transparent opacity-80 [background-size:10px_10px] bg-[repeating-linear-gradient(45deg,_#e5e7eb_0,_#e5e7eb_1px,_transparent_0,_transparent_50%)] dark:bg-[repeating-linear-gradient(45deg,_#19191a_0,_#6d7483_1px,_transparent_0,_transparent_50%)];
+
+    .fc-daygrid-day-top {
+      @apply opacity-70
+    }
+
+    .fc-highlight {
+      @apply -z-10
+    }
+  }
+
+  /* Стили для недельного вида - адаптивные колонки как в месяце */
+  .fc-timegrid-col {
+    @apply !w-auto;
+  }
+
+  .fc-timegrid-event {
+    @apply rounded-md;
+  }
+
+  .fc-timegrid-event .fc-event-main {
+    @apply p-1;
+  }
+}
+
+/* Увеличение календаря на мобильных устройствах */
+.calendar-wrapper {
+  @apply min-h-[600px] md:min-h-[700px];
+  
+  .calendar {
+    @apply min-h-[600px] md:min-h-[700px];
+  }
+}
+
+/* Мобильные стили для месячного календаря */
+@media (max-width: 768px) {
+  /* Предотвращаем расплывание при масштабировании */
+  .calendar-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+  
+  .calendar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+  
+  .calendar .fc {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .calendar .fc .fc-scrollgrid {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+  
+  /* Многострочное отображение событий - переопределяем базовый стиль */
+  .calendar .fc .fc-daygrid-event .fc-event-main .custom-calendar-event,
+  .calendar .fc .custom-calendar-event,
+  .fc .custom-calendar-event {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 0.375rem !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    gap: 0.125rem !important;
+    min-height: 32px !important;
+    max-height: 60px !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .calendar .fc .fc-daygrid-event .fc-event-main .custom-calendar-event span,
+  .calendar .fc .custom-calendar-event span,
+  .fc .custom-calendar-event span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .calendar .fc .fc-daygrid-event .fc-event-main .custom-calendar-event span:first-child,
+  .calendar .fc .custom-calendar-event span:first-child,
+  .fc .custom-calendar-event span:first-child {
+    font-size: 10px !important;
+    opacity: 0.8 !important;
+  }
+  
+  .calendar .fc .fc-daygrid-event .fc-event-main .custom-calendar-event .font-bold,
+  .calendar .fc .custom-calendar-event .font-bold,
+  .fc .custom-calendar-event .font-bold {
+    margin-left: 0 !important;
+    font-size: 11px !important;
+    white-space: normal !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Увеличиваем высоту ячеек дней */
+  .calendar .fc .fc-daygrid-day-frame {
+    min-height: 90px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Ограничиваем количество видимых событий */
+  .calendar .fc .fc-daygrid-day-events {
+    overflow-y: auto !important;
+    max-height: 70px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Ячейки дней должны занимать равную ширину */
+  .calendar .fc .fc-daygrid-day {
+    min-width: auto !important;
+    width: calc(100% / 7) !important;
+    max-width: calc(100% / 7) !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Улучшаем отображение событий */
+  .calendar .fc .fc-daygrid-event {
+    margin-bottom: 0.25rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Уменьшаем размер кнопок навигации */
+  .calendar .fc .fc-button {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    height: 2.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .calendar .fc .fc-dayGridMonth-button,
+  .calendar .fc .fc-timeGridDay-button,
+  .calendar .fc .fc-timeGridWeek-button {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Уменьшаем заголовок */
+  .calendar .fc .fc-toolbar-title {
+    font-size: 1rem;
+  }
+}
+
+/* Для очень маленьких экранов - исправляем проблемы с масштабированием */
+@media (max-width: 480px) {
+  /* Убираем фиксированную ширину, используем 100% */
+  .calendar-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .calendar-wrapper .calendar {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  
+  /* Ограничиваем ширину таблицы календаря */
+  .calendar .fc {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .calendar .fc .fc-scrollgrid {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+  
+  /* Ячейки дней должны занимать равную ширину */
+  .calendar .fc .fc-daygrid-day {
+    min-width: auto !important;
+    width: calc(100% / 7) !important;
+    max-width: calc(100% / 7) !important;
+  }
+  
+  .calendar .fc .custom-calendar-event {
+    font-size: 10px;
+    padding: 0.25rem;
+    min-height: 28px;
+    max-height: 50px;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .calendar .fc .custom-calendar-event .font-bold {
+    font-size: 10px;
+  }
+}
