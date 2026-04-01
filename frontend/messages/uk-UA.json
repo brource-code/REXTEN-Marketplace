@@ -245,6 +245,7 @@
             "business": "Бізнес",
             "businessDesc": "Панель керування бізнесом",
             "dashboard": "Панель керування",
+            "bookings": "Бронювання",
             "schedule": {
                 "schedule": "Розклад",
                 "reports": {
@@ -1936,6 +1937,27 @@
                 "mobile": {
                     "service": "Послуга"
                 }
+            }
+        },
+        "bookings": {
+            "title": "Бронювання",
+            "description": "Пошук і відкриття записів. Редагування — у тій самій формі, що й у розкладі.",
+            "searchPlaceholder": "Пошук за клієнтом, телефоном, email…",
+            "statusAll": "Усі статуси",
+            "statusLabel": "Статус",
+            "openInSchedule": "Відкрити в розкладі",
+            "scheduleCalendar": "Календар",
+            "empty": "Немає записів за обраними фільтрами.",
+            "booking": "Бронювання",
+            "perPage": "{count} / стор.",
+            "columns": {
+                "id": "#",
+                "dateTime": "Дата й час",
+                "client": "Клієнт",
+                "service": "Послуга",
+                "status": "Статус",
+                "specialist": "Спеціаліст",
+                "amount": "Сума"
             }
         },
         "schedule": {

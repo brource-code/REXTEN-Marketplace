@@ -33,9 +33,8 @@ const BookingColumn = ({ row }) => {
     const router = useRouter()
 
     const handleView = useCallback(() => {
-        // router.push(`/business/bookings/${row.id}`)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [row])
+        router.push(`/business/bookings?bookingId=${row.id}`)
+    }, [row, router])
 
     return (
         <span
@@ -177,7 +176,7 @@ const RecentBookings = () => {
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
                 <Button
                     size="sm"
-                    onClick={() => router.push('/business/schedule')}
+                    onClick={() => router.push('/business/bookings')}
                 >
                     {t('viewAll')}
                 </Button>

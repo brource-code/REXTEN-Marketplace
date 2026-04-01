@@ -5,6 +5,7 @@
             "business": "Бизнес",
             "businessDesc": "Панель управления бизнесом",
             "dashboard": "Дашборд",
+            "bookings": "Бронирования",
             "schedule": {
                 "schedule": "Расписание",
                 "reports": {
@@ -1972,6 +1973,27 @@
                 "mobile": {
                     "service": "Услуга"
                 }
+            }
+        },
+        "bookings": {
+            "title": "Бронирования",
+            "description": "Поиск и открытие записей. Редактирование — в той же форме, что и в расписании.",
+            "searchPlaceholder": "Поиск по клиенту, телефону, email…",
+            "statusAll": "Все статусы",
+            "statusLabel": "Статус",
+            "openInSchedule": "Открыть в расписании",
+            "scheduleCalendar": "Календарь",
+            "empty": "Нет записей по выбранным фильтрам.",
+            "booking": "Бронирование",
+            "perPage": "{count} / стр.",
+            "columns": {
+                "id": "#",
+                "dateTime": "Дата и время",
+                "client": "Клиент",
+                "service": "Услуга",
+                "status": "Статус",
+                "specialist": "Исполнитель",
+                "amount": "Сумма"
             }
         },
         "advertisements": {

@@ -245,6 +245,7 @@
             "business": "Բիզնես",
             "businessDesc": "Բիզնեսի կառավարման վահանակ",
             "dashboard": "Վահանակ",
+            "bookings": "Ամրագրումներ",
             "schedule": {
                 "schedule": "Ժամանակացույց",
                 "reports": {
@@ -1936,6 +1937,27 @@
                 "mobile": {
                     "service": "Ծառայություն"
                 }
+            }
+        },
+        "bookings": {
+            "title": "Ամրագրումներ",
+            "description": "Որոնում և բացում։ Խմբագրումը՝ նույն ձևով, ինչ ժամանակացույցում։",
+            "searchPlaceholder": "Որոնում՝ հաճախորդ, հեռախոս, email…",
+            "statusAll": "Բոլոր կարգավիճակները",
+            "statusLabel": "Կարգավիճակ",
+            "openInSchedule": "Բացել ժամանակացույցում",
+            "scheduleCalendar": "Օրացույց",
+            "empty": "Ընտրված ֆիլտրերով համապատասխան ամրագրումներ չկան։",
+            "booking": "Ամրագրում",
+            "perPage": "{count} / էջ",
+            "columns": {
+                "id": "#",
+                "dateTime": "Ամսաթիվ և ժամ",
+                "client": "Հաճախորդ",
+                "service": "Ծառայություն",
+                "status": "Կարգավիճակ",
+                "specialist": "Մասնագետ",
+                "amount": "Գումար"
             }
         },
         "schedule": {

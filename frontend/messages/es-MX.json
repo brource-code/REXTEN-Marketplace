@@ -245,6 +245,7 @@
             "business": "Negocio",
             "businessDesc": "Panel de gestión del negocio",
             "dashboard": "Panel",
+            "bookings": "Reservas",
             "schedule": {
                 "schedule": "Horarios",
                 "reports": {
@@ -1936,6 +1937,27 @@
                 "mobile": {
                     "service": "Servicio"
                 }
+            }
+        },
+        "bookings": {
+            "title": "Reservas",
+            "description": "Busca y abre reservas. La edición usa el mismo formulario que en la agenda.",
+            "searchPlaceholder": "Buscar por cliente, teléfono, correo…",
+            "statusAll": "Todos los estados",
+            "statusLabel": "Estado",
+            "openInSchedule": "Abrir en agenda",
+            "scheduleCalendar": "Calendario",
+            "empty": "No hay reservas que coincidan con los filtros.",
+            "booking": "Reserva",
+            "perPage": "{count} / pág.",
+            "columns": {
+                "id": "#",
+                "dateTime": "Fecha y hora",
+                "client": "Cliente",
+                "service": "Servicio",
+                "status": "Estado",
+                "specialist": "Especialista",
+                "amount": "Monto"
             }
         },
         "schedule": {

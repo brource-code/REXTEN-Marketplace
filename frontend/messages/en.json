@@ -245,6 +245,7 @@
             "business": "Business",
             "businessDesc": "Business management panel",
             "dashboard": "Dashboard",
+            "bookings": "Bookings",
             "schedule": {
                 "schedule": "Schedule",
                 "reports": {
@@ -1938,6 +1939,27 @@
                 "mobile": {
                     "service": "Service"
                 }
+            }
+        },
+        "bookings": {
+            "title": "Bookings",
+            "description": "Search and open bookings. Editing uses the same form as in the schedule.",
+            "searchPlaceholder": "Search by client, phone, email…",
+            "statusAll": "All statuses",
+            "statusLabel": "Status",
+            "openInSchedule": "Open in schedule",
+            "scheduleCalendar": "Calendar",
+            "empty": "No bookings match your filters.",
+            "booking": "Booking",
+            "perPage": "{count} / page",
+            "columns": {
+                "id": "#",
+                "dateTime": "Date & time",
+                "client": "Client",
+                "service": "Service",
+                "status": "Status",
+                "specialist": "Specialist",
+                "amount": "Amount"
             }
         },
         "schedule": {

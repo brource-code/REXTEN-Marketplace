@@ -41,6 +41,16 @@ const businessNavigationConfig = [
                 subMenu: [],
             },
             {
+                key: 'business.bookings',
+                path: '/business/bookings',
+                title: 'Бронирования',
+                translateKey: 'nav.business.bookings',
+                icon: 'orderList',
+                type: NAV_ITEM_TYPE_ITEM,
+                permission: 'view_schedule',
+                subMenu: [],
+            },
+            {
                 key: 'business.reports',
                 path: '/business/schedule/reports',
                 title: 'Отчеты',

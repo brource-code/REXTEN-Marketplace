@@ -9,6 +9,10 @@ const businessRoute = {
         key: 'business.schedule',
         authority: [BUSINESS_OWNER, SUPERADMIN],
     },
+    '/business/bookings': {
+        key: 'business.bookings',
+        authority: [BUSINESS_OWNER, SUPERADMIN],
+    },
     '/business/schedule/reports': {
         key: 'business.reports',
         authority: [BUSINESS_OWNER, SUPERADMIN],
