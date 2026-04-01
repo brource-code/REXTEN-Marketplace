@@ -259,7 +259,7 @@ export function BusinessRolesScreen() {
               style={[
                 styles.filterChip,
                 { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
-                filter === f && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                filter === f && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
               ]}
               onPress={() => setFilter(f)}
               activeOpacity={0.8}
@@ -267,7 +267,7 @@ export function BusinessRolesScreen() {
               <Text style={[
                 styles.filterChipText,
                 { color: colors.textSecondary },
-                filter === f && { color: colors.primary },
+                filter === f && { color: colors.controlSelectedText },
               ]}>
                 {T.filters[f]}
               </Text>

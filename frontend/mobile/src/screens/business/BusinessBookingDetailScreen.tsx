@@ -307,7 +307,7 @@ export function BusinessBookingDetailScreen() {
           {canManage && (
             <View style={[styles.heroActions, { borderTopColor: colors.border }]}>
               <TouchableOpacity
-                style={[styles.heroActionBtn, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}
+                style={[styles.heroActionBtn, { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
                 onPress={() => setEditModalOpen(true)}
                 activeOpacity={0.85}
               >

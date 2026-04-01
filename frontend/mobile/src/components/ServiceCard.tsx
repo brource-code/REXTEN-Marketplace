@@ -496,7 +496,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       activeOpacity={0.7}
       style={{ width: 280 }}
     >
-      <View style={[dynamicCardStyles.defaultCard, isFeatured && [styles.featuredCard, { borderColor: colors.primaryLight, shadowColor: colors.primary }]]}>
+      <View style={[dynamicCardStyles.defaultCard, isFeatured && [styles.featuredCard, { borderColor: colors.primary, shadowColor: colors.primary }]]}>
         {/* Изображение */}
         <View style={[styles.defaultImageContainer, { backgroundColor: colors.backgroundTertiary }]}>
           {normalizeImageUrl(service.imageUrl) ? (

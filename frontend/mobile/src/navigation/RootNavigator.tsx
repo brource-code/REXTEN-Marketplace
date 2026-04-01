@@ -118,7 +118,7 @@ const MainTabsNavigator: React.FC = () => {
 };
 
 export const RootNavigator: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, navigationEpoch } = useAuth();
   const { colors } = useTheme();
 
   if (isLoading) {
@@ -134,7 +134,7 @@ export const RootNavigator: React.FC = () => {
 
   return (
     <Stack.Navigator
-      key={rootKey}
+      key={`${rootKey}-${navigationEpoch}`}
       initialRouteName={isBusiness ? 'BusinessMain' : 'MainTabs'}
       screenOptions={{
         headerShown: false,

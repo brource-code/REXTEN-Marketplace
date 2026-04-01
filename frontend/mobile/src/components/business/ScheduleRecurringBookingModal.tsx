@@ -276,11 +276,11 @@ export function ScheduleRecurringBookingModal(props: Props) {
                 style={[
                   styles.dayChip,
                   { borderColor: colors.border },
-                  daysWeek.includes(i) && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                  daysWeek.includes(i) && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                 ]}
                 onPress={() => toggleDay(i)}
               >
-                <Text style={[styles.dayChipTxt, { color: colors.textSecondary }, daysWeek.includes(i) && { color: colors.primary }]}>{label}</Text>
+                <Text style={[styles.dayChipTxt, { color: colors.textSecondary }, daysWeek.includes(i) && { color: colors.controlSelectedText }]}>{label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -376,7 +376,7 @@ export function ScheduleRecurringBookingModal(props: Props) {
                       style={[
                         styles.serviceCard,
                         { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                        selected && { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+                        selected && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg },
                         styles.serviceCardSpacing,
                       ]}
                       onPress={() => setSelectedService(s)}
@@ -410,11 +410,11 @@ export function ScheduleRecurringBookingModal(props: Props) {
                   style={[
                     styles.freqChip,
                     { borderColor: colors.border },
-                    frequency === f.value && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                    frequency === f.value && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                   ]}
                   onPress={() => setFrequency(f.value)}
                 >
-                  <Text style={[styles.freqChipTxt, { color: colors.textSecondary }, frequency === f.value && { color: colors.primary }]}>{f.label}</Text>
+                  <Text style={[styles.freqChipTxt, { color: colors.textSecondary }, frequency === f.value && { color: colors.controlSelectedText }]}>{f.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -477,34 +477,34 @@ export function ScheduleRecurringBookingModal(props: Props) {
                 style={[
                   styles.segBtn,
                   { borderColor: colors.border },
-                  clientMode === 'none' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                  clientMode === 'none' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                 ]}
                 onPress={() => {
                   setClientMode('none');
                   setSelectedClientId(null);
                 }}
               >
-                <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'none' && { color: colors.primary }]}>{T.none}</Text>
+                <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'none' && { color: colors.controlSelectedText }]}>{T.none}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.segBtn,
                   { borderColor: colors.border },
-                  clientMode === 'crm' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                  clientMode === 'crm' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                 ]}
                 onPress={() => setClientMode('crm')}
               >
-                <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'crm' && { color: colors.primary }]}>{T.crm}</Text>
+                <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'crm' && { color: colors.controlSelectedText }]}>{T.crm}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.segBtn,
                   { borderColor: colors.border },
-                  clientMode === 'manual' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                  clientMode === 'manual' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                 ]}
                 onPress={() => setClientMode('manual')}
               >
-                <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'manual' && { color: colors.primary }]}>{T.manual}</Text>
+                <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'manual' && { color: colors.controlSelectedText }]}>{T.manual}</Text>
               </TouchableOpacity>
             </View>
 
@@ -525,7 +525,7 @@ export function ScheduleRecurringBookingModal(props: Props) {
                       style={[
                         styles.serviceCard,
                         { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                        selectedClientId === c.id && { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+                        selectedClientId === c.id && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg },
                         styles.serviceCardSpacing,
                       ]}
                       onPress={() => setSelectedClientId(c.id)}

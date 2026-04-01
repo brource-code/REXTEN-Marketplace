@@ -75,8 +75,8 @@ export function createThemedStyles(colors: ThemeColors) {
       borderColor: colors.cardBorder,
     },
     filterChipActive: {
-      backgroundColor: colors.primaryLight,
-      borderColor: colors.primary,
+      backgroundColor: colors.controlSelectedBg,
+      borderColor: colors.controlSelectedBorder,
     },
     filterChipText: {
       fontSize: 13,
@@ -84,7 +84,7 @@ export function createThemedStyles(colors: ThemeColors) {
       color: colors.textSecondary,
     },
     filterChipTextActive: {
-      color: colors.primary,
+      color: colors.controlSelectedText,
     },
     
     // Поиск

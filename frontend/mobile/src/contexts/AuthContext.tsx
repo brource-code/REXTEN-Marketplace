@@ -11,6 +11,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /** Увеличивается при logout — чтобы корневой Stack навигатор смонтировался заново (гость → маркетплейс). */
+  navigationEpoch: number;
   login: (credentials: LoginRequest) => Promise<LoginResult>;
   completeSession: (user: User) => void;
   logout: () => Promise<void>;
@@ -22,6 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [navigationEpoch, setNavigationEpoch] = useState(0);
   const authSessionRef = useRef(0);
 
   useEffect(() => {
@@ -85,6 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await apiLogout();
     queryClient.clear();
     setUser(null);
+    setNavigationEpoch((e) => e + 1);
   };
 
   const refreshUser = async () => {
@@ -115,6 +119,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         user,
         isLoading,
         isAuthenticated: !!user,
+        navigationEpoch,
         login,
         completeSession,
         logout,

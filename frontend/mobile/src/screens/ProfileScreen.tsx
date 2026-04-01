@@ -205,6 +205,15 @@ const styles = StyleSheet.create({
   guestContainer: {
     alignItems: 'center',
     paddingVertical: 40,
+    paddingHorizontal: 12,
+  },
+  guestAvatarCircle: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   guestText: {
     fontSize: 16,
@@ -386,10 +395,16 @@ export const ProfileScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={{ flex: 1, backgroundColor: colors.background }}
+            contentContainerStyle={{ flexGrow: 1 }}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={[styles.scrollContent, { backgroundColor: colors.background }]}>
-              <View style={[styles.guestContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                <Ionicons name="person-outline" size={64} color={colors.textMuted} />
+              <View style={styles.guestContainer}>
+                <View style={[styles.guestAvatarCircle, { backgroundColor: colors.primaryLight }]}>
+                  <Ionicons name="person-outline" size={40} color={colors.primary} />
+                </View>
                 <Text style={[styles.guestText, { color: colors.textSecondary }]}>
                   Войдите в аккаунт, чтобы получить доступ к профилю, заказам и избранному
                 </Text>

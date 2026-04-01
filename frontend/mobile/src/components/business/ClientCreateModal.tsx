@@ -195,7 +195,7 @@ export function ClientCreateModal({ visible, onClose, onSuccess }: Props) {
                   style={[
                     styles.statusOption,
                     { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                    status === opt.value && { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+                    status === opt.value && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg },
                   ]}
                   onPress={() => setStatus(opt.value)}
                   activeOpacity={0.8}
@@ -204,7 +204,7 @@ export function ClientCreateModal({ visible, onClose, onSuccess }: Props) {
                     style={[
                       styles.statusOptionText,
                       { color: colors.textSecondary },
-                      status === opt.value && { color: colors.primary },
+                      status === opt.value && { color: colors.controlSelectedText },
                     ]}
                   >
                     {opt.label}

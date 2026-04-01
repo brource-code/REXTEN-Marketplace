@@ -40,6 +40,14 @@ export interface Theme {
   inputBorder: string;
   inputText: string;
   inputPlaceholder: string;
+  /** Обводка при фокусе (в тёмной теме нейтральная, без «синей рамки» как на вебе в спокойном состоянии) */
+  inputFocusBorder: string;
+  /** Выделение текста в TextInput (iOS/Android) */
+  selectionColor: string;
+  /** Фон выбранного чипа/сегмента/фильтра (в dark — без синего заливания) */
+  controlSelectedBg: string;
+  controlSelectedBorder: string;
+  controlSelectedText: string;
   
   // Статусы
   success: string;
@@ -106,6 +114,11 @@ export const lightTheme: Theme = {
   inputBorder: '#d1d5db',
   inputText: '#111827',
   inputPlaceholder: '#9ca3af',
+  inputFocusBorder: '#2563eb',
+  selectionColor: 'rgba(37, 99, 235, 0.35)',
+  controlSelectedBg: '#dbeafe',
+  controlSelectedBorder: '#2563eb',
+  controlSelectedText: '#2563eb',
   
   // Статусы
   success: '#059669',
@@ -143,56 +156,63 @@ export const lightTheme: Theme = {
   switchThumbOnSuccess: '#16a34a',
 };
 
+/** Тёмная тема: те же опорные цвета, что и веб (frontend/src/assets/styles/tailwind/index.css — .dark, gray-950/900/800, --primary). */
 export const darkTheme: Theme = {
-  // Основные фоны
-  background: '#111827',
-  backgroundSecondary: '#1f2937',
-  backgroundTertiary: '#374151',
+  // Основные фоны (нейтральный «почти чёрный», как dark:bg-gray-950 на вебе — не slate/сине-серый)
+  background: '#0a0a0a',
+  backgroundSecondary: '#171717',
+  backgroundTertiary: '#262626',
   
   // Карточки
-  card: '#1f2937',
-  cardBorder: '#374151',
+  card: '#171717',
+  cardBorder: '#404040',
   
-  // Текст
-  text: '#f9fafb',
-  textSecondary: '#d1d5db',
-  textMuted: '#9ca3af',
-  textInverse: '#111827',
+  // Текст (серые из веб-палитры: gray-50 / 400 / 500)
+  text: '#fafafa',
+  textSecondary: '#a3a3a3',
+  textMuted: '#737373',
+  textInverse: '#0a0a0a',
   
-  // Primary
-  primary: '#3b82f6',
-  primaryLight: '#1e3a5f',
-  primaryDark: '#60a5fa',
+  // Primary — для кнопок, табов, ссылок; не для обводки каждого поля/чипа
+  primary: '#2a85ff',
+  /** Лёгкая подложка под акценты (бейджи, иконки); чипы/фильтры используют controlSelected* */
+  primaryLight: 'rgba(42, 133, 255, 0.12)',
+  primaryDark: '#4996ff',
   
   // Границы
-  border: '#374151',
+  border: '#404040',
   
   // Инпуты
-  inputBackground: '#1f2937',
-  inputBorder: '#4b5563',
-  inputText: '#f9fafb',
-  inputPlaceholder: '#9ca3af',
+  inputBackground: '#171717',
+  inputBorder: '#525252',
+  inputText: '#fafafa',
+  inputPlaceholder: '#737373',
+  inputFocusBorder: '#a3a3a3',
+  selectionColor: 'rgba(42, 133, 255, 0.35)',
+  controlSelectedBg: 'rgba(255, 255, 255, 0.08)',
+  controlSelectedBorder: '#525252',
+  controlSelectedText: '#fafafa',
   
   // Статусы
   success: '#10b981',
-  successLight: '#064e3b',
+  successLight: '#052e26',
   successDark: '#34d399',
   
-  error: '#f87171',
-  errorLight: '#7f1d1d',
+  error: '#ff6a55',
+  errorLight: '#451a1a',
   
-  warning: '#fbbf24',
-  warningLight: '#78350f',
+  warning: '#f59e0b',
+  warningLight: '#422006',
   
-  info: '#60a5fa',
-  infoLight: '#1e3a5f',
+  info: '#2a85ff',
+  infoLight: 'rgba(42, 133, 255, 0.14)',
   
   purple: '#a78bfa',
   purpleLight: '#4c1d95',
   
   // Иконки
-  icon: '#d1d5db',
-  iconMuted: '#9ca3af',
+  icon: '#a3a3a3',
+  iconMuted: '#737373',
   
   // StatusBar
   statusBar: 'light-content',
@@ -200,11 +220,11 @@ export const darkTheme: Theme = {
   // Кнопки
   buttonText: '#ffffff',
   
-  // Switch
-  switchTrackOff: '#4b5563',
-  switchTrackOn: '#60a5fa',
-  switchThumbOff: '#9ca3af',
-  switchThumbOn: '#3b82f6',
+  // Switch (ближе к веб-акценту, без «чисто синего» трека)
+  switchTrackOff: '#525252',
+  switchTrackOn: 'rgba(42, 133, 255, 0.45)',
+  switchThumbOff: '#737373',
+  switchThumbOn: '#2a85ff',
   switchTrackOnSuccess: '#34d399',
   switchThumbOnSuccess: '#10b981',
 };

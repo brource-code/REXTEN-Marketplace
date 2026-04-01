@@ -205,19 +205,20 @@ export const RegisterScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'firstName' && { borderColor: colors.primary },
+                  focusedInput === 'firstName' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="person-outline"
                   size={20}
-                  color={focusedInput === 'firstName' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'firstName' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="Имя"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={firstName}
                   onChangeText={(text) => {
                     setFirstName(text);
@@ -239,19 +240,20 @@ export const RegisterScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'lastName' && { borderColor: colors.primary },
+                  focusedInput === 'lastName' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="person-outline"
                   size={20}
-                  color={focusedInput === 'lastName' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'lastName' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="Фамилия"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={lastName}
                   onChangeText={(text) => {
                     setLastName(text);
@@ -273,19 +275,20 @@ export const RegisterScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'email' && { borderColor: colors.primary },
+                  focusedInput === 'email' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="mail-outline"
                   size={20}
-                  color={focusedInput === 'email' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'email' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="your@email.com"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text);
@@ -309,19 +312,20 @@ export const RegisterScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'phone' && { borderColor: colors.primary },
+                  focusedInput === 'phone' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="call-outline"
                   size={20}
-                  color={focusedInput === 'phone' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'phone' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="+1 (555) 123-4567"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={phone}
                   onChangeText={setPhone}
                   onFocus={() => setFocusedInput('phone')}
@@ -337,19 +341,20 @@ export const RegisterScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'password' && { borderColor: colors.primary },
+                  focusedInput === 'password' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color={focusedInput === 'password' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'password' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="Минимум 6 символов"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={password}
                   onChangeText={(text) => {
                     setPassword(text);
@@ -383,19 +388,20 @@ export const RegisterScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'passwordConfirmation' && { borderColor: colors.primary },
+                  focusedInput === 'passwordConfirmation' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color={focusedInput === 'passwordConfirmation' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'passwordConfirmation' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="Повторите пароль"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={passwordConfirmation}
                   onChangeText={(text) => {
                     setPasswordConfirmation(text);

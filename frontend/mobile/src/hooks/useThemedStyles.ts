@@ -106,7 +106,9 @@ export function useThemedStyles() {
     },
     
     secondaryButton: {
-      backgroundColor: colors.primaryLight,
+      backgroundColor: colors.backgroundTertiary,
+      borderWidth: 1,
+      borderColor: colors.border,
       borderRadius: 10,
       paddingVertical: 14,
       paddingHorizontal: 20,

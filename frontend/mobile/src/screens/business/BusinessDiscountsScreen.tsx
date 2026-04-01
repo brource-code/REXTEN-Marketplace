@@ -117,7 +117,7 @@ const [refreshing, setRefreshing] = useState(false);
         <Text style={[styles.pageDesc, { color: colors.textSecondary }]}>{T.description}</Text>
 
         {/* Подсказка */}
-        <View style={[styles.hintCard, { backgroundColor: colors.primaryLight }]}>
+        <View style={[styles.hintCard, { backgroundColor: colors.infoLight }]}>
           <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
           <Text style={[styles.hintText, { color: colors.primaryDark }]}>{T.hint}</Text>
         </View>
@@ -167,7 +167,7 @@ const [refreshing, setRefreshing] = useState(false);
               size={16}
               color={activeTab === 'tiers' ? colors.primary : colors.textSecondary}
             />
-            <Text style={[styles.tabText, { color: colors.textSecondary }, activeTab === 'tiers' && { color: colors.primary }]}>
+            <Text style={[styles.tabText, { color: colors.textSecondary }, activeTab === 'tiers' && { color: colors.controlSelectedText }]}>
               {T.sections.tiers}
             </Text>
           </TouchableOpacity>
@@ -181,7 +181,7 @@ const [refreshing, setRefreshing] = useState(false);
               size={16}
               color={activeTab === 'promos' ? colors.primary : colors.textSecondary}
             />
-            <Text style={[styles.tabText, { color: colors.textSecondary }, activeTab === 'promos' && { color: colors.primary }]}>
+            <Text style={[styles.tabText, { color: colors.textSecondary }, activeTab === 'promos' && { color: colors.controlSelectedText }]}>
               {T.sections.promos}
             </Text>
           </TouchableOpacity>
@@ -194,7 +194,7 @@ const [refreshing, setRefreshing] = useState(false);
               tiersQuery.data.map((tier) => (
                 <View key={tier.id} style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                   <View style={styles.cardHeader}>
-                    <View style={[styles.tierIcon, { backgroundColor: colors.primaryLight }]}>
+                    <View style={[styles.tierIcon, { backgroundColor: colors.infoLight }]}>
                       <Ionicons name="ribbon-outline" size={20} color={colors.primary} />
                     </View>
                     <View style={styles.cardHeaderInfo}>

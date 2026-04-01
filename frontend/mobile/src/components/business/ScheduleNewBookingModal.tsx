@@ -569,25 +569,25 @@ export function ScheduleNewBookingModal(props: ScheduleNewBookingModalProps) {
                 style={[
                   styles.segBtn,
                   { borderColor: colors.border },
-                  mode === 'service' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                  mode === 'service' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                   isEdit && styles.segDisabled,
                 ]}
                 onPress={() => !isEdit && setMode('service')}
                 disabled={isEdit}
               >
-                <Text style={[styles.segText, { color: colors.textSecondary }, mode === 'service' && { color: colors.primary }]}>{T.service}</Text>
+                <Text style={[styles.segText, { color: colors.textSecondary }, mode === 'service' && { color: colors.controlSelectedText }]}>{T.service}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.segBtn,
                   { borderColor: colors.border },
-                  mode === 'custom' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                  mode === 'custom' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                   isEdit && styles.segDisabled,
                 ]}
                 onPress={() => !isEdit && setMode('custom')}
                 disabled={isEdit}
               >
-                <Text style={[styles.segText, { color: colors.textSecondary }, mode === 'custom' && { color: colors.primary }]}>{T.customEvent}</Text>
+                <Text style={[styles.segText, { color: colors.textSecondary }, mode === 'custom' && { color: colors.controlSelectedText }]}>{T.customEvent}</Text>
               </TouchableOpacity>
             </View>
             {mode === 'custom' ? (
@@ -633,7 +633,7 @@ export function ScheduleNewBookingModal(props: ScheduleNewBookingModalProps) {
                           style={[
                             styles.serviceCard,
                             { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                            selected && { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+                            selected && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg },
                             styles.serviceCardSpacing,
                           ]}
                           onPress={() => pickService(s)}
@@ -687,11 +687,11 @@ export function ScheduleNewBookingModal(props: ScheduleNewBookingModalProps) {
                   style={[
                     styles.statusChip,
                     { borderColor: colors.border },
-                    status === o.id && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                    status === o.id && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                   ]}
                   onPress={() => setStatus(o.id)}
                 >
-                  <Text style={[styles.statusChipTxt, { color: colors.textSecondary }, status === o.id && { color: colors.primary }]}>{o.label}</Text>
+                  <Text style={[styles.statusChipTxt, { color: colors.textSecondary }, status === o.id && { color: colors.controlSelectedText }]}>{o.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -710,34 +710,34 @@ export function ScheduleNewBookingModal(props: ScheduleNewBookingModalProps) {
                     style={[
                       styles.segBtnSm,
                       { borderColor: colors.border },
-                      clientMode === 'none' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                      clientMode === 'none' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                     ]}
                     onPress={() => {
                       setClientMode('none');
                       setSelectedClientId(null);
                     }}
                   >
-                    <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'none' && { color: colors.primary }]}>{T.clientNone}</Text>
+                    <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'none' && { color: colors.controlSelectedText }]}>{T.clientNone}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.segBtnSm,
                       { borderColor: colors.border },
-                      clientMode === 'crm' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                      clientMode === 'crm' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                     ]}
                     onPress={() => setClientMode('crm')}
                   >
-                    <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'crm' && { color: colors.primary }]}>{T.clientCrm}</Text>
+                    <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'crm' && { color: colors.controlSelectedText }]}>{T.clientCrm}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.segBtnSm,
                       { borderColor: colors.border },
-                      clientMode === 'manual' && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                      clientMode === 'manual' && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                     ]}
                     onPress={() => setClientMode('manual')}
                   >
-                    <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'manual' && { color: colors.primary }]}>{T.clientManual}</Text>
+                    <Text style={[styles.segText, { color: colors.textSecondary }, clientMode === 'manual' && { color: colors.controlSelectedText }]}>{T.clientManual}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -760,7 +760,7 @@ export function ScheduleNewBookingModal(props: ScheduleNewBookingModalProps) {
                           style={[
                             styles.serviceCard,
                             { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                            selectedClientId === c.id && { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+                            selectedClientId === c.id && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg },
                             styles.serviceCardSpacing,
                           ]}
                           onPress={() => setSelectedClientId(c.id)}
@@ -830,7 +830,7 @@ export function ScheduleNewBookingModal(props: ScheduleNewBookingModalProps) {
                   style={[
                     styles.serviceCard,
                     { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                    specialistId === null && { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+                    specialistId === null && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg },
                     styles.serviceCardSpacing,
                   ]}
                   onPress={() => setSpecialistId(null)}
@@ -858,7 +858,7 @@ export function ScheduleNewBookingModal(props: ScheduleNewBookingModalProps) {
                       style={[
                         styles.serviceCard,
                         { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                        selected && { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+                        selected && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg },
                         styles.serviceCardSpacing,
                       ]}
                       onPress={() => setSpecialistId(mid)}

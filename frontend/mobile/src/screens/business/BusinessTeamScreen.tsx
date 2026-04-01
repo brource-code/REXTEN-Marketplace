@@ -342,11 +342,11 @@ export function BusinessTeamScreen() {
           {(['all', 'active', 'inactive'] as StatusFilter[]).map((f) => (
             <TouchableOpacity
               key={f}
-              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, statusFilter === f && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, statusFilter === f && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
               onPress={() => setStatusFilter(f)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.filterChipText, { color: colors.textSecondary }, statusFilter === f && { color: colors.primary }]}>
+              <Text style={[styles.filterChipText, { color: colors.textSecondary }, statusFilter === f && { color: colors.controlSelectedText }]}>
                 {T.filters[f]}
               </Text>
             </TouchableOpacity>
@@ -443,11 +443,11 @@ export function BusinessTeamScreen() {
                 {(['specialist', 'manager', 'admin'] as const).map((r) => (
                   <TouchableOpacity
                     key={r}
-                    style={[styles.optionBtn, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, formRole === r && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+                    style={[styles.optionBtn, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, formRole === r && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
                     onPress={() => setFormRole(r)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formRole === r && { color: colors.primary }]}>
+                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formRole === r && { color: colors.controlSelectedText }]}>
                       {T.roles[r]}
                     </Text>
                   </TouchableOpacity>
@@ -462,11 +462,11 @@ export function BusinessTeamScreen() {
                 {(['active', 'inactive'] as const).map((s) => (
                   <TouchableOpacity
                     key={s}
-                    style={[styles.optionBtn, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, formStatus === s && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+                    style={[styles.optionBtn, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, formStatus === s && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
                     onPress={() => setFormStatus(s)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formStatus === s && { color: colors.primary }]}>
+                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formStatus === s && { color: colors.controlSelectedText }]}>
                       {T.statuses[s]}
                     </Text>
                   </TouchableOpacity>

@@ -187,19 +187,20 @@ export const LoginScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'email' && { borderColor: colors.primary },
+                  focusedInput === 'email' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="mail-outline"
                   size={20}
-                  color={focusedInput === 'email' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'email' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="your@email.com"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text);
@@ -223,19 +224,20 @@ export const LoginScreen: React.FC = () => {
                 style={[
                   styles.inputWithIcon,
                   { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder },
-                  focusedInput === 'password' && { borderColor: colors.primary },
+                  focusedInput === 'password' && { borderColor: colors.inputFocusBorder },
                 ]}
               >
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color={focusedInput === 'password' ? colors.primary : colors.textMuted}
+                  color={focusedInput === 'password' ? colors.textSecondary : colors.textMuted}
                   style={styles.inputIcon}
                 />
                 <TextInput
                   style={[styles.inputText, { color: colors.text }]}
                   placeholder="Введите пароль"
                   placeholderTextColor={colors.textMuted}
+                  selectionColor={colors.selectionColor}
                   value={password}
                   onChangeText={(text) => {
                     setPassword(text);

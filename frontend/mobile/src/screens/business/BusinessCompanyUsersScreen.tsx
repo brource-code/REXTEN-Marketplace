@@ -314,7 +314,7 @@ export function BusinessCompanyUsersScreen() {
                       style={[
                         styles.roleChip,
                         { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder },
-                        formRoleId === r.id && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                        formRoleId === r.id && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                       ]}
                       onPress={() => setFormRoleId(r.id)}
                       activeOpacity={0.8}
@@ -322,7 +322,7 @@ export function BusinessCompanyUsersScreen() {
                       <Text style={[
                         styles.roleChipText,
                         { color: colors.textSecondary },
-                        formRoleId === r.id && { color: colors.primary },
+                        formRoleId === r.id && { color: colors.controlSelectedText },
                       ]}>
                         {r.name}
                       </Text>

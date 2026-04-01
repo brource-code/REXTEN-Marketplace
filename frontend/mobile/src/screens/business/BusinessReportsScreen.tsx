@@ -517,7 +517,7 @@ export function BusinessReportsScreen() {
                 style={[
                   styles.periodChip,
                   { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder },
-                  selectedPeriod === period && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                  selectedPeriod === period && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                 ]}
                 onPress={() => handlePeriodSelect(period)}
                 activeOpacity={0.8}
@@ -526,7 +526,7 @@ export function BusinessReportsScreen() {
                   style={[
                     styles.periodChipText,
                     { color: colors.textSecondary },
-                    selectedPeriod === period && { color: colors.primary },
+                    selectedPeriod === period && { color: colors.controlSelectedText },
                   ]}
                 >
                   {T.periods[period]}

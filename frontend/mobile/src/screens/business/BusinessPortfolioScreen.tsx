@@ -198,11 +198,11 @@ const queryClient = useQueryClient();
             {categories.map((cat) => (
               <TouchableOpacity
                 key={cat}
-                style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, categoryFilter === cat && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+                style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, categoryFilter === cat && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
                 onPress={() => setCategoryFilter(cat)}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.filterChipText, { color: colors.textSecondary }, categoryFilter === cat && { color: colors.primary }]}>
+                <Text style={[styles.filterChipText, { color: colors.textSecondary }, categoryFilter === cat && { color: colors.controlSelectedText }]}>
                   {cat === 'all' ? T.filters.all : cat}
                 </Text>
               </TouchableOpacity>

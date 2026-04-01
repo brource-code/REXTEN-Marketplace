@@ -464,11 +464,11 @@ const navigation = useNavigation();
           {categories.map((cat: any) => (
             <TouchableOpacity
               key={cat.id}
-              style={[styles.chip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, formData.category_id === cat.id && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+              style={[styles.chip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, formData.category_id === cat.id && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
               onPress={() => setFormData((p) => ({ ...p, category_id: cat.id }))}
               activeOpacity={0.8}
             >
-              <Text style={[styles.chipText, { color: colors.textSecondary }, formData.category_id === cat.id && { color: colors.primary }]}>
+              <Text style={[styles.chipText, { color: colors.textSecondary }, formData.category_id === cat.id && { color: colors.controlSelectedText }]}>
                 {cat.name}
               </Text>
             </TouchableOpacity>
@@ -535,11 +535,11 @@ const navigation = useNavigation();
         {['USD', 'EUR', 'RUB'].map((cur) => (
           <TouchableOpacity
             key={cur}
-            style={[styles.chip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, formData.currency === cur && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+            style={[styles.chip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, formData.currency === cur && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
             onPress={() => setFormData((p) => ({ ...p, currency: cur }))}
             activeOpacity={0.8}
           >
-            <Text style={[styles.chipText, { color: colors.textSecondary }, formData.currency === cur && { color: colors.primary }]}>{cur}</Text>
+            <Text style={[styles.chipText, { color: colors.textSecondary }, formData.currency === cur && { color: colors.controlSelectedText }]}>{cur}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -566,7 +566,7 @@ const navigation = useNavigation();
             return (
               <TouchableOpacity
                 key={service.id}
-                style={[styles.selectableCard, { backgroundColor: colors.card, borderColor: colors.border }, isSelected && { borderColor: colors.primary, backgroundColor: colors.primaryLight }]}
+                style={[styles.selectableCard, { backgroundColor: colors.card, borderColor: colors.border }, isSelected && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg }]}
                 onPress={() => toggleService(service.id)}
                 activeOpacity={0.8}
               >
@@ -599,11 +599,11 @@ const navigation = useNavigation();
           {[15, 30, 60, 90, 120].map((mins) => (
             <TouchableOpacity
               key={mins}
-              style={[styles.chip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, formData.slot_step_minutes === mins && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+              style={[styles.chip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, formData.slot_step_minutes === mins && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
               onPress={() => setFormData((p) => ({ ...p, slot_step_minutes: mins }))}
               activeOpacity={0.8}
             >
-              <Text style={[styles.chipText, { color: colors.textSecondary }, formData.slot_step_minutes === mins && { color: colors.primary }]}>
+              <Text style={[styles.chipText, { color: colors.textSecondary }, formData.slot_step_minutes === mins && { color: colors.controlSelectedText }]}>
                 {mins}
               </Text>
             </TouchableOpacity>
@@ -673,12 +673,12 @@ const navigation = useNavigation();
             return (
               <TouchableOpacity
                 key={member.id}
-                style={[styles.selectableCard, { backgroundColor: colors.card, borderColor: colors.border }, isSelected && { borderColor: colors.primary, backgroundColor: colors.primaryLight }]}
+                style={[styles.selectableCard, { backgroundColor: colors.card, borderColor: colors.border }, isSelected && { borderColor: colors.controlSelectedBorder, backgroundColor: colors.controlSelectedBg }]}
                 onPress={() => toggleTeamMember(member.id)}
                 activeOpacity={0.8}
               >
-                <View style={[styles.memberAvatar, { backgroundColor: colors.primaryLight }]}>
-                  <Text style={[styles.memberAvatarText, { color: colors.primary }]}>{member.name?.charAt(0).toUpperCase() || 'U'}</Text>
+                <View style={[styles.memberAvatar, { backgroundColor: colors.backgroundTertiary }]}>
+                  <Text style={[styles.memberAvatarText, { color: colors.text }]}>{member.name?.charAt(0).toUpperCase() || 'U'}</Text>
                 </View>
                 <View style={styles.selectableCardContent}>
                   <Text style={[styles.selectableCardTitle, { color: colors.text }]}>{member.name}</Text>

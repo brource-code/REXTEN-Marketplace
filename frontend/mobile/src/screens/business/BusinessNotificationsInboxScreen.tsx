@@ -108,7 +108,7 @@ const queryClient = useQueryClient();
 
       return (
         <TouchableOpacity
-          style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }, isUnread && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+          style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }, isUnread && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
           onPress={() => isUnread && readMutation.mutate(item.id)}
           activeOpacity={0.75}
         >
@@ -179,7 +179,7 @@ const queryClient = useQueryClient();
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Всего</Text>
             <Text style={[styles.statValue, { color: colors.text }]}>{stats.total}</Text>
           </View>
-          <View style={[styles.statCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, stats.unread > 0 && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}>
+          <View style={[styles.statCard, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, stats.unread > 0 && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Непрочитанных</Text>
             <Text style={[styles.statValue, { color: colors.text }, stats.unread > 0 && { color: colors.primaryDark }]}>
               {stats.unread}
@@ -197,11 +197,11 @@ const queryClient = useQueryClient();
           {(['all', 'unread', 'read'] as FilterType[]).map((f) => (
             <TouchableOpacity
               key={f}
-              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, filter === f && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }, filter === f && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
               onPress={() => setFilter(f)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.filterChipText, { color: colors.textSecondary }, filter === f && { color: colors.primary }]}>
+              <Text style={[styles.filterChipText, { color: colors.textSecondary }, filter === f && { color: colors.controlSelectedText }]}>
                 {T.filters[f]}
               </Text>
             </TouchableOpacity>

@@ -348,11 +348,11 @@ export function BusinessServicesScreen() {
       borderColor: colors.cardBorder,
     },
     filterChipActive: {
-      backgroundColor: colors.primaryLight,
-      borderColor: colors.primary,
+      backgroundColor: colors.controlSelectedBg,
+      borderColor: colors.controlSelectedBorder,
     },
     filterChipText: { fontSize: 13, fontWeight: '700' as const, color: colors.textSecondary },
-    filterChipTextActive: { color: colors.primary },
+    filterChipTextActive: { color: colors.controlSelectedText },
     countText: { fontSize: 13, fontWeight: '600' as const, color: colors.textSecondary },
     card: {
       backgroundColor: colors.card,
@@ -411,11 +411,11 @@ export function BusinessServicesScreen() {
       alignItems: 'center' as const,
     },
     optionBtnActive: {
-      borderColor: colors.primary,
-      backgroundColor: colors.primaryLight,
+      borderColor: colors.controlSelectedBorder,
+      backgroundColor: colors.controlSelectedBg,
     },
     optionBtnText: { fontSize: 13, fontWeight: '700' as const, color: colors.textSecondary },
-    optionBtnTextActive: { color: colors.primary },
+    optionBtnTextActive: { color: colors.controlSelectedText },
     modalFooter: {
       flexDirection: 'row' as const,
       gap: 12,
@@ -601,12 +601,12 @@ export function BusinessServicesScreen() {
                     style={[
                       styles.optionBtn,
                       { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder },
-                      formStatus === s && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                      formStatus === s && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                     ]}
                     onPress={() => setFormStatus(s)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formStatus === s && { color: colors.primary }]}>
+                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formStatus === s && { color: colors.controlSelectedText }]}>
                       {T.statuses[s]}
                     </Text>
                   </TouchableOpacity>
@@ -624,12 +624,12 @@ export function BusinessServicesScreen() {
                     style={[
                       styles.optionBtn,
                       { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder },
-                      formServiceType === t && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                      formServiceType === t && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                     ]}
                     onPress={() => setFormServiceType(t)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formServiceType === t && { color: colors.primary }]}>
+                    <Text style={[styles.optionBtnText, { color: colors.textSecondary }, formServiceType === t && { color: colors.controlSelectedText }]}>
                       {T.serviceTypes[t]}
                     </Text>
                   </TouchableOpacity>

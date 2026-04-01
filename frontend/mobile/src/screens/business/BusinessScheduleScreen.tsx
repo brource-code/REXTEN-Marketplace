@@ -377,7 +377,7 @@ export function BusinessScheduleScreen() {
           {canManage ? (
             <View style={[styles.bookingActions, { borderTopColor: colors.border }]}>
               <TouchableOpacity
-                style={[styles.bookingActionBtn, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}
+                style={[styles.bookingActionBtn, { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
                 onPress={() => openEditSlot(item)}
                 activeOpacity={0.75}
                 accessibilityRole="button"

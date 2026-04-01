@@ -43,12 +43,16 @@ type Props = {
 };
 
 export function ScheduleMonthCalendar(props: Props) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   ensureRuLocale();
 
+  // react-native-calendars создаёт StyleSheet один раз в useRef(theme) при монтировании и
+  // не пересоздаёт его при смене theme — календарь «залипает» в прошлой теме. key форсирует remount.
+  const calendarMountKey = isDark ? 'dark' : 'light';
+
   const calendarTheme = useMemo(() => ({
-    backgroundColor: colors.background,
-    calendarBackground: colors.background,
+    backgroundColor: colors.card,
+    calendarBackground: colors.card,
     textSectionTitleColor: colors.textSecondary,
     textSectionTitleDisabledColor: colors.textMuted,
     selectedDayBackgroundColor: colors.primary,
@@ -76,6 +80,7 @@ export function ScheduleMonthCalendar(props: Props) {
   return (
     <View style={[styles.wrap, { borderColor: colors.border, backgroundColor: colors.card }, props.embedded && styles.wrapEmbedded]}>
       <Calendar
+        key={calendarMountKey}
         current={props.current}
         firstDay={props.firstDay}
         markedDates={props.markedDates}
@@ -85,7 +90,7 @@ export function ScheduleMonthCalendar(props: Props) {
         onDayPress={props.onDayPress}
         onMonthChange={props.onMonthChange}
         theme={calendarTheme}
-        style={styles.calendar}
+        style={[styles.calendar, { backgroundColor: colors.card }]}
       />
       {props.subtitle ? <Text style={[styles.sub, { color: colors.textSecondary }]}>{props.subtitle}</Text> : null}
     </View>

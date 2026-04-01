@@ -368,14 +368,14 @@ export const FiltersScreen: React.FC = () => {
                   style={[
                     styles.categoryButton,
                     category === 'all'
-                      ? { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }
+                      ? { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }
                       : { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }
                   ]}
                 >
                   <Text
                     style={[
                       styles.categoryButtonText,
-                      { color: category === 'all' ? colors.primary : colors.text }
+                      { color: category === 'all' ? colors.controlSelectedText : colors.text }
                     ]}
                   >
                     Все услуги
@@ -391,14 +391,14 @@ export const FiltersScreen: React.FC = () => {
                     style={[
                       styles.categoryButton,
                       category === cat.id
-                        ? { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }
+                        ? { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }
                         : { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }
                     ]}
                   >
                     <Text
                       style={[
                         styles.categoryButtonText,
-                        { color: category === cat.id ? colors.primary : colors.text }
+                        { color: category === cat.id ? colors.controlSelectedText : colors.text }
                       ]}
                     >
                       {cat.name}
@@ -429,13 +429,17 @@ export const FiltersScreen: React.FC = () => {
                     <View 
                       style={[
                         styles.stateChip,
-                        { backgroundColor: !stateFilter ? colors.primary : colors.backgroundSecondary }
+                        {
+                          backgroundColor: !stateFilter ? colors.controlSelectedBg : colors.backgroundSecondary,
+                          borderWidth: 1,
+                          borderColor: !stateFilter ? colors.controlSelectedBorder : colors.border,
+                        }
                       ]}
                     >
                       <Text
                         style={[
                           styles.stateChipText,
-                          { color: !stateFilter ? colors.buttonText : colors.text }
+                          { color: !stateFilter ? colors.controlSelectedText : colors.text }
                         ]}
                       >
                         Все штаты
@@ -453,13 +457,17 @@ export const FiltersScreen: React.FC = () => {
                       <View
                         style={[
                           styles.stateChip,
-                          { backgroundColor: stateFilter === state.id ? colors.primary : colors.backgroundSecondary }
+                          {
+                            backgroundColor: stateFilter === state.id ? colors.controlSelectedBg : colors.backgroundSecondary,
+                            borderWidth: 1,
+                            borderColor: stateFilter === state.id ? colors.controlSelectedBorder : colors.border,
+                          }
                         ]}
                       >
                         <Text
                           style={[
                             styles.stateChipText,
-                            { color: stateFilter === state.id ? colors.buttonText : colors.text }
+                            { color: stateFilter === state.id ? colors.controlSelectedText : colors.text }
                           ]}
                         >
                           {state.name}
@@ -479,7 +487,7 @@ export const FiltersScreen: React.FC = () => {
                   style={[styles.citySelectorButton, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}
                   onPress={() => setShowCityModal(true)}
                 >
-                  <Ionicons name="location-outline" size={18} color={colors.primary} style={{ marginRight: 8 }} />
+                  <Ionicons name="location-outline" size={18} color={colors.textSecondary} style={{ marginRight: 8 }} />
                   <Text style={[styles.citySelectorText, { color: cityFilter ? colors.text : colors.textMuted }]}>
                     {cityFilter || 'Выберите город'}
                   </Text>
@@ -514,7 +522,7 @@ export const FiltersScreen: React.FC = () => {
                         style={[
                           styles.categoryButton,
                           priceFilter === range.id
-                            ? { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }
+                            ? { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }
                             : { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
                           { marginBottom: 0, minWidth: 100 }
                         ]}
@@ -522,7 +530,7 @@ export const FiltersScreen: React.FC = () => {
                         <Text
                           style={[
                             styles.categoryButtonText,
-                            { color: priceFilter === range.id ? colors.primary : colors.text }
+                            { color: priceFilter === range.id ? colors.controlSelectedText : colors.text }
                           ]}
                         >
                           {range.label}
@@ -549,7 +557,7 @@ export const FiltersScreen: React.FC = () => {
                         style={[
                           styles.categoryButton,
                           ratingFilter === option.id
-                            ? { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }
+                            ? { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }
                             : { backgroundColor: colors.backgroundSecondary, borderColor: colors.border },
                           { marginBottom: 0, minWidth: 80 }
                         ]}
@@ -557,7 +565,7 @@ export const FiltersScreen: React.FC = () => {
                         <Text
                           style={[
                             styles.categoryButtonText,
-                            { color: ratingFilter === option.id ? colors.primary : colors.text }
+                            { color: ratingFilter === option.id ? colors.controlSelectedText : colors.text }
                           ]}
                         >
                           {option.label}
@@ -671,7 +679,7 @@ export const FiltersScreen: React.FC = () => {
                     style={[
                       styles.modalItem,
                       { borderBottomColor: colors.border },
-                      cityFilter === item && { backgroundColor: colors.primaryLight },
+                      cityFilter === item && { backgroundColor: colors.controlSelectedBg },
                     ]}
                     onPress={() => {
                       setCityFilter(item);
@@ -682,7 +690,7 @@ export const FiltersScreen: React.FC = () => {
                     <Text
                       style={[
                         styles.modalItemText,
-                        { color: cityFilter === item ? colors.primary : colors.text },
+                        { color: cityFilter === item ? colors.controlSelectedText : colors.text },
                         cityFilter === item && styles.modalItemTextActive,
                       ]}
                     >

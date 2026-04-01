@@ -322,7 +322,7 @@ export function BusinessBookingsListScreen() {
                   style={[
                     styles.filterChip,
                     { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder },
-                    isActive && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                    isActive && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                     isActive && filterColors && { borderColor: filterColors.border },
                   ]}
                   onPress={() => setStatusFilter(f)}
@@ -337,7 +337,7 @@ export function BusinessBookingsListScreen() {
                     style={[
                       styles.filterChipText,
                       { color: colors.textSecondary },
-                      isActive && { color: colors.primary },
+                      isActive && { color: colors.controlSelectedText },
                     ]}
                   >
                     {T.filters[f]}

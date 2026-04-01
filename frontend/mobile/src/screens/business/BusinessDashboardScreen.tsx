@@ -378,11 +378,11 @@ export function BusinessDashboardScreen() {
                   style={[
                     styles.chip,
                     { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder },
-                    selectedPeriod === p && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                    selectedPeriod === p && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
                   ]}
                   onPress={() => setSelectedPeriod(p)}
                 >
-                  <Text style={[styles.chipText, { color: colors.textSecondary }, selectedPeriod === p && { color: colors.primary }]}>{T.periods[p]}</Text>
+                  <Text style={[styles.chipText, { color: colors.textSecondary }, selectedPeriod === p && { color: colors.controlSelectedText }]}>{T.periods[p]}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -579,7 +579,7 @@ function MetricPill(props: {
       style={[
         styles.metricPill,
         { backgroundColor: colors.card, borderColor: colors.cardBorder },
-        props.active && { borderColor: colors.primary, borderWidth: 2 },
+        props.active && { borderColor: colors.controlSelectedBorder, borderWidth: 2 },
       ]}
       onPress={props.onPress}
       activeOpacity={0.85}

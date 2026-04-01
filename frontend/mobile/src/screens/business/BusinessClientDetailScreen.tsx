@@ -319,7 +319,7 @@ export function BusinessClientDetailScreen() {
           {canManage && (
             <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
               <TouchableOpacity
-                style={[styles.actionBtn, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}
+                style={[styles.actionBtn, { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
                 onPress={() => setEditModalVisible(true)}
                 activeOpacity={0.8}
               >

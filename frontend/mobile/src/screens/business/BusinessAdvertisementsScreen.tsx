@@ -316,7 +316,7 @@ const navigation = useNavigation<Nav>();
               style={[
                 styles.filterChip,
                 { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder },
-                statusFilter === f && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
+                statusFilter === f && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder },
               ]}
               onPress={() => setStatusFilter(f)}
               activeOpacity={0.8}
@@ -325,7 +325,7 @@ const navigation = useNavigation<Nav>();
                 style={[
                   styles.filterChipText,
                   { color: colors.textSecondary },
-                  statusFilter === f && { color: colors.primary },
+                  statusFilter === f && { color: colors.controlSelectedText },
                 ]}
               >
                 {T.filters[f]}

@@ -264,11 +264,11 @@ const queryClient = useQueryClient();
           {(['all', 'with', 'without'] as const).map((f) => (
             <TouchableOpacity
               key={f}
-              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, responseFilter === f && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, responseFilter === f && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
               onPress={() => setResponseFilter(f)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.filterChipText, { color: colors.textSecondary }, responseFilter === f && { color: colors.primary }]}>
+              <Text style={[styles.filterChipText, { color: colors.textSecondary }, responseFilter === f && { color: colors.controlSelectedText }]}>
                 {f === 'all' ? T.filters.all : f === 'with' ? T.filters.withResponse : T.filters.withoutResponse}
               </Text>
             </TouchableOpacity>
@@ -283,18 +283,18 @@ const queryClient = useQueryClient();
           contentContainerStyle={styles.filtersContent}
         >
           <TouchableOpacity
-            style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, ratingFilter === null && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+            style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, ratingFilter === null && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
             onPress={() => setRatingFilter(null)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.filterChipText, { color: colors.textSecondary }, ratingFilter === null && { color: colors.primary }]}>
+            <Text style={[styles.filterChipText, { color: colors.textSecondary }, ratingFilter === null && { color: colors.controlSelectedText }]}>
               Все рейтинги
             </Text>
           </TouchableOpacity>
           {[5, 4, 3, 2, 1].map((r) => (
             <TouchableOpacity
               key={r}
-              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, ratingFilter === r && { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+              style={[styles.filterChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.cardBorder }, ratingFilter === r && { backgroundColor: colors.controlSelectedBg, borderColor: colors.controlSelectedBorder }]}
               onPress={() => setRatingFilter(r)}
               activeOpacity={0.8}
             >
@@ -304,7 +304,7 @@ const queryClient = useQueryClient();
                 color={ratingFilter === r ? colors.primaryDark : colors.textSecondary}
                 style={{ marginRight: 4 }}
               />
-              <Text style={[styles.filterChipText, { color: colors.textSecondary }, ratingFilter === r && { color: colors.primary }]}>
+              <Text style={[styles.filterChipText, { color: colors.textSecondary }, ratingFilter === r && { color: colors.controlSelectedText }]}>
                 {r}
               </Text>
             </TouchableOpacity>
