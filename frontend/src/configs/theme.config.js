@@ -1,4 +1,4 @@
-import { THEME_ENUM } from '@/constants/theme.constant'
+import { THEME_ENUM, CONTENT_WIDTH_BOXED } from '@/constants/theme.constant'
 
 /**
  * Since some configurations need to be match with specific themes,
@@ -13,5 +13,6 @@ export const themeConfig = {
     layout: {
         type: THEME_ENUM.LAYOUT_COLLAPSIBLE_SIDE,
         sideNavCollapse: false,
+        contentWidth: CONTENT_WIDTH_BOXED,
     },
 }

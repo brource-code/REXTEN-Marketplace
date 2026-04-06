@@ -25,7 +25,8 @@ const ThemeProvider = ({ children, theme, locale }) => {
                         const hasDiff = 
                             theme.mode !== parsedTheme.state.mode ||
                             theme.themeSchema !== parsedTheme.state.themeSchema ||
-                            theme.direction !== parsedTheme.state.direction
+                            theme.direction !== parsedTheme.state.direction ||
+                            theme.layout?.contentWidth !== parsedTheme.state.layout?.contentWidth
                         
                         if (hasDiff) {
                             // Устанавливаем тему и помечаем, что это инициализация
@@ -79,6 +80,7 @@ const ThemeProvider = ({ children, theme, locale }) => {
                 prevTheme.direction !== nextTheme.direction ||
                 prevTheme.layout?.type !== nextTheme.layout?.type ||
                 prevTheme.layout?.sideNavCollapse !== nextTheme.layout?.sideNavCollapse ||
+                prevTheme.layout?.contentWidth !== nextTheme.layout?.contentWidth ||
                 prevTheme.panelExpand !== nextTheme.panelExpand
 
             if (!hasChanged) {

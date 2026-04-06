@@ -4,6 +4,7 @@ import { memo } from 'react'
 import { useTranslations } from 'next-intl'
 import ModeSwitcher from './ModeSwitcher'
 import LayoutSwitcher from './LayoutSwitcher'
+import ContentWidthSwitcher from './ContentWidthSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
 import CopyButton from './CopyButton'
 import useResponsive from '@/utils/hooks/useResponsive'
@@ -31,6 +32,15 @@ const ThemeConfigurator = memo(({ callBackClose }) => {
                     <div>
                         <h6 className="mb-3">{t('layout')}</h6>
                         <LayoutSwitcher />
+                    </div>
+                )}
+                {!isMobile && (
+                    <div>
+                        <h6 className="mb-1">{t('contentWidth')}</h6>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 block mb-3">
+                            {t('contentWidthDesc')}
+                        </span>
+                        <ContentWidthSwitcher />
                     </div>
                 )}
             </div>

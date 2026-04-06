@@ -5,6 +5,7 @@ import PermissionCheck from '@/components/shared/PermissionCheck'
 import VerticalMenuIcon from './VerticalMenuIcon'
 import Link from 'next/link'
 import Dropdown from '@/components/ui/Dropdown'
+import { translateNavLabel } from '@/utils/navTranslation'
 
 const { MenuItem } = Menu
 
@@ -34,7 +35,7 @@ const CollapsedItem = ({
             <PermissionCheck permission={nav.permission}>
                 {renderAsIcon ? (
                     <Tooltip
-                        title={t(nav.translateKey, nav.title)}
+                        title={translateNavLabel(t, nav)}
                         placement={direction === 'rtl' ? 'left' : 'right'}
                     >
                         {children}
@@ -55,10 +56,10 @@ const CollapsedItem = ({
                                     })
                                 }
                             >
-                                <span>{t(nav.translateKey, nav.title)}</span>
+                                <span>{translateNavLabel(t, nav)}</span>
                             </Link>
                         ) : (
-                            <span>{t(nav.translateKey, nav.title)}</span>
+                            <span>{translateNavLabel(t, nav)}</span>
                         )}
                     </Dropdown.Item>
                 )}
@@ -96,7 +97,7 @@ const DefaultItem = (props) => {
                         }
                     >
                         {showIcon && <VerticalMenuIcon icon={nav.icon} />}
-                        {showTitle && <span>{t(nav.translateKey, nav.title)}</span>}
+                        {showTitle && <span>{translateNavLabel(t, nav)}</span>}
                     </Link>
                 </MenuItem>
             </PermissionCheck>

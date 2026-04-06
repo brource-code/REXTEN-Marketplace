@@ -3,6 +3,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import VerticalMenuIcon from './VerticalMenuIcon'
 import AuthorityCheck from '@/components/shared/AuthorityCheck'
 import PermissionCheck from '@/components/shared/PermissionCheck'
+import { translateNavLabel } from '@/utils/navTranslation'
 
 const { MenuItem, MenuCollapse } = Menu
 
@@ -29,7 +30,7 @@ const DefaultItem = ({
                     label={
                         <>
                             <VerticalMenuIcon icon={nav.icon} />
-                            <span>{t(nav.translateKey, nav.title)}</span>
+                            <span>{translateNavLabel(t, nav)}</span>
                         </>
                     }
                     eventKey={nav.key}
@@ -65,7 +66,7 @@ const CollapsedItem = ({
     )
 
     const dropdownItem = (
-        <div key={nav.key}>{t(nav.translateKey, nav.title)}</div>
+        <div key={nav.key}>{translateNavLabel(t, nav)}</div>
     )
 
     return (

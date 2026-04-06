@@ -7,7 +7,11 @@ import {
     SIDE_NAV_CONTENT_GUTTER,
     HEADER_HEIGHT,
 } from '@/constants/theme.constant'
-import { NAV_ITEM_TYPE_ITEM } from '@/constants/navigation.constant'
+import {
+    NAV_ITEM_TYPE_DIVIDER,
+    NAV_ITEM_TYPE_ITEM,
+} from '@/constants/navigation.constant'
+import { translateNavLabel } from '@/utils/navTranslation'
 import appConfig from '@/configs/app.config'
 import navigationIcon from '@/configs/navigation-icon.config'
 import useMenuActive from '@/utils/hooks/useMenuActive'
@@ -88,53 +92,65 @@ const StackedSideNavMini = (props) => {
                         ...(activedRoute ? [activedRoute.key] : []),
                     ]}
                 >
-                    {navigationTree.map((nav) => (
-                        <AuthorityCheck
-                            key={nav.key}
-                            authority={nav.authority}
-                            userAuthority={userAuthority}
-                        >
-                            <div title={t(nav.translateKey, nav.title)}>
-                                {nav.subMenu && nav.subMenu.length > 0 ? (
-                                    <Menu.MenuItem
-                                        eventKey={nav.key}
-                                        className="mb-2"
-                                        onSelect={() =>
-                                            handleMenuItemSelect({
-                                                key: nav.key,
-                                                title: nav.title,
-                                                menu: nav.subMenu,
-                                                translateKey: nav.translateKey,
-                                            })
-                                        }
-                                    >
-                                        <div className="text-2xl">
-                                            {navigationIcon[nav.icon]}
-                                        </div>
-                                    </Menu.MenuItem>
-                                ) : (
-                                    <Link
-                                        href={nav.path}
-                                        className="flex items-center h-full w-full"
-                                        onClick={() =>
-                                            handleLinkMenuItemSelect({
-                                                key: nav.key,
-                                            })
-                                        }
-                                    >
+                    {navigationTree.map((nav) => {
+                        if (nav.type === NAV_ITEM_TYPE_DIVIDER) {
+                            return (
+                                <div
+                                    key={nav.key}
+                                    className="mx-2 my-2 h-px bg-gray-200 dark:bg-gray-700"
+                                    role="separator"
+                                    aria-hidden
+                                />
+                            )
+                        }
+                        return (
+                            <AuthorityCheck
+                                key={nav.key}
+                                authority={nav.authority}
+                                userAuthority={userAuthority}
+                            >
+                                <div title={translateNavLabel(t, nav)}>
+                                    {nav.subMenu && nav.subMenu.length > 0 ? (
                                         <Menu.MenuItem
                                             eventKey={nav.key}
                                             className="mb-2"
+                                            onSelect={() =>
+                                                handleMenuItemSelect({
+                                                    key: nav.key,
+                                                    title: nav.title,
+                                                    menu: nav.subMenu,
+                                                    translateKey: nav.translateKey,
+                                                })
+                                            }
                                         >
                                             <div className="text-2xl">
                                                 {navigationIcon[nav.icon]}
                                             </div>
                                         </Menu.MenuItem>
-                                    </Link>
-                                )}
-                            </div>
-                        </AuthorityCheck>
-                    ))}
+                                    ) : (
+                                        <Link
+                                            href={nav.path}
+                                            className="flex items-center h-full w-full"
+                                            onClick={() =>
+                                                handleLinkMenuItemSelect({
+                                                    key: nav.key,
+                                                })
+                                            }
+                                        >
+                                            <Menu.MenuItem
+                                                eventKey={nav.key}
+                                                className="mb-2"
+                                            >
+                                                <div className="text-2xl">
+                                                    {navigationIcon[nav.icon]}
+                                                </div>
+                                            </Menu.MenuItem>
+                                        </Link>
+                                    )}
+                                </div>
+                            </AuthorityCheck>
+                        )
+                    })}
                 </Menu>
             </ScrollBar>
         </div>

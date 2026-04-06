@@ -14,6 +14,7 @@ import {
 } from '@/constants/navigation.constant'
 import useMenuActive from '@/utils/hooks/useMenuActive'
 import useTranslation from '@/utils/hooks/useTranslation'
+import { translateNavLabel } from '@/utils/navTranslation'
 
 const { MenuGroup } = Menu
 
@@ -30,8 +31,13 @@ const VerticalMenuContent = (props) => {
         userAuthority,
     } = props
 
-    const translationPlaceholder = (key, fallback) => {
-        return fallback || key
+    const translationPlaceholder = (key, options) => {
+        if (options == null) return key
+        if (typeof options === 'string') return options || key
+        if (typeof options === 'object' && options.defaultValue != null) {
+            return options.defaultValue || key
+        }
+        return key
     }
 
     const t = translationSetup ? useTranslation() : translationPlaceholder
@@ -132,7 +138,7 @@ const VerticalMenuContent = (props) => {
                             >
                                 <MenuGroup
                                     key={nav.key}
-                                    label={t(nav.translateKey, nav.title) || nav.title}
+                                    label={translateNavLabel(t, nav)}
                                 >
                                     {nav.subMenu &&
                                         nav.subMenu.length > 0 &&

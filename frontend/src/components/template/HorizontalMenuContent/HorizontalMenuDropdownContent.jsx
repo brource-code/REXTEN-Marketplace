@@ -10,6 +10,7 @@ import {
     NAV_ITEM_TYPE_ITEM,
 } from '@/constants/navigation.constant'
 import navigationIcon from '@/configs/navigation-icon.config'
+import { translateNavLabel, translateNavMetaDescription } from '@/utils/navTranslation'
 import { TbCircle } from 'react-icons/tb'
 
 const gridClasses = {
@@ -124,7 +125,7 @@ const ColumnsLayout = (props) => {
                 )}
             >
                 {navigationTree.map((nav) => {
-                    if (nav.subMenu.length > 0) {
+                    if (nav.subMenu?.length > 0) {
                         return (
                             <AuthorityCheck
                                 key={nav.key}
@@ -135,7 +136,7 @@ const ColumnsLayout = (props) => {
                                     <div className="max-w-[250px]">
                                         {showColumnTitle && (
                                             <div className="heading-text font-bold mb-2">
-                                                {t(nav.translateKey, nav.title)}
+                                                {translateNavLabel(t, nav)}
                                             </div>
                                         )}
                                         {nav.subMenu.map((subNav) => (
@@ -156,16 +157,13 @@ const ColumnsLayout = (props) => {
                                                                     subNav.icon
                                                                 ] || <TbCircle />
                                                             }
-                                                            title={t(
-                                                                subNav.translateKey,
-                                                                subNav.title,
+                                                            title={translateNavLabel(
+                                                                t,
+                                                                subNav,
                                                             )}
-                                                            description={t(
-                                                                subNav.meta?.description
-                                                                    ?.translateKey ||
-                                                                    '',
-                                                                subNav.meta?.description
-                                                                    ?.label || '',
+                                                            description={translateNavMetaDescription(
+                                                                t,
+                                                                subNav.meta?.description,
                                                             )}
                                                             active={
                                                                 subNav.key === routeKey
@@ -192,7 +190,7 @@ const ColumnsLayout = (props) => {
                 >
                     {navigationTree.map((nav) => {
                         if (
-                            nav.subMenu.length === 0 &&
+                            (!nav.subMenu || nav.subMenu.length === 0) &&
                             nav.type === NAV_ITEM_TYPE_ITEM
                         ) {
                             return (
@@ -211,11 +209,10 @@ const ColumnsLayout = (props) => {
                                                     <TbCircle />
                                                 )
                                             }
-                                            title={t(nav.translateKey, nav.title)}
-                                            description={t(
-                                                nav.meta?.description
-                                                    ?.translateKey || '',
-                                                nav.meta?.description?.label || '',
+                                            title={translateNavLabel(t, nav)}
+                                            description={translateNavMetaDescription(
+                                                t,
+                                                nav.meta?.description,
                                             )}
                                             active={nav.key === routeKey}
                                             onClick={onDropdownClose}
@@ -262,7 +259,7 @@ const DefaultLayout = ({
                                         >
                                             <MenuIcon icon={nav.icon} />
                                             <span>
-                                                {t(nav.translateKey, nav.title)}
+                                                {translateNavLabel(t, nav)}
                                             </span>
                                         </HorizontalMenuNavLink>
                                     </Dropdown.Item>
@@ -272,9 +269,9 @@ const DefaultLayout = ({
                                         renderTitle={
                                             <span className="flex items-center gap-2">
                                                 <MenuIcon icon={nav.icon} />
-                                                <span>
-                                                    {t(nav.translateKey, nav.title)}
-                                                </span>
+                                            <span>
+                                                {translateNavLabel(t, nav)}
+                                            </span>
                                             </span>
                                         }
                                     >
@@ -316,7 +313,7 @@ const TabLayout = ({
         <div className="flex">
             <div className="p-4">
                 {navigationTree.map((nav) => {
-                    if (nav.subMenu.length > 0) {
+                    if (nav.subMenu?.length > 0) {
                         return (
                             <AuthorityCheck
                                 key={nav.key}
@@ -352,18 +349,12 @@ const TabLayout = ({
                                                 </div>
                                                 <div className="min-w-0">
                                                     <div className="heading-text font-bold">
-                                                        {t(
-                                                            nav.translateKey,
-                                                            nav.title,
-                                                        )}
+                                                        {translateNavLabel(t, nav)}
                                                     </div>
                                                     <div className="text-xs truncate">
-                                                        {t(
-                                                            nav.meta?.description
-                                                                ?.translateKey ||
-                                                                '',
-                                                            nav.meta?.description
-                                                                ?.label || '',
+                                                        {translateNavMetaDescription(
+                                                            t,
+                                                            nav.meta?.description,
                                                         )}
                                                     </div>
                                                 </div>
@@ -418,7 +409,7 @@ const TabLayout = ({
                                                     )}
                                                 </span>
                                                 <span>
-                                                    {t(nav.translateKey, nav.title)}
+                                                    {translateNavLabel(t, nav)}
                                                 </span>
                                             </div>
                                         </HorizontalMenuNavLink>

@@ -26,6 +26,7 @@ const CopyButton = memo(() => {
             layout: {
                 type: theme.layout.type,
                 sideNavCollapse: theme.layout.sideNavCollapse,
+                contentWidth: theme.layout.contentWidth ?? 'boxed',
             },
             panelExpand: false,
         }

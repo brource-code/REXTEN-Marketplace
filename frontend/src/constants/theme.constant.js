@@ -20,6 +20,11 @@ export const LAYOUT_FRAMELESS_SIDE = 'framelessSide'
 export const LAYOUT_CONTENT_OVERLAY = 'contentOverlay'
 export const LAYOUT_BLANK = 'blank'
 
+/** Контент основной области: как Tailwind `container` (по умолчанию) */
+export const CONTENT_WIDTH_BOXED = 'boxed'
+/** Контент на всю ширину между сайдбаром и краем (бизнес / суперадмин) */
+export const CONTENT_WIDTH_FULL = 'full'
+
 export const THEME_ENUM = {
     DIR_RTL: DIR_RTL,
     DIR_LTR: DIR_LTR,
@@ -35,4 +40,6 @@ export const THEME_ENUM = {
     LAYOUT_TOP_BAR_CLASSIC: LAYOUT_TOP_BAR_CLASSIC,
     LAYOUT_FRAMELESS_SIDE: LAYOUT_FRAMELESS_SIDE,
     LAYOUT_CONTENT_OVERLAY: LAYOUT_CONTENT_OVERLAY,
+    CONTENT_WIDTH_BOXED: CONTENT_WIDTH_BOXED,
+    CONTENT_WIDTH_FULL: CONTENT_WIDTH_FULL,
 }

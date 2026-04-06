@@ -134,6 +134,18 @@ const useTheme = (selector) => {
         })
     }, [context.setTheme])
 
+    const setContentWidth = useCallback((contentWidth) => {
+        context.setTheme((prevTheme) => {
+            if (prevTheme.layout?.contentWidth === contentWidth) {
+                return prevTheme
+            }
+            return {
+                ...prevTheme,
+                layout: { ...prevTheme.layout, contentWidth },
+            }
+        })
+    }, [context.setTheme])
+
     // Мемоизируем объект состояния, чтобы избежать лишних перерендеров
     const themeState = useMemo(() => ({
         ...context.theme,
@@ -143,7 +155,8 @@ const useTheme = (selector) => {
         setDirection,
         setPanelExpand,
         setLayout,
-    }), [context.theme, setSchema, setMode, setSideNavCollapse, setDirection, setPanelExpand, setLayout])
+        setContentWidth,
+    }), [context.theme, setSchema, setMode, setSideNavCollapse, setDirection, setPanelExpand, setLayout, setContentWidth])
 
     return selector(themeState)
 }
