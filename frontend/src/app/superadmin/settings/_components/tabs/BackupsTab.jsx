@@ -12,10 +12,11 @@ import Tag from '@/components/ui/Tag'
 import {
     createPlatformBackup,
     deletePlatformBackup,
+    downloadPartnerSourceArchive,
     downloadPlatformBackup,
     getPlatformBackups,
 } from '@/lib/api/superadmin'
-import { PiArchive, PiArrowClockwise, PiDownloadSimple, PiTrash } from 'react-icons/pi'
+import { PiArchive, PiArrowClockwise, PiDownloadSimple, PiPackage, PiTrash } from 'react-icons/pi'
 
 function formatMb(bytes) {
     if (!bytes || bytes <= 0) return '—'
@@ -41,6 +42,7 @@ export default function BackupsTab() {
     const t = useTranslations('superadmin.backups')
     const queryClient = useQueryClient()
     const [deleteId, setDeleteId] = useState(null)
+    const [partnerExporting, setPartnerExporting] = useState(false)
 
     const { data, isLoading, isFetching, refetch } = useQuery({
         queryKey: ['admin-platform-backups'],
@@ -80,6 +82,23 @@ export default function BackupsTab() {
             )
         },
     })
+
+    const handlePartnerExport = async () => {
+        setPartnerExporting(true)
+        try {
+            await downloadPartnerSourceArchive()
+            toast.push(<Notification title={t('partnerExportSuccess')} type="success" />)
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : t('partnerExportError')
+            toast.push(
+                <Notification title={t('partnerExportError')} type="danger">
+                    {msg}
+                </Notification>,
+            )
+        } finally {
+            setPartnerExporting(false)
+        }
+    }
 
     const deleteMutation = useMutation({
         mutationFn: deletePlatformBackup,
@@ -148,6 +167,33 @@ export default function BackupsTab() {
                         onClick={() => refetch()}
                     >
                         {t('refresh')}
+                    </Button>
+                </div>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900/40">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div className="flex gap-3">
+                        <PiPackage className="text-xl shrink-0 text-gray-700 dark:text-gray-200 mt-0.5" />
+                        <div>
+                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                {t('partnerExportTitle')}
+                            </div>
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">
+                                {t('partnerExportHint')}
+                            </p>
+                        </div>
+                    </div>
+                    <Button
+                        variant="solid"
+                        type="button"
+                        loading={partnerExporting}
+                        disabled={partnerExporting}
+                        icon={<PiDownloadSimple />}
+                        className="shrink-0"
+                        onClick={handlePartnerExport}
+                    >
+                        {partnerExporting ? t('partnerExportBuilding') : t('partnerExport')}
                     </Button>
                 </div>
             </div>

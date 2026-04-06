@@ -27,7 +27,7 @@ const PublicNavbar = () => {
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
     const { isSticky } = useScrollTop()
-    const { isAuthenticated, userRole } = useAuthStore()
+    const { isAuthenticated, userRole, authReady } = useAuthStore()
     const { user } = useUserStore()
     const logoutMutation = useLogout()
     const locale = useLocale()
@@ -55,9 +55,9 @@ const PublicNavbar = () => {
         setMode(mode === MODE_LIGHT ? MODE_DARK : MODE_LIGHT)
     }
 
-    const isClient = isAuthenticated && userRole === CLIENT
-    const isBusinessOwner = isAuthenticated && userRole === BUSINESS_OWNER
-    const isSuperAdmin = isAuthenticated && userRole === SUPERADMIN
+    const isClient = authReady && isAuthenticated && userRole === CLIENT
+    const isBusinessOwner = authReady && isAuthenticated && userRole === BUSINESS_OWNER
+    const isSuperAdmin = authReady && isAuthenticated && userRole === SUPERADMIN
     const userName = user?.name || user?.firstName || t('user')
     const userEmail = user?.email || ''
     const userAvatar = user?.avatar || user?.image || null
@@ -176,7 +176,31 @@ const PublicNavbar = () => {
                         {isClient && (
                             <ClientNotification />
                         )}
-                        {isClient ? (
+                        {!authReady ? (
+                            <div
+                                className="h-9 w-9 rounded-full bg-gray-200 dark:bg-gray-600 animate-pulse shrink-0"
+                                aria-hidden
+                            />
+                        ) : !isAuthenticated ? (
+                            <>
+                                <Link href="/sign-in">
+                                    <button
+                                        type="button"
+                                        className="px-4 py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                    >
+                                        {t('signIn')}
+                                    </button>
+                                </Link>
+                                <Link href="/sign-up">
+                                    <button
+                                        type="button"
+                                        className="px-4 py-2 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors"
+                                    >
+                                        {t('signUp')}
+                                    </button>
+                                </Link>
+                            </>
+                        ) : isClient ? (
                             <Dropdown
                                 renderTitle={
                                     <div className="cursor-pointer flex items-center gap-2">
@@ -369,18 +393,57 @@ const PublicNavbar = () => {
                                 </Dropdown.Item>
                             </Dropdown>
                         ) : (
-                            <>
-                                <Link href="/sign-in">
-                                    <button className="px-4 py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                        {t('signIn')}
-                                    </button>
-                                </Link>
-                                <Link href="/sign-up">
-                                    <button className="px-4 py-2 rounded-xl text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors">
-                                        {t('signUp')}
-                                    </button>
-                                </Link>
-                            </>
+                            <Dropdown
+                                renderTitle={
+                                    <div className="cursor-pointer flex items-center gap-2">
+                                        <Avatar
+                                            size={32}
+                                            src={userAvatar}
+                                            icon={<PiUser />}
+                                        />
+                                        <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {userName}
+                                        </span>
+                                    </div>
+                                }
+                                placement="bottom-end"
+                            >
+                                <Dropdown.Item variant="header">
+                                    <div className="py-2 px-3 flex items-center gap-3">
+                                        <Avatar size={40} src={userAvatar} icon={<PiUser />} />
+                                        <div>
+                                            <div className="font-bold text-gray-900 dark:text-gray-100 text-sm">
+                                                {userName}
+                                            </div>
+                                            {userEmail ? (
+                                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                    {userEmail}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                </Dropdown.Item>
+                                <Dropdown.Item variant="divider" />
+                                <Dropdown.Item eventKey="marketplace" className="px-0">
+                                    <Link className="flex h-full w-full px-2 py-2" href="/services">
+                                        <span className="flex gap-2 items-center w-full">
+                                            <PiStorefront className="text-lg" />
+                                            <span>{t('home')}</span>
+                                        </span>
+                                    </Link>
+                                </Dropdown.Item>
+                                <Dropdown.Item variant="divider" />
+                                <Dropdown.Item
+                                    eventKey="Sign Out"
+                                    className="gap-2"
+                                    onClick={handleSignOut}
+                                >
+                                    <span className="text-lg">
+                                        <PiSignOut />
+                                    </span>
+                                    <span>{t('signOut')}</span>
+                                </Dropdown.Item>
+                            </Dropdown>
                         )}
                     </div>
                 </div>

@@ -1,37 +1,60 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore, useUserStore } from '@/store'
-import { useCurrentUser } from '@/hooks/api/useAuth'
+import { authKeys, useCurrentUser } from '@/hooks/api/useAuth'
 
 /**
  * Компонент для инициализации авторизации при загрузке приложения
  * Проверяет токен из localStorage и восстанавливает состояние авторизации
  */
 export default function AuthInitializer() {
-    const { checkAuth, isAuthenticated } = useAuthStore()
-    const { user, setUser } = useUserStore()
+    const queryClient = useQueryClient()
+    const { checkAuth, isAuthenticated, authReady, userId: jwtUserId } =
+        useAuthStore()
+    const { user, setUser, clearUser } = useUserStore()
     const initializedRef = useRef(false)
-    
-    // Загружаем данные пользователя только если авторизован
-    const { data: currentUser, isLoading } = useCurrentUser({
-        enabled: isAuthenticated && !user, // Загружаем только если авторизован и нет данных пользователя
-    })
 
-    useEffect(() => {
-        // Инициализируем только один раз при монтировании
+    // После authReady роли и токен согласованы с JWT; при рассинхроне persist vs JWT — догружаем /auth/me
+    const { data: currentUser, isLoading } = useCurrentUser()
+
+    /**
+     * authReady нельзя вешать только на persist.onFinishHydration — в Next.js колбэк иногда
+     * не вызывается, и навбар навсегда остаётся в «скелетоне» без кнопок входа.
+     * Синхронизируем токен и сразу разблокируем UI (до отрисовки, где возможно).
+     */
+    useLayoutEffect(() => {
         if (initializedRef.current) {
             return
         }
-        
-        // Проверяем авторизацию при загрузке
-        checkAuth()
         initializedRef.current = true
-    }, []) // Пустой массив - только при монтировании
+        useAuthStore.getState().checkAuth()
+        useAuthStore.setState({ authReady: true })
+    }, [])
 
     useEffect(() => {
-        // Обновляем данные пользователя только если они изменились
-        if (isAuthenticated && !user && currentUser && !isLoading) {
+        if (!authReady || !isAuthenticated || !jwtUserId || !user) {
+            return
+        }
+        if (String(user.id) !== String(jwtUserId)) {
+            clearUser()
+            queryClient.removeQueries({ queryKey: authKeys.user() })
+        }
+    }, [
+        authReady,
+        isAuthenticated,
+        jwtUserId,
+        user,
+        clearUser,
+        queryClient,
+    ])
+
+    useEffect(() => {
+        if (!isAuthenticated || !currentUser || isLoading) {
+            return
+        }
+        if (!user || String(user.id) !== String(currentUser.id)) {
             setUser(currentUser)
         }
     }, [isAuthenticated, user, currentUser, isLoading, setUser])

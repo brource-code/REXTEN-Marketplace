@@ -13,6 +13,11 @@ return [
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'key' => env('APP_KEY'),
+    /**
+     * Секрет для вебхуков без подписи провайдера (например Sentry→Telegram).
+     * Клиент передаёт заголовок X-Webhook-Secret.
+     */
+    'webhook_secret' => env('APP_WEBHOOK_SECRET'),
     'cipher' => 'AES-256-CBC',
     'maintenance' => [
         'driver' => 'file',

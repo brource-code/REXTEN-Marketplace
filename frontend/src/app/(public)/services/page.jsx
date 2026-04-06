@@ -1,15 +1,14 @@
 'use client'
 
-import { useMemo, useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Container from '@/components/shared/Container'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import classNames from '@/utils/classNames'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import TextGenerateEffect from '@/app/(public-pages)/landing/components/TextGenerateEffect'
+import HeroMasterCards from '@/app/(public)/services/_components/HeroMasterCards'
 import { getCategories, getStates, getFilteredServices, getFeaturedServices } from '@/lib/api/marketplace'
 import { useCurrentUser } from '@/hooks/api/useAuth'
 import { useUserStore } from '@/store'
@@ -22,17 +21,12 @@ import Skeleton from '@/components/ui/Skeleton'
 import { normalizeImageUrl } from '@/utils/imageUtils'
 import { getCategoryName } from '@/utils/categoryUtils'
 import {
-    PiStarFill,
-    PiArrowRight,
     PiSlidersDuotone,
     PiMagnifyingGlass,
     PiCaretDown,
-    PiCaretUp,
     PiX,
-    PiCalendarCheckDuotone,
-    PiUsersDuotone,
-    PiStarDuotone,
     PiMapPinFill,
+    PiCheckCircle,
 } from 'react-icons/pi'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -55,6 +49,32 @@ const quickTags = Object.entries(tagDictionary).map(([id, label]) => ({
     id,
     label,
 }))
+
+/** Акцентные слова в hero-заголовке (мультиязычность, без привязки к одной локали) */
+const getHeroTitleWordClass = ({ word }) => {
+    const w = word
+        .replace(/^[«»"'„“]+/u, '')
+        .replace(/[.,!?;:\u0589]+$/u, '')
+        .toLowerCase()
+    const gradient =
+        'bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent'
+    const accent = new Set([
+        'searching',
+        'booking',
+        'искать',
+        'бронировать',
+        'buscar',
+        'reservar',
+        'пошук',
+        'бронювання',
+        'փնտրել',
+        'փնտրելը',
+        'ամրագրել',
+        'ամրագրելը',
+    ])
+    if (accent.has(w)) return gradient
+    return 'text-gray-900 dark:text-white'
+}
 
 // Функция для получения бейджей из тегов
 const getBadges = (tags, t) => {
@@ -544,12 +564,10 @@ export default function ServicesPage() {
                 // Используем единый источник истины из LocationProvider
                 if (state && state !== '' && state !== 'all') {
                     filters.state = state
-                    console.log('🔍 Applying state filter to API:', state)
                 }
                 
                 if (city && city !== '' && city !== 'all') {
                     filters.city = city
-                    console.log('🔍 Applying city filter:', city)
                 }
                 
                 const [categoriesData, statesData, servicesData, featuredData] = await Promise.all([
@@ -562,21 +580,6 @@ export default function ServicesPage() {
                 setStates(statesData)
                 setServices(servicesData)
                 setFeaturedServices(featuredData)
-                
-                // Отладочный лог для проверки фильтрации
-                if (state) {
-                    console.log('📊 Loaded services with state filter:', {
-                        state,
-                        servicesCount: servicesData.length,
-                        sampleServices: servicesData.slice(0, 3).map(s => ({
-                            name: s.name,
-                            state: s.state,
-                            city: s.city
-                        }))
-                    })
-                } else {
-                    console.log('📊 Loaded services WITHOUT state filter. state:', state)
-                }
             } catch (error) {
                 console.error('Error loading data:', error)
             } finally {
@@ -590,6 +593,8 @@ export default function ServicesPage() {
         setCategory(next)
         if (next !== 'all') {
             setHeroCategory(next)
+        } else {
+            setHeroCategory(null)
         }
     }
 
@@ -848,160 +853,185 @@ export default function ServicesPage() {
     
     // Локация теперь управляется через LocationProvider - нет необходимости в локальных функциях
 
+    const scrollToListings = () => {
+        listingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24 [overflow-anchor:none]">
-            {/* Hero Section - компактнее с быстрыми категориями */}
+            {/* Hero: поиск-first, превью карточек справа (desktop) */}
             <section className="relative overflow-x-hidden pt-6 pb-6 md:pt-8 md:pb-10 lg:pb-12 bg-white dark:bg-gray-900">
                 <div
-                    className="absolute inset-0 pointer-events-none select-none opacity-50"
+                    className="absolute inset-0 pointer-events-none select-none opacity-50 dark:opacity-30"
                     style={{
-                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='50' height='50' fill='none' stroke='${'#eaeaea'}'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='50' height='50' fill='none' stroke='${'#e5e7eb'}'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
                     }}
-                ></div>
+                />
                 <Container className="max-w-7xl">
-                    <div className="grid gap-4 md:gap-6 lg:grid-cols-12">
-                        <div className="lg:col-span-12 lg:col-start-1 w-full min-w-0">
-                            <div className="text-left space-y-3 md:space-y-4 w-full min-w-0">
-                                <p className="text-xs uppercase tracking-wider text-blue-600 dark:text-blue-400 font-medium">
-                                    REXTEN Marketplace
-                                </p>
-                                <TextGenerateEffect
-                                    key={`hero-title-${locale}`}
-                                    wordClassName="text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight break-words"
-                                    words={t('heroTitle')}
-                                    wordsCallbackClass={({ word }) => {
-                                        // Для русского: "профессионала" и "США"
-                                        if (word === 'профессионала' || word === 'professional') {
-                                            return 'bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent'
-                                        }
-                                        if (word === 'США' || word === 'USA') {
-                                            return 'bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent'
-                                        }
-                                        return 'text-gray-900 dark:text-white'
-                                    }}
-                                />
-                                <motion.p
-                                    initial={{ opacity: 0, translateY: 10 }}
-                                    animate={{ opacity: 1, translateY: 0 }}
-                                    transition={{ duration: 0.3, delay: 0.2 }}
-                                    className="text-xs md:text-base lg:text-lg text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-2 md:line-clamp-none break-words"
-                                >
-                                    {t('heroDescription')}
-                                </motion.p>
-                                
-                                {/* Мини-статистика */}
-                                <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6 pt-2">
-                                    <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300">
-                                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                                            <PiCalendarCheckDuotone className="text-lg sm:text-xl" />
-                                        </div>
-                                        <span className="font-semibold whitespace-nowrap">{t('statistics.bookings')}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300">
-                                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
-                                            <PiUsersDuotone className="text-lg sm:text-xl" />
-                                        </div>
-                                        <span className="font-semibold whitespace-nowrap">{t('statistics.masters')}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300">
-                                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
-                                            <PiStarDuotone className="text-lg sm:text-xl" />
-                                        </div>
-                                        <span className="font-semibold whitespace-nowrap">{t('statistics.rating')}</span>
-                                    </div>
-                                </div>
-                                
-                                {/* Блок локации */}
-                                <div className="pt-4 md:pt-5">
-                                    <div className="flex flex-col gap-3 sm:gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <PiMapPinFill className="text-blue-600 dark:text-blue-400 text-base sm:text-lg" />
-                                            <span className="text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300 font-medium">
-                                                {t('showingFor')}:
-                                            </span>
-                                        </div>
-                                        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full">
-                                            <div className="w-full sm:w-auto sm:flex-1 sm:min-w-0 sm:max-w-[200px]">
-                                                <div className="w-full">
-                                                    <Select
-                                                        instanceId="hero-state-select"
-                                                        placeholder={t('allStates')}
-                                                        options={[
-                                                            { value: '', label: t('allStates') },
-                                                            ...availableStates.map(stateItem => ({
-                                                                value: stateItem.id,
-                                                                label: stateItem.name,
-                                                            }))
-                                                        ]}
-                                                        value={state ? {
-                                                            value: state,
-                                                            label: getStateName(state),
-                                                        } : { value: '', label: t('allStates') }}
-                                                        onChange={(option) => {
-                                                            const newValue = option?.value || ''
-                                                            setState(newValue || null)
-                                                        }}
-                                                        isClearable={false}
-                                                        isSearchable={false}
-                                                        className="text-xs sm:text-sm"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="w-full sm:w-auto sm:flex-1 sm:min-w-0 sm:max-w-[200px]">
-                                                <div className="w-full">
-                                                    <CitySelect
-                                                        instanceId="services-city-select"
-                                                        placeholder={t('cityOptional')}
-                                                        value={city}
-                                                        className="text-xs sm:text-sm"
-                                                        isSearchable={false}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {(state || city) && (
-                                            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                                                <PiMapPinFill className="text-base" />
-                                                <LocationDisplay separator=", " />
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                
-                                {categories.length > 0 && (
-                                    <div className="h-[52px] md:h-[60px] pt-2 md:pt-4 flex items-center">
-                                        <div
-                                            className={`
-                                                w-full flex items-center gap-2 md:gap-3
-                                                overflow-x-auto max-w-full
-                                                table-scroll
-                                            `}
-                                        >
-                                            {categories.slice(0, 4).map((cat) => (
-                                                <button
-                                                    key={cat.id}
-                                                    onClick={() => {
-                                                        setHeroCategory(cat.id)
-                                                        setCategory(cat.id)
-                                                    }}
-                                                    className={classNames(
-                                                        'px-4 md:px-6 h-10 md:h-11 rounded-full text-sm md:text-base font-medium transition-colors',
-                                                        'border-2 flex items-center justify-center',
-                                                        'flex-shrink-0 whitespace-nowrap',
-                                                        'shadow-sm',
-                                                        heroCategory === cat.id
-                                                            ? 'bg-blue-600 text-white border-blue-600'
-                                                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600',
-                                                    )}
-                                                >
-                                                    {getCategoryName(cat, t)}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                    <div className="grid gap-8 lg:gap-10 lg:grid-cols-12 lg:items-start">
+                        <div
+                            className={classNames(
+                                'w-full min-w-0 space-y-4 md:space-y-5',
+                                formattedFeaturedServices.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12',
+                            )}
+                        >
+                            <p className="text-xs uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold">
+                                REXTEN Marketplace
+                            </p>
+                            <TextGenerateEffect
+                                key={`hero-title-${locale}`}
+                                wordClassName="text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.15] break-words"
+                                words={t('heroTitle')}
+                                wordsCallbackClass={getHeroTitleWordClass}
+                            />
+                            <motion.p
+                                initial={{ opacity: 0, translateY: 10 }}
+                                animate={{ opacity: 1, translateY: 0 }}
+                                transition={{ duration: 0.3, delay: 0.15 }}
+                                className="text-sm md:text-base lg:text-lg font-bold text-gray-500 dark:text-gray-400 leading-relaxed max-w-xl"
+                            >
+                                {t('heroDescription')}
+                            </motion.p>
+
+                            <div className="flex flex-wrap gap-2 pt-1">
+                                {[
+                                    { key: 'reviews', icon: PiCheckCircle },
+                                    { key: 'booking', icon: PiCheckCircle },
+                                    { key: 'noCalls', icon: PiCheckCircle },
+                                ].map(({ key, icon: Icon }) => (
+                                    <span
+                                        key={key}
+                                        className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-300"
+                                    >
+                                        <Icon className="text-primary text-base shrink-0" />
+                                        {t(`heroFeatures.${key}`)}
+                                    </span>
+                                ))}
                             </div>
+
+                            <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm p-3 md:p-4 space-y-3">
+                                <div className="relative">
+                                    <PiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base z-[1]" />
+                                    <Input
+                                        placeholder={t('heroSearchPlaceholder')}
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        className="pl-10 h-11 text-sm font-bold bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 focus:bg-white dark:focus:bg-gray-900"
+                                    />
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-2 sm:items-stretch">
+                                    <div className="w-full sm:flex-1 sm:min-w-0">
+                                        <Select
+                                            instanceId="hero-state-select"
+                                            placeholder={t('allStates')}
+                                            options={[
+                                                { value: '', label: t('allStates') },
+                                                ...availableStates.map((stateItem) => ({
+                                                    value: stateItem.id,
+                                                    label: stateItem.name,
+                                                })),
+                                            ]}
+                                            value={
+                                                state
+                                                    ? {
+                                                          value: state,
+                                                          label: getStateName(state),
+                                                      }
+                                                    : { value: '', label: t('allStates') }
+                                            }
+                                            onChange={(option) => {
+                                                const newValue = option?.value || ''
+                                                setState(newValue || null)
+                                            }}
+                                            isClearable={false}
+                                            isSearchable={false}
+                                            className="text-sm"
+                                        />
+                                    </div>
+                                    <div className="w-full sm:flex-1 sm:min-w-0">
+                                        <CitySelect
+                                            instanceId="services-city-select"
+                                            placeholder={t('cityOptional')}
+                                            value={city}
+                                            className="text-sm"
+                                            isSearchable={false}
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="solid"
+                                        className="h-11 px-5 shrink-0 w-full sm:w-auto"
+                                        onClick={scrollToListings}
+                                    >
+                                        {t('heroCta')}
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {(state || city) && (
+                                <div className="flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    <PiMapPinFill className="text-primary text-base shrink-0" />
+                                    <LocationDisplay separator=", " />
+                                </div>
+                            )}
+
+                            {categories.length > 0 && (
+                                <div className="pt-1 flex items-center min-h-[52px] md:min-h-[60px] gap-2">
+                                    <div
+                                        className="
+                                            flex-1 min-w-0 flex items-center gap-2 md:gap-3
+                                            overflow-x-auto max-w-full
+                                            table-scroll
+                                        "
+                                    >
+                                        {categories.slice(0, 4).map((cat) => (
+                                            <button
+                                                key={cat.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setHeroCategory(cat.id)
+                                                    setCategory(cat.id)
+                                                }}
+                                                className={classNames(
+                                                    'px-4 md:px-6 h-10 md:h-11 rounded-full text-sm md:text-base font-bold transition-colors',
+                                                    'border-2 flex items-center justify-center',
+                                                    'flex-shrink-0 whitespace-nowrap',
+                                                    'shadow-sm',
+                                                    heroCategory === cat.id
+                                                        ? 'bg-blue-600 text-white border-blue-600'
+                                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600',
+                                                )}
+                                            >
+                                                {getCategoryName(cat, t)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {category !== 'all' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSetCategory('all')}
+                                            className={classNames(
+                                                'inline-flex size-10 shrink-0 items-center justify-center p-0 m-0 rounded-full aspect-square',
+                                                'border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/90',
+                                                'text-gray-700 dark:text-gray-200 shadow-md ring-1 ring-black/5 dark:ring-white/10',
+                                                'hover:border-red-400 hover:bg-red-50 hover:text-red-600 hover:shadow-lg dark:hover:border-red-600 dark:hover:bg-red-950/50 dark:hover:text-red-400',
+                                                'transition-all self-center',
+                                            )}
+                                            title={t('heroClearCategory')}
+                                            aria-label={t('heroClearCategory')}
+                                        >
+                                            <PiX className="text-lg shrink-0" />
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
+
+                        {formattedFeaturedServices.length > 0 && (
+                            <div className="lg:col-span-5 w-full min-w-0 flex justify-center lg:justify-end lg:pt-2">
+                                <HeroMasterCards services={formattedFeaturedServices} />
+                            </div>
+                        )}
                     </div>
                 </Container>
             </section>

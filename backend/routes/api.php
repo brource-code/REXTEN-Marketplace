@@ -69,8 +69,8 @@ use App\Http\Controllers\UserPresenceController;
 // Public routes
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('throttle:10,1');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     
@@ -153,6 +153,9 @@ Route::prefix('family-budget')->middleware(['jwt.auth'])->group(function () {
 
 // Stripe webhook (public, no auth - Stripe sends directly)
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
+
+// Sentry → Telegram webhook (public, no auth - Sentry sends directly)
+Route::post('/webhooks/sentry-telegram', [\App\Http\Controllers\Webhooks\SentryTelegramController::class, 'handle']);
 
 // Protected routes
 Route::middleware(['jwt.auth'])->group(function () {
@@ -508,6 +511,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         // Полные бэкапы платформы (архив + БД + Docker-образы) → только S3
         Route::get('/backups', [BackupsController::class, 'index']);
         Route::post('/backups', [BackupsController::class, 'store']);
+        Route::get('/backups/partner-export', [BackupsController::class, 'partnerExport']);
         Route::get('/backups/{id}/download-url', [BackupsController::class, 'downloadUrl']);
         Route::delete('/backups/{id}', [BackupsController::class, 'destroy']);
 

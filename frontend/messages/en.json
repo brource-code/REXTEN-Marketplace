@@ -651,8 +651,16 @@
             "anyBudget": "Any budget",
             "description": "All services in one place: booking, ratings, reviews and more",
             "searchPlaceholder": "Search by name, service...",
-            "heroTitle": "Find a professional or studio in the USA",
-            "heroDescription": "All services in one place: booking, ratings, reviews",
+            "heroTitle": "Stop searching. Start booking.",
+            "heroDescription": "Find a master in minutes — with reviews and online booking",
+            "heroSearchPlaceholder": "What are you looking for?",
+            "heroCta": "Find a master",
+            "heroFeatures": {
+                "reviews": "Real reviews",
+                "booking": "Instant booking",
+                "noCalls": "No calls needed"
+            },
+            "heroClearCategory": "Clear category filter",
             "categoriesTitle": "Categories",
             "collapse": "Collapse",
             "showMoreCategories": "Show {count} more categories",
@@ -678,11 +686,6 @@
             },
             "foundOffers": "Found {count} offers",
             "showMore": "Show more ({remaining} remaining)",
-            "statistics": {
-                "bookings": "10,000+ bookings",
-                "masters": "500+ masters",
-                "rating": "4.9★ rating"
-            },
             "priceRanges": {
                 "all": "Any budget",
                 "lt75": "up to $75",
@@ -4242,6 +4245,12 @@
             "deleteConfirm": "Delete backup record?",
             "deleteConfirmS3": "Delete the object in S3 and remove this row?",
             "downloadError": "Could not get download link",
+            "partnerExportTitle": "Partner handoff archive",
+            "partnerExportHint": "Source tree without node_modules, vendor, build output, or .env files — for a review bundle.",
+            "partnerExport": "Download archive",
+            "partnerExportBuilding": "Building…",
+            "partnerExportSuccess": "Download started",
+            "partnerExportError": "Could not build the archive",
             "cancel": "Cancel",
             "hintDocs": "See docs/BACKUP_S3.md for restore on a new server and AWS setup.",
             "config": {

@@ -31,6 +31,7 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'tenant' => \App\Http\Middleware\TenantMiddleware::class,
         'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
 }
 

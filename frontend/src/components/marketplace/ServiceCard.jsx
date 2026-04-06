@@ -14,6 +14,8 @@ import { useQueryClient, useQuery } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 import { getCategoryName } from '@/utils/categoryUtils'
 import { getLaravelApiUrl } from '@/lib/api/marketplace'
+import { useAuthStore } from '@/store'
+import { CLIENT } from '@/constants/roles.constant'
 
 /**
  * Универсальный компонент карточки услуги/бизнеса
@@ -28,6 +30,9 @@ const ServiceCard = ({
     className = '',
 }) => {
     const queryClient = useQueryClient()
+    const { isAuthenticated, userRole, authReady } = useAuthStore()
+    const favoritesQueryEnabled =
+        authReady && isAuthenticated && userRole === CLIENT
     const [isFavoriteLoading, setIsFavoriteLoading] = useState(false)
     const t = useTranslations('components.serviceCard')
     const tCommon = useTranslations('common')
@@ -37,6 +42,7 @@ const ServiceCard = ({
     const { data: favoriteServices = [] } = useQuery({
         queryKey: ['client-favorite-services'],
         queryFn: getFavoriteServices,
+        enabled: favoritesQueryEnabled,
         staleTime: 30000, // 30 секунд
         retry: false, // Не повторяем запрос при ошибке (например, если пользователь не авторизован)
     })
@@ -44,6 +50,7 @@ const ServiceCard = ({
     const { data: favoriteAdvertisements = [] } = useQuery({
         queryKey: ['client-favorite-advertisements'],
         queryFn: getFavoriteAdvertisements,
+        enabled: favoritesQueryEnabled,
         staleTime: 30000, // 30 секунд
         retry: false, // Не повторяем запрос при ошибке
     })
@@ -94,6 +101,18 @@ const ServiceCard = ({
         e.stopPropagation()
         
         if (!service?.id) return
+
+        if (!authReady) {
+            return
+        }
+        if (!isAuthenticated || userRole !== CLIENT) {
+            toast.push(
+                <Notification title={t('authRequired')} type="info">
+                    {t('pleaseLoginToAddFavorites')}
+                </Notification>
+            )
+            return
+        }
         
         setIsFavoriteLoading(true)
         try {

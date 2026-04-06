@@ -649,8 +649,16 @@
             "anyBudget": "Будь-який бюджет",
             "description": "Усі послуги в одному місці: бронювання, рейтинги, відгуки та інше",
             "searchPlaceholder": "Пошук за іменем, послугою…",
-            "heroTitle": "Знайдіть фахівця або студію в США",
-            "heroDescription": "Усі послуги в одному місці: бронювання, рейтинги, відгуки",
+            "heroTitle": "Припиніть пошук. Почніть бронювання.",
+            "heroDescription": "Знайдіть майстра за хвилини — з відгуками та онлайн-записом",
+            "heroSearchPlaceholder": "Що ви шукаєте?",
+            "heroCta": "Знайти майстра",
+            "heroFeatures": {
+                "reviews": "Справжні відгуки",
+                "booking": "Миттєвий запис",
+                "noCalls": "Без дзвінків"
+            },
+            "heroClearCategory": "Скинути категорію",
             "categoriesTitle": "Категорії",
             "collapse": "Згорнути",
             "showMoreCategories": "Показати ще {count} категорій",
@@ -676,11 +684,6 @@
             },
             "foundOffers": "Знайдено пропозицій: {count}",
             "showMore": "Показати більше (залишилось {remaining})",
-            "statistics": {
-                "bookings": "10 000+ бронювань",
-                "masters": "500+ майстрів",
-                "rating": "Рейтинг 4.9★"
-            },
             "priceRanges": {
                 "all": "Будь-який бюджет",
                 "lt75": "до $75",
@@ -4238,6 +4241,12 @@
             "deleteConfirm": "Видалити запис резервної копії?",
             "deleteConfirmS3": "Видалити об’єкт у S3 і цей рядок?",
             "downloadError": "Не вдалося отримати посилання на завантаження",
+            "partnerExportTitle": "Архів для партнерів",
+            "partnerExportHint": "Код без node_modules, vendor, зібраних артефактів та .env — для передачі на ознайомлення.",
+            "partnerExport": "Завантажити архів",
+            "partnerExportBuilding": "Збірка…",
+            "partnerExportSuccess": "Завантаження розпочато",
+            "partnerExportError": "Не вдалося зібрати архів",
             "cancel": "Скасувати",
             "hintDocs": "Див. docs/BACKUP_S3.md щодо відновлення на новому сервері та налаштування AWS.",
             "config": {

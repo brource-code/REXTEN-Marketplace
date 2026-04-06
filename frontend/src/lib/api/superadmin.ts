@@ -755,6 +755,47 @@ export async function deletePlatformBackup(id: number): Promise<void> {
     await LaravelAxios.delete(`/admin/backups/${id}`)
 }
 
+export async function downloadPartnerSourceArchive(): Promise<void> {
+    try {
+        const response = await LaravelAxios.get('/admin/backups/partner-export', {
+            responseType: 'blob',
+            timeout: 600000,
+        })
+        const blob = response.data as Blob
+        const cd = response.headers['content-disposition'] as string | undefined
+        let filename = 'rexten-source-partners.tar.gz'
+        if (cd) {
+            const m = /filename\*?=(?:UTF-8''|"?)([^";\n]+)/i.exec(cd) || /filename="?([^";\n]+)"?/i.exec(cd)
+            if (m?.[1]) {
+                filename = decodeURIComponent(m[1].replace(/^"|"$/g, ''))
+            }
+        }
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+    } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: Blob } }
+        const data = axiosErr.response?.data
+        if (data instanceof Blob) {
+            const text = await data.text()
+            let msg = 'Failed to build archive'
+            try {
+                const j = JSON.parse(text) as { message?: string }
+                if (j.message) msg = j.message
+            } catch {
+                if (text) msg = text.slice(0, 300)
+            }
+            throw new Error(msg)
+        }
+        throw err
+    }
+}
+
 // ========== Categories ==========
 export interface ServiceCategory {
     id: number

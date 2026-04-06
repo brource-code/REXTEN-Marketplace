@@ -649,8 +649,16 @@
             "anyBudget": "Cualquier presupuesto",
             "description": "Todos los servicios en un solo lugar: reservas, calificaciones, reseñas y más",
             "searchPlaceholder": "Buscar por nombre, servicio...",
-            "heroTitle": "Encuentra un profesional o estudio en EE. UU.",
-            "heroDescription": "Todos los servicios en un solo lugar: reservas, calificaciones, reseñas",
+            "heroTitle": "Deja de buscar. Empieza a reservar.",
+            "heroDescription": "Encuentra un profesional en minutos — con reseñas y reserva en línea",
+            "heroSearchPlaceholder": "¿Qué estás buscando?",
+            "heroCta": "Encontrar profesional",
+            "heroFeatures": {
+                "reviews": "Reseñas reales",
+                "booking": "Reserva instantánea",
+                "noCalls": "Sin llamadas"
+            },
+            "heroClearCategory": "Quitar filtro de categoría",
             "categoriesTitle": "Categorías",
             "collapse": "Contraer",
             "showMoreCategories": "Ver más {count} categorías",
@@ -676,11 +684,6 @@
             },
             "foundOffers": "Se encontraron {count} ofertas",
             "showMore": "Ver más ({remaining} restantes)",
-            "statistics": {
-                "bookings": "Más de 10,000 reservas",
-                "masters": "Más de 500 especialistas",
-                "rating": "Calificación 4.9"
-            },
             "priceRanges": {
                 "all": "Cualquier presupuesto",
                 "lt75": "hasta $75",
@@ -4238,6 +4241,12 @@
             "deleteConfirm": "¿Eliminar el registro del respaldo?",
             "deleteConfirmS3": "¿Eliminar el objeto en S3 y quitar esta fila?",
             "downloadError": "No se pudo obtener el enlace de descarga",
+            "partnerExportTitle": "Archivo para partners",
+            "partnerExportHint": "Código sin node_modules, vendor, artefactos de compilación ni .env — para compartir.",
+            "partnerExport": "Descargar archivo",
+            "partnerExportBuilding": "Generando…",
+            "partnerExportSuccess": "Descarga iniciada",
+            "partnerExportError": "No se pudo generar el archivo",
             "cancel": "Cancelar",
             "hintDocs": "Consulte docs/BACKUP_S3.md para restaurar en un servidor nuevo y la configuración de AWS.",
             "config": {

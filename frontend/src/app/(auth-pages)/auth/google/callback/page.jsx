@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useAuthStore } from '@/store'
+import { useAuthStore, clearAuthPersistStorage } from '@/store'
 import Container from '@/components/shared/Container'
 import Loading from '@/components/shared/Loading'
 import LaravelAxios from '@/services/axios/LaravelAxios'
@@ -52,7 +52,7 @@ export default function GoogleCallbackPage() {
                 // БЕЗОПАСНОСТЬ: ПОЛНОСТЬЮ очищаем все старые данные ПЕРЕД установкой новых
                 // Это критично для предотвращения использования данных предыдущего пользователя
                 clearTokens()
-                localStorage.removeItem('auth-storage')
+                clearAuthPersistStorage()
                 localStorage.removeItem('user-storage')
                 localStorage.removeItem('business-storage')
                 
@@ -146,7 +146,7 @@ export default function GoogleCallbackPage() {
                     })
                     // БЕЗОПАСНОСТЬ: При ошибке очищаем все данные
                     clearTokens()
-                    localStorage.removeItem('auth-storage')
+                    clearAuthPersistStorage()
                     setError('profile_failed')
                     setTimeout(() => {
                         router.push('/sign-in?error=profile_failed')
@@ -156,7 +156,7 @@ export default function GoogleCallbackPage() {
                 console.error('Error processing Google callback:', err)
                 // БЕЗОПАСНОСТЬ: При ошибке очищаем все данные
                 clearTokens()
-                localStorage.removeItem('auth-storage')
+                clearAuthPersistStorage()
                 setError('callback_error')
                 setTimeout(() => {
                     router.push('/sign-in?error=callback_error')

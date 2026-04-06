@@ -41,6 +41,7 @@
     "@tiptap/pm": "^2.10.4",
     "@tiptap/react": "^2.10.4",
     "@tiptap/starter-kit": "^2.10.4",
+    "@sentry/nextjs": "^9.23.0",
     "@visx/pattern": "^3.13.0-alpha.0",
     "axios": "^1.7.7",
     "chart.js": "^4.5.1",

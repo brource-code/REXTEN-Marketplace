@@ -666,8 +666,16 @@
             "anyBudget": "Любой бюджет",
             "description": "Все услуги в одном месте: бронирование, рейтинг, отзывы и многое другое",
             "searchPlaceholder": "Поиск по названию, услуге...",
-            "heroTitle": "Найдите профессионала или студию в США",
-            "heroDescription": "Все услуги в одном месте: бронирование, рейтинг, отзывы",
+            "heroTitle": "Перестаньте искать. Начните бронировать.",
+            "heroDescription": "Найдите мастера за минуты — с отзывами и онлайн-записью",
+            "heroSearchPlaceholder": "Что вы ищете?",
+            "heroCta": "Найти мастера",
+            "heroFeatures": {
+                "reviews": "Реальные отзывы",
+                "booking": "Мгновенная запись",
+                "noCalls": "Без звонков"
+            },
+            "heroClearCategory": "Сбросить категорию",
             "categoriesTitle": "Категории",
             "collapse": "Свернуть",
             "showMoreCategories": "Показать еще {count} категорий",
@@ -693,11 +701,6 @@
             },
             "foundOffers": "Найдено {count} предложений",
             "showMore": "Показать еще ({remaining} осталось)",
-            "statistics": {
-                "bookings": "10,000+ бронирований",
-                "masters": "500+ мастеров",
-                "rating": "4.9★ рейтинг"
-            },
             "priceRanges": {
                 "all": "Любой бюджет",
                 "lt75": "до $75",
@@ -3923,6 +3926,12 @@
             "deleteConfirm": "Удалить запись бэкапа?",
             "deleteConfirmS3": "Удалить объект из S3 и запись в списке?",
             "downloadError": "Не удалось получить ссылку на скачивание",
+            "partnerExportTitle": "Архив для партнёров",
+            "partnerExportHint": "Исходники без node_modules, vendor, сборок и .env — для передачи на ознакомление.",
+            "partnerExport": "Скачать архив",
+            "partnerExportBuilding": "Сборка…",
+            "partnerExportSuccess": "Скачивание началось",
+            "partnerExportError": "Не удалось собрать архив",
             "cancel": "Отмена",
             "hintDocs": "Документация: docs/BACKUP_S3.md — восстановление на новом сервере и настройка AWS.",
             "config": {

@@ -16,7 +16,7 @@ ENV NODE_ENV=production
 ENV PORT=3003
 ENV HOSTNAME="0.0.0.0"
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 # Кэш компиляции Next — ускоряет повторные `docker compose build` при правках кода
 RUN --mount=type=cache,target=/app/.next/cache,id=rexten-next-cache \

@@ -1,7 +1,39 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import * as Sentry from '@sentry/nextjs'
 import { getAccessToken, getRefreshToken, setAccessToken, setRefreshToken, clearTokens } from '@/utils/auth/tokenStorage'
 import { clearPresenceSessionStorage } from '@/utils/presenceSessionId'
+
+/** Старый persist содержал userRole/userId — источник бага; новый ключ без этих полей. */
+const LEGACY_AUTH_PERSIST_KEY = 'auth-storage'
+export const AUTH_PERSIST_STORAGE_KEY = 'auth-storage-v2'
+
+export function clearAuthPersistStorage() {
+    if (typeof window === 'undefined') {
+        return
+    }
+    localStorage.removeItem(LEGACY_AUTH_PERSIST_KEY)
+    localStorage.removeItem(AUTH_PERSIST_STORAGE_KEY)
+}
+
+function roleAndIdFromAccessToken(accessToken) {
+    if (!accessToken) {
+        return { role: null, userId: null }
+    }
+    try {
+        const parts = accessToken.split('.')
+        if (parts.length !== 3) {
+            return { role: null, userId: null }
+        }
+        const payload = JSON.parse(atob(parts[1]))
+        return {
+            role: payload.role || null,
+            userId: payload.sub || payload.user_id || null,
+        }
+    } catch {
+        return { role: null, userId: null }
+    }
+}
 
 /**
  * Store для управления авторизацией
@@ -13,6 +45,8 @@ const useAuthStore = create(
             // Состояние авторизации
             isAuthenticated: false,
             isLoading: false,
+            /** false до завершения persist + checkAuth — иначе возможен «мигание» роли/редиректов */
+            authReady: false,
             
             // Токены (также хранятся в localStorage/cookies через tokenStorage)
             accessToken: null,
@@ -32,10 +66,7 @@ const useAuthStore = create(
                 
                 // Если приходит новый токен (не refresh), очищаем все старые данные
                 if (access_token && access_token !== currentState.accessToken) {
-                    // Очищаем localStorage от старых данных auth-storage
-                    if (typeof window !== 'undefined') {
-                        localStorage.removeItem('auth-storage')
-                    }
+                    clearAuthPersistStorage()
                 }
                 
                 // Сохраняем только access token в localStorage
@@ -53,6 +84,15 @@ const useAuthStore = create(
                     userId: user?.id ?? null, // Используем nullish coalescing для явного null
                     userRole: user?.role ?? null, // Используем nullish coalescing для явного null
                 })
+                
+                // Sentry: устанавливаем контекст пользователя
+                if (user?.id) {
+                    Sentry.setUser({
+                        id: String(user.id),
+                        email: user.email || undefined,
+                        username: user.name || user.first_name || undefined,
+                    })
+                }
                 
                 // Дополнительная проверка: убеждаемся, что токен действительно сохранен
                 if (access_token && typeof window !== 'undefined') {
@@ -72,10 +112,15 @@ const useAuthStore = create(
                 if (access_token) {
                     setAccessToken(access_token)
                 }
+
+                const { role, userId } = roleAndIdFromAccessToken(access_token)
                 
                 set({
                     accessToken: access_token,
                     refreshToken: null, // Не храним refresh token на клиенте (в httpOnly cookie)
+                    userRole: role,
+                    userId,
+                    isAuthenticated: !!access_token,
                 })
             },
             
@@ -83,9 +128,7 @@ const useAuthStore = create(
                 clearTokens()
                 clearPresenceSessionStorage()
                 // БЕЗОПАСНОСТЬ: Полностью очищаем все данные авторизации
-                if (typeof window !== 'undefined') {
-                    localStorage.removeItem('auth-storage')
-                }
+                clearAuthPersistStorage()
                 set({
                     isAuthenticated: false,
                     accessToken: null,
@@ -93,6 +136,8 @@ const useAuthStore = create(
                     userId: null,
                     userRole: null,
                 })
+                // Sentry: очищаем контекст пользователя
+                Sentry.setUser(null)
             },
             
             setLoading: (loading) => {
@@ -124,39 +169,18 @@ const useAuthStore = create(
                 // Если есть токен, извлекаем данные ТОЛЬКО из него
                 let role = null
                 let userId = null
-                
-                    try {
-                        const parts = token.split('.')
-                        if (parts.length === 3) {
-                            const payload = JSON.parse(atob(parts[1]))
-                            // Laravel JWT использует 'sub' для user_id и 'role' в кастомных claims
-                            role = payload.role || null
-                            userId = payload.sub || payload.user_id || null
-                            
-                            // Проверяем срок действия (exp в секундах, Date.now() в миллисекундах)
-                            if (payload.exp && payload.exp * 1000 < Date.now()) {
-                            // Токен истек - очищаем ВСЁ
-                                clearTokens()
-                            if (typeof window !== 'undefined') {
-                                localStorage.removeItem('auth-storage')
-                            }
-                                set({
-                                    isAuthenticated: false,
-                                    accessToken: null,
-                                    refreshToken: null,
-                                    userId: null,
-                                    userRole: null,
-                                })
-                                return false
-                            }
-                        }
-                    } catch (error) {
-                    // Не удалось распарсить токен - очищаем ВСЁ
-                        console.warn('Invalid token format:', error)
-                        clearTokens()
-                    if (typeof window !== 'undefined') {
-                        localStorage.removeItem('auth-storage')
+
+                try {
+                    const parts = token.split('.')
+                    if (parts.length !== 3) {
+                        throw new Error('Invalid JWT segments')
                     }
+                    const payload = JSON.parse(atob(parts[1]))
+
+                    // Проверяем срок действия (exp в секундах, Date.now() в миллисекундах)
+                    if (payload.exp && payload.exp * 1000 < Date.now()) {
+                        clearTokens()
+                        clearAuthPersistStorage()
                         set({
                             isAuthenticated: false,
                             accessToken: null,
@@ -166,6 +190,23 @@ const useAuthStore = create(
                         })
                         return false
                     }
+
+                    const parsed = roleAndIdFromAccessToken(token)
+                    role = parsed.role
+                    userId = parsed.userId
+                } catch (error) {
+                    console.warn('Invalid token format:', error)
+                    clearTokens()
+                    clearAuthPersistStorage()
+                    set({
+                        isAuthenticated: false,
+                        accessToken: null,
+                        refreshToken: null,
+                        userId: null,
+                        userRole: null,
+                    })
+                    return false
+                }
                 
                 // БЕЗОПАСНОСТЬ: Используем ТОЛЬКО данные из токена, НЕ из старого состояния!
                 // Это предотвращает использование роли/userId от предыдущего пользователя
@@ -191,16 +232,25 @@ const useAuthStore = create(
             },
         }),
         {
-            name: 'auth-storage', // Имя для localStorage
+            // v2: раньше в persist лежали userRole/userId — они расходились с JWT (критично для прав). Старый ключ не читаем.
+            name: AUTH_PERSIST_STORAGE_KEY,
+            // БЕЗОПАСНОСТЬ: userId и userRole НЕ сохраняем — только JWT в auth_token источник истины.
+            // Иначе после перезагрузки/гидрации показывалась старая роль (например SUPERADMIN), пока не отработает checkAuth().
             partialize: (state) => ({
-                // Сохраняем только необходимые данные
                 isAuthenticated: state.isAuthenticated,
-                userId: state.userId,
-                userRole: state.userRole,
             }),
         }
     )
 )
+
+if (typeof window !== 'undefined') {
+    useAuthStore.persist.onFinishHydration(() => {
+        // Удаляем старый persist с userRole/userId — он больше не используется, но мог мешать при миграции.
+        localStorage.removeItem(LEGACY_AUTH_PERSIST_KEY)
+        useAuthStore.getState().checkAuth()
+        useAuthStore.setState({ authReady: true })
+    })
+}
 
 export default useAuthStore
 

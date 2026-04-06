@@ -649,8 +649,16 @@
             "anyBudget": "Ցանկացած բյուջե",
             "description": "Բոլոր ծառայությունները մեկ տեղում՝ ամրագրում, գնահատականներ, կարծիքներ և ավելին",
             "searchPlaceholder": "Որոնել ըստ անվան, ծառայության…",
-            "heroTitle": "Գտեք մասնագետ կամ ստուդիա ԱՄՆ-ում",
-            "heroDescription": "Բոլոր ծառայությունները մեկ տեղում՝ ամրագրում, գնահատականներ, կարծիքներ",
+            "heroTitle": "Դադարեցրեք փնտրելը։ Սկսեք ամրագրել։",
+            "heroDescription": "Գտեք մասնագետ մի քանի րոպեում՝ կարծիքներով և օնլայն ամրագրումով",
+            "heroSearchPlaceholder": "Ինչ եք փնտրում?",
+            "heroCta": "Գտնել մասնագետ",
+            "heroFeatures": {
+                "reviews": "Իրական կարծիքներ",
+                "booking": "Արագ ամրագրում",
+                "noCalls": "Առանց զանգերի"
+            },
+            "heroClearCategory": "Հանել կատեգորիայի զտիչը",
             "categoriesTitle": "Կատեգորիաներ",
             "collapse": "Թաքցնել",
             "showMoreCategories": "Ցուցադրել ևս {count} կատեգորիա",
@@ -676,11 +684,6 @@
             },
             "foundOffers": "Գտնվել է {count} առաջարկ",
             "showMore": "Ցուցադրել ավելին ({remaining} մնացել է)",
-            "statistics": {
-                "bookings": "10,000+ ամրագրում",
-                "masters": "500+ մասնագետ",
-                "rating": "4.9★ գնահատական"
-            },
             "priceRanges": {
                 "all": "Ցանկացած բյուջե",
                 "lt75": "մինչև $75",
@@ -4238,6 +4241,12 @@
             "deleteConfirm": "Ջնջե՞լ կրկնօրինակի գրառումը",
             "deleteConfirmS3": "Ջնջե՞լ օբյեկտը S3-ում և այս տողը",
             "downloadError": "Հնարավոր չէր ստանալ ներբեռնման հղում",
+            "partnerExportTitle": "Արխիվ գործընկերների համար",
+            "partnerExportHint": "Կոդ՝ առանց node_modules, vendor, build-ի և .env — ծանոթացման համար։",
+            "partnerExport": "Ներբեռնել արխիվը",
+            "partnerExportBuilding": "Ստեղծում…",
+            "partnerExportSuccess": "Ներբեռումը սկսվել է",
+            "partnerExportError": "Չհաջողվեց ստեղծել արխիվը",
             "cancel": "Չեղարկել",
             "hintDocs": "Տե՛ս docs/BACKUP_S3.md՝ նոր սերվեր վերականգնելու և AWS կարգավորելու համար։",
             "config": {

@@ -266,20 +266,16 @@ class BookingController extends Controller
             // Проверка доступности выполняется в createBooking
             // Здесь не проверяем, чтобы избежать дублирования и возможных расхождений
 
-            // Получаем или создаем пользователя по телефону/email (опционально)
-            $userId = null;
-            if ($request->has('user_id')) {
-                $userId = $request->user_id;
-            } elseif (auth('api')->check()) {
-                $userId = auth('api')->id();
-            } elseif ($request->bearerToken()) {
+            // user_id только из сессии JWT, никогда из тела запроса (защита от подмены)
+            $userId = auth('api')->check() ? auth('api')->id() : null;
+            if ($userId === null && $request->bearerToken()) {
                 try {
                     $tokenUser = JWTAuth::parseToken()->authenticate();
                     if ($tokenUser) {
                         $userId = $tokenUser->id;
                     }
                 } catch (\Throwable $e) {
-                    // публичное бронирование без валидного токена
+                    $userId = null;
                 }
             }
 
@@ -447,6 +443,16 @@ class BookingController extends Controller
                         $additionalService = AdditionalService::find($item['id']);
                         if (!$additionalService || !$additionalService->is_active) {
                             continue;
+                        }
+
+                        $additionalService->loadMissing(['service', 'advertisement']);
+                        $bookingCompanyId = (int) $request->company_id;
+                        $svcCompany = $additionalService->service?->company_id;
+                        $adCompany = $additionalService->advertisement?->company_id;
+                        $belongsCompany = ($svcCompany !== null && $svcCompany === $bookingCompanyId)
+                            || ($adCompany !== null && $adCompany === $bookingCompanyId);
+                        if (! $belongsCompany) {
+                            abort(403, 'Additional service does not belong to this company');
                         }
 
                         // Проверяем, что дополнительная услуга принадлежит выбранной основной услуге

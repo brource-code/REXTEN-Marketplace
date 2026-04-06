@@ -7,6 +7,7 @@ use App\Models\PlatformBackup;
 use App\Services\PlatformBackupService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Process;
 
 class BackupsController extends Controller
 {
@@ -78,6 +79,58 @@ class BackupsController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Сборка и скачивание «лёгкого» архива исходников для партнёров (scripts/make-partner-archive.sh).
+     */
+    public function partnerExport()
+    {
+        @set_time_limit(600);
+        @ini_set('max_execution_time', '600');
+
+        $root = rtrim((string) config('backups.project_root'), '/');
+        $script = $root.'/scripts/make-partner-archive.sh';
+
+        if (! is_file($script)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Partner archive script not found at '.$script,
+            ], 404);
+        }
+
+        // Важно: выходной .tar.gz нельзя писать внутрь каталога, который tar упаковывает —
+        // иначе «file changed as we read it». Пишем в системный temp (обычно /tmp), вне project_root.
+        $tmpDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR);
+        foreach (glob($tmpDir.'/rexten-partner-*.tar.gz') ?: [] as $old) {
+            if (is_file($old) && (time() - filemtime($old)) > 86400) {
+                @unlink($old);
+            }
+        }
+
+        $filename = 'rexten-source-partners-'.now()->format('Y-m-d-His').'.tar.gz';
+        $outPath = $tmpDir.'/rexten-partner-'.bin2hex(random_bytes(8)).'.tar.gz';
+
+        $process = new Process(['/bin/bash', $script, $outPath], null, null, null, 600.0);
+        $process->run();
+
+        if (! $process->isSuccessful()) {
+            $err = trim($process->getErrorOutput() ?: $process->getOutput() ?: 'Archive build failed');
+
+            return response()->json([
+                'success' => false,
+                'message' => $err,
+            ], 500);
+        }
+
+        if (! is_file($outPath) || filesize($outPath) < 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Archive file was not created or is empty.',
+            ], 500);
+        }
+
+        return response()->download($outPath, $filename)->deleteFileAfterSend(true);
     }
 
     /**

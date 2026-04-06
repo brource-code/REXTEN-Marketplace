@@ -238,11 +238,9 @@ export async function getFilteredServices(filters: ServicesFilters): Promise<Ser
         if (filters.category && filters.category !== 'all') params.append('category', filters.category)
         if (filters.state && filters.state !== '' && filters.state !== 'all') {
             params.append('state', filters.state)
-            console.log('API: Adding state filter:', filters.state)
         }
         if (filters.city && filters.city !== '' && filters.city !== 'all') {
             params.append('city', filters.city)
-            console.log('API: Adding city filter:', filters.city)
         }
         if (filters.priceMin !== undefined) params.append('priceMin', filters.priceMin.toString())
         if (filters.priceMax !== undefined) params.append('priceMax', filters.priceMax.toString())
@@ -252,9 +250,6 @@ export async function getFilteredServices(filters: ServicesFilters): Promise<Ser
         }
 
         const url = `${getLaravelApiUrl()}/marketplace/services?${params.toString()}`
-        console.log('API: Request URL:', url)
-        console.log('API: Filters object:', filters)
-        
         const response = await fetch(url)
         if (!response.ok) {
             // Если 401 - это ошибка конфигурации бэкенда, публичные эндпоинты не должны требовать авторизацию

@@ -2,12 +2,14 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
+import * as Sentry from '@sentry/nextjs'
 
 /**
  * Граница ошибок сегмента app/. Тот же приём, что у not-found: html/body без просвечивания bg-gray-100.
  */
 export default function Error({ error, reset }) {
     useEffect(() => {
+        Sentry.captureException(error)
         if (process.env.NODE_ENV === 'development') {
             console.error(error)
         }

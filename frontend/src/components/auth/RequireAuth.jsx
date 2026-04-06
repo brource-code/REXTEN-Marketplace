@@ -19,30 +19,31 @@ export function withAuth(Component, options = {}) {
     
     return function AuthenticatedComponent(props) {
         const router = useRouter()
-        const { isAuthenticated, userRole, checkAuth } = useAuthStore()
-        
+        const { isAuthenticated, userRole, authReady } = useAuthStore()
+
         useEffect(() => {
-            const hasAuth = checkAuth()
-            
-            if (!hasAuth) {
+            if (!authReady) {
+                return
+            }
+            if (!isAuthenticated) {
                 router.push(redirectTo)
                 return
             }
-            
             if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
                 router.push('/access-denied')
-                return
             }
-        }, [isAuthenticated, userRole, router, redirectTo, checkAuth])
-        
+        }, [authReady, isAuthenticated, userRole, router, redirectTo])
+
+        if (!authReady) {
+            return null
+        }
         if (!isAuthenticated) {
             return null
         }
-        
         if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
             return null
         }
-        
+
         return <Component {...props} />
     }
 }
@@ -56,12 +57,15 @@ export function withAuth(Component, options = {}) {
  * @param {React.ReactNode} props.fallback - Что показать, если роль не подходит
  */
 export function RequireRole({ children, allowedRoles = [], fallback = null }) {
-    const { userRole } = useAuthStore()
-    
+    const { userRole, authReady } = useAuthStore()
+
+    if (!authReady) {
+        return null
+    }
     if (allowedRoles.length === 0 || allowedRoles.includes(userRole)) {
         return <>{children}</>
     }
-    
+
     return <>{fallback}</>
 }
 

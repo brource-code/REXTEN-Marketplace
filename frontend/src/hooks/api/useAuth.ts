@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter, usePathname } from 'next/navigation'
 import { login, register, logout, getCurrentUser, forgotPassword, resetPassword } from '@/lib/api/auth'
-import { useAuthStore, useUserStore } from '@/store'
+import { useAuthStore, useUserStore, clearAuthPersistStorage } from '@/store'
 
 // Query keys
 export const authKeys = {
@@ -13,12 +13,21 @@ export const authKeys = {
 
 // Хук для получения текущего пользователя
 export function useCurrentUser(options?: { enabled?: boolean }) {
-    const { isAuthenticated } = useAuthStore()
-    
+    const { isAuthenticated, authReady, userId: jwtUserId } = useAuthStore()
+    const user = useUserStore((s) => s.user)
+
+    /** Профиль из persist не должен расходиться с sub/id в JWT — иначе грузим /auth/me заново */
+    const userMismatch = Boolean(
+        jwtUserId && user && String(user.id) !== String(jwtUserId),
+    )
+    const defaultEnabled =
+        authReady && isAuthenticated && (!user || userMismatch)
+
     return useQuery({
         queryKey: authKeys.user(),
         queryFn: getCurrentUser,
-        enabled: options?.enabled !== undefined ? options.enabled : isAuthenticated, // Загружаем только если авторизован
+        enabled:
+            options?.enabled !== undefined ? options.enabled : defaultEnabled,
         staleTime: 5 * 60 * 1000, // 5 минут
     })
 }
@@ -36,7 +45,7 @@ export function useLogin() {
             // БЕЗОПАСНОСТЬ: Очищаем все данные предыдущего пользователя ПЕРЕД установкой новых
             // Это предотвращает утечку данных между сессиями разных пользователей
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('auth-storage')
+                clearAuthPersistStorage()
                 localStorage.removeItem('user-storage')
                 localStorage.removeItem('business-storage')
             }
@@ -97,7 +106,7 @@ export function useRegister() {
         onSuccess: (data) => {
             // БЕЗОПАСНОСТЬ: Очищаем все данные предыдущего пользователя ПЕРЕД установкой новых
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('auth-storage')
+                clearAuthPersistStorage()
                 localStorage.removeItem('user-storage')
                 localStorage.removeItem('business-storage')
             }
@@ -153,7 +162,7 @@ export function useLogout() {
         onSuccess: () => {
             // БЕЗОПАСНОСТЬ: Полностью очищаем все данные пользователя
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('auth-storage')
+                clearAuthPersistStorage()
                 localStorage.removeItem('user-storage')
                 localStorage.removeItem('business-storage')
             }
@@ -171,7 +180,7 @@ export function useLogout() {
         onError: (error) => {
             // БЕЗОПАСНОСТЬ: Даже при ошибке очищаем ВСЁ
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('auth-storage')
+                clearAuthPersistStorage()
                 localStorage.removeItem('user-storage')
                 localStorage.removeItem('business-storage')
             }
