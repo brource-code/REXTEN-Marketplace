@@ -151,6 +151,8 @@ export interface CompanyProfile {
         cover_image?: string | null
         city?: string
         state?: string
+        /** IANA, для отображения дат отзывов в таймзоне бизнеса */
+        timezone?: string
         location?: string
         phone?: string | null
         email?: string | null

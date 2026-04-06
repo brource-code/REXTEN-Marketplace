@@ -1,6 +1,7 @@
 import {
     NAV_ITEM_TYPE_COLLAPSE,
     NAV_ITEM_TYPE_ITEM,
+    NAV_ITEM_TYPE_DIVIDER,
 } from '@/constants/navigation.constant'
 import { BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 
@@ -135,6 +136,29 @@ const businessNavigationConfig = [
                 icon: 'settings',
                 type: NAV_ITEM_TYPE_ITEM,
                 permission: 'manage_settings',
+                subMenu: [],
+            },
+            {
+                key: 'business.nav.divider.knowledge',
+                type: NAV_ITEM_TYPE_DIVIDER,
+                subMenu: [],
+            },
+            {
+                key: 'business.knowledge',
+                path: '/business/knowledge',
+                title: 'База знаний',
+                translateKey: 'nav.business.knowledge',
+                icon: 'guide',
+                type: NAV_ITEM_TYPE_ITEM,
+                subMenu: [],
+            },
+            {
+                key: 'business.support',
+                path: '/business/support',
+                title: 'Поддержка',
+                translateKey: 'nav.business.support',
+                icon: 'support',
+                type: NAV_ITEM_TYPE_ITEM,
                 subMenu: [],
             },
         ],

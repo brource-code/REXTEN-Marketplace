@@ -40,6 +40,7 @@ class Company extends Model
         'is_visible_on_marketplace',
         'onboarding_completed',
         'onboarding_completed_at',
+        'onboarding_version',
         // Marketplace settings
         'show_in_search',
         'show_in_featured',
@@ -51,6 +52,12 @@ class Company extends Model
         'meta_keywords',
         'schedule',
         'loyalty_booking_count_rule',
+        'notification_email_enabled',
+        'notification_sms_enabled',
+        'notification_new_bookings',
+        'notification_cancellations',
+        'notification_payments',
+        'notification_reviews',
     ];
 
     /**
@@ -71,6 +78,12 @@ class Company extends Model
         'show_reviews' => 'boolean',
         'show_portfolio' => 'boolean',
         'schedule' => 'array',
+        'notification_email_enabled' => 'boolean',
+        'notification_sms_enabled' => 'boolean',
+        'notification_new_bookings' => 'boolean',
+        'notification_cancellations' => 'boolean',
+        'notification_payments' => 'boolean',
+        'notification_reviews' => 'boolean',
     ];
 
     /**

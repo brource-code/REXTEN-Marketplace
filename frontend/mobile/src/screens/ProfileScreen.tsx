@@ -1126,6 +1126,7 @@ export const ProfileScreen: React.FC = () => {
                         disabled={isSavingSettings}
                       />
                     </View>
+                    {/* SMS временно скрыт
                     <View style={[styles.menuItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                       <View style={{ flex: 1, marginRight: 12 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
@@ -1157,6 +1158,7 @@ export const ProfileScreen: React.FC = () => {
                         disabled={isSavingSettings}
                       />
                     </View>
+                    */}
                     <View style={[styles.menuItem, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                       <View style={{ flex: 1, marginRight: 12 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>

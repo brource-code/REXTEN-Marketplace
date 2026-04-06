@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslations } from 'next-intl'
 import Container from '@/components/shared/Container'
 import Card from '@/components/ui/Card'
 import { Form, FormItem } from '@/components/ui/Form'
@@ -25,18 +26,22 @@ import { US_STATES, US_CITIES_BY_STATE, getCitiesByState } from '@/constants/us-
 import { updateClientProfile } from '@/lib/api/client'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 
-// Схема валидации
-const profileSchema = z.object({
-    firstName: z.string().min(1, 'Имя обязательно'),
-    lastName: z.string().min(1, 'Фамилия обязательна'),
-    phone: z.string().optional(),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    zipCode: z.string().optional(),
-})
-
 export default function ClientProfileSettingsPage() {
+    const t = useTranslations('public.profileSettings')
+
+    const profileSchema = useMemo(
+        () =>
+            z.object({
+                firstName: z.string().min(1, t('firstNameRequired')),
+                lastName: z.string().min(1, t('lastNameRequired')),
+                phone: z.string().optional(),
+                address: z.string().optional(),
+                city: z.string().optional(),
+                state: z.string().optional(),
+                zipCode: z.string().optional(),
+            }),
+        [t],
+    )
     const queryClient = useQueryClient()
     const { data: user, isLoading: userLoading } = useCurrentUser()
     const { user: userStore, setUser } = useUserStore()
@@ -144,16 +149,16 @@ export default function ClientProfileSettingsPage() {
             }
 
             toast.push(
-                <Notification title="Успешно" type="success">
-                    Профиль успешно обновлен
+                <Notification title={t('successTitle')} type="success">
+                    {t('successMessage')}
                 </Notification>
             )
         },
         onError: (error) => {
             console.error('Profile update error:', error)
             toast.push(
-                <Notification title="Ошибка" type="danger">
-                    {error?.response?.data?.message || 'Ошибка при обновлении профиля'}
+                <Notification title={t('errorTitle')} type="danger">
+                    {error?.response?.data?.message || t('errorMessage')}
                 </Notification>
             )
         },
@@ -169,7 +174,7 @@ export default function ClientProfileSettingsPage() {
                 <div className="flex items-center justify-center min-h-[400px]">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-                        <p className="mt-4 text-gray-600 dark:text-gray-400">Загрузка профиля...</p>
+                        <p className="mt-4 text-gray-600 dark:text-gray-400">{t('loadingProfile')}</p>
                     </div>
                 </div>
             </Container>
@@ -187,7 +192,7 @@ export default function ClientProfileSettingsPage() {
                 <div className="max-w-4xl mx-auto">
                     <Link href="/profile">
                         <Button variant="plain" icon={<PiArrowLeft />} className="mb-6">
-                            Назад к профилю
+                            {t('backToProfile')}
                         </Button>
                     </Link>
 
@@ -206,7 +211,7 @@ export default function ClientProfileSettingsPage() {
                                 <label
                                     htmlFor="avatar-upload"
                                     className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2.5 cursor-pointer hover:bg-blue-700 transition shadow-lg"
-                                    title="Изменить фото"
+                                    title={t('changePhotoTitle')}
                                 >
                                     <PiCamera className="w-5 h-5" />
                                 </label>
@@ -219,8 +224,8 @@ export default function ClientProfileSettingsPage() {
                                         const file = e.target.files?.[0]
                                         if (file) {
                                             toast.push(
-                                                <Notification title="В разработке" type="info">
-                                                    Загрузка аватара будет доступна позже
+                                                <Notification title={t('avatarUploadSoonTitle')} type="info">
+                                                    {t('avatarUploadSoonMessage')}
                                                 </Notification>
                                             )
                                         }
@@ -229,10 +234,10 @@ export default function ClientProfileSettingsPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
-                                    Настройки профиля
+                                    {t('pageTitle')}
                                 </h1>
                                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-                                    Управление личными данными и настройками аккаунта
+                                    {t('pageSubtitle')}
                                 </p>
                             </div>
                         </div>
@@ -241,7 +246,7 @@ export default function ClientProfileSettingsPage() {
                         <Form onSubmit={handleSubmit(onSubmit)}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 <FormItem
-                                    label="Имя"
+                                    label={t('firstName')}
                                     invalid={!!errors.firstName}
                                     errorMessage={errors.firstName?.message}
                                 >
@@ -251,7 +256,7 @@ export default function ClientProfileSettingsPage() {
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
-                                                placeholder="Введите имя"
+                                                placeholder={t('firstNamePlaceholder')}
                                                 className="h-11"
                                             />
                                         )}
@@ -259,7 +264,7 @@ export default function ClientProfileSettingsPage() {
                                 </FormItem>
 
                                 <FormItem
-                                    label="Фамилия"
+                                    label={t('lastName')}
                                     invalid={!!errors.lastName}
                                     errorMessage={errors.lastName?.message}
                                 >
@@ -269,7 +274,7 @@ export default function ClientProfileSettingsPage() {
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
-                                                placeholder="Введите фамилию"
+                                                placeholder={t('lastNamePlaceholder')}
                                                 className="h-11"
                                             />
                                         )}
@@ -283,12 +288,12 @@ export default function ClientProfileSettingsPage() {
                                         className="bg-gray-50 dark:bg-gray-800 h-11"
                                     />
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-                                        Email нельзя изменить
+                                        {t('emailReadOnly')}
                                     </p>
                                 </FormItem>
 
                                 <FormItem
-                                    label="Телефон"
+                                    label={t('phone')}
                                     invalid={!!errors.phone}
                                     errorMessage={errors.phone?.message}
                                 >
@@ -306,7 +311,7 @@ export default function ClientProfileSettingsPage() {
                                 </FormItem>
 
                                 <FormItem
-                                    label="Адрес"
+                                    label={t('address')}
                                     invalid={!!errors.address}
                                     errorMessage={errors.address?.message}
                                     className="md:col-span-2"
@@ -330,7 +335,7 @@ export default function ClientProfileSettingsPage() {
                                                     }
                                                     if (parsed.zip) setValue('zipCode', parsed.zip)
                                                 }}
-                                                placeholder="Введите адрес"
+                                                placeholder={t('addressPlaceholder')}
                                                 className="h-11"
                                             />
                                         )}
@@ -339,28 +344,29 @@ export default function ClientProfileSettingsPage() {
 
                                 {/* Постоянная локация */}
                                 <FormItem
-                                    label="Постоянная локация"
+                                    label={t('locationSectionTitle')}
                                     className="md:col-span-2"
                                 >
                                     <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                                         <div className="flex items-center gap-2 mb-3">
                                             <PiMapPin className="text-lg text-blue-600 dark:text-blue-400" />
                                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                Укажите вашу постоянную локацию для автоматического применения в каталоге
+                                                {t('locationSectionHint')}
                                             </span>
                                         </div>
                                         
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                    Штат
+                                                    {t('state')}
                                                 </label>
                                                 <Controller
                                                     name="state"
                                                     control={control}
                                                     render={({ field }) => (
                                                         <Select
-                                                            placeholder="Выберите штат"
+                                                            placeholder={t('statePlaceholder')}
+                                                            isSearchable={false}
                                                             options={US_STATES.map(state => ({
                                                                 value: state.id,
                                                                 label: state.name,
@@ -384,14 +390,15 @@ export default function ClientProfileSettingsPage() {
                                             
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                    Город
+                                                    {t('city')}
                                                 </label>
                                                 <Controller
                                                     name="city"
                                                     control={control}
                                                     render={({ field }) => (
                                                         <Select
-                                                            placeholder={selectedState ? "Выберите город" : "Сначала выберите штат"}
+                                                            placeholder={selectedState ? t('cityPlaceholder') : t('cityPlaceholderSelectState')}
+                                                            isSearchable={false}
                                                             options={availableCities.map(city => ({
                                                                 value: city,
                                                                 label: city,
@@ -427,7 +434,7 @@ export default function ClientProfileSettingsPage() {
                                 </FormItem>
 
                                 <FormItem
-                                    label="Почтовый индекс"
+                                    label={t('zipCode')}
                                     invalid={!!errors.zipCode}
                                     errorMessage={errors.zipCode?.message}
                                 >
@@ -453,7 +460,7 @@ export default function ClientProfileSettingsPage() {
                                     disabled={!isDirty || updateProfileMutation.isPending}
                                     className="h-11 flex items-center justify-center"
                                 >
-                                    Отмена
+                                    {t('cancel')}
                                 </Button>
                                 <Button
                                     type="submit"
@@ -462,11 +469,11 @@ export default function ClientProfileSettingsPage() {
                                     className="h-11 min-w-[160px] flex items-center justify-center"
                                 >
                                     {updateProfileMutation.isPending ? (
-                                        'Сохранение...'
+                                        t('saving')
                                     ) : (
                                         <span className="flex items-center justify-center gap-2">
                                             <PiCheckCircle />
-                                            Сохранить изменения
+                                            {t('save')}
                                         </span>
                                     )}
                                 </Button>

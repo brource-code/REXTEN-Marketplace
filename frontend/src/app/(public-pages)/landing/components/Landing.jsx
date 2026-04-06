@@ -23,7 +23,10 @@ const Landing = () => {
     }
 
     return (
-        <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900">
+        <main
+            data-public-fullscreen
+            className="min-h-screen min-h-[100dvh] px-4 lg:px-0 text-base bg-white dark:bg-gray-900"
+        >
             <NavigationBar toggleMode={toggleMode} mode={mode} />
             <div className="relative">
                 <div

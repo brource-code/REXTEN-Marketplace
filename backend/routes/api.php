@@ -35,6 +35,13 @@ use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\BusinessEventsController;
 use App\Http\Controllers\Admin\HealthController;
 use App\Http\Controllers\Admin\BackupsController;
+use App\Http\Controllers\Admin\KnowledgeTopicsController;
+use App\Http\Controllers\Admin\KnowledgeArticlesController;
+use App\Http\Controllers\Admin\KnowledgeMediaController;
+use App\Http\Controllers\Admin\NotificationsController as AdminNotificationsController;
+use App\Http\Controllers\Admin\SupportTicketsController as AdminSupportTicketsController;
+use App\Http\Controllers\Business\KnowledgeBaseController;
+use App\Http\Controllers\Business\SupportTicketsController as BusinessSupportTicketsController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\BookingController;
@@ -335,6 +342,22 @@ Route::middleware(['jwt.auth'])->group(function () {
         
         // Onboarding
         Route::post('/onboarding/complete', [SettingsController::class, 'completeOnboarding']);
+
+        // База знаний (гайды платформы; без привязки к компании)
+        Route::get('/knowledge/topics', [KnowledgeBaseController::class, 'topics']);
+        Route::get('/knowledge/search-articles', [KnowledgeBaseController::class, 'searchArticles']);
+        Route::get('/knowledge/popular-articles', [KnowledgeBaseController::class, 'popularArticles']);
+        Route::get('/knowledge/topics/{topicSlug}/articles/{articleSlug}', [KnowledgeBaseController::class, 'articleBySlugs'])
+            ->where('topicSlug', '[a-zA-Z0-9\-]+')
+            ->where('articleSlug', '[a-zA-Z0-9\-]+');
+        Route::get('/knowledge/topics/{topicSlug}', [KnowledgeBaseController::class, 'topicBySlug'])
+            ->where('topicSlug', '[a-zA-Z0-9\-]+');
+        Route::get('/knowledge/articles/{id}', [KnowledgeBaseController::class, 'article'])->where('id', '[0-9]+');
+
+        // Поддержка (тикеты)
+        Route::get('/support/tickets', [BusinessSupportTicketsController::class, 'index']);
+        Route::get('/support/tickets/{id}', [BusinessSupportTicketsController::class, 'show'])->where('id', '[0-9]+');
+        Route::post('/support/tickets', [BusinessSupportTicketsController::class, 'store']);
         
         // Marketplace Settings
         Route::get('/settings/marketplace', [SettingsController::class, 'getMarketplaceSettings']);
@@ -371,6 +394,17 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::prefix('admin')->middleware(['role:SUPERADMIN'])->group(function () {
         Route::get('/search', AdminSearchController::class);
 
+        // Уведомления (суперадмин)
+        Route::get('/notifications', [AdminNotificationsController::class, 'index']);
+        Route::post('/notifications/{id}/read', [AdminNotificationsController::class, 'markAsRead']);
+        Route::post('/notifications/read-all', [AdminNotificationsController::class, 'markAllAsRead']);
+        Route::delete('/notifications/{id}', [AdminNotificationsController::class, 'destroy']);
+
+        // Поддержка (тикеты)
+        Route::get('/support/tickets', [AdminSupportTicketsController::class, 'index']);
+        Route::get('/support/tickets/{id}', [AdminSupportTicketsController::class, 'show'])->where('id', '[0-9]+');
+        Route::put('/support/tickets/{id}', [AdminSupportTicketsController::class, 'update'])->where('id', '[0-9]+');
+
         // Advertisements
         Route::get('/advertisements', [AdvertisementsController::class, 'index']);
         Route::post('/advertisements', [AdvertisementsController::class, 'store']);
@@ -405,6 +439,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::post('/companies/{id}/approve', [CompaniesController::class, 'approve']);
         Route::post('/companies/{id}/reject', [CompaniesController::class, 'reject']);
         Route::post('/companies/{id}/block', [CompaniesController::class, 'block']);
+        Route::post('/companies/{id}/unblock', [CompaniesController::class, 'unblock']);
 
         // Users
         Route::get('/users', [UsersController::class, 'index']);
@@ -484,6 +519,22 @@ Route::middleware(['jwt.auth'])->group(function () {
             Route::get('/{id}', [AdditionalServicesController::class, 'show']);
             Route::put('/{id}', [AdditionalServicesController::class, 'update']);
             Route::delete('/{id}', [AdditionalServicesController::class, 'destroy']);
+        });
+
+        // База знаний — управление (суперадмин)
+        Route::prefix('knowledge')->group(function () {
+            Route::post('/media', [KnowledgeMediaController::class, 'store']);
+            Route::get('/topics', [KnowledgeTopicsController::class, 'index']);
+            Route::post('/topics', [KnowledgeTopicsController::class, 'store']);
+            Route::get('/topics/{id}', [KnowledgeTopicsController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/topics/{id}', [KnowledgeTopicsController::class, 'update'])->where('id', '[0-9]+');
+            Route::delete('/topics/{id}', [KnowledgeTopicsController::class, 'destroy'])->where('id', '[0-9]+');
+
+            Route::get('/topics/{topicId}/articles', [KnowledgeArticlesController::class, 'index'])->where('topicId', '[0-9]+');
+            Route::post('/topics/{topicId}/articles', [KnowledgeArticlesController::class, 'store'])->where('topicId', '[0-9]+');
+            Route::get('/articles/{id}', [KnowledgeArticlesController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/articles/{id}', [KnowledgeArticlesController::class, 'update'])->where('id', '[0-9]+');
+            Route::delete('/articles/{id}', [KnowledgeArticlesController::class, 'destroy'])->where('id', '[0-9]+');
         });
     });
 });

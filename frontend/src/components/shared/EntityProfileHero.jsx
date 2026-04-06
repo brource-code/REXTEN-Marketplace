@@ -14,6 +14,8 @@ export default function EntityProfileHero({
     childrenTags,
     childrenContact,
     childrenActions,
+    /** В узких контейнерах (модалки) не ставить имя и кнопки в одну строку по lg viewport */
+    stackActionsBelowTitle = false,
     className,
 }) {
     return (
@@ -35,7 +37,14 @@ export default function EntityProfileHero({
                     </Avatar>
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+                    <div
+                        className={classNames(
+                            'flex gap-3',
+                            stackActionsBelowTitle
+                                ? 'flex-col items-stretch sm:items-start'
+                                : 'flex-col lg:flex-row lg:items-start lg:justify-between',
+                        )}
+                    >
                         <div className="min-w-0 text-center sm:text-left">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
                                 {name}
@@ -47,7 +56,14 @@ export default function EntityProfileHero({
                             ) : null}
                         </div>
                         {childrenActions ? (
-                            <div className="flex flex-wrap justify-center sm:justify-end gap-2 shrink-0">
+                            <div
+                                className={classNames(
+                                    'flex flex-wrap gap-2 shrink-0 min-w-0',
+                                    stackActionsBelowTitle
+                                        ? 'justify-start w-full sm:w-auto'
+                                        : 'justify-center sm:justify-end',
+                                )}
+                            >
                                 {childrenActions}
                             </div>
                         ) : null}

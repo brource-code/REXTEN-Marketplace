@@ -7,8 +7,11 @@ import appConfig from '@/configs/app.config'
 
 export default function NotFound() {
     return (
-        <div className="flex flex-auto flex-col h-[100vh]">
-            <div className="h-full bg-white dark:bg-gray-800">
+        <div
+            data-auth-fullscreen
+            className="flex min-h-screen min-h-[100dvh] flex-auto flex-col"
+        >
+            <div className="h-full min-h-[100dvh] bg-white dark:bg-gray-800">
                 <Container className="flex flex-col flex-auto items-center justify-center min-w-0 h-full">
                     <div className="min-w-[320px] md:min-w-[500px] max-w-[500px]">
                         <div className="text-center">

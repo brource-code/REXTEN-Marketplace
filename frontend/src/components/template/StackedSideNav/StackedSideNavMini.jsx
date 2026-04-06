@@ -69,7 +69,7 @@ const StackedSideNavMini = (props) => {
     return (
         <div {...rest}>
             <Link
-                href={appConfig.authenticatedEntryPath}
+                href={appConfig.marketplaceHomePath}
                 className="stacked-mini-nav-header flex items-center justify-center"
                 style={{ height: HEADER_HEIGHT }}
             >

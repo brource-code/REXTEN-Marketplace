@@ -1,10 +1,10 @@
 'use client'
 
-import { useMemo, memo } from 'react'
+import { useMemo } from 'react'
 import classNames from 'classnames'
 import Modal from 'react-modal'
 import CloseButton from '../CloseButton'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 const Drawer = (props) => {
     const {
@@ -40,43 +40,70 @@ const Drawer = (props) => {
 
     const renderCloseButton = useMemo(() => <CloseButton onClick={onCloseClick} />, [onCloseClick])
 
-    // Мемоизируем стили, чтобы не пересчитывать при каждом рендере
-    const { dimensionClass, contentStyle, motionStyle } = useMemo(() => {
+    const prefersReducedMotion = useReducedMotion()
+
+    // Стили панели + анимация через transform (x/y), без left/top в px — меньше layout thrashing на мобильных
+    const { dimensionClass, panelStyle, motionInitial, motionAnimate } = useMemo(() => {
         if (placement === 'left' || placement === 'right') {
+            const base = {
+                width,
+                top: 0,
+                height: '100%',
+            }
+            if (placement === 'left') {
+                return {
+                    dimensionClass: 'vertical',
+                    panelStyle: { ...base, left: 0, right: 'auto' },
+                    motionInitial: { x: '-100%', y: 0 },
+                    motionAnimate: { x: isOpen ? 0 : '-100%', y: 0 },
+                }
+            }
             return {
                 dimensionClass: 'vertical',
-                contentStyle: { width },
-                motionStyle: {
-                    [placement]: `-${width}${
-                        typeof width === 'number' ? 'px' : ''
-                    }`,
-                },
+                panelStyle: { ...base, right: 0, left: 'auto' },
+                motionInitial: { x: '100%', y: 0 },
+                motionAnimate: { x: isOpen ? 0 : '100%', y: 0 },
             }
         }
 
         if (placement === 'top' || placement === 'bottom') {
+            const base = {
+                left: 0,
+                right: 0,
+                width: '100%',
+            }
+            if (placement === 'top') {
+                return {
+                    dimensionClass: 'horizontal',
+                    panelStyle: { ...base, top: 0, bottom: 'auto', height },
+                    motionInitial: { y: '-100%', x: 0 },
+                    motionAnimate: { y: isOpen ? 0 : '-100%', x: 0 },
+                }
+            }
             return {
                 dimensionClass: 'horizontal',
-                contentStyle: { height },
-                motionStyle: {
-                    [placement]: `-${height}${
-                        typeof height === 'number' ? 'px' : ''
-                    }`,
-                },
+                panelStyle: { ...base, bottom: 0, top: 'auto', height },
+                motionInitial: { y: '100%', x: 0 },
+                motionAnimate: { y: isOpen ? 0 : '100%', x: 0 },
             }
         }
 
         return {
             dimensionClass: 'vertical',
-            contentStyle: {},
-            motionStyle: {},
+            panelStyle: {},
+            motionInitial: {},
+            motionAnimate: {},
         }
-    }, [placement, width, height])
+    }, [placement, width, height, isOpen])
 
-    // Мемоизируем анимацию, чтобы избежать лишних пересчетов
-    const animateValue = useMemo(() => ({
-        [placement]: isOpen ? 0 : motionStyle[placement],
-    }), [isOpen, placement, motionStyle])
+    const motionTransition = useMemo(
+        () => ({
+            type: 'tween',
+            duration: prefersReducedMotion ? 0 : 0.2,
+            ease: [0.4, 0, 0.2, 1],
+        }),
+        [prefersReducedMotion],
+    )
 
     // Мемоизируем className объекты, чтобы не пересоздавать при каждом рендере
     const modalClassName = useMemo(() => ({
@@ -119,15 +146,11 @@ const Drawer = (props) => {
         >
             <motion.div
                 className={classNames('drawer-content', dimensionClass)}
-                style={contentStyle}
-                initial={motionStyle}
-                animate={animateValue}
-                transition={{ 
-                    type: 'tween', 
-                    duration: 0.25, 
-                    ease: [0.4, 0, 0.2, 1], // Более легкая кривая для производительности
-                }}
-                layout={false} // Отключаем layout анимацию для производительности
+                style={panelStyle}
+                initial={motionInitial}
+                animate={motionAnimate}
+                transition={motionTransition}
+                layout={false}
             >
                 {title || closable ? (
                     <div className={classNames('drawer-header', headerClass)}>

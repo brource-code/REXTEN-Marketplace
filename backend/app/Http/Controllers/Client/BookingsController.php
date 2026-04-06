@@ -181,6 +181,7 @@ class BookingsController extends Controller
                 'serviceName' => $serviceName,
                 'businessName' => $booking->company->name ?? 'N/A',
                 'businessSlug' => $businessSlug,
+                'timezone' => $booking->company?->timezone ?? 'America/Los_Angeles',
                 'date' => $booking->booking_date->format('Y-m-d'),
                 'time' => $booking->booking_time,
                 'status' => $booking->status,

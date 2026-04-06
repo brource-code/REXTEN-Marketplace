@@ -1,5 +1,9 @@
 # Development Environment
 
+## Домен dev.rexten.live
+
+В репозитории **dev.rexten.live** и **rexten.live** обслуживаются **одним** контейнером `frontend` через nginx (см. `nginx/default.conf` и **`docs/FRONTEND_DEV_DOMAIN.md`**). Если вёрстка на dev отстаёт от прода — на сервере не пересобран образ или DNS/прокси указывают не туда. Для обновления фронта на сервере: **`./scripts/deploy-frontend-docker.sh`** из корня репозитория.
+
 ## Быстрый старт
 
 ### Запуск dev сервера

@@ -212,6 +212,7 @@ const navigationIcon = {
     modules: <PiStackDuotone />,
     settings: <PiGearSixDuotone />,
     guide: <PiBookOpenDuotone />,
+    support: <PiHeadsetDuotone />,
     storefront: <PiStorefrontDuotone />,
     reviews: <PiStarDuotone />,
     reports: <PiChartBarDuotone />,

@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import { TbSearch, TbX } from 'react-icons/tb'
@@ -14,9 +15,23 @@ const roleOptions = [
 ]
 
 const UsersTableTools = () => {
+    const searchParams = useSearchParams()
     const [searchValue, setSearchValue] = useState('')
     const [roleFilter, setRoleFilter] = useState(roleOptions[0])
-    const onAppendQueryParams = useAppendQueryParams()
+    const { onAppendQueryParams } = useAppendQueryParams()
+
+    useEffect(() => {
+        const r = searchParams.get('role') || 'all'
+        const opt = roleOptions.find((o) => o.value === r) || roleOptions[0]
+        setRoleFilter(opt)
+    }, [searchParams])
+
+    useEffect(() => {
+        const urlSearch = searchParams.get('search') || ''
+        if (urlSearch !== searchValue) {
+            setSearchValue(urlSearch)
+        }
+    }, [searchParams])
 
     const handleSearch = (e) => {
         e.preventDefault()
@@ -69,6 +84,7 @@ const UsersTableTools = () => {
                 options={roleOptions}
                 value={roleFilter}
                 onChange={handleRoleChange}
+                isSearchable={false}
             />
         </div>
     )

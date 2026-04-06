@@ -5,9 +5,14 @@ import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import { NumericFormat } from 'react-number-format'
 import { TbX } from 'react-icons/tb'
-import { PiCalendar, PiClock, PiMapPin, PiCreditCard } from 'react-icons/pi'
+import { PiCalendar, PiClock, PiCreditCard } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
-import { formatDate, formatDateTime } from '@/utils/dateTime'
+import { formatDate, formatDateTime, formatTime } from '@/utils/dateTime'
+import {
+    CLIENT_TIME_DISPLAY_LOCALE,
+    resolveClientBookingTimezone,
+} from '@/constants/client-datetime.constant'
+import { useTranslations } from 'next-intl'
 
 const statusColors = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
@@ -16,15 +21,12 @@ const statusColors = {
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
 }
 
-const statusLabels = {
-    pending: 'Ожидает',
-    confirmed: 'Подтвержден',
-    completed: 'Завершен',
-    cancelled: 'Отменен',
-}
-
 const OrderDetailsModal = ({ isOpen, onClose, order }) => {
+    const t = useTranslations('client.orders')
+
     if (!order) return null
+
+    const orderTz = resolveClientBookingTimezone(order)
 
     // Mock данные для истории платежей
     const paymentHistory = [
@@ -32,18 +34,25 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
             id: 1,
             date: order.createdAt,
             amount: order.price,
-            method: 'Карта',
+            method: 'card',
             status: 'completed',
             transactionId: 'TXN-123456',
         },
     ]
+
+    const statusLabels = {
+        pending: t('status.pendingShort'),
+        confirmed: t('status.confirmed'),
+        completed: t('status.completed'),
+        cancelled: t('status.cancelled'),
+    }
 
     return (
         <Dialog isOpen={isOpen} onClose={onClose} width={800}>
             <div className="flex flex-col h-full max-h-[85vh]">
                 {/* Заголовок - зафиксирован сверху */}
                 <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Детали заказа</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('modalTitle')}</h3>
                     <Button
                         variant="plain"
                         size="sm"
@@ -79,23 +88,29 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                 <div className="flex items-center gap-2">
                                     <PiCalendar className="text-gray-400" />
                                     <div>
-                                        <div className="text-xs text-gray-500">Дата</div>
+                                        <div className="text-xs text-gray-500">{t('labelDate')}</div>
                                         <div className="font-semibold">
-                                            {formatDate(order.date, 'America/Los_Angeles', 'short')}
+                                            {formatDate(order.date, orderTz, 'short')}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <PiClock className="text-gray-400" />
                                     <div>
-                                        <div className="text-xs text-gray-500">Время</div>
-                                        <div className="font-semibold">{order.time}</div>
+                                        <div className="text-xs text-gray-500">{t('labelTime')}</div>
+                                        <div className="font-semibold">
+                                            {formatTime(
+                                                order.time,
+                                                orderTz,
+                                                CLIENT_TIME_DISPLAY_LOCALE,
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <PiCreditCard className="text-gray-400" />
                                     <div>
-                                        <div className="text-xs text-gray-500">Сумма</div>
+                                        <div className="text-xs text-gray-500">{t('labelAmount')}</div>
                                         <div className="font-semibold">
                                             <NumericFormat
                                                 displayType="text"
@@ -107,7 +122,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-gray-500">Номер заказа</div>
+                                    <div className="text-xs text-gray-500">{t('labelOrderNumber')}</div>
                                     <div className="font-semibold">#{order.bookingId}</div>
                                 </div>
                             </div>
@@ -115,7 +130,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
 
                         {/* История платежей */}
                         <div>
-                            <h4 className="mb-4">История платежей</h4>
+                            <h4 className="mb-4">{t('paymentHistory')}</h4>
                             <div className="space-y-3">
                                 {paymentHistory.map((payment) => (
                                     <Card key={payment.id} className="p-4">
@@ -130,10 +145,13 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                                     />
                                                 </div>
                                                 <div className="text-sm text-gray-500">
-                                                    {payment.method} • {payment.transactionId}
+                                                    {payment.method === 'card'
+                                                        ? t('paymentMethodCard')
+                                                        : payment.method}{' '}
+                                                    • {payment.transactionId}
                                                 </div>
                                                 <div className="text-xs text-gray-400 mt-1">
-                                                    {formatDateTime(payment.date, null, 'America/Los_Angeles', 'short')}
+                                                    {formatDateTime(payment.date, null, orderTz, 'short')}
                                                 </div>
                                             </div>
                                             <Badge
@@ -144,7 +162,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                                 }
                                             >
                                                 {payment.status === 'completed'
-                                                    ? 'Оплачено'
+                                                    ? t('paymentStatusPaid')
                                                     : payment.status}
                                             </Badge>
                                         </div>

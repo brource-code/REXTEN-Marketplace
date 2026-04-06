@@ -15,6 +15,8 @@ export interface ClientProfile {
     city?: string
     state?: string
     zipCode?: string
+    /** Локаль уведомлений и писем (совпадает с UI при синхронизации) */
+    locale?: string | null
 }
 
 export interface UpdateProfileData {
@@ -32,6 +34,8 @@ export interface ClientOrder {
     bookingId: number
     serviceName: string
     businessName: string
+    /** IANA, таймзона компании для отображения дат/времени заказа */
+    timezone?: string
     date: string
     time: string
     status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
@@ -44,6 +48,8 @@ export interface ClientBooking {
     serviceName: string
     businessName: string
     businessSlug: string
+    /** IANA, таймзона компании для отображения дат/времени брони */
+    timezone?: string
     date: string
     time: string
     status: 'pending' | 'confirmed' | 'completed' | 'cancelled'

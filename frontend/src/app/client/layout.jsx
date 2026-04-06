@@ -10,7 +10,12 @@ const Layout = ({ children }) => {
     return (
         <ProtectedRoute allowedRoles={[CLIENT]}>
             <MaintenanceGuard>
-                <PostLoginLayout>{children}</PostLoginLayout>
+                <div
+                    data-public-fullscreen
+                    className="flex min-h-screen min-h-[100dvh] flex-col bg-white dark:bg-gray-900"
+                >
+                    <PostLoginLayout>{children}</PostLoginLayout>
+                </div>
             </MaintenanceGuard>
         </ProtectedRoute>
     )

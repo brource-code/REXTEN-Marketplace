@@ -54,6 +54,7 @@ const SideNav = ({
 
     return (
         <div
+            data-tour="sidebar"
             style={{
                 ...(sideNavCollapse ? sideNavCollapseStyle : sideNavStyle),
                 transition: 'width 0.2s ease-in-out, min-width 0.2s ease-in-out',
@@ -66,7 +67,7 @@ const SideNav = ({
             )}
         >
             <Link
-                href={appConfig.authenticatedEntryPath}
+                href={appConfig.marketplaceHomePath}
                 className="side-nav-header flex flex-col justify-center items-start"
                 style={{ height: HEADER_HEIGHT }}
             >

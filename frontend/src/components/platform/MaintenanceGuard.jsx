@@ -56,7 +56,10 @@ export default function MaintenanceGuard({ children }) {
 
     if (isPending) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-800">
+            <div
+                data-public-fullscreen
+                className="flex min-h-screen min-h-[100dvh] items-center justify-center bg-white dark:bg-gray-900"
+            >
                 <Loading loading className="min-h-[40vh]" />
             </div>
         )

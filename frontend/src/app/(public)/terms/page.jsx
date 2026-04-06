@@ -2,6 +2,7 @@ import Container from '@/components/shared/Container'
 import { useTranslations, useLocale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { formatDate } from '@/utils/dateTime'
+import { CLIENT_DEFAULT_TIMEZONE } from '@/constants/client-datetime.constant'
 
 export async function generateMetadata() {
     const t = await getTranslations('legal.terms');
@@ -16,14 +17,14 @@ export default function TermsPage() {
     const locale = useLocale();
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-900 py-8 sm:py-12">
+        <div className="min-h-screen min-h-[100dvh] bg-white dark:bg-gray-900 py-8 sm:py-12">
             <Container>
                 <div className="max-w-4xl mx-auto">
                     <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
                         {t('title')}
                     </h1>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-                        {t('lastUpdate')}: {formatDate(new Date(), 'America/Los_Angeles', 'long')}
+                        {t('lastUpdate')}: {formatDate(new Date(), CLIENT_DEFAULT_TIMEZONE, 'long')}
                     </p>
 
                     <div className="prose prose-gray dark:prose-invert max-w-none space-y-6 text-gray-700 dark:text-gray-300">

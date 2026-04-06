@@ -559,6 +559,8 @@ export interface BusinessProfile {
     timezone?: string
     onboarding_completed?: boolean
     onboarding_completed_at?: string | null
+    /** Текущая пройденная версия тура (например v1) */
+    onboarding_version?: string | null
     is_owner?: boolean
     permissions?: string[]
 }
@@ -824,6 +826,70 @@ export async function markAllBusinessNotificationsAsRead(): Promise<void> {
 
 export async function deleteBusinessNotification(id: number): Promise<void> {
     await LaravelAxios.delete(`/business/notifications/${id}`)
+}
+
+// ========== Support tickets ==========
+export interface BusinessSupportTicketListItem {
+    id: number
+    subject: string
+    category: string
+    status: string
+    areaSection: string | null
+    pagePath: string | null
+    attachmentCount: number
+    createdAt: string
+    updatedAt: string
+}
+
+export async function getBusinessSupportTickets(params?: {
+    page?: number
+    pageSize?: number
+}): Promise<{
+    data: BusinessSupportTicketListItem[]
+    total: number
+    page: number
+    pageSize: number
+}> {
+    const response = await LaravelAxios.get('/business/support/tickets', { params })
+    return {
+        data: response.data.data ?? [],
+        total: response.data.total ?? 0,
+        page: response.data.page ?? 1,
+        pageSize: response.data.pageSize ?? 20,
+    }
+}
+
+export interface BusinessSupportTicketDetail {
+    id: number
+    subject: string
+    category: string
+    status: string
+    areaSection: string | null
+    pagePath: string | null
+    body: string
+    createdAt: string
+    updatedAt: string
+    resolvedAt: string | null
+    adminPublicReply: string | null
+    attachments: Array<{
+        id: number
+        originalName: string
+        mime: string | null
+        size: number
+        url: string
+    }>
+}
+
+export async function getBusinessSupportTicket(id: number): Promise<BusinessSupportTicketDetail> {
+    const response = await LaravelAxios.get(`/business/support/tickets/${id}`)
+    return response.data.data
+}
+
+export async function createBusinessSupportTicket(formData: FormData): Promise<BusinessSupportTicketDetail> {
+    const response = await LaravelAxios.post('/business/support/tickets', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data.data
 }
 
 // ========== Advertisements ==========
@@ -1100,6 +1166,7 @@ export async function exportSalaryReport(type: 'csv', filters?: SalaryFilters): 
 export async function completeOnboarding(): Promise<{
     onboarding_completed: boolean
     onboarding_completed_at: string | null
+    onboarding_version?: string | null
 }> {
     const response = await LaravelAxios.post('/business/onboarding/complete')
     return response.data.data || response.data
@@ -1390,4 +1457,92 @@ export async function updateBusinessPromoCode(
 
 export async function deleteBusinessPromoCode(id: number): Promise<void> {
     await LaravelAxios.delete(`/business/promo-codes/${id}`)
+}
+
+// ========== Knowledge base (platform guides) ==========
+
+export interface KnowledgeTopic {
+    id: number
+    title: string
+    slug: string
+    description: string | null
+    module_key?: string | null
+    locale?: string
+    topic_key?: string | null
+    sort_order: number
+    is_published: boolean
+    articles_count?: number
+}
+
+export interface KnowledgeArticleSummary {
+    id: number
+    knowledge_topic_id: number
+    locale?: string
+    title: string
+    slug: string
+    excerpt?: string | null
+    sort_order?: number
+    created_at?: string
+    updated_at?: string
+}
+
+export interface KnowledgeArticle extends KnowledgeArticleSummary {
+    body: string
+    is_published?: boolean
+    topic?: KnowledgeTopic
+}
+
+export async function getBusinessKnowledgeTopics(params?: {
+    search?: string
+    locale?: string
+}): Promise<KnowledgeTopic[]> {
+    const response = await LaravelAxios.get('/business/knowledge/topics', { params })
+    const data = response.data.data ?? response.data
+    return Array.isArray(data) ? data : []
+}
+
+export async function getBusinessKnowledgePopularArticles(
+    limit = 8,
+    locale?: string,
+): Promise<KnowledgeArticle[]> {
+    const response = await LaravelAxios.get('/business/knowledge/popular-articles', {
+        params: { limit, ...(locale ? { locale } : {}) },
+    })
+    const data = response.data.data ?? response.data
+    return Array.isArray(data) ? data : []
+}
+
+export async function searchBusinessKnowledgeArticles(q: string, locale?: string): Promise<KnowledgeArticle[]> {
+    const response = await LaravelAxios.get('/business/knowledge/search-articles', {
+        params: { q, ...(locale ? { locale } : {}) },
+    })
+    const data = response.data.data ?? response.data
+    return Array.isArray(data) ? data : []
+}
+
+export async function getBusinessKnowledgeTopicBySlug(
+    topicSlug: string,
+    locale?: string,
+): Promise<{
+    topic: KnowledgeTopic
+    articles: KnowledgeArticleSummary[]
+}> {
+    const response = await LaravelAxios.get(`/business/knowledge/topics/${encodeURIComponent(topicSlug)}`, {
+        params: locale ? { locale } : undefined,
+    })
+    const payload = response.data.data ?? response.data
+    return payload as { topic: KnowledgeTopic; articles: KnowledgeArticleSummary[] }
+}
+
+export async function getBusinessKnowledgeArticleBySlugs(
+    topicSlug: string,
+    articleSlug: string,
+    locale?: string,
+): Promise<KnowledgeArticle> {
+    const response = await LaravelAxios.get(
+        `/business/knowledge/topics/${encodeURIComponent(topicSlug)}/articles/${encodeURIComponent(articleSlug)}`,
+        { params: locale ? { locale } : undefined },
+    )
+    const data = response.data.data ?? response.data
+    return data as KnowledgeArticle
 }

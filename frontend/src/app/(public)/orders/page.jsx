@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import Container from '@/components/shared/Container'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
@@ -9,7 +10,7 @@ import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import { useQuery } from '@tanstack/react-query'
 import { getClientOrders } from '@/lib/api/client'
-import { TbFilter, TbSearch, TbCalendar, TbEye, TbClock } from 'react-icons/tb'
+import { TbFilter, TbSearch, TbCalendar, TbEye, TbClock, TbMapPin } from 'react-icons/tb'
 import { PiShoppingBag } from 'react-icons/pi'
 import Link from 'next/link'
 import classNames from '@/utils/classNames'
@@ -18,16 +19,11 @@ import OrderDetailsModal from './_components/OrderDetailsModal'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { CLIENT } from '@/constants/roles.constant'
 import Skeleton from '@/components/ui/Skeleton'
-import { formatDate as formatDateUS } from '@/utils/dateTime'
-
-// Статусы заказов
-const orderStatuses = [
-    { value: 'all', label: 'Все статусы' },
-    { value: 'pending', label: 'Ожидает подтверждения' },
-    { value: 'confirmed', label: 'Подтвержден' },
-    { value: 'completed', label: 'Завершен' },
-    { value: 'cancelled', label: 'Отменен' },
-]
+import { formatDate as formatDateUS, formatTime } from '@/utils/dateTime'
+import {
+    CLIENT_TIME_DISPLAY_LOCALE,
+    resolveClientBookingTimezone,
+} from '@/constants/client-datetime.constant'
 
 // Цвета статусов
 const statusColors = {
@@ -37,15 +33,29 @@ const statusColors = {
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
 }
 
-// Лейблы статусов
-const statusLabels = {
-    pending: 'Ожидает',
-    confirmed: 'Подтвержден',
-    completed: 'Завершен',
-    cancelled: 'Отменен',
-}
-
 export default function ClientOrdersPage() {
+    const t = useTranslations('client.orders')
+
+    const orderStatuses = useMemo(
+        () => [
+            { value: 'all', label: t('status.all') },
+            { value: 'pending', label: t('status.pending') },
+            { value: 'confirmed', label: t('status.confirmed') },
+            { value: 'completed', label: t('status.completed') },
+            { value: 'cancelled', label: t('status.cancelled') },
+        ],
+        [t],
+    )
+
+    const statusLabels = useMemo(
+        () => ({
+            pending: t('status.pendingShort'),
+            confirmed: t('status.confirmed'),
+            completed: t('status.completed'),
+            cancelled: t('status.cancelled'),
+        }),
+        [t],
+    )
     const [statusFilter, setStatusFilter] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
     const [dateFrom, setDateFrom] = useState(null)
@@ -73,15 +83,11 @@ export default function ClientOrdersPage() {
         )
     })
     
-    // Форматирование даты
-    const formatDate = (dateString) => {
-        return formatDateUS(dateString, 'America/Los_Angeles', 'long')
-    }
-    
-    // Форматирование времени
-    const formatTime = (timeString) => {
-        return timeString
-    }
+    const formatOrderDate = (dateString, order) =>
+        formatDateUS(dateString, resolveClientBookingTimezone(order), 'long')
+
+    const formatOrderTime = (timeString, order) =>
+        formatTime(timeString, resolveClientBookingTimezone(order), CLIENT_TIME_DISPLAY_LOCALE)
     
     // Форматирование цены
     const formatPrice = (price) => {
@@ -96,10 +102,10 @@ export default function ClientOrdersPage() {
                     <div className="mb-4">
                         <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                             <Link href="/profile" className="hover:text-primary transition-colors">
-                                Профиль
+                                {t('profile')}
                             </Link>
                             <span>/</span>
-                            <span className="text-gray-900 dark:text-gray-100 font-medium">Мои заказы</span>
+                            <span className="text-gray-900 dark:text-gray-100 font-medium">{t('breadcrumbOrders')}</span>
                         </nav>
                     </div>
                     
@@ -107,7 +113,7 @@ export default function ClientOrdersPage() {
                     <Card className="mb-4">
                         <div className="p-3 sm:p-4">
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                                Здесь отображаются все оплаченные и активные заказы. Для работы с будущими записями используйте раздел «Бронирования».
+                                {t('introNote')}
                             </p>
                         </div>
                     </Card>
@@ -119,7 +125,7 @@ export default function ClientOrdersPage() {
                                 <div className="flex flex-col md:flex-row gap-4">
                                     <div className="flex-1">
                                         <Input
-                                            placeholder="Поиск по услуге или бизнесу..."
+                                            placeholder={t('searchPlaceholder')}
                                             prefix={<TbSearch className="text-lg" />}
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -127,7 +133,8 @@ export default function ClientOrdersPage() {
                                     </div>
                                     <div className="md:w-64">
                                         <Select
-                                            placeholder="Статус"
+                                            placeholder={t('statusPlaceholder')}
+                                            isSearchable={false}
                                             options={orderStatuses}
                                             value={orderStatuses.find((s) => s.value === statusFilter)}
                                             onChange={(option) => setStatusFilter(option.value)}
@@ -137,7 +144,7 @@ export default function ClientOrdersPage() {
                                 <div className="flex flex-col md:flex-row gap-4">
                                     <div className="md:w-64">
                                         <DatePicker
-                                            placeholder="Дата от"
+                                            placeholder={t('dateFrom')}
                                             value={dateFrom}
                                             onChange={setDateFrom}
                                             inputtable
@@ -146,7 +153,7 @@ export default function ClientOrdersPage() {
                                     </div>
                                     <div className="md:w-64">
                                         <DatePicker
-                                            placeholder="Дата до"
+                                            placeholder={t('dateTo')}
                                             value={dateTo}
                                             onChange={setDateTo}
                                             inputtable
@@ -161,7 +168,7 @@ export default function ClientOrdersPage() {
                                                 setDateTo(null)
                                             }}
                                         >
-                                            Сбросить даты
+                                            {t('resetDates')}
                                         </Button>
                                     )}
                                 </div>
@@ -200,13 +207,13 @@ export default function ClientOrdersPage() {
                                 </div>
                                 <h4 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-2">
                                     {searchQuery || statusFilter !== 'all' || dateFrom || dateTo
-                                        ? 'Заказов не найдено'
-                                        : 'У вас пока нет заказов'}
+                                        ? t('noOrdersFiltered')
+                                        : t('noOrdersYet')}
                                 </h4>
                                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 max-w-md">
                                     {searchQuery || statusFilter !== 'all' || dateFrom || dateTo
-                                        ? 'Попробуйте изменить фильтры или поисковый запрос'
-                                        : 'Найдите услуги и сделайте свой первый заказ'}
+                                        ? t('tryChangeFilters')
+                                        : t('tryFindServices')}
                                 </p>
                                 {searchQuery || statusFilter !== 'all' || dateFrom || dateTo ? (
                                     <Button
@@ -219,12 +226,12 @@ export default function ClientOrdersPage() {
                                             setDateTo(null)
                                         }}
                                     >
-                                        Сбросить фильтры
+                                        {t('resetFilters')}
                                     </Button>
                                 ) : (
                                     <Link href="/services">
                                         <Button variant="solid" size="sm">
-                                            Найти услуги
+                                            {t('findServices')}
                                         </Button>
                                     </Link>
                                 )}
@@ -268,14 +275,14 @@ export default function ClientOrdersPage() {
                                                 <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                                                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                                         <TbCalendar className="text-base text-gray-400 shrink-0" />
-                                                        <span className="font-medium">{formatDate(order.date)}</span>
+                                                        <span className="font-medium">{formatOrderDate(order.date, order)}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                                         <TbClock className="text-base text-gray-400 shrink-0" />
-                                                        <span>{formatTime(order.time)}</span>
+                                                        <span>{formatOrderTime(order.time, order)}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-gray-600 dark:text-gray-400">Цена:</span>
+                                                        <span className="text-gray-600 dark:text-gray-400">{t('priceLabel')}</span>
                                                         <span className="text-gray-900 dark:text-white font-semibold text-base">
                                                             {formatPrice(order.price)}
                                                         </span>
@@ -284,9 +291,13 @@ export default function ClientOrdersPage() {
                                                 
                                                 <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
                                                     <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                                                        <span>Заказ #{order.bookingId}</span>
+                                                        <span>{t('orderLine', { id: order.bookingId })}</span>
                                                         <span className="text-gray-300 dark:text-gray-600">•</span>
-                                                        <span>Создан {formatDate(order.createdAt)}</span>
+                                                        <span>
+                                                            {t('createdAt', {
+                                                                date: formatOrderDate(order.createdAt, order),
+                                                            })}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -302,7 +313,7 @@ export default function ClientOrdersPage() {
                                                         setIsDetailsModalOpen(true)
                                                     }}
                                                 >
-                                                    Детали
+                                                    {t('details')}
                                                 </Button>
                                             </div>
                                         </div>

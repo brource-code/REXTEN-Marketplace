@@ -1,6 +1,7 @@
 import {
     NAV_ITEM_TYPE_COLLAPSE,
     NAV_ITEM_TYPE_ITEM,
+    NAV_ITEM_TYPE_DIVIDER,
 } from '@/constants/navigation.constant'
 import { SUPERADMIN } from '@/constants/roles.constant'
 
@@ -115,6 +116,29 @@ const superadminNavigationConfig = [
                 title: 'Настройки',
                 translateKey: 'nav.superadmin.settings',
                 icon: 'settings',
+                type: NAV_ITEM_TYPE_ITEM,
+                subMenu: [],
+            },
+            {
+                key: 'superadmin.nav.divider.knowledge',
+                type: NAV_ITEM_TYPE_DIVIDER,
+                subMenu: [],
+            },
+            {
+                key: 'superadmin.support',
+                path: '/superadmin/support',
+                title: 'Поддержка',
+                translateKey: 'nav.superadmin.support',
+                icon: 'support',
+                type: NAV_ITEM_TYPE_ITEM,
+                subMenu: [],
+            },
+            {
+                key: 'superadmin.knowledge',
+                path: '/superadmin/knowledge',
+                title: 'База знаний',
+                translateKey: 'nav.superadmin.knowledge',
+                icon: 'guide',
                 type: NAV_ITEM_TYPE_ITEM,
                 subMenu: [],
             },

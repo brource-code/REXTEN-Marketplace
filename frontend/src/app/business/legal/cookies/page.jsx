@@ -10,7 +10,10 @@ export default function BusinessCookiesPage() {
         document.title = 'Политика использования Cookie для бизнесов | REXTEN Marketplace'
     }, [])
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-6 sm:py-8">
+        <div
+            data-business-legal-policy
+            className="min-h-screen min-h-[100dvh] bg-gray-50 dark:bg-gray-900 py-6 sm:py-8"
+        >
             <Container>
                 <div className="max-w-4xl mx-auto">
                     <Card className="p-6 sm:p-8">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import classNames from 'classnames'
 import Dropdown from '@/components/ui/Dropdown'
 import ScrollBar from '@/components/ui/ScrollBar'
@@ -14,6 +15,12 @@ import {
     markAllBusinessNotificationsAsRead,
     deleteBusinessNotification,
 } from '@/lib/api/business'
+import {
+    getAdminNotifications,
+    markAdminNotificationAsRead,
+    markAllAdminNotificationsAsRead,
+    deleteAdminNotification,
+} from '@/lib/api/superadmin'
 import { PiBell, PiBellFill, PiCheck, PiX } from 'react-icons/pi'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -23,33 +30,38 @@ const notificationHeight = 'h-[280px]'
 
 const BusinessNotification = () => {
     const router = useRouter()
+    const pathname = usePathname()
     const queryClient = useQueryClient()
     const notificationDropdownRef = useRef(null)
     const t = useTranslations('components.notification')
 
+    const isSuperadminArea = pathname?.startsWith('/superadmin')
+
+    const queryKey = isSuperadminArea ? ['admin-notifications'] : ['business-notifications']
+
     const { data: notifications = [], isLoading } = useQuery({
-        queryKey: ['business-notifications'],
-        queryFn: getBusinessNotifications,
+        queryKey,
+        queryFn: isSuperadminArea ? getAdminNotifications : getBusinessNotifications,
     })
 
     const markAsReadMutation = useMutation({
-        mutationFn: markBusinessNotificationAsRead,
+        mutationFn: isSuperadminArea ? markAdminNotificationAsRead : markBusinessNotificationAsRead,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['business-notifications'] })
+            queryClient.invalidateQueries({ queryKey })
         },
     })
 
     const markAllAsReadMutation = useMutation({
-        mutationFn: markAllBusinessNotificationsAsRead,
+        mutationFn: isSuperadminArea ? markAllAdminNotificationsAsRead : markAllBusinessNotificationsAsRead,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['business-notifications'] })
+            queryClient.invalidateQueries({ queryKey })
         },
     })
 
     const deleteMutation = useMutation({
-        mutationFn: deleteBusinessNotification,
+        mutationFn: isSuperadminArea ? deleteAdminNotification : deleteBusinessNotification,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['business-notifications'] })
+            queryClient.invalidateQueries({ queryKey })
         },
     })
 
@@ -81,7 +93,7 @@ const BusinessNotification = () => {
     }
 
     const handleViewAll = () => {
-        router.push('/business/dashboard')
+        router.push(isSuperadminArea ? '/superadmin/support' : '/business/support')
         if (notificationDropdownRef.current) {
             notificationDropdownRef.current.handleDropdownClose?.()
         }

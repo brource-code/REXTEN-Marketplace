@@ -7,7 +7,7 @@ const HeaderLogo = ({ mode }) => {
     const defaultMode = useTheme((state) => state.mode)
 
     return (
-        <Link href={appConfig.authenticatedEntryPath} className="flex items-center justify-start">
+        <Link href={appConfig.marketplaceHomePath} className="flex items-center justify-start">
             <Logo
                 type="full"
                 mode={mode || defaultMode}

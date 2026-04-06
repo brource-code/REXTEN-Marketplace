@@ -27,8 +27,9 @@ import {
 } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
 import Image from 'next/image'
-import dayjs from 'dayjs'
 import { normalizeImageUrl } from '@/utils/imageUtils'
+import { formatDate } from '@/utils/dateTime'
+import { resolveClientBookingTimezone } from '@/constants/client-datetime.constant'
 
 export default function CompanyProfilePage() {
     const params = useParams()
@@ -79,6 +80,7 @@ export default function CompanyProfilePage() {
     }
 
     const { company, advertisements, services = [], reviews = [] } = profile
+    const companyTz = resolveClientBookingTimezone({ timezone: company?.timezone })
     const visibleReviews = reviews.slice(0, reviewsToShow)
     const hasMoreReviews = reviews.length > reviewsToShow
     const visibleServices = services.slice(0, servicesToShow)
@@ -485,7 +487,7 @@ export default function CompanyProfilePage() {
                                                         ))}
                                                     </div>
                                                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                                                        {dayjs(review.date).format('DD.MM.YYYY')}
+                                                        {formatDate(review.date, companyTz, 'short')}
                                                     </span>
                                                 </div>
                                                 {review.serviceName && (

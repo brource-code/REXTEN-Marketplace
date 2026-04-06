@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import AuthProvider from '@/components/auth/AuthProvider'
 import AuthInitializer from '@/components/auth/AuthInitializer'
+import UserLocaleSync from '@/components/auth/UserLocaleSync'
 import PresenceHeartbeat from '@/components/auth/PresenceHeartbeat'
 import ThemeProvider from '@/components/template/Theme/ThemeProvider'
 import QueryProvider from '@/components/providers/QueryProvider'
@@ -108,6 +109,7 @@ export default async function RootLayout({ children }) {
                                 <NavigationProvider navigationTree={navigationTree}>
                                     <CookieConsentProvider>
                                         <AuthInitializer />
+                                        <UserLocaleSync />
                                         <PresenceHeartbeat />
                                         {children}
                                     </CookieConsentProvider>

@@ -7,6 +7,7 @@ import useScrollTop from '@/utils/hooks/useScrollTop'
 import Link from 'next/link'
 import { TbMenu2 } from 'react-icons/tb'
 import Logo from '@/components/template/Logo'
+import appConfig from '@/configs/app.config'
 
 const navMenu = [
     {
@@ -78,7 +79,7 @@ const Navigation = ({ toggleMode, mode }) => {
                         <NavList onTabClick={onDrawerClose} tabs={navMenu} />
                     </div>
                 </Drawer>
-                <Link href="/" className="flex items-center flex-shrink-0">
+                <Link href={appConfig.marketplaceHomePath} className="flex items-center flex-shrink-0">
                     <Logo
                         type="full"
                         mode={mode}

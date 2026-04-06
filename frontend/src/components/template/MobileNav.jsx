@@ -1,21 +1,19 @@
-import { useState, Suspense, lazy } from 'react'
+import { useState } from 'react'
 import classNames from 'classnames'
 import Drawer from '@/components/ui/Drawer'
 import NavToggle from '@/components/shared/NavToggle'
 import RextenMarketplaceLogoLight from '@/components/ui/logos/RextenMarketplaceLogoLight'
 import RextenMarketplaceLogoDark from '@/components/ui/logos/RextenMarketplaceLogoDark'
+import VerticalMenuContent from '@/components/template/VerticalMenuContent'
 import { DIR_RTL } from '@/constants/theme.constant'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import useNavigation from '@/utils/hooks/useNavigation'
 import useTheme from '@/utils/hooks/useTheme'
 import queryRoute from '@/utils/queryRoute'
 import appConfig from '@/configs/app.config'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuthStore } from '@/store'
-
-const VerticalMenuContent = lazy(
-    () => import('@/components/template/VerticalMenuContent'),
-)
 
 const MobileNavToggle = withHeaderItem(NavToggle)
 
@@ -51,7 +49,11 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }) => {
     const LogoComponent = defaultMode === 'dark' ? RextenMarketplaceLogoDark : RextenMarketplaceLogoLight
     
     const drawerTitle = (
-        <div className="flex items-center flex-shrink-0">
+        <Link
+            href={appConfig.marketplaceHomePath}
+            className="flex items-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+            onClick={handleDrawerClose}
+        >
             <LogoComponent
                 className="max-h-10 w-auto"
                 customText="REXTEN"
@@ -59,13 +61,13 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }) => {
                 customSize={26}
                 customIconColor={defaultMode === 'dark' ? '#696cff' : '#2563EB'}
             />
-        </div>
+        </Link>
     )
 
     return (
         <>
             <div
-                className="text-2xl block lg:hidden"
+                className="text-2xl block lg:hidden touch-manipulation"
                 onClick={handleOpenDrawer}
             >
                 <MobileNavToggle toggled={isOpen} />
@@ -76,23 +78,20 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }) => {
                 bodyClass={classNames('p-0')}
                 headerClass={classNames('flex items-center')}
                 width={330}
+                closeTimeoutMS={280}
                 placement={direction === DIR_RTL ? 'right' : 'left'}
                 onClose={handleDrawerClose}
                 onRequestClose={handleDrawerClose}
             >
-                <Suspense fallback={<></>}>
-                    {isOpen && (
-                        <VerticalMenuContent
-                            collapsed={false}
-                            navigationTree={navigationTree}
-                            routeKey={currentRouteKey}
-                            userAuthority={userAuthority}
-                            translationSetup={translationSetup}
-                            direction={direction}
-                            onMenuItemClick={handleDrawerClose}
-                        />
-                    )}
-                </Suspense>
+                <VerticalMenuContent
+                    collapsed={false}
+                    navigationTree={navigationTree}
+                    routeKey={currentRouteKey}
+                    userAuthority={userAuthority}
+                    translationSetup={translationSetup}
+                    direction={direction}
+                    onMenuItemClick={handleDrawerClose}
+                />
             </Drawer>
         </>
     )

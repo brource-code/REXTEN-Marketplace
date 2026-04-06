@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Suspense } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import Container from '@/components/shared/Container'
@@ -37,8 +37,22 @@ const statusColors = {
 export default function BillingPage() {
     return (
         <PermissionGuard permission="manage_settings">
-            <BillingPageContent />
+            <Suspense fallback={<BillingSuspenseFallback />}>
+                <BillingPageContent />
+            </Suspense>
         </PermissionGuard>
+    )
+}
+
+function BillingSuspenseFallback() {
+    return (
+        <Container>
+            <AdaptiveCard>
+                <div className="flex items-center justify-center min-h-[320px]">
+                    <Loading loading />
+                </div>
+            </AdaptiveCard>
+        </Container>
     )
 }
 
@@ -55,8 +69,10 @@ function BillingPageContent() {
     const [statusFilter, setStatusFilter] = useState('all')
 
     const { data, isLoading, error } = useQuery({
-        queryKey: ['stripe-transactions', typeFilter, statusFilter],
-        queryFn: () => getStripeTransactions(100),
+        queryKey: ['stripe-transactions'],
+        queryFn: () => getStripeTransactions(50),
+        staleTime: 5 * 60 * 1000,
+        gcTime: 15 * 60 * 1000,
     })
 
     const filteredTransactions = useMemo(() => {
@@ -236,32 +252,6 @@ function BillingPageContent() {
         )
     }
 
-    if (isLoading) {
-        return (
-            <Container>
-                <AdaptiveCard>
-                    <div className="flex items-center justify-center min-h-[400px]">
-                        <Loading loading />
-                    </div>
-                </AdaptiveCard>
-            </Container>
-        )
-    }
-
-    if (error) {
-        return (
-            <Container>
-                <AdaptiveCard>
-                    <div className="text-center py-8">
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                            {t('errors.loadError')}
-                        </p>
-                    </div>
-                </AdaptiveCard>
-            </Container>
-        )
-    }
-
     return (
         <Container>
             <AdaptiveCard>
@@ -287,6 +277,7 @@ function BillingPageContent() {
                                 onChange={(option) => setTypeFilter(option?.value || 'all')}
                                 options={typeOptions}
                                 isSearchable={false}
+                                isDisabled={isLoading}
                             />
                         </div>
                         <div className="flex-1">
@@ -298,12 +289,23 @@ function BillingPageContent() {
                                 onChange={(option) => setStatusFilter(option?.value || 'all')}
                                 options={statusOptions}
                                 isSearchable={false}
+                                isDisabled={isLoading}
                             />
                         </div>
                     </div>
 
                     <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                    {filteredTransactions.length === 0 ? (
+                    {isLoading ? (
+                        <div className="flex items-center justify-center min-h-[280px] py-8">
+                            <Loading loading />
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-8">
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                {t('errors.loadError')}
+                            </p>
+                        </div>
+                    ) : filteredTransactions.length === 0 ? (
                         <div className="text-center py-8">
                             <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
                                 {t('noTransactions')}

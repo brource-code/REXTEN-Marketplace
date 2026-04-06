@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation'
 import Tag from '@/components/ui/Tag'
 import DataTable from '@/components/shared/DataTable'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
-import { TbCheck, TbX, TbBan, TbDotsVertical, TbExternalLink } from 'react-icons/tb'
+import { TbCheck, TbX, TbBan, TbLockOpen, TbDotsVertical, TbExternalLink } from 'react-icons/tb'
 import { NumericFormat } from 'react-number-format'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Dropdown from '@/components/ui/Dropdown'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { approveCompany, rejectCompany, blockCompany } from '@/lib/api/superadmin'
+import { approveCompany, rejectCompany, blockCompany, unblockCompany } from '@/lib/api/superadmin'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { useTranslations } from 'next-intl'
@@ -29,7 +29,7 @@ const subscriptionColor = {
     enterprise: 'bg-purple-200 dark:bg-purple-900/40 text-gray-900 dark:text-gray-100',
 }
 
-function ActionColumn({ status, basePath, t, onApprove, onReject, onBlock }) {
+function ActionColumn({ status, basePath, t, onApprove, onReject, onBlock, onUnblock }) {
     const router = useRouter()
     const go = (tab) => {
         const q = tab ? `?tab=${tab}` : ''
@@ -85,6 +85,17 @@ function ActionColumn({ status, basePath, t, onApprove, onReject, onBlock }) {
                     </Dropdown.Item>
                 </>
             )}
+            {status === 'suspended' && (
+                <>
+                    <Dropdown.Item variant="divider" />
+                    <Dropdown.Item eventKey="unblock" onClick={() => onUnblock()}>
+                        <span className="flex items-center gap-2 text-emerald-600">
+                            <TbLockOpen className="text-lg" />
+                            <span>{t('unblock')}</span>
+                        </span>
+                    </Dropdown.Item>
+                </>
+            )}
         </Dropdown>
     )
 }
@@ -98,7 +109,7 @@ const CompaniesTable = ({
     const t = useTranslations('superadmin.companiesTable')
     const router = useRouter()
     const queryClient = useQueryClient()
-    const onAppendQueryParams = useAppendQueryParams()
+    const { onAppendQueryParams } = useAppendQueryParams()
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         type: 'info',
@@ -151,6 +162,7 @@ const CompaniesTable = ({
         mutationFn: blockCompany,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['companies'] })
+            queryClient.invalidateQueries({ queryKey: ['superadmin-company'] })
             toast.push(
                 <Notification title={t('toastOk')} type="success">
                     {t('blocked')}
@@ -162,6 +174,27 @@ const CompaniesTable = ({
             toast.push(
                 <Notification title={t('toastErr')} type="danger">
                     {error.response?.data?.message || t('blockFail')}
+                </Notification>,
+            )
+        },
+    })
+
+    const unblockMutation = useMutation({
+        mutationFn: unblockCompany,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['companies'] })
+            queryClient.invalidateQueries({ queryKey: ['superadmin-company'] })
+            toast.push(
+                <Notification title={t('toastOk')} type="success">
+                    {t('unblocked')}
+                </Notification>,
+            )
+            setConfirmDialog((d) => ({ ...d, isOpen: false }))
+        },
+        onError: (error) => {
+            toast.push(
+                <Notification title={t('toastErr')} type="danger">
+                    {error.response?.data?.message || t('unblockFail')}
                 </Notification>,
             )
         },
@@ -312,6 +345,15 @@ const CompaniesTable = ({
                                     onConfirm: () => blockMutation.mutate(c.id),
                                 })
                             }
+                            onUnblock={() =>
+                                setConfirmDialog({
+                                    isOpen: true,
+                                    type: 'success',
+                                    title: t('confirmUnblockTitle'),
+                                    message: t('confirmUnblockMsg', { name: c.name }),
+                                    onConfirm: () => unblockMutation.mutate(c.id),
+                                })
+                            }
                         />
                     )
                 },
@@ -460,6 +502,24 @@ const CompaniesTable = ({
                             {t('block')}
                         </Button>
                     )}
+                    {company.status === 'suspended' && (
+                        <Button
+                            variant="solid"
+                            size="sm"
+                            icon={<TbLockOpen />}
+                            onClick={() =>
+                                setConfirmDialog({
+                                    isOpen: true,
+                                    type: 'success',
+                                    title: t('confirmUnblockTitle'),
+                                    message: t('confirmUnblockMsg', { name: company.name }),
+                                    onConfirm: () => unblockMutation.mutate(company.id),
+                                })
+                            }
+                        >
+                            {t('unblock')}
+                        </Button>
+                    )}
                 </div>
             </div>
         </Card>
@@ -505,7 +565,10 @@ const CompaniesTable = ({
                 confirmText={t('confirm')}
                 cancelText={t('cancel')}
                 loading={
-                    approveMutation.isPending || rejectMutation.isPending || blockMutation.isPending
+                    approveMutation.isPending ||
+                    rejectMutation.isPending ||
+                    blockMutation.isPending ||
+                    unblockMutation.isPending
                 }
             >
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400">

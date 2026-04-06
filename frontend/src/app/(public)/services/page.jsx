@@ -586,14 +586,11 @@ export default function ServicesPage() {
         loadData()
     }, [state, city]) // Загружаем только при изменении локации из единого источника истины
 
-    // Обработчик смены категории (упрощенный, без костылей - scroll anchoring отключен на main)
     const handleSetCategory = (next) => {
         setCategory(next)
-        // При выборе конкретной категории обновляем heroCategory
         if (next !== 'all') {
             setHeroCategory(next)
         }
-        // При 'all' heroCategory НЕ трогаем - hero остаётся в том же виде
     }
 
     // Блокировка скролла при открытой модалке (особенно важно для мобильных)
@@ -854,7 +851,7 @@ export default function ServicesPage() {
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24 [overflow-anchor:none]">
             {/* Hero Section - компактнее с быстрыми категориями */}
-            <section className="relative overflow-x-hidden pt-6 pb-6 md:pt-8 md:pb-10 lg:pb-12 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-900">
+            <section className="relative overflow-x-hidden pt-6 pb-6 md:pt-8 md:pb-10 lg:pb-12 bg-white dark:bg-gray-900">
                 <div
                     className="absolute inset-0 pointer-events-none select-none opacity-50"
                     style={{
@@ -971,7 +968,6 @@ export default function ServicesPage() {
                                     </div>
                                 </div>
                                 
-                                {/* Быстрые категории - фиксированная высота для предотвращения прыжков */}
                                 {categories.length > 0 && (
                                     <div className="h-[52px] md:h-[60px] pt-2 md:pt-4 flex items-center">
                                         <div
@@ -985,18 +981,17 @@ export default function ServicesPage() {
                                                 <button
                                                     key={cat.id}
                                                     onClick={() => {
-                                                        setHeroCategory(cat.id) // только визуал hero
-                                                        setCategory(cat.id) // фильтр списка
+                                                        setHeroCategory(cat.id)
+                                                        setCategory(cat.id)
                                                     }}
                                                     className={classNames(
                                                         'px-4 md:px-6 h-10 md:h-11 rounded-full text-sm md:text-base font-medium transition-colors',
                                                         'border-2 flex items-center justify-center',
                                                         'flex-shrink-0 whitespace-nowrap',
-                                                        // Всегда используем одинаковый shadow, чтобы высота не менялась
                                                         'shadow-sm',
                                                         heroCategory === cat.id
                                                             ? 'bg-blue-600 text-white border-blue-600'
-                                                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                                                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600',
                                                     )}
                                                 >
                                                     {getCategoryName(cat, t)}

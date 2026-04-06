@@ -2,6 +2,9 @@
 // Используются с React Query
 
 import LaravelAxios from '@/services/axios/LaravelAxios'
+import type { KnowledgeArticle, KnowledgeTopic } from '@/lib/api/business'
+
+export type { KnowledgeArticle, KnowledgeTopic }
 
 // ========== Companies ==========
 export interface Company {
@@ -129,6 +132,11 @@ export async function rejectCompany(companyId: number): Promise<Company> {
 
 export async function blockCompany(companyId: number): Promise<Company> {
     const response = await LaravelAxios.post(`/admin/companies/${companyId}/block`)
+    return response.data.data || response.data
+}
+
+export async function unblockCompany(companyId: number): Promise<Company> {
+    const response = await LaravelAxios.post(`/admin/companies/${companyId}/unblock`)
     return response.data.data || response.data
 }
 
@@ -935,5 +943,233 @@ export async function updateCompanyUser(
     },
 ): Promise<CompanyUser> {
     const response = await LaravelAxios.put(`/admin/companies/${companyId}/users/${userId}`, data)
+    return response.data.data
+}
+
+// ========== Knowledge base (superadmin — темы и статьи) ==========
+
+export async function getAdminKnowledgeTopics(params?: {
+    search?: string
+    is_published?: boolean
+}): Promise<KnowledgeTopic[]> {
+    const response = await LaravelAxios.get('/admin/knowledge/topics', { params })
+    const data = response.data.data ?? response.data
+    return Array.isArray(data) ? data : []
+}
+
+export async function getAdminKnowledgeTopic(id: number): Promise<KnowledgeTopic> {
+    const response = await LaravelAxios.get(`/admin/knowledge/topics/${id}`)
+    const data = response.data.data ?? response.data
+    return data as KnowledgeTopic
+}
+
+export async function uploadKnowledgeMedia(file: File): Promise<{
+    url: string
+    path: string
+    mime: string
+    original_name: string
+    size: number
+    kind: string
+}> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await LaravelAxios.post('/admin/knowledge/media', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    const payload = response.data.data ?? response.data
+    return payload as {
+        url: string
+        path: string
+        mime: string
+        original_name: string
+        size: number
+        kind: string
+    }
+}
+
+export type KnowledgeTopicTranslationInput = {
+    title: string
+    slug?: string
+    description?: string | null
+}
+
+export async function createAdminKnowledgeTopic(payload: {
+    topic_key?: string | null
+    module_key?: string | null
+    sort_order?: number
+    is_published?: boolean
+    translations: Record<string, KnowledgeTopicTranslationInput>
+}): Promise<KnowledgeTopic> {
+    const response = await LaravelAxios.post('/admin/knowledge/topics', payload)
+    const data = response.data.data ?? response.data
+    return data as KnowledgeTopic
+}
+
+export async function updateAdminKnowledgeTopic(
+    id: number,
+    payload: Partial<{
+        module_key: string | null
+        sort_order: number
+        is_published: boolean
+        translations: Record<string, KnowledgeTopicTranslationInput>
+    }>,
+): Promise<KnowledgeTopic> {
+    const response = await LaravelAxios.put(`/admin/knowledge/topics/${id}`, payload)
+    const data = response.data.data ?? response.data
+    return data as KnowledgeTopic
+}
+
+export async function deleteAdminKnowledgeTopic(id: number): Promise<void> {
+    await LaravelAxios.delete(`/admin/knowledge/topics/${id}`)
+}
+
+export async function getAdminKnowledgeArticles(
+    topicId: number,
+    params?: { is_published?: boolean; locale?: string },
+): Promise<KnowledgeArticle[]> {
+    const response = await LaravelAxios.get(`/admin/knowledge/topics/${topicId}/articles`, { params })
+    const data = response.data.data ?? response.data
+    return Array.isArray(data) ? data : []
+}
+
+export async function getAdminKnowledgeArticle(id: number): Promise<KnowledgeArticle> {
+    const response = await LaravelAxios.get(`/admin/knowledge/articles/${id}`)
+    const data = response.data.data ?? response.data
+    return data as KnowledgeArticle
+}
+
+export async function createAdminKnowledgeArticle(
+    topicId: number,
+    payload: {
+        locale: string
+        title: string
+        slug?: string
+        excerpt?: string | null
+        body: string
+        sort_order?: number
+        is_published?: boolean
+    },
+): Promise<KnowledgeArticle> {
+    const response = await LaravelAxios.post(`/admin/knowledge/topics/${topicId}/articles`, payload)
+    const data = response.data.data ?? response.data
+    return data as KnowledgeArticle
+}
+
+export async function updateAdminKnowledgeArticle(
+    id: number,
+    payload: Partial<{
+        title: string
+        slug: string
+        excerpt: string | null
+        body: string
+        sort_order: number
+        is_published: boolean
+    }>,
+): Promise<KnowledgeArticle> {
+    const response = await LaravelAxios.put(`/admin/knowledge/articles/${id}`, payload)
+    const data = response.data.data ?? response.data
+    return data as KnowledgeArticle
+}
+
+export async function deleteAdminKnowledgeArticle(id: number): Promise<void> {
+    await LaravelAxios.delete(`/admin/knowledge/articles/${id}`)
+}
+
+// ========== Admin notifications ==========
+export interface AdminNotificationItem {
+    id: number
+    type: string
+    title: string
+    message: string
+    read: boolean
+    createdAt: string
+    link?: string
+}
+
+export async function getAdminNotifications(): Promise<AdminNotificationItem[]> {
+    const response = await LaravelAxios.get('/admin/notifications')
+    return response.data.data || response.data
+}
+
+export async function markAdminNotificationAsRead(id: number): Promise<void> {
+    await LaravelAxios.post(`/admin/notifications/${id}/read`)
+}
+
+export async function markAllAdminNotificationsAsRead(): Promise<void> {
+    await LaravelAxios.post('/admin/notifications/read-all')
+}
+
+export async function deleteAdminNotification(id: number): Promise<void> {
+    await LaravelAxios.delete(`/admin/notifications/${id}`)
+}
+
+// ========== Support tickets (admin) ==========
+export interface AdminSupportTicketListItem {
+    id: number
+    subject: string
+    category: string
+    status: string
+    company: { id: number; name: string; slug?: string; email?: string | null } | null
+    submitterEmail: string | null
+    createdAt: string
+}
+
+export async function getAdminSupportTickets(params?: {
+    status?: string
+    search?: string
+    company_id?: number
+    page?: number
+    pageSize?: number
+}): Promise<{
+    data: AdminSupportTicketListItem[]
+    total: number
+    page: number
+    pageSize: number
+}> {
+    const response = await LaravelAxios.get('/admin/support/tickets', { params })
+    return {
+        data: response.data.data ?? [],
+        total: response.data.total ?? 0,
+        page: response.data.page ?? 1,
+        pageSize: response.data.pageSize ?? 20,
+    }
+}
+
+export interface AdminSupportTicketDetail {
+    id: number
+    subject: string
+    category: string
+    status: string
+    areaSection: string | null
+    pagePath: string | null
+    body: string
+    clientMeta: Record<string, unknown> | null
+    adminInternalNote: string | null
+    adminPublicReply: string | null
+    createdAt: string
+    updatedAt: string
+    resolvedAt: string | null
+    attachments: Array<{
+        id: number
+        originalName: string
+        mime: string | null
+        size: number
+        url: string
+    }>
+    company: Record<string, unknown> | null
+    companyOwner: Record<string, unknown> | null
+    submitter: Record<string, unknown> | null
+}
+
+export async function getAdminSupportTicket(id: number): Promise<AdminSupportTicketDetail> {
+    const response = await LaravelAxios.get(`/admin/support/tickets/${id}`)
+    return response.data.data
+}
+
+export async function updateAdminSupportTicket(
+    id: number,
+    payload: { status?: string; adminInternalNote?: string | null; publicReply?: string | null },
+): Promise<AdminSupportTicketDetail> {
+    const response = await LaravelAxios.put(`/admin/support/tickets/${id}`, payload)
     return response.data.data
 }

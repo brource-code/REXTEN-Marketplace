@@ -710,26 +710,40 @@ class BookingService
         $t = $translations[$ownerLocale];
         $link = '/business/schedule';
 
-        try {
-            \App\Models\Notification::create([
-                'user_id' => $company->owner_id,
-                'type' => 'new_booking',
-                'title' => $t['title'],
-                'message' => $t['message'],
-                'link' => $link,
-                'read' => false,
-            ]);
-            Log::info('BookingService: New booking notification sent to owner', [
-                'booking_id' => $booking->id,
-                'owner_id' => $company->owner_id,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('BookingService: Failed to send new booking notification to owner', [
-                'booking_id' => $booking->id,
-                'owner_id' => $company->owner_id,
-                'error' => $e->getMessage(),
-            ]);
+        if (BusinessOwnerNotificationPreferences::allowsOwnerInAppNotification(
+            $company,
+            BusinessOwnerNotificationPreferences::EVENT_NEW_BOOKING
+        )) {
+            try {
+                \App\Models\Notification::create([
+                    'user_id' => $company->owner_id,
+                    'type' => 'new_booking',
+                    'title' => $t['title'],
+                    'message' => $t['message'],
+                    'link' => $link,
+                    'read' => false,
+                ]);
+                Log::info('BookingService: New booking notification sent to owner', [
+                    'booking_id' => $booking->id,
+                    'owner_id' => $company->owner_id,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('BookingService: Failed to send new booking notification to owner', [
+                    'booking_id' => $booking->id,
+                    'owner_id' => $company->owner_id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
+
+        BusinessOwnerMailer::notifyIfEnabled(
+            $company,
+            (int) $company->owner_id,
+            BusinessOwnerNotificationPreferences::EVENT_NEW_BOOKING,
+            $t['title'],
+            $t['message'],
+            '/business/schedule'
+        );
     }
 
     /**
@@ -745,6 +759,10 @@ class BookingService
         if (!$company || !$company->owner_id) {
             return;
         }
+
+        $prefEvent = $newStatus === 'confirmed'
+            ? BusinessOwnerNotificationPreferences::EVENT_NEW_BOOKING
+            : BusinessOwnerNotificationPreferences::EVENT_BOOKING_CANCELLED;
 
         $serviceName = 'Услуга';
         if ($booking->advertisement_id) {
@@ -807,21 +825,32 @@ class BookingService
         $type = $newStatus === 'confirmed' ? 'new_booking' : 'booking_cancelled';
         $t = $translations[$ownerLocale][$type];
 
-        try {
-            \App\Models\Notification::create([
-                'user_id' => $company->owner_id,
-                'type' => $type,
-                'title' => $t['title'],
-                'message' => $t['message'],
-                'link' => '/business/schedule',
-                'read' => false,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('BookingService: Failed to send booking status notification to owner', [
-                'booking_id' => $booking->id,
-                'error' => $e->getMessage(),
-            ]);
+        if (BusinessOwnerNotificationPreferences::allowsOwnerInAppNotification($company, $prefEvent)) {
+            try {
+                \App\Models\Notification::create([
+                    'user_id' => $company->owner_id,
+                    'type' => $type,
+                    'title' => $t['title'],
+                    'message' => $t['message'],
+                    'link' => '/business/schedule',
+                    'read' => false,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('BookingService: Failed to send booking status notification to owner', [
+                    'booking_id' => $booking->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
+
+        BusinessOwnerMailer::notifyIfEnabled(
+            $company,
+            (int) $company->owner_id,
+            $prefEvent,
+            $t['title'],
+            $t['message'],
+            '/business/schedule'
+        );
     }
 
     /**
@@ -866,26 +895,40 @@ class BookingService
         $t = $translations[$ownerLocale];
         $link = '/business/reviews';
 
-        try {
-            \App\Models\Notification::create([
-                'user_id' => $company->owner_id,
-                'type' => 'review',
-                'title' => $t['title'],
-                'message' => $t['message'],
-                'link' => $link,
-                'read' => false,
-            ]);
-            Log::info('BookingService: New review notification sent to owner', [
-                'review_id' => $review->id,
-                'owner_id' => $company->owner_id,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('BookingService: Failed to send new review notification to owner', [
-                'review_id' => $review->id,
-                'owner_id' => $company->owner_id,
-                'error' => $e->getMessage(),
-            ]);
+        if (BusinessOwnerNotificationPreferences::allowsOwnerInAppNotification(
+            $company,
+            BusinessOwnerNotificationPreferences::EVENT_REVIEW
+        )) {
+            try {
+                \App\Models\Notification::create([
+                    'user_id' => $company->owner_id,
+                    'type' => 'review',
+                    'title' => $t['title'],
+                    'message' => $t['message'],
+                    'link' => $link,
+                    'read' => false,
+                ]);
+                Log::info('BookingService: New review notification sent to owner', [
+                    'review_id' => $review->id,
+                    'owner_id' => $company->owner_id,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('BookingService: Failed to send new review notification to owner', [
+                    'review_id' => $review->id,
+                    'owner_id' => $company->owner_id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
+
+        BusinessOwnerMailer::notifyIfEnabled(
+            $company,
+            (int) $company->owner_id,
+            BusinessOwnerNotificationPreferences::EVENT_REVIEW,
+            $t['title'],
+            $t['message'],
+            '/business/reviews'
+        );
     }
 }
 

@@ -2,9 +2,9 @@ import { cloneElement } from 'react'
 
 const Side = ({ children, ...rest }) => {
     return (
-        <div className="flex h-full p-2 sm:p-6 bg-white dark:bg-gray-800 overflow-hidden">
+        <div className="flex w-full min-h-screen min-h-[100dvh] p-2 sm:p-6 bg-white dark:bg-gray-800 overflow-hidden">
             <div className="flex flex-col items-center flex-1 min-h-0 overflow-y-auto sm:overflow-y-visible">
-                <div className="w-full xl:max-w-[450px] px-3 sm:px-8 max-w-[380px] flex flex-col sm:justify-center sm:min-h-full py-4 sm:py-0">
+                <div className="w-full max-w-[420px] px-3 sm:px-8 xl:max-w-[450px] flex flex-col sm:justify-center sm:min-h-full pt-[max(1rem,env(safe-area-inset-top))] pb-6 sm:py-0">
                     {children
                         ? cloneElement(children, {
                               ...rest,

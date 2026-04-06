@@ -60,6 +60,13 @@ const navigation = useNavigation();
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+
+  const rawAvatarUrl = (user as any)?.avatar || (user as any)?.image;
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [rawAvatarUrl, user?.id]);
 
   useEffect(() => {
     if (user) {
@@ -98,7 +105,6 @@ const navigation = useNavigation();
     Alert.alert('В разработке', T.photoHint);
   };
 
-  const rawAvatarUrl = (user as any)?.avatar || (user as any)?.image;
   const avatarUrl = normalizeImageUrl(rawAvatarUrl);
   const initials = (firstName?.charAt(0) || user?.name?.charAt(0) || 'U').toUpperCase();
 
@@ -116,8 +122,12 @@ const navigation = useNavigation();
           {/* Аватар */}
           <View style={styles.avatarSection}>
             <TouchableOpacity style={styles.avatarWrapper} onPress={handleChangePhoto}>
-              {avatarUrl ? (
-                <Image source={{ uri: avatarUrl }} style={[styles.avatarImage, { backgroundColor: colors.border }]} />
+              {avatarUrl && !avatarLoadFailed ? (
+                <Image
+                  source={{ uri: avatarUrl }}
+                  style={[styles.avatarImage, { backgroundColor: colors.border }]}
+                  onError={() => setAvatarLoadFailed(true)}
+                />
               ) : (
                 <View style={[styles.avatarPlaceholder, { backgroundColor: colors.primaryLight }]}>
                   <Text style={[styles.avatarInitials, { color: colors.primary }]}>{initials}</Text>

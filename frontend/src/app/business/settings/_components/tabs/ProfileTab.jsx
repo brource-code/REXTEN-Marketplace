@@ -14,9 +14,12 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import useDebounce from '@/utils/hooks/useDebounce'
+import { useOnboardingTour } from '@/providers/OnboardingProvider'
 
 const ProfileTab = () => {
     const t = useTranslations('business.settings.profile')
+    const tOnboarding = useTranslations('business.onboardingTour')
+    const { restartTour } = useOnboardingTour()
     const tCommon = useTranslations('business.common')
     const queryClient = useQueryClient()
     const [formData, setFormData] = useState({
@@ -162,6 +165,15 @@ const ProfileTab = () => {
     return (
         <FormContainer>
             <div className="flex flex-col gap-6">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{tOnboarding('restart')}</div>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">{tOnboarding('restartHint')}</p>
+                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={() => restartTour()}>
+                        {tOnboarding('restart')}
+                    </Button>
+                </div>
                     {/* Аватар */}
                     <div className="flex items-center gap-4">
                         <Avatar size={100} shape="circle" src={avatar} />

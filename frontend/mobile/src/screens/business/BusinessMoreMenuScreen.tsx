@@ -101,6 +101,14 @@ export function BusinessMoreMenuScreen() {
   const [selectedLanguage, setSelectedLanguage] = useState('ru');
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+
+  const rawAvatar = (user as { avatar?: string; image?: string })?.avatar || (user as { avatar?: string; image?: string })?.image;
+  const avatarUri = normalizeImageUrl(rawAvatar);
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [rawAvatar, user?.id]);
 
   useEffect(() => {
     loadLanguage();
@@ -309,10 +317,11 @@ export function BusinessMoreMenuScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.accountInfo}>
-            {normalizeImageUrl((user as any)?.avatar || (user as any)?.image) ? (
+            {avatarUri && !avatarLoadFailed ? (
               <Image
-                source={{ uri: normalizeImageUrl((user as any)?.avatar || (user as any)?.image)! }}
+                source={{ uri: avatarUri }}
                 style={[styles.avatarImage, { backgroundColor: colors.border }]}
+                onError={() => setAvatarLoadFailed(true)}
               />
             ) : (
               <View style={dynamicStyles.avatar}>

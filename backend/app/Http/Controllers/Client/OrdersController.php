@@ -40,6 +40,7 @@ class OrdersController extends Controller
                 'bookingId' => $order->booking_id,
                 'serviceName' => $order->booking->service->name ?? 'N/A',
                 'businessName' => $order->company->name ?? 'N/A',
+                'timezone' => $order->company?->timezone ?? 'America/Los_Angeles',
                 'date' => $order->created_at->format('Y-m-d'),
                 'time' => $order->created_at->format('H:i'),
                 'status' => $order->status,

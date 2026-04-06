@@ -18,6 +18,8 @@ const MenuCollapse = (props) => {
         label = null,
         dotIndent,
         onToggle,
+        /** Для Shepherd: только строка заголовка (не весь блок с подменю) */
+        dataTour,
     } = props
 
     const [isExpanded, setIsExpanded] = useState(expanded)
@@ -54,11 +56,12 @@ const MenuCollapse = (props) => {
     )
 
     return (
-        <div className="menu-collapse">
+        <div className="menu-collapse w-full min-w-0">
             <div
                 className={menuCollapseItemClass}
                 role="presentation"
                 onClick={toggleCollapse}
+                data-tour={dataTour || undefined}
             >
                 <span className="flex items-center gap-2">
                     {dotIndent && (

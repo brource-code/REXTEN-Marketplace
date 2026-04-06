@@ -1,6 +1,8 @@
 @layer components {
   .drawer-content {
+    /* translate — композитный слой; не добавлять filter/backdrop-blur на панель — тяжело на мобильных */
     @apply bg-white dark:bg-gray-800 shadow-xl absolute flex flex-col;
+    backface-visibility: hidden;
   
     &.vertical {
       @apply h-full;
@@ -30,7 +32,8 @@
   }
   
   .drawer-overlay {
-    transition: all 0.3s ease-in-out;
+    /* только opacity — transition: all даёт лишнюю работу при анимации оверлея */
+    transition: opacity 0.2s ease-out;
     @apply bg-black/80 inset-0 fixed z-40;
   }
   

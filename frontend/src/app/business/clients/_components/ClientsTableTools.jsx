@@ -9,7 +9,7 @@ import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 const ClientsTableTools = () => {
     const t = useTranslations('business.clients')
     const [searchValue, setSearchValue] = useState('')
-    const onAppendQueryParams = useAppendQueryParams()
+    const { onAppendQueryParams } = useAppendQueryParams()
 
     const handleSearch = (e) => {
         e.preventDefault()

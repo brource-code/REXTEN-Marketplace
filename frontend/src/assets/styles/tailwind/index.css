@@ -86,7 +86,7 @@
 	}
 	
 	body {
-		@apply text-gray-500 dark:text-gray-400 text-sm bg-gray-100 dark:bg-gray-950 leading-normal font-medium;
+		@apply text-gray-500 dark:text-gray-400 text-sm bg-white dark:bg-gray-950 leading-normal font-medium;
 		-webkit-font-smoothing: antialiased;
 		overflow-x: hidden;
 		-webkit-overflow-scrolling: touch;

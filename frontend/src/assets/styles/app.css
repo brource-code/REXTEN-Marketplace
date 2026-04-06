@@ -12,3 +12,36 @@ body {
   overflow-anchor: none;
 }
 
+/*
+  Полноэкранный фон: иначе глобальный body (bg-gray-100) просвечивает по краям на мобильных.
+  data-auth-fullscreen — вход/регистрация (тёмная тема как у AuthLayout: gray-800).
+  data-public-fullscreen — маркетплейс и прочие публичные страницы (тёмная тема: gray-900).
+*/
+html:has([data-auth-fullscreen]),
+html:has([data-public-fullscreen]),
+body:has([data-auth-fullscreen]),
+body:has([data-public-fullscreen]) {
+  background-color: #ffffff;
+}
+
+html.dark:has([data-auth-fullscreen]),
+html.dark body:has([data-auth-fullscreen]) {
+  background-color: #262626;
+}
+
+html.dark:has([data-public-fullscreen]),
+html.dark body:has([data-public-fullscreen]) {
+  background-color: #171717;
+}
+
+/* Юридические страницы в кабинете бизнеса: фон как у контента (gray-50), без просвечивания body */
+html:has([data-business-legal-policy]),
+body:has([data-business-legal-policy]) {
+  background-color: #fafafa;
+}
+
+html.dark:has([data-business-legal-policy]),
+html.dark body:has([data-business-legal-policy]) {
+  background-color: #171717;
+}
+

@@ -20,13 +20,13 @@ class UsersController extends Controller
     {
         $query = User::with('profile');
 
-        // Filter by role
-        if ($request->has('role')) {
+        // Filter by role (пустая строка в query не должна давать where role = '')
+        if ($request->filled('role')) {
             $query->where('role', $request->role);
         }
 
         // Filter by status
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             if ($request->status === 'active') {
                 $query->where('is_active', true)->where('is_blocked', false);
             } elseif ($request->status === 'blocked') {
@@ -35,8 +35,8 @@ class UsersController extends Controller
         }
 
         // Search
-        if ($request->has('search')) {
-            $search = $request->get('search');
+        if ($request->filled('search')) {
+            $search = (string) $request->get('search');
             $query->where(function ($q) use ($search) {
                 DatabaseHelper::whereLike($q, 'email', "%{$search}%");
                 $q->orWhereHas('profile', function ($profileQuery) use ($search) {

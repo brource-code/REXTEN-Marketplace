@@ -6,6 +6,7 @@ import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/template/Logo'
+import appConfig from '@/configs/app.config'
 
 const LandingFooter = ({ mode }) => {
     const year = new Date().getFullYear()
@@ -52,7 +53,7 @@ const LandingFooter = ({ mode }) => {
                 </div>
                 <div className="py-6 border-t border-gray-200 dark:border-gray-800">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
-                        <Link href="/" className="flex items-center flex-shrink-0">
+                        <Link href={appConfig.marketplaceHomePath} className="flex items-center flex-shrink-0">
                             <Logo
                                 type="full"
                                 mode={mode}

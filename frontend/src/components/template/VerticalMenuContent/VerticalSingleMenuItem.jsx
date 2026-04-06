@@ -8,6 +8,17 @@ import Dropdown from '@/components/ui/Dropdown'
 
 const { MenuItem } = Menu
 
+const NAV_DATA_TOUR = {
+    'business.dashboard': 'nav-dashboard',
+    'business.schedule': 'nav-schedule',
+    'business.bookings': 'nav-bookings',
+    'business.clients': 'nav-clients',
+    'business.billing': 'nav-billing',
+    'business.settings': 'nav-settings',
+    'business.knowledge': 'nav-knowledge',
+    'superadmin.knowledge': 'nav-knowledge',
+}
+
 const CollapsedItem = ({
     nav,
     children,
@@ -35,6 +46,7 @@ const CollapsedItem = ({
                                 className="h-full w-full flex items-center outline-hidden"
                                 href={nav.path}
                                 target={nav.isExternalLink ? '_blank' : ''}
+                                data-tour={NAV_DATA_TOUR[nav.key] || undefined}
                                 onClick={() =>
                                     onLinkClick?.({
                                         key: nav.key,
@@ -72,8 +84,9 @@ const DefaultItem = (props) => {
                 <MenuItem key={nav.key} eventKey={nav.key} dotIndent={indent}>
                     <Link
                         href={nav.path}
-                        className="flex items-center gap-2 h-full w-full"
+                        className="flex items-center gap-2 h-full w-full min-w-0"
                         target={nav.isExternalLink ? '_blank' : ''}
+                        data-tour={NAV_DATA_TOUR[nav.key] || undefined}
                         onClick={() =>
                             onLinkClick?.({
                                 key: nav.key,

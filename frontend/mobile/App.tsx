@@ -5,15 +5,24 @@ import { NavigationContainer, DefaultTheme, DarkTheme, Theme as NavTheme } from 
 import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { AuthProvider } from './src/contexts/AuthContext';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { BusinessProvider } from './src/contexts/BusinessContext';
 import { ThemeProvider, useTheme } from './src/theme';
 import { PresenceHeartbeat } from './src/components/PresenceHeartbeat';
 import LocationProvider from './src/components/location/LocationProvider';
 import { queryClient } from './src/lib/queryClient';
+import { isBusinessAppRole } from './src/constants/roles';
 
 function AppContent() {
   const { theme, isDark } = useTheme();
+  const { user, navigationEpoch } = useAuth();
+
+  const navigationContainerKey = useMemo(() => {
+    if (!user) {
+      return `guest-${navigationEpoch}`;
+    }
+    return `${isBusinessAppRole(user.role) ? 'business' : 'client'}-${navigationEpoch}`;
+  }, [user, navigationEpoch]);
 
   const navigationTheme: NavTheme = useMemo(() => ({
     dark: isDark,
@@ -31,7 +40,7 @@ function AppContent() {
 
   return (
     <GestureHandlerRootView style={[styles.root, { backgroundColor: theme.background }]}>
-      <NavigationContainer theme={navigationTheme}>
+      <NavigationContainer key={navigationContainerKey} theme={navigationTheme}>
         <RootNavigator />
         <StatusBar style={isDark ? 'light' : 'dark'} />
       </NavigationContainer>

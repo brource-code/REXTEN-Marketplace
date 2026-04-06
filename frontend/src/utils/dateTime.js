@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import { SUPERADMIN_DISPLAY_TIMEZONE } from '@/constants/superadmin-datetime.constant'
+import { resolveClientBookingTimezone } from '@/constants/client-datetime.constant'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -193,6 +194,24 @@ export const toBusinessTimezone = (date, time = null, timezone = 'America/Los_An
 }
 
 /**
+ * Диапазон события для календаря бронирований клиента (UTC ISO), с учётом таймзоны компании.
+ * @param {{ date: string, time?: string | null, timezone?: string | null }} booking
+ * @returns {{ start: string, end: string }}
+ */
+export function clientBookingCalendarEventRange(booking) {
+  const tz = resolveClientBookingTimezone(booking)
+  const start = toBusinessTimezone(booking.date, booking.time || '00:00:00', tz)
+  if (!start.isValid()) {
+    const fallback = `${booking.date}T${(booking.time || '00:00:00').toString().slice(0, 8)}`
+    return { start: fallback, end: fallback }
+  }
+  return {
+    start: start.toISOString(),
+    end: start.add(60, 'minute').toISOString(),
+  }
+}
+
+/**
  * Форматирует дату с относительным днем (Today, Tomorrow или дата)
  * @param {string|Date} date - дата
  * @param {string} timezone - таймзона бизнеса
@@ -223,7 +242,19 @@ export function formatSuperadminDateTime(iso) {
     if (!iso) return '—'
     const d = dayjs(iso).tz(SUPERADMIN_DISPLAY_TIMEZONE)
     if (!d.isValid()) return '—'
-    return `${d.format('MM/DD/YYYY h:mm A')} ${d.format('z')}`
+    const base = d.format('MM/DD/YYYY h:mm A')
+    try {
+        const tzName =
+            new Intl.DateTimeFormat('en-US', {
+                timeZone: SUPERADMIN_DISPLAY_TIMEZONE,
+                timeZoneName: 'short',
+            })
+                .formatToParts(d.toDate())
+                .find((p) => p.type === 'timeZoneName')?.value ?? ''
+        return tzName ? `${base} ${tzName}` : base
+    } catch {
+        return base
+    }
 }
 
 export function formatSuperadminDateOnly(iso) {
@@ -235,7 +266,20 @@ export function formatSuperadminDateOnly(iso) {
 export function formatSuperadminTimeOnly(iso) {
     if (!iso) return '—'
     const d = dayjs(iso).tz(SUPERADMIN_DISPLAY_TIMEZONE)
-    return d.isValid() ? `${d.format('h:mm A')} ${d.format('z')}` : '—'
+    if (!d.isValid()) return '—'
+    const base = d.format('h:mm A')
+    try {
+        const tzName =
+            new Intl.DateTimeFormat('en-US', {
+                timeZone: SUPERADMIN_DISPLAY_TIMEZONE,
+                timeZoneName: 'short',
+            })
+                .formatToParts(d.toDate())
+                .find((p) => p.type === 'timeZoneName')?.value ?? ''
+        return tzName ? `${base} ${tzName}` : base
+    } catch {
+        return base
+    }
 }
 
 /** Подпись для графиков: день календаря в таймзоне суперадминки */

@@ -40,15 +40,29 @@ export function getServerBaseUrl(): string {
 /** Нормализует URL изображения (аватара и т.д.) */
 export function normalizeImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  
-  // Если уже полный URL — возвращаем как есть
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
+
+  let u = String(url).trim();
+  if (!u) return null;
+
+  // Старый кэш/login отдавал сырое значение из БД (avatars/...) без префикса /storage/
+  if (
+    !u.startsWith('http://') &&
+    !u.startsWith('https://') &&
+    !u.startsWith('/storage/') &&
+    !u.startsWith('storage/') &&
+    /^avatars\//.test(u)
+  ) {
+    u = `/storage/${u}`;
   }
-  
+
+  // Если уже полный URL — возвращаем как есть
+  if (u.startsWith('http://') || u.startsWith('https://')) {
+    return u;
+  }
+
   // Если относительный путь — добавляем базовый URL сервера
   const baseUrl = getServerBaseUrl();
-  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  const cleanPath = u.startsWith('/') ? u : `/${u}`;
   return `${baseUrl}${cleanPath}`;
 }
 

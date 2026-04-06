@@ -1,10 +1,12 @@
 'use client'
+import Link from 'next/link'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import BusinessSignUpForm from '@/components/auth/SignUp/BusinessSignUpForm'
 import { useRegister } from '@/hooks/api/useAuth'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/template/Logo'
+import appConfig from '@/configs/app.config'
 import ActionLink from '@/components/shared/ActionLink'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import useTheme from '@/utils/hooks/useTheme'
@@ -188,12 +190,17 @@ const BusinessSignUpClient = () => {
     return (
         <>
             <div className="mb-8">
-                <Logo
-                    type="streamline"
-                    mode={mode}
-                    forceSvg={true}
-                    imgClass="max-h-12 w-auto"
-                />
+                <Link
+                    href={appConfig.marketplaceHomePath}
+                    className="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+                >
+                    <Logo
+                        type="full"
+                        mode={mode}
+                        forceSvg={true}
+                        imgClass="h-7 w-auto max-w-[130px] sm:h-8 sm:max-w-[150px]"
+                    />
+                </Link>
             </div>
             <div className="mb-6">
                 <button

@@ -29,12 +29,12 @@ class CompaniesController extends Controller
         $query = Company::with('owner.profile');
 
         // Filter by status
-        if ($request->has('status') && $request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Search by name, email, or phone
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 DatabaseHelper::whereLike($q, 'name', "%{$search}%");
@@ -241,7 +241,21 @@ class CompaniesController extends Controller
     public function block($id)
     {
         $company = Company::findOrFail($id);
-        $company->update(['status' => 'suspended']);
+
+        DB::transaction(function () use ($company) {
+            $company->update(['status' => 'suspended']);
+
+            $userIds = collect([$company->owner_id])
+                ->merge(CompanyUser::where('company_id', $company->id)->pluck('user_id'))
+                ->filter()
+                ->unique()
+                ->values();
+
+            if ($userIds->isNotEmpty()) {
+                User::whereIn('id', $userIds)->update(['is_blocked' => true]);
+            }
+        });
+
         try {
             ActivityService::logCompanyBlocked($company->fresh());
         } catch (\Throwable $e) {
@@ -250,6 +264,38 @@ class CompaniesController extends Controller
 
         return response()->json([
             'message' => 'Company blocked',
+        ]);
+    }
+
+    /**
+     * Unblock company (restore active status and user accounts).
+     */
+    public function unblock($id)
+    {
+        $company = Company::findOrFail($id);
+
+        DB::transaction(function () use ($company) {
+            $company->update(['status' => 'active']);
+
+            $userIds = collect([$company->owner_id])
+                ->merge(CompanyUser::where('company_id', $company->id)->pluck('user_id'))
+                ->filter()
+                ->unique()
+                ->values();
+
+            if ($userIds->isNotEmpty()) {
+                User::whereIn('id', $userIds)->update(['is_blocked' => false]);
+            }
+        });
+
+        try {
+            ActivityService::logCompanyUnblocked($company->fresh());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Activity log unblock company: '.$e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'Company unblocked',
         ]);
     }
 

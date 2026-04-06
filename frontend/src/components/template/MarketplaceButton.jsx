@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import appConfig from '@/configs/app.config'
 import Button from '@/components/ui/Button'
 import { PiStorefrontDuotone } from 'react-icons/pi'
 import { useAuthStore } from '@/store'
@@ -19,7 +20,7 @@ const MarketplaceButton = () => {
     // AuthInitializer проверит их при загрузке маркетплейса
     // При переходе на маркетплейс токен будет доступен из localStorage
     return (
-        <Link href="/services">
+        <Link href={appConfig.marketplaceHomePath}>
             <Button
                 variant="plain"
                 size="sm"

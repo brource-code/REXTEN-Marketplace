@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Business;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Notification;
+use App\Services\BusinessOwnerMailer;
+use App\Services\BusinessOwnerNotificationPreferences;
+use App\Services\ClientBookingNotificationTexts;
+use App\Services\ClientNotificationMailer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -1171,153 +1175,12 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Определить язык пользователя из его профиля.
-     */
-    private function getUserLocale(?int $userId): string
-    {
-        if ($userId) {
-            $user = \App\Models\User::find($userId);
-            if ($user) {
-                return \App\Support\NotificationLocale::normalize($user->locale);
-            }
-        }
-
-        return 'en';
-    }
-
-    /**
      * Отправить уведомление клиенту об изменении статуса бронирования.
      */
     private function sendBookingStatusNotification(Booking $booking, string $oldStatus, string $newStatus): void
     {
-        // Получаем информацию для уведомления
-        $serviceName = 'Услуга';
-        
-        // Пытаемся получить название услуги из объявления
-        if ($booking->advertisement_id) {
-            $advertisement = \App\Models\Advertisement::find($booking->advertisement_id);
-            if ($advertisement) {
-                $services = is_array($advertisement->services) ? $advertisement->services : (json_decode($advertisement->services, true) ?? []);
-                $serviceData = collect($services)->first(function ($s) use ($booking) {
-                    return isset($s['id']) && (string)$s['id'] === (string)$booking->service_id;
-                });
-                if ($serviceData && isset($serviceData['name'])) {
-                    $serviceName = $serviceData['name'];
-                }
-            }
-        }
-        
-        // Если не нашли в объявлении, проверяем таблицу services
-        if ($serviceName === 'Услуга' && $booking->service) {
-            $serviceName = $booking->service->name;
-        }
-        
-        $companyName = $booking->company?->name ?? 'Компания';
-        $bookingTime = $booking->booking_time ?? '';
-        $link = '/booking';
-
-        // Определяем язык пользователя (получателя уведомления)
-        $locale = $this->getUserLocale($booking->user_id);
-        
-        // Форматируем дату в зависимости от языка
-        $bookingDate = '';
-        if ($booking->booking_date) {
-            if ($locale === 'en' || $locale === 'es-mx' || $locale === 'hy-am' || $locale === 'uk-ua') {
-                $bookingDate = $booking->booking_date->format('M d, Y'); // Jan 29, 2026
-            } else {
-                $bookingDate = $booking->booking_date->format('d.m.Y'); // 29.01.2026
-            }
-        }
-        
-        // Переводы для уведомлений
-        $translations = [
-            'ru' => [
-                'confirmed' => [
-                    'title' => 'Бронирование подтверждено',
-                    'message' => "Ваше бронирование «{$serviceName}» в {$companyName} на {$bookingDate} в {$bookingTime} подтверждено.",
-                ],
-                'cancelled' => [
-                    'title' => 'Бронирование отменено',
-                    'message' => "Ваше бронирование «{$serviceName}» в {$companyName} на {$bookingDate} в {$bookingTime} отменено. Причина: %reason%",
-                ],
-                'completed' => [
-                    'title' => 'Бронирование завершено',
-                    'message' => "Ваше бронирование «{$serviceName}» в {$companyName} на {$bookingDate} в {$bookingTime} успешно завершено. Спасибо, что выбрали нас!",
-                ],
-            ],
-            'en' => [
-                'confirmed' => [
-                    'title' => 'Booking confirmed',
-                    'message' => "Your booking «{$serviceName}» at {$companyName} on {$bookingDate} at {$bookingTime} has been confirmed.",
-                ],
-                'cancelled' => [
-                    'title' => 'Booking cancelled',
-                    'message' => "Your booking «{$serviceName}» at {$companyName} on {$bookingDate} at {$bookingTime} has been cancelled. Reason: %reason%",
-                ],
-                'completed' => [
-                    'title' => 'Booking completed',
-                    'message' => "Your booking «{$serviceName}» at {$companyName} on {$bookingDate} at {$bookingTime} has been successfully completed. Thank you for choosing us!",
-                ],
-            ],
-            'es-mx' => [
-                'confirmed' => [
-                    'title' => 'Reserva confirmada',
-                    'message' => "Tu reserva de «{$serviceName}» en {$companyName} el {$bookingDate} a las {$bookingTime} fue confirmada.",
-                ],
-                'cancelled' => [
-                    'title' => 'Reserva cancelada',
-                    'message' => "Tu reserva de «{$serviceName}» en {$companyName} el {$bookingDate} a las {$bookingTime} fue cancelada. Motivo: %reason%",
-                ],
-                'completed' => [
-                    'title' => 'Reserva completada',
-                    'message' => "Tu reserva de «{$serviceName}» en {$companyName} el {$bookingDate} a las {$bookingTime} se completó correctamente. ¡Gracias por elegirnos!",
-                ],
-            ],
-            'hy-am' => [
-                'confirmed' => [
-                    'title' => 'Ամրագրումը հաստատված է',
-                    'message' => "Ձեր «{$serviceName}» ամրագրումը {$companyName}-ում՝ {$bookingDate}, ժամը {$bookingTime}, հաստատված է։",
-                ],
-                'cancelled' => [
-                    'title' => 'Ամրագրումը չեղարկված է',
-                    'message' => "Ձեր «{$serviceName}» ամրագրումը {$companyName}-ում՝ {$bookingDate}, ժամը {$bookingTime}, չեղարկվել է։ Պատճառ՝ %reason%",
-                ],
-                'completed' => [
-                    'title' => 'Ամրագրումը ավարտված է',
-                    'message' => "Ձեր «{$serviceName}» ամրագրումը {$companyName}-ում՝ {$bookingDate}, ժամը {$bookingTime}, հաջողությամբ ավարտվել է։ Շնորհակալություն, որ մեզ ընտրեցիք։",
-                ],
-            ],
-            'uk-ua' => [
-                'confirmed' => [
-                    'title' => 'Бронювання підтверджено',
-                    'message' => "Ваше бронювання «{$serviceName}» у {$companyName} на {$bookingDate} о {$bookingTime} підтверджено.",
-                ],
-                'cancelled' => [
-                    'title' => 'Бронювання скасовано',
-                    'message' => "Ваше бронювання «{$serviceName}» у {$companyName} на {$bookingDate} о {$bookingTime} скасовано. Причина: %reason%",
-                ],
-                'completed' => [
-                    'title' => 'Бронювання завершено',
-                    'message' => "Ваше бронювання «{$serviceName}» у {$companyName} на {$bookingDate} о {$bookingTime} успішно завершено. Дякуємо, що обрали нас!",
-                ],
-            ],
-        ];
-
-        $title = '';
-        $message = '';
-
-        if ($newStatus === 'confirmed') {
-            $title = $translations[$locale]['confirmed']['title'];
-            $message = $translations[$locale]['confirmed']['message'];
-        } elseif ($newStatus === 'cancelled') {
-            $title = $translations[$locale]['cancelled']['title'];
-            $reason = $booking->cancellation_reason ?? ($locale === 'ru' ? 'Отменено администратором' : ($locale === 'es-mx' ? 'Cancelado por el administrador' : ($locale === 'hy-am' ? 'Չեղարկել է ադմինիստրատորը' : ($locale === 'uk-ua' ? 'Скасовано адміністратором' : 'Cancelled by administrator'))));
-            $message = str_replace('%reason%', $reason, $translations[$locale]['cancelled']['message']);
-        } elseif ($newStatus === 'completed') {
-            $title = $translations[$locale]['completed']['title'];
-            $message = $translations[$locale]['completed']['message'];
-        } else {
-            // Для других статусов не отправляем уведомления
+        $payload = ClientBookingNotificationTexts::forBookingStatusChange($booking, $newStatus);
+        if ($payload === null) {
             return;
         }
 
@@ -1325,18 +1188,25 @@ class ScheduleController extends Controller
             Notification::create([
                 'user_id' => $booking->user_id,
                 'type' => 'booking',
-                'title' => $title,
-                'message' => $message,
-                'link' => $link,
+                'title' => $payload['title'],
+                'message' => $payload['message'],
+                'link' => $payload['link'],
                 'read' => false,
             ]);
-            
+
+            ClientNotificationMailer::bookingStatusIfEnabled(
+                $booking->user_id,
+                $payload['title'],
+                $payload['message'],
+                $payload['link']
+            );
+
             Log::info('ScheduleController: Notification sent', [
                 'booking_id' => $booking->id,
                 'user_id' => $booking->user_id,
                 'old_status' => $oldStatus,
                 'new_status' => $newStatus,
-                'title' => $title,
+                'title' => $payload['title'],
             ]);
         } catch (\Exception $e) {
             Log::error('ScheduleController: Failed to send notification', [
@@ -1346,8 +1216,14 @@ class ScheduleController extends Controller
             ]);
         }
 
-        // Уведомление владельцу бизнеса при подтверждении или отмене бронирования
-        $this->sendBusinessOwnerBookingNotification($booking, $newStatus, $serviceName, $companyName, $bookingDate, $bookingTime);
+        $this->sendBusinessOwnerBookingNotification(
+            $booking,
+            $newStatus,
+            $payload['serviceName'],
+            $payload['companyName'],
+            $payload['bookingDate'],
+            $payload['bookingTime']
+        );
     }
 
     /**
@@ -1438,26 +1314,41 @@ class ScheduleController extends Controller
             return;
         }
 
+        $prefEvent = $type === 'new_booking'
+            ? BusinessOwnerNotificationPreferences::EVENT_NEW_BOOKING
+            : BusinessOwnerNotificationPreferences::EVENT_BOOKING_CANCELLED;
+
         $title = $translations[$ownerLocale][$type]['title'];
         $message = $translations[$ownerLocale][$type]['message'];
         $link = '/business/schedule';
 
-        try {
-            Notification::create([
-                'user_id' => $company->owner_id,
-                'type' => $type,
-                'title' => $title,
-                'message' => $message,
-                'link' => $link,
-                'read' => false,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('ScheduleController: Failed to send business owner notification', [
-                'booking_id' => $booking->id,
-                'owner_id' => $company->owner_id,
-                'error' => $e->getMessage(),
-            ]);
+        if (BusinessOwnerNotificationPreferences::allowsOwnerInAppNotification($company, $prefEvent)) {
+            try {
+                Notification::create([
+                    'user_id' => $company->owner_id,
+                    'type' => $type,
+                    'title' => $title,
+                    'message' => $message,
+                    'link' => $link,
+                    'read' => false,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('ScheduleController: Failed to send business owner notification', [
+                    'booking_id' => $booking->id,
+                    'owner_id' => $company->owner_id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
+
+        BusinessOwnerMailer::notifyIfEnabled(
+            $company,
+            (int) $company->owner_id,
+            $prefEvent,
+            $title,
+            $message,
+            '/business/schedule'
+        );
     }
 }
 

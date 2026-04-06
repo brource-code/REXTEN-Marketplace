@@ -5,10 +5,12 @@ import VerticalSingleMenuItem from './VerticalSingleMenuItem'
 import VerticalCollapsedMenuItem from './VerticalCollapsedMenuItem'
 import AuthorityCheck from '@/components/shared/AuthorityCheck'
 import { themeConfig } from '@/configs/theme.config'
+import classNames from '@/utils/classNames'
 import {
     NAV_ITEM_TYPE_TITLE,
     NAV_ITEM_TYPE_COLLAPSE,
     NAV_ITEM_TYPE_ITEM,
+    NAV_ITEM_TYPE_DIVIDER,
 } from '@/constants/navigation.constant'
 import useMenuActive from '@/utils/hooks/useMenuActive'
 import useTranslation from '@/utils/hooks/useTranslation'
@@ -57,6 +59,27 @@ const VerticalMenuContent = (props) => {
             <>
                 {navTree.map((nav) => (
                     <Fragment key={nav.key}>
+                        {nav.type === NAV_ITEM_TYPE_DIVIDER && (
+                            <AuthorityCheck
+                                userAuthority={userAuthority}
+                                authority={nav.authority}
+                            >
+                                <div
+                                    role="separator"
+                                    aria-hidden
+                                    className={classNames(
+                                        'shrink-0',
+                                        collapsed
+                                            ? 'flex justify-center py-2'
+                                            : 'my-3 border-t border-gray-300 dark:border-gray-600',
+                                    )}
+                                >
+                                    {collapsed && (
+                                        <div className="h-px w-8 rounded-full bg-gray-200 dark:bg-gray-700" />
+                                    )}
+                                </div>
+                            </AuthorityCheck>
+                        )}
                         {nav.type === NAV_ITEM_TYPE_ITEM && (
                             <VerticalSingleMenuItem
                                 key={nav.key}

@@ -6,6 +6,12 @@ import PermissionCheck from '@/components/shared/PermissionCheck'
 
 const { MenuItem, MenuCollapse } = Menu
 
+/** Якорь тура на строке collapse (не на подпункте), иначе подсветка «плывёт» */
+const COLLAPSE_DATA_TOUR = {
+    'business.advertisements': 'nav-advertisements',
+    'superadmin.advertisements': 'nav-advertisements',
+}
+
 const DefaultItem = ({
     nav,
     indent,
@@ -19,6 +25,7 @@ const DefaultItem = ({
             <PermissionCheck permission={nav.permission}>
                 <MenuCollapse
                     key={nav.key}
+                    dataTour={COLLAPSE_DATA_TOUR[nav.key]}
                     label={
                         <>
                             <VerticalMenuIcon icon={nav.icon} />

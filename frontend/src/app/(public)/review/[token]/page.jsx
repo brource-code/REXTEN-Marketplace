@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { useParams } from 'next/navigation'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -12,11 +12,25 @@ import { getLaravelApiUrl } from '@/utils/api/getLaravelApiUrl'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import Container from '@/components/shared/Container'
-import { formatDate } from '@/utils/dateTime'
+import { formatDate, formatTime } from '@/utils/dateTime'
+import {
+    CLIENT_TIME_DISPLAY_LOCALE,
+    resolveClientBookingTimezone,
+} from '@/constants/client-datetime.constant'
+import { normalizeImageUrl } from '@/utils/imageUtils'
+
+function getInitials(name) {
+    const s = (name || '').trim()
+    if (!s) return '?'
+    const parts = s.split(/\s+/).filter(Boolean)
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
+    return s.slice(0, 2).toUpperCase()
+}
 
 export default function ReviewByTokenPage() {
     const t = useTranslations('public.review')
-    const locale = useLocale()
     const params = useParams()
     // Получаем токен из params или из URL напрямую (fallback)
     const token = useMemo(() => {
@@ -35,20 +49,22 @@ export default function ReviewByTokenPage() {
     const [rating, setRating] = useState(0)
     const [comment, setComment] = useState('')
     const [clientName, setClientName] = useState('')
+    const [clientAvatarImageError, setClientAvatarImageError] = useState(false)
 
     useEffect(() => {
-        console.log('[ReviewPage] Component mounted:', { token, params })
         if (token) {
             loadBooking()
         } else {
-            console.warn('[ReviewPage] No token found in params')
             setLoading(false)
         }
     }, [token])
 
+    useEffect(() => {
+        setClientAvatarImageError(false)
+    }, [booking?.clientAvatar])
+
     const loadBooking = async () => {
         if (!token) {
-            console.error('[ReviewPage] No token provided')
             setLoading(false)
             return
         }
@@ -56,8 +72,7 @@ export default function ReviewByTokenPage() {
         try {
             const apiUrl = getLaravelApiUrl()
             const url = `${apiUrl}/public/reviews/token/${token}`
-            console.log('[ReviewPage] Loading booking:', { token, url })
-            
+
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -66,16 +81,13 @@ export default function ReviewByTokenPage() {
                 },
             })
             
-            console.log('[ReviewPage] Response status:', response.status)
             const data = await response.json()
-            console.log('[ReviewPage] Response data:', data)
-            
+
             if (response.ok && data.success && data.booking) {
                 setBooking(data.booking)
                 setClientName(data.booking.clientName || '')
             } else {
                 const errorMessage = data.message || t('notifications.invalidLink')
-                console.error('[ReviewPage] Failed to load booking:', { status: response.status, data })
                 toast.push(
                     <Notification title={t('notifications.error')} type="danger">
                         {errorMessage}
@@ -83,7 +95,6 @@ export default function ReviewByTokenPage() {
                 )
             }
         } catch (error) {
-            console.error('[ReviewPage] Error loading booking:', error)
             toast.push(
                 <Notification title={t('notifications.error')} type="danger">
                     {t('notifications.loadError')}
@@ -159,7 +170,10 @@ export default function ReviewByTokenPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div
+                data-public-fullscreen
+                className="flex min-h-screen min-h-[100dvh] items-center justify-center bg-white dark:bg-gray-900"
+            >
                 <Container className="max-w-2xl">
                     <Card>
                         <div className="text-center p-12">
@@ -174,7 +188,10 @@ export default function ReviewByTokenPage() {
 
     if (!booking) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div
+                data-public-fullscreen
+                className="flex min-h-screen min-h-[100dvh] items-center justify-center bg-white dark:bg-gray-900"
+            >
                 <Container className="max-w-2xl">
                     <Card>
                         <div className="text-center p-6">
@@ -189,7 +206,10 @@ export default function ReviewByTokenPage() {
 
     if (booking.hasReview) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div
+                data-public-fullscreen
+                className="flex min-h-screen min-h-[100dvh] items-center justify-center bg-white dark:bg-gray-900"
+            >
                 <Container className="max-w-2xl">
                     <Card>
                         <div className="text-center p-6">
@@ -202,8 +222,18 @@ export default function ReviewByTokenPage() {
         )
     }
 
+    const displayNameForAvatar = clientName || booking.clientName || ''
+    const initialsForAvatar = getInitials(displayNameForAvatar)
+    const clientAvatarDisplayUrl =
+        booking.clientAvatar && !clientAvatarImageError
+            ? normalizeImageUrl(booking.clientAvatar)
+            : null
+
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
+        <div
+            data-public-fullscreen
+            className="min-h-screen min-h-[100dvh] bg-white dark:bg-gray-900 py-12 px-4"
+        >
             <Container className="max-w-2xl">
                 <Card>
                     <div className="p-6">
@@ -219,7 +249,14 @@ export default function ReviewByTokenPage() {
                                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('bookingInfo.business')}</span> {booking.businessName}
                             </p>
                             <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('bookingInfo.date')}</span> {formatDate(booking.date, 'America/Los_Angeles', 'short')} {t('bookingInfo.at')} {booking.time}
+                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('bookingInfo.date')}</span>{' '}
+                                {formatDate(booking.date, resolveClientBookingTimezone(booking), 'short')}{' '}
+                                {t('bookingInfo.at')}{' '}
+                                {formatTime(
+                                    booking.time,
+                                    resolveClientBookingTimezone(booking),
+                                    CLIENT_TIME_DISPLAY_LOCALE,
+                                )}
                             </p>
                         </div>
 
@@ -245,13 +282,31 @@ export default function ReviewByTokenPage() {
                                 </div>
                             </FormItem>
 
-                            {/* Имя клиента (опционально) */}
+                            {/* Имя клиента (опционально) + аватар из профиля, если у брони есть user с фото */}
                             <FormItem label={t('form.clientName')}>
-                                <Input
-                                    value={clientName}
-                                    onChange={(e) => setClientName(e.target.value)}
-                                    placeholder={t('form.clientNamePlaceholder')}
-                                />
+                                <div className="flex items-start gap-4">
+                                    <div className="shrink-0 w-14 h-14 rounded-full overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                        {clientAvatarDisplayUrl ? (
+                                            <img
+                                                src={clientAvatarDisplayUrl}
+                                                alt={t('form.clientAvatarAlt')}
+                                                className="w-full h-full object-cover"
+                                                onError={() => setClientAvatarImageError(true)}
+                                            />
+                                        ) : (
+                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {initialsForAvatar}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <Input
+                                            value={clientName}
+                                            onChange={(e) => setClientName(e.target.value)}
+                                            placeholder={t('form.clientNamePlaceholder')}
+                                        />
+                                    </div>
+                                </div>
                             </FormItem>
 
                             {/* Комментарий */}

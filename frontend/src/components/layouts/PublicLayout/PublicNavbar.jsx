@@ -14,6 +14,7 @@ import { PiUser, PiSignOut, PiGear, PiCalendar, PiStorefront, PiBuildings, PiShi
 import { CLIENT, BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 import ClientNotification from '@/components/layouts/PublicLayout/ClientNotification'
 import Logo from '@/components/template/Logo'
+import appConfig from '@/configs/app.config'
 import { useLocale, useTranslations } from 'next-intl'
 import { setLocale } from '@/server/actions/locale'
 import { HiCheck } from 'react-icons/hi'
@@ -81,7 +82,7 @@ const PublicNavbar = () => {
                         : 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm lg:bg-transparent lg:dark:bg-transparent lg:backdrop-blur-none',
                 )}
             >
-                <Link href="/services" className="flex items-center flex-shrink-0">
+                <Link href={appConfig.marketplaceHomePath} className="flex items-center flex-shrink-0">
                     <Logo
                         type="full"
                         mode={mode}

@@ -3,8 +3,7 @@
 import React from 'react'
 import PostLoginLayout from '@/components/layouts/PostLoginLayout'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
-import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider'
-import OnboardingModal from '@/components/onboarding/OnboardingModal'
+import { OnboardingProvider } from '@/providers/OnboardingProvider'
 import { BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 import MaintenanceGuard from '@/components/platform/MaintenanceGuard'
 
@@ -15,7 +14,6 @@ const Layout = ({ children }) => {
             <MaintenanceGuard>
                 <OnboardingProvider>
                     <PostLoginLayout>{children}</PostLoginLayout>
-                    <OnboardingModal />
                 </OnboardingProvider>
             </MaintenanceGuard>
         </ProtectedRoute>

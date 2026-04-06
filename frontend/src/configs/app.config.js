@@ -1,5 +1,7 @@
 const appConfig = {
     apiPrefix: '/api',
+    /** Главная страница маркетплейса (каталог) — ссылка с логотипа на всех экранах */
+    marketplaceHomePath: '/services',
     authenticatedEntryPath: '/business/dashboard', // По умолчанию для админки
     unAuthenticatedEntryPath: '/sign-in', // Страница входа
     locale: 'en',

@@ -6,6 +6,7 @@ import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import { PiFacebookLogo, PiInstagramLogo, PiTwitterLogo } from 'react-icons/pi'
 import Logo from '@/components/template/Logo'
+import appConfig from '@/configs/app.config'
 import { useTranslations } from 'next-intl'
 
 const PublicFooter = () => {
@@ -148,12 +149,17 @@ const PublicFooter = () => {
                     <div className="border-t border-gray-200 dark:border-gray-800 pt-6 md:pt-8">
                         <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
                             <div className="flex items-center gap-2 order-2 md:order-1">
-                                <Logo
-                                    type="full"
-                                    mode={mode}
-                                    forceSvg={true}
-                                    imgClass="h-6 w-auto max-w-[120px]"
-                                />
+                                <Link
+                                    href={appConfig.marketplaceHomePath}
+                                    className="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+                                >
+                                    <Logo
+                                        type="full"
+                                        mode={mode}
+                                        forceSvg={true}
+                                        imgClass="h-6 w-auto max-w-[120px]"
+                                    />
+                                </Link>
                             </div>
                             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center order-1 md:order-2">
                                 © {new Date().getFullYear()} REXTEN Marketplace. {t('rights')}.

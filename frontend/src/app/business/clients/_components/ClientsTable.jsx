@@ -93,7 +93,7 @@ const ClientsTable = ({
     
     const { settings } = useBusinessStore()
     const timezone = settings?.timezone || 'America/Los_Angeles'
-    const onAppendQueryParams = useAppendQueryParams()
+    const { onAppendQueryParams } = useAppendQueryParams()
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [editingClient, setEditingClient] = useState(null)
 

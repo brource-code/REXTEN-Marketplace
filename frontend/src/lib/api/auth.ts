@@ -28,6 +28,7 @@ export interface AuthResponse {
         email: string
         role: string
         avatar?: string
+        locale?: string | null
     }
 }
 

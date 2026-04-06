@@ -12,4 +12,16 @@ return [
         'footer' => 'This message was sent by :app.',
         'plain' => "Reset your password:\n:url\n\nThis link expires in :count minutes.\n\nIf you did not request this, ignore this email.",
     ],
+    'business_owner' => [
+        'preheader' => 'Notification: :title',
+        'open_dashboard' => 'Open dashboard',
+        'note' => 'You receive this email because of your business notification settings for :app.',
+        'footer' => 'This message was sent by :app.',
+    ],
+    'client' => [
+        'preheader' => 'Notification: :title',
+        'open_bookings' => 'View bookings',
+        'note' => 'You receive this email because of your booking notification settings for :app.',
+        'footer' => 'This message was sent by :app.',
+    ],
 ];

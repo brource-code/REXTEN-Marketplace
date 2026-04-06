@@ -58,7 +58,9 @@ function SchedulePageContent() {
 
     return (
         <Container>
-            <ScheduleCalendar initialSlots={slots || []} initialOpenBookingId={openBookingId} />
+            <div data-tour="page-main" className="w-full min-h-[320px]">
+                <ScheduleCalendar initialSlots={slots || []} initialOpenBookingId={openBookingId} />
+            </div>
         </Container>
     )
 }

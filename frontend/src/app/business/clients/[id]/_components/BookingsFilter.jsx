@@ -77,11 +77,11 @@ const BookingsFilter = ({ filters, onFiltersChange, bookingsCount, totalAmount, 
     const hasActiveFilters = filters.status || filters.date_from || filters.date_to
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0 max-w-full">
             {/* Основная строка фильтров */}
-            <div className="flex flex-col md:flex-row gap-3 items-start md:items-end">
-                <div className="flex flex-wrap gap-3 flex-1">
-                    <div className="w-full md:w-auto min-w-[180px]">
+            <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-end min-w-0">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 flex-1 min-w-0 max-w-full">
+                    <div className="w-full sm:min-w-[160px] sm:w-auto sm:max-w-[min(100%,280px)] min-w-0">
                         <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('bookingsFilter.status')}</label>
                         <Select
                             value={currentStatusValue}
@@ -93,14 +93,12 @@ const BookingsFilter = ({ filters, onFiltersChange, bookingsCount, totalAmount, 
                         />
                     </div>
                     
-                    {/* Даты в одну строку */}
-                    <div className="flex gap-3">
-                        <div className="w-full md:w-auto min-w-[200px]">
+                    {/* Даты: на узком экране столбиком, иначе в ряд */}
+                    <div className="flex flex-col sm:flex-row gap-3 w-full min-w-0">
+                        <div className="w-full min-w-0 flex-1">
                             <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('bookingsFilter.dateFrom')}</label>
                             <DatePicker
-                                inputtable
                                 clearable
-                                inputtableBlurClose={false}
                                 value={filters.date_from ? dayjs(filters.date_from).toDate() : null}
                                 onChange={handleDateFromChange}
                                 placeholder={t('bookingsFilter.dateFrom')}
@@ -108,12 +106,10 @@ const BookingsFilter = ({ filters, onFiltersChange, bookingsCount, totalAmount, 
                             />
                         </div>
                         
-                        <div className="w-full md:w-auto min-w-[200px]">
+                        <div className="w-full min-w-0 flex-1">
                             <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('bookingsFilter.dateTo')}</label>
                             <DatePicker
-                                inputtable
                                 clearable
-                                inputtableBlurClose={false}
                                 value={filters.date_to ? dayjs(filters.date_to).toDate() : null}
                                 onChange={handleDateToChange}
                                 placeholder={t('bookingsFilter.dateTo')}
@@ -122,7 +118,7 @@ const BookingsFilter = ({ filters, onFiltersChange, bookingsCount, totalAmount, 
                         </div>
                     </div>
                     
-                    <div className="w-full md:w-auto min-w-[140px]">
+                    <div className="w-full sm:min-w-[130px] sm:w-auto min-w-0">
                         <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('bookingsFilter.sortBy')}</label>
                         <Select
                             value={currentSortByValue}
@@ -134,7 +130,7 @@ const BookingsFilter = ({ filters, onFiltersChange, bookingsCount, totalAmount, 
                         />
                     </div>
                     
-                    <div className="w-full md:w-auto min-w-[160px]">
+                    <div className="w-full sm:min-w-[140px] sm:w-auto min-w-0">
                         <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('bookingsFilter.sortOrder')}</label>
                         <Select
                             value={currentSortOrderValue}
@@ -153,6 +149,7 @@ const BookingsFilter = ({ filters, onFiltersChange, bookingsCount, totalAmount, 
                         size="sm"
                         icon={<PiX />}
                         onClick={clearFilters}
+                        className="shrink-0 self-start md:self-end"
                     >
                         {t('bookingsFilter.reset')}
                     </Button>
@@ -161,7 +158,7 @@ const BookingsFilter = ({ filters, onFiltersChange, bookingsCount, totalAmount, 
 
             {/* Статистика по фильтру */}
             {bookingsCount !== undefined && (
-                <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                <div className="text-sm font-bold text-gray-500 dark:text-gray-400 break-words">
                     {t('bookingsFilter.found')}: <span className="text-gray-900 dark:text-gray-100">{bookingsCount}</span> {t('bookingsFilter.bookings')}
                     {totalAmount !== undefined && totalAmount > 0 && (
                         <>

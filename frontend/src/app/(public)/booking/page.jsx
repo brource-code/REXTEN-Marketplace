@@ -10,15 +10,22 @@ import { TbCalendar, TbClock, TbX, TbMapPin, TbRepeat } from 'react-icons/tb'
 import Link from 'next/link'
 import classNames from '@/utils/classNames'
 import toast from '@/components/ui/toast'
-import { HiCheckCircle } from 'react-icons/hi'
+import Notification from '@/components/ui/Notification'
 import CalendarView from '@/components/shared/CalendarView'
-import dayjs from 'dayjs'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { CLIENT } from '@/constants/roles.constant'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import Skeleton from '@/components/ui/Skeleton'
 import { useTranslations } from 'next-intl'
-import { formatDateWithRelative, formatTime } from '@/utils/dateTime'
+import {
+    formatDateWithRelative,
+    formatTime,
+    clientBookingCalendarEventRange,
+} from '@/utils/dateTime'
+import {
+    CLIENT_TIME_DISPLAY_LOCALE,
+    resolveClientBookingTimezone,
+} from '@/constants/client-datetime.constant'
 
 // Цвета статусов
 const statusColors = {
@@ -69,38 +76,29 @@ export default function ClientBookingPage() {
             queryClient.invalidateQueries({ queryKey: ['client-bookings'] })
             
             toast.push(
-                <div className="flex items-center gap-2">
-                    <HiCheckCircle className="text-emerald-500" />
-                    <span>{t('bookingCancelled')}</span>
-                </div>,
-                {
-                    placement: 'top-center',
-                }
+                <Notification title={tCommon('messages.success')} type="success">
+                    {t('bookingCancelled')}
+                </Notification>,
+                { placement: 'top-end' },
             )
             setIsCancelDialogOpen(false)
             setBookingToCancel(null)
         },
         onError: () => {
             toast.push(
-                <div className="flex items-center gap-2">
-                    <span>{t('cancelBookingError')}</span>
-                </div>,
-                {
-                    placement: 'top-center',
-                    type: 'danger',
-                }
+                <Notification title={tCommon('messages.error')} type="danger">
+                    {t('cancelBookingError')}
+                </Notification>,
+                { placement: 'top-end' },
             )
         },
     })
     
-    // Используем дефолтную таймзону для клиентских бронирований
-    // В будущем можно добавить timezone в API ответы бронирований
-    const defaultTimezone = 'America/Los_Angeles'
-    
-    // Форматирование даты с учетом таймзоны
-    const formatDate = (dateString) => {
+    // Форматирование даты с учётом таймзоны компании (IANA из API)
+    const formatBookingDate = (dateString, booking) => {
         if (!dateString) return 'N/A'
-        return formatDateWithRelative(dateString, defaultTimezone, {
+        const tz = resolveClientBookingTimezone(booking)
+        return formatDateWithRelative(dateString, tz, {
             today: t('today'),
             tomorrow: t('tomorrow'),
         })
@@ -202,18 +200,23 @@ export default function ClientBookingPage() {
                                 </div>
                                 <div className="calendar-wrapper">
                                     <CalendarView
-                                        events={upcomingBookings.map((booking) => ({
-                                            id: booking.id.toString(),
-                                            title: `${booking.serviceName} - ${booking.businessName}`,
-                                            start: `${booking.date}T${booking.time}`,
-                                            end: dayjs(`${booking.date}T${booking.time}`)
-                                                .add(60, 'minutes')
-                                                .toISOString(),
-                                            extendedProps: {
-                                                eventColor: booking.status === 'confirmed' ? 'orange' : 'orange',
-                                                status: booking.status,
-                                            },
-                                        }))}
+                                        events={upcomingBookings.map((booking) => {
+                                            const { start, end } =
+                                                clientBookingCalendarEventRange(booking)
+                                            return {
+                                                id: booking.id.toString(),
+                                                title: `${booking.serviceName} - ${booking.businessName}`,
+                                                start,
+                                                end,
+                                                extendedProps: {
+                                                    eventColor:
+                                                        booking.status === 'confirmed'
+                                                            ? 'orange'
+                                                            : 'orange',
+                                                    status: booking.status,
+                                                },
+                                            }
+                                        })}
                                     />
                                 </div>
                             </div>
@@ -297,11 +300,17 @@ export default function ClientBookingPage() {
                                                 <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                                                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                                         <TbCalendar className="text-base text-gray-400 shrink-0" />
-                                                        <span className="font-medium">{formatDate(booking.date)}</span>
+                                                        <span className="font-medium">{formatBookingDate(booking.date, booking)}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                                                         <TbClock className="text-base text-gray-400 shrink-0" />
-                                                        <span>{formatTime(booking.time, defaultTimezone)}</span>
+                                                        <span>
+                                                            {formatTime(
+                                                                booking.time,
+                                                                resolveClientBookingTimezone(booking),
+                                                                CLIENT_TIME_DISPLAY_LOCALE,
+                                                            )}
+                                                        </span>
                                                     </div>
                                                     {booking.specialist && (
                                                         <div className="text-gray-600 dark:text-gray-400">

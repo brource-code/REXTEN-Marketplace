@@ -1,0 +1,37 @@
+# Зависимости и артефакты сборки (ставятся/создаются внутри образа)
+node_modules
+.next
+out
+dist
+coverage
+.turbo
+
+# Expo / React Native — не часть Next.js в Docker
+mobile
+
+# Крупные архивы и старые деревья деплоя (сотни МБ — не нужны для next build)
+*.tar.gz
+*.zip
+*.sql
+*.sql.gz
+ecme-marketplace-*
+backups
+
+# Git и IDE
+.git
+.gitignore
+.cursor
+*.md
+
+# Логи и мусор
+*.log
+npm-debug.log*
+.DS_Store
+
+# Тесты и скрипты проверки — не нужны для production bundle (ускоряет COPY)
+# Раскомментируйте при желании ещё сильнее уменьшить контекст:
+# tests
+# scripts
+
+# ВАЖНО: не игнорируем .env.local — Next подставляет NEXT_PUBLIC_* на этапе `next build`
+# (как и сейчас при `COPY . .`). Если перейдёте на build-args в compose — тогда можно исключить.

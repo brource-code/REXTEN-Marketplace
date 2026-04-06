@@ -19,12 +19,13 @@ if [ -f .env ]; then
 fi
 
 export EXPO_METRO_HOST="${EXPO_METRO_HOST:-metro.rexten.live}"
+export EXPO_PACKAGER_PROXY_URL="${EXPO_PACKAGER_PROXY_URL:-https://${EXPO_METRO_HOST}}"
 export REACT_NATIVE_PACKAGER_HOSTNAME="$EXPO_METRO_HOST"
 export CI=false
 
 echo ""
-echo "Metro будет рекламовать хост: https://${EXPO_METRO_HOST}"
-echo "Убедись, что туннель ведёт на http://127.0.0.1:8081 и Metro уже слушает этот порт."
+echo "Ссылки/QR для телефона: ${EXPO_PACKAGER_PROXY_URL}"
+echo "В Cloudflare: hostname → http://127.0.0.1:8081 ; на сервере Metro должен слушать :8081"
 echo ""
 
 exec npx expo start

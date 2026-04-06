@@ -39,6 +39,7 @@ import { formatCurrency } from '@/utils/formatCurrency'
 import { useTranslations, useLocale } from 'next-intl'
 import { getCategoryName } from '@/utils/categoryUtils'
 import { formatDate } from '@/utils/dateTime'
+import { resolveClientBookingTimezone } from '@/constants/client-datetime.constant'
 
 // Функция для получения табов с переводами
 const getTabs = (t) => [
@@ -874,12 +875,13 @@ export default function MarketplaceProfilePage() {
             fullService: s
         }))
     })
+    const reviewTz = resolveClientBookingTimezone({ timezone: business.timezone })
     const reviews = (profile.reviews || []).map((review) => ({
         id: review.id,
         name: review.userName || review.name || t('anonymous'),
         text: review.comment || review.text || '',
         rating: review.rating || 0,
-        date: review.date ? formatDate(review.date, 'America/Los_Angeles', 'long') : '',
+        date: review.date ? formatDate(review.date, reviewTz, 'long') : '',
         service: review.serviceName || review.service,
         master: review.specialistName || review.master,
         specialistName: review.specialistName || review.master,
@@ -1552,7 +1554,7 @@ export default function MarketplaceProfilePage() {
                                                 </p>
                                                 {review.responseDate && (
                                                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                                        {formatDate(review.responseDate, 'America/Los_Angeles', 'long')}
+                                                        {formatDate(review.responseDate, reviewTz, 'long')}
                                                     </p>
                                                 )}
                                             </div>

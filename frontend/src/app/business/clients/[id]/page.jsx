@@ -323,10 +323,25 @@ function ClientDetailsPageContent() {
 
                     {/* Контент с вкладками */}
                     <Tabs value={activeTab} onChange={setActiveTab}>
-                        <TabList>
-                            <TabNav value="info">{t('detailsPage.tabs.info')}</TabNav>
-                            <TabNav value="bookings">{t('detailsPage.tabs.bookings')}</TabNav>
-                            <TabNav value="notes">{t('detailsPage.tabs.notes')}</TabNav>
+                        <TabList className="min-w-0 max-w-full">
+                            <TabNav
+                                value="info"
+                                className="shrink-0 whitespace-nowrap px-3 text-sm sm:px-5 sm:text-base"
+                            >
+                                {t('detailsPage.tabs.info')}
+                            </TabNav>
+                            <TabNav
+                                value="bookings"
+                                className="shrink-0 whitespace-nowrap px-3 text-sm sm:px-5 sm:text-base"
+                            >
+                                {t('detailsPage.tabs.bookings')}
+                            </TabNav>
+                            <TabNav
+                                value="notes"
+                                className="shrink-0 whitespace-nowrap px-3 text-sm sm:px-5 sm:text-base"
+                            >
+                                {t('detailsPage.tabs.notes')}
+                            </TabNav>
                         </TabList>
                         
                         <div className="mt-6">
@@ -449,7 +464,7 @@ function ClientDetailsPageContent() {
                             </TabContent>
 
                             <TabContent value="bookings">
-                                <div className="space-y-4">
+                                <div className="space-y-4 min-w-0 max-w-full">
                                     {/* Фильтры */}
                                     <BookingsFilter
                                         filters={filters}
@@ -477,12 +492,12 @@ function ClientDetailsPageContent() {
                                             const bookingCurrency = booking.currency || 'USD'
 
                                             return (
-                                                <Card key={booking.id} className="p-5 border border-gray-200 dark:border-gray-700">
-                                                    <div className="flex flex-col md:flex-row md:items-start gap-4">
-                                                        <div className="flex-1 space-y-3">
-                                                            <div className="flex items-start justify-between gap-3">
-                                                                <div className="flex-1">
-                                                                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                                                <Card key={booking.id} className="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 min-w-0 max-w-full">
+                                                    <div className="flex flex-col md:flex-row md:items-start gap-4 min-w-0">
+                                                        <div className="flex-1 space-y-3 min-w-0">
+                                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                                                                <div className="min-w-0 flex-1">
+                                                                    <h4 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-1 break-words">
                                                                         {booking.service?.name || t('detailsPage.bookings.serviceNotSpecified')}
                                                                     </h4>
                                                                     {(booking.execution_type || 'onsite') === 'offsite' && (
@@ -491,12 +506,12 @@ function ClientDetailsPageContent() {
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                                <Tag className={statusColors[booking.status] || statusColors.pending}>
+                                                                <Tag className={`shrink-0 self-start ${statusColors[booking.status] || statusColors.pending}`}>
                                                                     {statusLabels[booking.status] || booking.status || t('detailsModal.bookingStatuses.unknown')}
                                                                 </Tag>
                                                             </div>
                                                             
-                                                            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                                                            <div className="flex flex-col gap-2 text-sm min-w-0 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
                                                                 <div className="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400">
                                                                     <PiCalendar className="text-base text-gray-400 shrink-0" />
                                                                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
@@ -604,11 +619,11 @@ function ClientDetailsPageContent() {
                                                                 <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-3 space-y-2">
                                                                     {/* Базовая стоимость услуги */}
                                                                     {basePrice > 0 && (
-                                                                        <div className="flex justify-between items-center text-sm">
-                                                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                                                        <div className="flex justify-between items-start gap-3 text-sm min-w-0">
+                                                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400 min-w-0 break-words pr-2">
                                                                                 {t('detailsPage.bookings.basePrice')}
                                                                             </span>
-                                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">
                                                                                 {formatCurrency(basePrice, bookingCurrency)}
                                                                             </span>
                                                                         </div>
@@ -624,11 +639,11 @@ function ClientDetailsPageContent() {
                                                                                 const total = price * quantity
 
                                                                                 return (
-                                                                                    <div key={item.id || index} className="flex justify-between items-center text-sm">
-                                                                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                                                                    <div key={item.id || index} className="flex justify-between items-start gap-3 text-sm min-w-0">
+                                                                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 min-w-0 break-words pr-2">
                                                                                             {service.name || item.name} × {quantity}
                                                                                         </span>
-                                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">
                                                                                             {formatCurrency(total, bookingCurrency)}
                                                                                         </span>
                                                                                     </div>
@@ -640,9 +655,9 @@ function ClientDetailsPageContent() {
                                                                     <ClientBookingDiscountRows booking={booking} currency={bookingCurrency} />
                                                                     
                                                                     {/* Итого общий */}
-                                                                    <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2 flex justify-between items-center">
-                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('detailsPage.bookings.total')}</span>
-                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                                    <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2 flex justify-between items-start gap-3 min-w-0">
+                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 min-w-0 break-words pr-2">{t('detailsPage.bookings.total')}</span>
+                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">
                                                                             {formatCurrency(totalPrice, bookingCurrency)}
                                                                         </span>
                                                                     </div>

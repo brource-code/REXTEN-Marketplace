@@ -49,6 +49,39 @@ const superadminRoute = {
         key: 'superadmin.settings',
         authority: [SUPERADMIN],
     },
+    '/superadmin/support': {
+        key: 'superadmin.support',
+        authority: [SUPERADMIN],
+    },
+    '/superadmin/support/[id]': {
+        key: 'superadmin.support',
+        authority: [SUPERADMIN],
+        dynamicRoute: true,
+    },
+    '/superadmin/knowledge': {
+        key: 'superadmin.knowledge',
+        authority: [SUPERADMIN],
+    },
+    '/superadmin/knowledge/[topicId]': {
+        key: 'superadmin.knowledge',
+        authority: [SUPERADMIN],
+    },
+    '/superadmin/knowledge/topics/new': {
+        key: 'superadmin.knowledge',
+        authority: [SUPERADMIN],
+    },
+    '/superadmin/knowledge/topics/[id]/edit': {
+        key: 'superadmin.knowledge',
+        authority: [SUPERADMIN],
+    },
+    '/superadmin/knowledge/articles/new': {
+        key: 'superadmin.knowledge',
+        authority: [SUPERADMIN],
+    },
+    '/superadmin/knowledge/articles/[articleId]/edit': {
+        key: 'superadmin.knowledge',
+        authority: [SUPERADMIN],
+    },
 }
 
 export default superadminRoute

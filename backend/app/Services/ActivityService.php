@@ -239,6 +239,25 @@ class ActivityService
         );
     }
 
+    public static function logCompanyUnblocked(Company $company, ?User $actor = null): ActivityLog
+    {
+        $actor = $actor ?? Auth::user();
+
+        return self::log(
+            ActivityLog::ACTION_UNBLOCK,
+            ActivityLog::SEGMENT_ADMIN,
+            ActivityLog::CATEGORY_COMPANY,
+            'Company',
+            $company->id,
+            $company->name,
+            ['status' => 'suspended'],
+            ['status' => 'active'],
+            "Компания разблокирована: {$company->name}",
+            $company->id,
+            $actor?->id
+        );
+    }
+
     // ========== Пользователи ==========
 
     public static function logUserCreated(User $user, ?User $actor = null): ActivityLog

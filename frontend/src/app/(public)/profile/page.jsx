@@ -15,6 +15,7 @@ import { useUserStore } from '@/store'
 import { CLIENT } from '@/constants/roles.constant'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDate } from '@/utils/dateTime'
+import { CLIENT_DEFAULT_TIMEZONE, resolveClientBookingTimezone } from '@/constants/client-datetime.constant'
 import {
     getClientReviews,
     getPendingReviews,
@@ -214,7 +215,15 @@ const BookingsTab = () => {
                                         </p>
                                     )}
                                     <div className="flex flex-wrap gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <span>{booking.date ? formatDate(booking.date, 'America/Los_Angeles', 'long') : 'N/A'}</span>
+                                        <span>
+                                            {booking.date
+                                                ? formatDate(
+                                                      booking.date,
+                                                      resolveClientBookingTimezone(booking),
+                                                      'long',
+                                                  )
+                                                : t('notAvailable')}
+                                        </span>
                                         <span>•</span>
                                         <span>{booking.time}</span>
                                         {booking.specialist && (
@@ -323,15 +332,11 @@ const BookingsTab = () => {
                                             booking.status === 'cancelled' && 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
                                         )}
                                     >
-                                        {booking.status === 'new' && 'Новый'}
-                                        {booking.status === 'pending' && 'Ожидает'}
-                                        {booking.status === 'confirmed' && 'Подтвержден'}
-                                        {booking.status === 'completed' && 'Завершен'}
-                                        {booking.status === 'cancelled' && 'Отменен'}
+                                        {t(`bookingStatus.${['new', 'pending', 'confirmed', 'completed', 'cancelled'].includes(booking.status) ? booking.status : 'pending'}`)}
                                     </span>
                                     <Link href="/booking">
                                         <Button variant="plain" size="sm">
-                                            Подробнее →
+                                            {t('detailsCta')}
                                         </Button>
                                     </Link>
                                 </div>
@@ -345,7 +350,7 @@ const BookingsTab = () => {
                 <div className="text-center pt-2">
                     <Link href="/booking">
                         <Button variant="outline" size="sm">
-                            Показать все бронирования ({bookings.length})
+                            {t('showAllBookings', { count: bookings.length })}
                         </Button>
                     </Link>
                 </div>
@@ -418,9 +423,9 @@ const ReviewsTab = () => {
         return (
             <div className="p-4 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center w-full">
                 <PiStar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
-                <p className="text-sm sm:text-base text-gray-500">У вас пока нет отзывов</p>
+                <p className="text-sm sm:text-base text-gray-500">{t('reviewsEmptyTitle')}</p>
                 <p className="text-xs sm:text-sm text-gray-400 mt-2">
-                    После завершения бронирований здесь появятся запросы на отзывы
+                    {t('reviewsEmptyHint')}
                 </p>
             </div>
         )
@@ -454,7 +459,13 @@ const ReviewsTab = () => {
                                                     {order.serviceName}
                                                 </p>
                                                 <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500">
-                                                    <span>{formatDate(order.date, 'America/Los_Angeles', 'short')}</span>
+                                                    <span>
+                                                    {formatDate(
+                                                        order.date,
+                                                        resolveClientBookingTimezone(order),
+                                                        'short',
+                                                    )}
+                                                </span>
                                                     <span>•</span>
                                                     <span>{order.time}</span>
                                                     <span>•</span>
@@ -525,7 +536,7 @@ const ReviewsTab = () => {
                                                 </p>
                                                 {review.specialistName && (
                                                     <p className="text-xs text-gray-400 mt-0.5 truncate">
-                                                        Исполнитель: {review.specialistName}
+                                                        {t('specialist')}: {review.specialistName}
                                                     </p>
                                                 )}
                                             </div>
@@ -549,7 +560,7 @@ const ReviewsTab = () => {
                                         {review.response && (
                                             <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                                 <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                                    Ответ от {review.businessName}:
+                                                    {t('businessResponse', { name: review.businessName })}
                                                 </p>
                                                 <p className="text-sm text-gray-700 dark:text-gray-300">
                                                     {review.response}
@@ -557,7 +568,7 @@ const ReviewsTab = () => {
                                             </div>
                                         )}
                                         <div className="text-xs text-gray-400 mt-2">
-                                            {formatDate(review.createdAt, 'America/Los_Angeles', 'long')}
+                                            {formatDate(review.createdAt, CLIENT_DEFAULT_TIMEZONE, 'long')}
                                         </div>
                                     </div>
                                 </div>
@@ -730,7 +741,7 @@ const FavoritesTab = () => {
                                             {normalizedImageUrl ? (
                                                 <Image
                                                     src={normalizedImageUrl}
-                                                    alt={service.serviceName || 'Услуга'}
+                                                    alt={service.serviceName || t('altServiceImage')}
                                                     fill
                                                     className="object-cover"
                                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -761,7 +772,7 @@ const FavoritesTab = () => {
                                             
                                             {/* Название услуги */}
                                             <h4 className="font-semibold text-base text-gray-900 dark:text-white mb-1 line-clamp-1">
-                                                {service.serviceName || 'Услуга'}
+                                                {service.serviceName || t('altServiceImage')}
                                             </h4>
                                             
                                             {/* Название бизнеса */}
@@ -863,7 +874,7 @@ const FavoritesTab = () => {
                                             {normalizedImageUrl ? (
                                                 <Image
                                                     src={normalizedImageUrl}
-                                                    alt={ad.title || ad.name || ad.advertisementName || 'Объявление'}
+                                                    alt={ad.title || ad.name || ad.advertisementName || t('altAdvertisementImage')}
                                                     fill
                                                     className="object-cover"
                                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -899,7 +910,7 @@ const FavoritesTab = () => {
                                             
                                             {/* Название объявления */}
                                             <h4 className="font-semibold text-base text-gray-900 dark:text-white mb-1 line-clamp-1">
-                                                {ad.title || ad.name || ad.advertisementName || 'Объявление'}
+                                                {ad.title || ad.name || ad.advertisementName || t('altAdvertisementImage')}
                                             </h4>
                                             
                                             {/* Название бизнеса */}
@@ -1040,9 +1051,6 @@ const NotificationsTab = () => {
             [key]: value,
         }
         updateSettingsMutation.mutate(newSettings)
-        // TODO: Интеграция с email сервисом (SendGrid, Mailgun и т.д.)
-        // TODO: Интеграция с SMS сервисом (Twilio, Sms.ru и т.д.)
-        // TODO: Интеграция с Telegram Bot API
     }
 
     if (settingsLoading) {
@@ -1092,6 +1100,7 @@ const NotificationsTab = () => {
                         disabled={settingsLoading || updateSettingsMutation.isPending}
                     />
                 </div>
+                {/* SMS временно скрыт
                 <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
@@ -1110,6 +1119,7 @@ const NotificationsTab = () => {
                         disabled={settingsLoading || updateSettingsMutation.isPending}
                     />
                 </div>
+                */}
                 <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/20 flex items-center justify-center">
@@ -1131,7 +1141,8 @@ const NotificationsTab = () => {
             </div>
             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <p className="text-xs text-blue-700 dark:text-blue-300">
-                    <strong>На будущее:</strong> Интеграция с email (SendGrid/Mailgun), SMS (Twilio/Sms.ru) и Telegram Bot API будет добавлена на этапе разработки бэкенда.
+                    <strong>{t('telegramFutureTitle')}</strong>{' '}
+                    {t('telegramFutureBody')}
                 </p>
             </div>
         </div>
@@ -1306,13 +1317,23 @@ const DiscountsAndBonusesTab = () => {
                                             >
                                                 {isDiscount
                                                     ? item.discountType === 'percentage'
-                                                        ? `-${item.discountValue}%`
-                                                        : `-$${item.discountValue}`
+                                                        ? t('discountPercentOff', {
+                                                              value: item.discountValue,
+                                                          })
+                                                        : t('discountMoneyOff', {
+                                                              amount: `$${item.discountValue}`,
+                                                          })
                                                     : item.bonusType === 'points'
-                                                    ? `+${item.bonusValue} баллов`
-                                                    : item.bonusType === 'cashback'
-                                                    ? `${item.bonusValue}% кэшбэк`
-                                                    : `Бонус ${item.bonusValue}`}
+                                                      ? t('pointsReward', {
+                                                            value: item.bonusValue,
+                                                        })
+                                                      : item.bonusType === 'cashback'
+                                                        ? t('cashbackReward', {
+                                                              value: item.bonusValue,
+                                                          })
+                                                        : t('bonusValueLabel', {
+                                                              value: item.bonusValue,
+                                                          })}
                                             </span>
                                         </div>
                                         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">
@@ -1336,20 +1357,22 @@ const DiscountsAndBonusesTab = () => {
                                             size="sm"
                                             icon={<PiCopy />}
                                             onClick={() => handleCopyCode(item.code)}
-                                            title="Скопировать код"
+                                            title={t('copyCodeTitle')}
                                             className="h-6 w-6 p-0"
                                         />
                                         {item.minPurchaseAmount && (
                                             <span className="text-xs text-gray-500">
-                                                От ${item.minPurchaseAmount}
+                                                {t('minPurchaseFrom', {
+                                                    amount: `$${item.minPurchaseAmount}`,
+                                                })}
                                             </span>
                                         )}
                                     </div>
                                 )}
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs text-gray-500">
-                                        Действует до:{' '}
-                                        {formatDate(item.validUntil, 'America/Los_Angeles', 'short')}
+                                        {t('validUntil')}{' '}
+                                        {formatDate(item.validUntil, CLIENT_DEFAULT_TIMEZONE, 'short')}
                                     </span>
                                     {isValid && (
                                         <Button
@@ -1366,7 +1389,7 @@ const DiscountsAndBonusesTab = () => {
                                                     : applyBonusMutation.isPending
                                             }
                                         >
-                                            {isDiscount ? 'Применить' : 'Получить'}
+                                            {isDiscount ? t('apply') : t('get')}
                                         </Button>
                                     )}
                                 </div>
@@ -1380,7 +1403,7 @@ const DiscountsAndBonusesTab = () => {
             {(usedDiscounts.length > 0 || usedBonuses.length > 0) && (
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                     <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                        Использованные
+                        {t('usedItems')}
                     </h4>
                     <div className="space-y-2">
                         {[...usedDiscounts, ...usedBonuses].map((item) => {
@@ -1393,20 +1416,30 @@ const DiscountsAndBonusesTab = () => {
                                             <span className="text-xs text-gray-500 ml-2">
                                                 {t('used')}:{' '}
                                                 {item.usedAt
-                                                    ? formatDate(item.usedAt, 'America/Los_Angeles', 'short')
+                                                    ? formatDate(item.usedAt, CLIENT_DEFAULT_TIMEZONE, 'short')
                                                     : '-'}
                                             </span>
                                         </div>
                                         <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-400 text-white">
                                             {isDiscount
                                                 ? item.discountType === 'percentage'
-                                                    ? `-${item.discountValue}%`
-                                                    : `-$${item.discountValue}`
+                                                    ? t('discountPercentOff', {
+                                                          value: item.discountValue,
+                                                      })
+                                                    : t('discountMoneyOff', {
+                                                          amount: `$${item.discountValue}`,
+                                                      })
                                                 : item.bonusType === 'points'
-                                                ? `+${item.bonusValue} баллов`
-                                                : item.bonusType === 'cashback'
-                                                ? `${item.bonusValue}% кэшбэк`
-                                                : `Бонус ${item.bonusValue}`}
+                                                  ? t('pointsReward', {
+                                                        value: item.bonusValue,
+                                                    })
+                                                  : item.bonusType === 'cashback'
+                                                    ? t('cashbackReward', {
+                                                          value: item.bonusValue,
+                                                      })
+                                                    : t('bonusValueLabel', {
+                                                          value: item.bonusValue,
+                                                      })}
                                         </span>
                                     </div>
                                 </Card>

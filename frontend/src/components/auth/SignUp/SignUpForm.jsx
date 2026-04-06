@@ -60,15 +60,16 @@ const SignUpForm = (props) => {
 
     return (
         <div className={className}>
-            <Form onSubmit={handleSubmit(handleSignUp)} className="space-y-3 sm:space-y-4">
-                <div className="mb-3 sm:mb-4">
-                    <label className="block text-xs sm:text-sm font-semibold mb-2">{t('registeringAs')}</label>
+            <Form onSubmit={handleSubmit(handleSignUp)} className="space-y-4">
+                <div className="mb-4">
+                    <label className="block text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
+                        {t('registeringAs')}
+                    </label>
                     <div className="grid grid-cols-2 gap-2">
                         <Button
                             type="button"
                             variant="solid"
-                            size="sm"
-                            className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+                            className="w-full h-11 text-sm font-bold"
                             disabled
                         >
                             {t('client')}
@@ -76,8 +77,7 @@ const SignUpForm = (props) => {
                         <Button
                             type="button"
                             variant="plain"
-                            size="sm"
-                            className="w-full h-8 sm:h-10 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 hover:border-primary hover:bg-primary/5"
+                            className="w-full h-11 text-sm font-bold border border-gray-200 dark:border-gray-700 hover:border-primary hover:bg-primary/5"
                             onClick={() => router.push('/sign-up/business')}
                         >
                             {t('businessOwner')}
@@ -85,7 +85,7 @@ const SignUpForm = (props) => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 sm:gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <FormItem
                         label={t('firstName')}
                         invalid={Boolean(errors.firstName)}
@@ -99,7 +99,6 @@ const SignUpForm = (props) => {
                                     type="text"
                                     placeholder={t('firstName')}
                                     autoComplete="off"
-                                    size="sm"
                                     {...field}
                                 />
                             )}
@@ -118,7 +117,6 @@ const SignUpForm = (props) => {
                                     type="text"
                                     placeholder={t('lastName')}
                                     autoComplete="off"
-                                    size="sm"
                                     {...field}
                                 />
                             )}
@@ -138,7 +136,6 @@ const SignUpForm = (props) => {
                                 type="email"
                                 placeholder={t('email')}
                                 autoComplete="off"
-                                size="sm"
                                 {...field}
                             />
                         )}
@@ -148,7 +145,7 @@ const SignUpForm = (props) => {
                     label={t('phone')}
                     invalid={Boolean(errors.phone)}
                     errorMessage={errors.phone?.message}
-                    className="[&_.form-label]:mb-1 sm:[&_.form-label]:mb-2"
+                    className="[&_.form-label]:mb-2"
                 >
                     <Controller
                         name="phone"
@@ -158,13 +155,12 @@ const SignUpForm = (props) => {
                                 type="tel"
                                 placeholder={t('phonePlaceholder')}
                                 autoComplete="off"
-                                size="sm"
                                 {...field}
                             />
                         )}
                     />
                 </FormItem>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 sm:gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <FormItem
                         label={t('password')}
                         invalid={Boolean(errors.password)}
@@ -246,7 +242,10 @@ const SignUpForm = (props) => {
                                     onChange={(e) => onChange(e.target.checked)}
                                     className="mt-0.5 sm:mt-1 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
                                 />
-                                <label htmlFor="agreeToTerms" className="text-[10px] sm:text-sm text-gray-700 dark:text-gray-300 leading-tight sm:leading-relaxed">
+                                <label
+                                    htmlFor="agreeToTerms"
+                                    className="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 leading-snug sm:leading-relaxed"
+                                >
                                     {t('agreeTerms')}{' '}
                                     <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
                                         {t('termsOfService')}
@@ -270,8 +269,7 @@ const SignUpForm = (props) => {
                     loading={isSubmitting}
                     variant="solid"
                     type="submit"
-                    size="sm"
-                    className="mt-0.5 sm:mt-4 h-8 sm:h-10 text-xs sm:text-sm"
+                    className="mt-2 h-12 text-sm font-bold"
                 >
                     {isSubmitting ? t('creatingAccount') : t('signUpButton')}
                 </Button>

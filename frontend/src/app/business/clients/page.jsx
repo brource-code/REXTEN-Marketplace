@@ -57,7 +57,7 @@ function ClientsPageContent() {
     return (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4" data-tour="page-clients-main">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                         <div>
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>

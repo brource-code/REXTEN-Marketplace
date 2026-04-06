@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
@@ -24,7 +25,7 @@ class ReviewController extends Controller
                 $q->whereNull('review_token_expires_at')
                   ->orWhere('review_token_expires_at', '>', now());
             })
-            ->with(['company', 'service', 'advertisement', 'user:id,email,role']) // Загружаем user для проверки email
+            ->with(['company', 'service', 'advertisement', 'user.profile']) // user + profile (аватар на странице отзыва)
             ->first();
         
         // Проверяем, что у клиента нет клиентского аккаунта
@@ -76,15 +77,25 @@ class ReviewController extends Controller
             $businessName = $booking->company->name;
         }
 
+        $clientAvatar = null;
+        if ($booking->user_id && $booking->user?->profile?->avatar) {
+            $raw = $booking->user->profile->avatar;
+            $clientAvatar = filter_var($raw, FILTER_VALIDATE_URL)
+                ? $raw
+                : Storage::disk('public')->url($raw);
+        }
+
         return response()->json([
             'success' => true,
             'booking' => [
                 'id' => $booking->id,
                 'serviceName' => $serviceName,
                 'businessName' => $businessName,
+                'timezone' => $booking->company?->timezone ?? 'America/Los_Angeles',
                 'date' => $booking->booking_date ? $booking->booking_date->format('Y-m-d') : null,
                 'time' => $booking->booking_time,
                 'clientName' => $booking->client_name,
+                'clientAvatar' => $clientAvatar,
                 'hasReview' => $hasReview,
             ],
         ]);

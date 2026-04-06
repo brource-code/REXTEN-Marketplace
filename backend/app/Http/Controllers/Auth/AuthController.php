@@ -18,6 +18,25 @@ use App\Support\PasswordResetMailLocale;
 class AuthController extends Controller
 {
     /**
+     * Публичный относительный путь аватара (как в /auth/me) — единый формат для login/register/me.
+     */
+    private function publicAvatarPathFromProfile(?UserProfile $profile): ?string
+    {
+        if (! $profile || ! $profile->avatar) {
+            return null;
+        }
+
+        $avatarPath = \Illuminate\Support\Facades\Storage::disk('public')->url($profile->avatar);
+        if (str_starts_with($avatarPath, 'http://') || str_starts_with($avatarPath, 'https://')) {
+            $parsedUrl = parse_url($avatarPath);
+
+            return $parsedUrl['path'] ?? $avatarPath;
+        }
+
+        return $avatarPath;
+    }
+
+    /**
      * Register a new user.
      */
     public function register(Request $request)
@@ -97,18 +116,21 @@ class AuthController extends Controller
         $userData = $user->load('profile');
         
         // Возвращаем access token в ответе, refresh token в httpOnly cookie
+        $avatarPublic = $this->publicAvatarPathFromProfile($userData->profile);
+
         $response = response()->json([
             'access_token' => $accessToken,
             'user' => [
                 'id' => $userData->id,
                 'email' => $userData->email,
                 'role' => $userData->role,
+                'locale' => $userData->locale,
                 'name' => $userData->profile ? ($userData->profile->first_name . ' ' . $userData->profile->last_name) : null,
                 'firstName' => $userData->profile->first_name ?? null,
                 'lastName' => $userData->profile->last_name ?? null,
                 'phone' => $userData->profile->phone ?? null,
-                'avatar' => $userData->profile->avatar ?? null,
-                'image' => $userData->profile->avatar ?? null,
+                'avatar' => $avatarPublic,
+                'image' => $avatarPublic,
             ],
         ], 201);
         
@@ -220,7 +242,9 @@ class AuthController extends Controller
         ])->fromUser($user);
 
         $userData = $user->load('profile');
-        
+
+        $avatarPublic = $this->publicAvatarPathFromProfile($userData->profile);
+
         // Возвращаем access token в ответе, refresh token в httpOnly cookie
         $response = response()->json([
             'access_token' => $accessToken,
@@ -228,12 +252,13 @@ class AuthController extends Controller
                 'id' => $userData->id,
                 'email' => $userData->email,
                 'role' => $userData->role,
+                'locale' => $userData->locale,
                 'name' => $userData->profile ? ($userData->profile->first_name . ' ' . $userData->profile->last_name) : null,
                 'firstName' => $userData->profile->first_name ?? null,
                 'lastName' => $userData->profile->last_name ?? null,
                 'phone' => $userData->profile->phone ?? null,
-                'avatar' => $userData->profile->avatar ?? null,
-                'image' => $userData->profile->avatar ?? null,
+                'avatar' => $avatarPublic,
+                'image' => $avatarPublic,
             ],
         ]);
         
@@ -259,20 +284,7 @@ class AuthController extends Controller
         $user = auth('api')->user()->load('profile');
         $userData = $user;
 
-        // Формируем относительный путь для аватара (фронтенд сам добавит правильный базовый URL)
-        $avatarUrl = null;
-        if ($userData->profile && $userData->profile->avatar) {
-            // Возвращаем относительный путь, чтобы фронтенд мог использовать правильный базовый URL
-            $avatarPath = \Illuminate\Support\Facades\Storage::disk('public')->url($userData->profile->avatar);
-            // Если это уже полный URL, извлекаем только путь
-            if (str_starts_with($avatarPath, 'http://') || str_starts_with($avatarPath, 'https://')) {
-                $parsedUrl = parse_url($avatarPath);
-                $avatarUrl = $parsedUrl['path'] ?? $avatarPath;
-            } else {
-                // Это уже относительный путь
-                $avatarUrl = $avatarPath;
-            }
-        }
+        $avatarUrl = $this->publicAvatarPathFromProfile($userData->profile);
 
         // Формируем имя пользователя из firstName и lastName
         $fullName = null;
@@ -330,6 +342,7 @@ class AuthController extends Controller
             'id' => $userData->id,
             'email' => $userData->email,
             'role' => $userData->role,
+            'locale' => $userData->locale,
             'name' => $fullName,
             'firstName' => $userData->profile->first_name ?? null,
             'lastName' => $userData->profile->last_name ?? null,

@@ -20,9 +20,9 @@ import {
     PiUsers,
     PiClockCounterClockwise,
 } from 'react-icons/pi'
-import { HiLockClosed } from 'react-icons/hi'
+import { HiLockClosed, HiLockOpen } from 'react-icons/hi'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getCompany, approveCompany, rejectCompany, blockCompany } from '@/lib/api/superadmin'
+import { getCompany, approveCompany, rejectCompany, blockCompany, unblockCompany } from '@/lib/api/superadmin'
 import Loading from '@/components/shared/Loading'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import toast from '@/components/ui/toast'
@@ -152,6 +152,26 @@ export default function CompanyDetailPage() {
             ),
     })
 
+    const unblockMutation = useMutation({
+        mutationFn: () => unblockCompany(companyId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['superadmin-company', companyId] })
+            queryClient.invalidateQueries({ queryKey: ['companies'] })
+            toast.push(
+                <Notification title={t('toastOk')} type="success">
+                    {t('unblocked')}
+                </Notification>,
+            )
+            setConfirmDialog((d) => ({ ...d, isOpen: false }))
+        },
+        onError: (e) =>
+            toast.push(
+                <Notification title={t('toastErr')} type="danger">
+                    {e.response?.data?.message || t('unblockFail')}
+                </Notification>,
+            ),
+    })
+
     if (!Number.isFinite(companyId) || companyId <= 0) {
         return (
             <Container>
@@ -271,6 +291,24 @@ export default function CompanyDetailPage() {
                                     }
                                 >
                                     {t('block')}
+                                </Button>
+                            )}
+                            {status === 'suspended' && (
+                                <Button
+                                    size="sm"
+                                    variant="solid"
+                                    icon={<HiLockOpen />}
+                                    onClick={() =>
+                                        setConfirmDialog({
+                                            isOpen: true,
+                                            type: 'success',
+                                            title: t('confirmUnblockTitle'),
+                                            message: t('confirmUnblockMsg', { name: company.name }),
+                                            onConfirm: () => unblockMutation.mutate(),
+                                        })
+                                    }
+                                >
+                                    {t('unblock')}
                                 </Button>
                             )}
                         </div>
@@ -402,7 +440,10 @@ export default function CompanyDetailPage() {
                 confirmText={t('confirm')}
                 cancelText={t('cancel')}
                 loading={
-                    approveMutation.isPending || rejectMutation.isPending || blockMutation.isPending
+                    approveMutation.isPending ||
+                    rejectMutation.isPending ||
+                    blockMutation.isPending ||
+                    unblockMutation.isPending
                 }
             >
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{confirmDialog.message}</p>

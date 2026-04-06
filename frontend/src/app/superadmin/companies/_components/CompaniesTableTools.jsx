@@ -21,7 +21,7 @@ const CompaniesTableTools = () => {
     const [statusFilter, setStatusFilter] = useState(
         statusOptions.find(opt => opt.value === currentStatus) || statusOptions[0]
     )
-    const onAppendQueryParams = useAppendQueryParams()
+    const { onAppendQueryParams } = useAppendQueryParams()
 
     // Синхронизируем searchValue с URL при изменении параметров
     useEffect(() => {
@@ -29,6 +29,12 @@ const CompaniesTableTools = () => {
         if (urlSearch !== searchValue) {
             setSearchValue(urlSearch)
         }
+    }, [searchParams])
+
+    useEffect(() => {
+        const s = searchParams.get('status') || 'all'
+        const opt = statusOptions.find((o) => o.value === s) || statusOptions[0]
+        setStatusFilter(opt)
     }, [searchParams])
 
     const handleSearch = (e) => {
@@ -82,6 +88,7 @@ const CompaniesTableTools = () => {
                 options={statusOptions}
                 value={statusFilter}
                 onChange={handleStatusChange}
+                isSearchable={false}
             />
         </div>
     )

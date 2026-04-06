@@ -84,6 +84,8 @@ const QuickActions = () => {
                 {actions.map((action, index) => (
                     <button
                         key={index}
+                        type="button"
+                        data-tour={index === 0 ? 'btn-primary' : undefined}
                         onClick={action.onClick}
                         className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left w-full"
                     >

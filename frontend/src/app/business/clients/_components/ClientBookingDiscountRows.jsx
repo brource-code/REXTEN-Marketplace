@@ -22,15 +22,15 @@ export function ClientBookingDiscountRows({ booking, currency = 'USD' }) {
 
     return (
         <>
-            <div className="flex justify-between items-center text-sm">
-                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('subtotal')}</span>
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+            <div className="flex justify-between items-start gap-3 text-sm min-w-0">
+                <span className="text-sm font-bold text-gray-500 dark:text-gray-400 min-w-0 break-words pr-2">{t('subtotal')}</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">
                     {formatCurrency(subtotal, currency)}
                 </span>
             </div>
-            <div className="flex justify-between items-center text-sm">
-                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{detail}</span>
-                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+            <div className="flex justify-between items-start gap-3 text-sm min-w-0">
+                <span className="text-sm font-bold text-gray-500 dark:text-gray-400 min-w-0 break-words pr-2">{detail}</span>
+                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
                     −{formatCurrency(discount, currency)}
                 </span>
             </div>

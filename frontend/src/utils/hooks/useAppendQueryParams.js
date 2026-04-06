@@ -10,7 +10,11 @@ const useAppendQueryParams = () => {
         const updatedParams = new URLSearchParams(searchParams.toString())
 
         Object.entries(params).forEach(([name, value]) => {
-            updatedParams.set(name, String(value))
+            if (value === '' || value === null || value === undefined) {
+                updatedParams.delete(name)
+            } else {
+                updatedParams.set(name, String(value))
+            }
         })
 
         const newQueryString = updatedParams.toString()

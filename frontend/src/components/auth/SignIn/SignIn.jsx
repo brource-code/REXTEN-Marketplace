@@ -1,5 +1,7 @@
 'use client'
+import Link from 'next/link'
 import Logo from '@/components/template/Logo'
+import appConfig from '@/configs/app.config'
 import Alert from '@/components/ui/Alert'
 import SignInForm from './SignInForm'
 import OauthSignIn from './OauthSignIn'
@@ -22,12 +24,17 @@ const SignIn = ({
     return (
         <>
             <div className="mb-8">
-                <Logo
-                    type="streamline"
-                    mode={mode}
-                    forceSvg={true}
-                    imgClass="max-h-12 w-auto"
-                />
+                <Link
+                    href={appConfig.marketplaceHomePath}
+                    className="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+                >
+                    <Logo
+                        type="full"
+                        mode={mode}
+                        forceSvg={true}
+                        imgClass="h-7 w-auto max-w-[130px] sm:h-8 sm:max-w-[150px]"
+                    />
+                </Link>
             </div>
             <div className="mb-10">
                 <h2 className="mb-2">{t('welcome')}</h2>

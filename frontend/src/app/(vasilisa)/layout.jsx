@@ -8,7 +8,11 @@ export const metadata = {
 // Этот layout оборачивается в root layout, но имеет собственную изоляцию
 export default function VasilisaLayout({ children }) {
     return (
-        <div className="vasilisa-landing" style={{ isolation: 'isolate' }}>
+        <div
+            data-public-fullscreen
+            className="vasilisa-landing min-h-screen min-h-[100dvh] bg-white"
+            style={{ isolation: 'isolate' }}
+        >
             {children}
         </div>
     )

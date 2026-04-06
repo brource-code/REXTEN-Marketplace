@@ -7,7 +7,10 @@ export const metadata = {
 
 export default function NewLandingLayout({ children }) {
     return (
-        <div className="min-h-screen bg-white text-gray-900 font-sans">
+        <div
+            data-public-fullscreen
+            className="min-h-screen min-h-[100dvh] bg-white text-gray-900 font-sans"
+        >
             {children}
         </div>
     )

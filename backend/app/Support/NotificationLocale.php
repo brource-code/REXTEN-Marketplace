@@ -49,4 +49,30 @@ class NotificationLocale
 
         return self::normalize($raw);
     }
+
+    /**
+     * Локаль любого пользователя (для уведомлений автору тикета и т.п.).
+     */
+    public static function forUser(?User $user): string
+    {
+        if (! $user) {
+            return 'en';
+        }
+
+        return self::normalize($user->locale);
+    }
+
+    /**
+     * Локаль клиента (получателя in-app / писем) по id — из users.locale, иначе en.
+     */
+    public static function forClientRecipient(?int $userId): string
+    {
+        if (! $userId) {
+            return 'en';
+        }
+
+        $user = User::query()->find($userId);
+
+        return self::forUser($user);
+    }
 }

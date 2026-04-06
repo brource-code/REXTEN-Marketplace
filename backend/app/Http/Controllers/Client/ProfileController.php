@@ -40,6 +40,7 @@ class ProfileController extends Controller
                 'id' => $user->id,
                 'email' => $user->email,
                 'role' => $user->role,
+                'locale' => $user->locale,
                 'firstName' => $user->profile->first_name ?? null,
                 'lastName' => $user->profile->last_name ?? null,
                 'phone' => $user->profile->phone ?? null,
@@ -129,6 +130,7 @@ class ProfileController extends Controller
             'city' => $profile->city,
             'state' => $profile->state,
             'zipCode' => $profile->zip_code,
+            'locale' => $user->locale,
         ]);
     }
 

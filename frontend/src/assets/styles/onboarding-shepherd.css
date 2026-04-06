@@ -1,0 +1,140 @@
+/* Rexten tour: тултипы Shepherd в стиле Dialog / кнопок платформы (CSS-переменные из tailwind/index.css) */
+
+/* Маска Shepherd отключена (useModalOverlay: false); затемнение — OnboardingTourBackdrop */
+
+/* Сброс дефолтов shepherd.css (#3288e6 кнопки, #e6e6e6 заголовок) */
+.shepherd-rexten-step.shepherd-has-title .shepherd-content .shepherd-header {
+    background: transparent !important;
+    padding: 1rem 1rem 0.5rem !important;
+}
+
+.shepherd-rexten-step.shepherd-element {
+    max-width: 22rem;
+    z-index: 10050;
+    border-radius: 1rem;
+    border: 1px solid var(--gray-200);
+    background: var(--neutral);
+    box-shadow:
+        0 25px 50px -12px rgb(0 0 0 / 0.18),
+        0 0 0 1px rgb(0 0 0 / 0.04);
+}
+
+.dark .shepherd-rexten-step.shepherd-element {
+    border-color: var(--gray-700);
+    background: var(--gray-800);
+    box-shadow:
+        0 25px 50px -12px rgb(0 0 0 / 0.5),
+        0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.shepherd-rexten-step .shepherd-header {
+    padding: 1rem 1rem 0.5rem;
+}
+
+.shepherd-rexten-step .shepherd-title {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.dark .shepherd-rexten-step .shepherd-title {
+    color: var(--gray-100);
+}
+
+.shepherd-rexten-step .shepherd-text {
+    padding: 0 1rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    font-weight: 700;
+    color: var(--gray-500);
+}
+
+.dark .shepherd-rexten-step .shepherd-text {
+    color: var(--gray-400);
+}
+
+.shepherd-rexten-step .shepherd-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    border-top: 1px solid var(--gray-100);
+    padding: 0.75rem 1rem;
+}
+
+.dark .shepherd-rexten-step .shepherd-footer {
+    border-color: var(--gray-700);
+}
+
+/* Как Button variant="solid" */
+.shepherd-rexten-step .shepherd-button:not(.shepherd-button-secondary) {
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border: none;
+    background: var(--primary);
+    color: var(--neutral);
+}
+
+.shepherd-rexten-step .shepherd-button:not(.shepherd-button-secondary):hover:not(:disabled) {
+    background: var(--primary-deep);
+    color: var(--neutral);
+}
+
+/* Как Button variant="default" */
+.shepherd-rexten-step .shepherd-button.shepherd-button-secondary {
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    border: 1px solid var(--gray-300);
+    background: var(--neutral);
+    color: var(--gray-600);
+}
+
+.shepherd-rexten-step .shepherd-button.shepherd-button-secondary:hover:not(:disabled) {
+    border-color: var(--gray-400);
+}
+
+.dark .shepherd-rexten-step .shepherd-button.shepherd-button-secondary {
+    border-color: var(--gray-700);
+    background: var(--gray-700);
+    color: var(--gray-100);
+}
+
+.dark .shepherd-rexten-step .shepherd-button.shepherd-button-secondary:hover:not(:disabled) {
+    border-color: var(--gray-600);
+    background: var(--gray-600);
+}
+
+.shepherd-rexten-step .shepherd-cancel-icon {
+    color: var(--gray-400);
+}
+
+.dark .shepherd-rexten-step .shepherd-cancel-icon:hover {
+    color: var(--gray-200);
+}
+
+.shepherd-rexten-step .shepherd-arrow:before {
+    background: var(--neutral);
+    border: 1px solid var(--gray-200);
+}
+
+.dark .shepherd-rexten-step .shepherd-arrow:before {
+    background: var(--gray-800);
+    border-color: var(--gray-700);
+}
+
+/* Стрелка у шага с заголовком снизу — без серой полосы из дефолтного shepherd */
+.shepherd-rexten-step.shepherd-has-title[data-popper-placement^='bottom'] > .shepherd-arrow:before {
+    background-color: var(--neutral);
+    border-color: var(--gray-200);
+}
+
+.dark .shepherd-rexten-step.shepherd-has-title[data-popper-placement^='bottom'] > .shepherd-arrow:before {
+    background-color: var(--gray-800);
+    border-color: var(--gray-700);
+}

@@ -232,6 +232,7 @@ class SettingsController extends Controller
                     'avatar' => $logoUrl,
                     'onboarding_completed' => (bool) ($company->onboarding_completed ?? false),
                     'onboarding_completed_at' => $company->onboarding_completed_at ? $company->onboarding_completed_at->toISOString() : null,
+                    'onboarding_version' => $company->onboarding_version ?? null,
                     'is_owner' => $isOwner,
                     'permissions' => $permissions,
                 ]
@@ -2576,9 +2577,10 @@ public function deleteAdvertisement(Request $request, $id)
             ], 404);
         }
 
-        // Отмечаем онбординг как завершенный
+        // Отмечаем онбординг как завершенный (тур V1)
         $company->onboarding_completed = true;
         $company->onboarding_completed_at = now();
+        $company->onboarding_version = 'v1';
         $company->save();
 
         return response()->json([
@@ -2587,6 +2589,7 @@ public function deleteAdvertisement(Request $request, $id)
             'data' => [
                 'onboarding_completed' => $company->onboarding_completed,
                 'onboarding_completed_at' => $company->onboarding_completed_at,
+                'onboarding_version' => $company->onboarding_version,
             ],
         ]);
     }
@@ -2760,17 +2763,24 @@ public function deleteAdvertisement(Request $request, $id)
             ], 404);
         }
 
-        // Возвращаем настройки уведомлений (можно хранить в отдельной таблице или в user_profiles)
-        // Пока возвращаем дефолтные значения
+        $company = Company::find($companyId);
+
+        if (!$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company not found',
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
-                'email' => true,
-                'sms' => false,
-                'newBookings' => true,
-                'cancellations' => true,
-                'payments' => true,
-                'reviews' => true,
+                'email' => (bool) ($company->notification_email_enabled ?? true),
+                'sms' => (bool) ($company->notification_sms_enabled ?? false),
+                'newBookings' => (bool) ($company->notification_new_bookings ?? true),
+                'cancellations' => (bool) ($company->notification_cancellations ?? true),
+                'payments' => (bool) ($company->notification_payments ?? true),
+                'reviews' => (bool) ($company->notification_reviews ?? true),
             ],
         ]);
     }
@@ -2802,21 +2812,53 @@ public function deleteAdvertisement(Request $request, $id)
             ], 404);
         }
 
-        // Обновляем настройки уведомлений (можно хранить в отдельной таблице)
-        // Пока просто возвращаем обновленные данные
-        $settings = [
-            'email' => $request->input('email', true),
-            'sms' => $request->input('sms', false),
-            'newBookings' => $request->input('newBookings', true),
-            'cancellations' => $request->input('cancellations', true),
-            'payments' => $request->input('payments', true),
-            'reviews' => $request->input('reviews', true),
-        ];
+        $company = Company::find($companyId);
+
+        if (!$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company not found',
+            ], 404);
+        }
+
+        $company->notification_email_enabled = $request->boolean(
+            'email',
+            (bool) ($company->notification_email_enabled ?? true)
+        );
+        $company->notification_sms_enabled = $request->boolean(
+            'sms',
+            (bool) ($company->notification_sms_enabled ?? false)
+        );
+        $company->notification_new_bookings = $request->boolean(
+            'newBookings',
+            (bool) ($company->notification_new_bookings ?? true)
+        );
+        $company->notification_cancellations = $request->boolean(
+            'cancellations',
+            (bool) ($company->notification_cancellations ?? true)
+        );
+        $company->notification_payments = $request->boolean(
+            'payments',
+            (bool) ($company->notification_payments ?? true)
+        );
+        $company->notification_reviews = $request->boolean(
+            'reviews',
+            (bool) ($company->notification_reviews ?? true)
+        );
+
+        $company->save();
 
         return response()->json([
             'success' => true,
             'message' => 'Notification settings updated successfully',
-            'data' => $settings,
+            'data' => [
+                'email' => (bool) $company->notification_email_enabled,
+                'sms' => (bool) $company->notification_sms_enabled,
+                'newBookings' => (bool) $company->notification_new_bookings,
+                'cancellations' => (bool) $company->notification_cancellations,
+                'payments' => (bool) $company->notification_payments,
+                'reviews' => (bool) $company->notification_reviews,
+            ],
         ]);
     }
 
