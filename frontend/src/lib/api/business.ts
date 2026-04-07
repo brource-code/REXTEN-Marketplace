@@ -2,6 +2,7 @@
 // Используются с React Query
 
 import LaravelAxios from '@/services/axios/LaravelAxios'
+import { logClientApiError, logClientApiWarn } from '@/utils/logClientApiError'
 
 // ========== Reviews ==========
 export interface BusinessReview {
@@ -154,12 +155,7 @@ export async function getBusinessStats(): Promise<BusinessStats> {
         }
     } catch (error: any) {
         // Если ошибка, возвращаем дефолтные значения вместо падения
-        console.error('Failed to fetch business stats:', error)
-        console.error('Error details:', {
-            message: error?.message,
-            response: error?.response?.data,
-            status: error?.response?.status,
-        })
+        logClientApiError('Failed to fetch business stats', error)
         const z = (): DashboardPeriodMetric => ({ value: 0, growShrink: 0 })
 
         return {
@@ -203,25 +199,22 @@ export async function getChartData(
         const response = await LaravelAxios.get('/business/dashboard/chart', {
             params: { category, period },
         })
-        console.log('Business Chart API Response:', response.data)
-        
+
         // Проверяем структуру ответа
         let data = response.data
         if (data && data.data) {
             data = data.data
         }
-        
-        console.log('Business Chart Parsed Data:', data)
-        
+
         // Убеждаемся, что структура правильная
         if (!data || typeof data !== 'object') {
-            console.error('Invalid chart data structure:', data)
+            console.error('Invalid chart data structure:', typeof data)
             throw new Error('Invalid chart data structure')
         }
         
         // Проверяем наличие series
         if (!data.series || !Array.isArray(data.series)) {
-            console.warn('Chart data missing series array:', data)
+            logClientApiWarn('Chart data missing series array', new Error('Missing series'), { category, period })
             return {
                 series: [{ name: category, data: [] }],
                 categories: [],
@@ -236,12 +229,7 @@ export async function getChartData(
         }
     } catch (error: any) {
         // Endpoint может быть не реализован, возвращаем пустую структуру
-        console.error('Chart data endpoint error:', error)
-        console.error('Error details:', {
-            message: error?.message,
-            response: error?.response?.data,
-            status: error?.response?.status,
-        })
+        logClientApiError('Chart data endpoint error', error, { category, period })
         return {
             series: [{ name: category, data: [] }],
             categories: [],
@@ -826,6 +814,10 @@ export async function markAllBusinessNotificationsAsRead(): Promise<void> {
 
 export async function deleteBusinessNotification(id: number): Promise<void> {
     await LaravelAxios.delete(`/business/notifications/${id}`)
+}
+
+export async function deleteAllBusinessNotifications(): Promise<void> {
+    await LaravelAxios.delete('/business/notifications')
 }
 
 // ========== Support tickets ==========

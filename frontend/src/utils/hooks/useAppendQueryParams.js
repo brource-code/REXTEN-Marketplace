@@ -18,7 +18,14 @@ const useAppendQueryParams = () => {
         })
 
         const newQueryString = updatedParams.toString()
-        router.push(`${pathname}?${newQueryString}`)
+        const currentQueryString = searchParams.toString()
+        if (newQueryString === currentQueryString) {
+            return
+        }
+        const href = newQueryString
+            ? `${pathname}?${newQueryString}`
+            : pathname
+        router.push(href)
     }
 
     return { onAppendQueryParams }

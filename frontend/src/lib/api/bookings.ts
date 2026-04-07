@@ -1,4 +1,5 @@
 import LaravelAxios from '@/services/axios/LaravelAxios'
+import { logClientApiError } from '@/utils/logClientApiError'
 
 export interface AvailableSlot {
     time: string
@@ -46,15 +47,11 @@ export interface BookingResponse {
  * Создать бронирование (публичный endpoint)
  */
 export async function createBooking(data: CreateBookingRequest): Promise<BookingResponse> {
-    console.log('[createBooking] Отправка данных бронирования:', JSON.stringify(data, null, 2))
     try {
         const response = await LaravelAxios.post('/bookings', data)
-        console.log('[createBooking] Успешный ответ от сервера:', response.data)
         return response.data
     } catch (error) {
-        console.error('[createBooking] Ошибка при создании бронирования:', error)
-        console.error('[createBooking] Error response:', error?.response)
-        console.error('[createBooking] Error response data:', error?.response?.data)
+        logClientApiError('[createBooking] Ошибка при создании бронирования', error)
         throw error
     }
 }

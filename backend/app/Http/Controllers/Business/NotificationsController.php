@@ -96,4 +96,19 @@ class NotificationsController extends Controller
             'message' => 'Уведомление удалено',
         ]);
     }
+
+    /**
+     * Delete all notifications for the current user.
+     */
+    public function destroyAll()
+    {
+        $user = auth('api')->user();
+
+        Notification::where('user_id', $user->id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Все уведомления удалены',
+        ]);
+    }
 }

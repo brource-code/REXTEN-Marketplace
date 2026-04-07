@@ -2,6 +2,7 @@
 // Используются с React Query
 
 import LaravelAxios from '@/services/axios/LaravelAxios'
+import { logClientApiError, logClientApiWarn } from '@/utils/logClientApiError'
 
 // Типы
 export interface ClientProfile {
@@ -411,7 +412,7 @@ export async function getFavoriteServices(): Promise<FavoriteService[]> {
         }
         // Логируем только реальные ошибки (не 401/403)
         if (error?.response?.status !== 401 && error?.response?.status !== 403) {
-            console.error('Error fetching favorite services:', error?.response?.data || error?.message || error)
+            logClientApiError('Error fetching favorite services', error)
         }
         return []
     }
@@ -438,7 +439,7 @@ export async function getFavoriteAdvertisements(): Promise<any[]> {
         }
         // Логируем только реальные ошибки (не 401/403)
         if (error?.response?.status !== 401 && error?.response?.status !== 403) {
-            console.error('Error fetching favorite advertisements:', error?.response?.data || error?.message || error)
+            logClientApiError('Error fetching favorite advertisements', error)
         }
         return []
     }
@@ -466,7 +467,7 @@ export async function getFavoriteBusinesses(): Promise<FavoriteBusiness[]> {
         }
         // Логируем только реальные ошибки (не 401/403)
         if (error?.response?.status !== 401 && error?.response?.status !== 403) {
-            console.error('Error fetching favorite businesses:', error?.response?.data || error?.message || error)
+            logClientApiError('Error fetching favorite businesses', error)
         }
         return []
     }
@@ -476,7 +477,7 @@ export async function addToFavorites(type: 'service' | 'business' | 'advertiseme
     try {
         await LaravelAxios.post(`/client/favorites/${type}/${id}`)
     } catch (error: any) {
-        console.error('Error adding to favorites:', { type, id, error: error?.response?.data })
+        logClientApiError('Error adding to favorites', error, { type, id })
         throw error
     }
 }
@@ -669,7 +670,7 @@ export async function getClientDiscounts(): Promise<Discount[]> {
         return Array.isArray(data) ? data : []
     } catch (error) {
         // Endpoint может быть не реализован, возвращаем пустой массив
-        console.warn('Discounts endpoint not available:', error)
+        logClientApiWarn('Discounts endpoint not available', error)
         return []
     }
 }
@@ -681,7 +682,7 @@ export async function getClientBonuses(): Promise<Bonus[]> {
         return Array.isArray(data) ? data : []
     } catch (error) {
         // Endpoint может быть не реализован, возвращаем пустой массив
-        console.warn('Bonuses endpoint not available:', error)
+        logClientApiWarn('Bonuses endpoint not available', error)
         return []
     }
 }
@@ -691,7 +692,7 @@ export async function applyDiscount(discountId: number): Promise<void> {
         await LaravelAxios.post(`/client/discounts/${discountId}/apply`)
     } catch (error) {
         // Endpoint может быть не реализован
-        console.warn('Apply discount endpoint not available:', error)
+        logClientApiWarn('Apply discount endpoint not available', error)
         throw error
     }
 }
@@ -701,7 +702,7 @@ export async function applyBonus(bonusId: number): Promise<void> {
         await LaravelAxios.post(`/client/bonuses/${bonusId}/apply`)
     } catch (error) {
         // Endpoint может быть не реализован
-        console.warn('Apply bonus endpoint not available:', error)
+        logClientApiWarn('Apply bonus endpoint not available', error)
         throw error
     }
 }

@@ -330,6 +330,7 @@
             "billing": "Facturación",
             "settings": "Configuración",
             "knowledge": "Base de conocimiento",
+            "notifications": "Notificaciones",
             "support": "Soporte"
         },
         "superadmin": {
@@ -1286,6 +1287,16 @@
                 "specialist": "Especialista",
                 "amount": "Monto"
             }
+        },
+        "notifications": {
+            "title": "Todas las notificaciones",
+            "description": "Lee y gestiona las alertas de tu cuenta de negocio.",
+            "clearAll": "Borrar todo",
+            "clearAllConfirm": "¿Eliminar todas las notificaciones? Esta acción no se puede deshacer.",
+            "markAllAsRead": "Marcar todas como leídas",
+            "empty": "Aún no hay notificaciones",
+            "emptyHint": "Aquí verás actualizaciones de reservas y otras alertas.",
+            "delete": "Eliminar"
         },
         "schedule": {
             "title": "Agenda",

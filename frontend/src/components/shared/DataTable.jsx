@@ -83,6 +83,7 @@ function DataTable(props) {
         indeterminateCheckboxChecked,
         instanceId = 'data-table',
         ref,
+        onRowClick,
         ...rest
     } = props
 
@@ -291,17 +292,69 @@ function DataTable(props) {
                                 .getRowModel()
                                 .rows.slice(0, pageSize)
                                 .map((row) => {
+                                    const handleRowClick = () => {
+                                        if (!loading) {
+                                            onRowClick?.(row.original)
+                                        }
+                                    }
+                                    const handleRowKeyDown = (e) => {
+                                        if (
+                                            !loading &&
+                                            onRowClick &&
+                                            (e.key === 'Enter' || e.key === ' ')
+                                        ) {
+                                            e.preventDefault()
+                                            onRowClick(row.original)
+                                        }
+                                    }
                                     return (
-                                        <Tr key={row.id}>
+                                        <Tr
+                                            key={row.id}
+                                            className={classNames(
+                                                onRowClick &&
+                                                    !loading &&
+                                                    'cursor-pointer',
+                                            )}
+                                            role={
+                                                onRowClick && !loading
+                                                    ? 'button'
+                                                    : undefined
+                                            }
+                                            tabIndex={
+                                                onRowClick && !loading
+                                                    ? 0
+                                                    : undefined
+                                            }
+                                            onClick={
+                                                onRowClick && !loading
+                                                    ? handleRowClick
+                                                    : undefined
+                                            }
+                                            onKeyDown={
+                                                onRowClick && !loading
+                                                    ? handleRowKeyDown
+                                                    : undefined
+                                            }
+                                        >
                                             {row
                                                 .getVisibleCells()
                                                 .map((cell) => {
+                                                    const stopRowClick =
+                                                        cell.column.columnDef
+                                                            .meta
+                                                            ?.stopRowClick
                                                     return (
                                                         <Td
                                                             key={cell.id}
                                                             style={{
                                                                 width: cell.column.getSize(),
                                                             }}
+                                                            onClick={
+                                                                stopRowClick
+                                                                    ? (e) =>
+                                                                          e.stopPropagation()
+                                                                    : undefined
+                                                            }
                                                         >
                                                             {flexRender(
                                                                 cell.column

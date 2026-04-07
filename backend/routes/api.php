@@ -374,6 +374,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/notifications', [BusinessNotificationsController::class, 'index']);
         Route::post('/notifications/{id}/read', [BusinessNotificationsController::class, 'markAsRead']);
         Route::post('/notifications/read-all', [BusinessNotificationsController::class, 'markAllAsRead']);
+        Route::delete('/notifications', [BusinessNotificationsController::class, 'destroyAll']);
         Route::delete('/notifications/{id}', [BusinessNotificationsController::class, 'destroy']);
 
         // Companies (owned + staff)

@@ -14,6 +14,7 @@ import { formatDuration } from '@/utils/formatDuration'
 import { formatCurrency } from '@/utils/formatCurrency'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import { useTranslations } from 'next-intl'
+import { logClientApiError, logClientApiWarn } from '@/utils/logClientApiError'
 
 /**
  * Переиспользуемый компонент модалки бронирования
@@ -192,13 +193,13 @@ const BookingDialog = ({
                 if (isCancelled) return
                 
                 if (!currentProfile) {
-                    console.error('Failed to reload profile')
+                    logClientApiError('BookingDialog: failed to reload profile', new Error('No profile'))
                     return
                 }
-                
+
                 setProfile(currentProfile)
             } catch (error) {
-                console.error('Error reloading profile:', error)
+                logClientApiError('BookingDialog: error reloading profile', error)
                 if (!initialProfile) return
                 currentProfile = initialProfile
             }
@@ -209,36 +210,15 @@ const BookingDialog = ({
             
             const companyIdNum = companyId || (currentProfile.service.company_id ? parseInt(currentProfile.service.company_id) : null)
             const servicesList = currentProfile.servicesList || []
-            
-            // Логируем сырые данные перед фильтрацией
-            console.log('[BookingDialog] Raw servicesList:', {
-                rawCount: servicesList.length,
-                rawServices: servicesList.map((s, idx) => ({
-                    index: idx,
-                    type: typeof s,
-                    isObject: typeof s === 'object',
-                    isArray: Array.isArray(s),
-                    id: s?.id,
-                    idType: typeof s?.id,
-                    idValue: s?.id,
-                    hasId: s?.id !== undefined && s?.id !== null && s?.id !== '',
-                    fullItem: s
-                }))
-            })
-            
+
             // Фильтруем servicesList, чтобы получить только валидные объекты (не числа)
             // Ослабляем фильтрацию: принимаем строковые ID (но не null/undefined/пустые строки)
             const validServicesList = Array.isArray(servicesList) 
                 ? servicesList.filter(s => {
                     const isValid = s && typeof s === 'object' && !Array.isArray(s) && (s.id !== undefined && s.id !== null && s.id !== '')
                     if (!isValid) {
-                        console.warn('[BookingDialog] Filtered out service:', {
-                            type: typeof s,
-                            isObject: typeof s === 'object',
-                            isArray: Array.isArray(s),
-                            id: s?.id,
+                        logClientApiWarn('BookingDialog: filtered out invalid service item', new Error('Invalid item'), {
                             idType: typeof s?.id,
-                            fullItem: s
                         })
                     }
                     return isValid
@@ -247,12 +227,9 @@ const BookingDialog = ({
             const firstService = validServicesList.length > 0 ? validServicesList[0] : null
             
             if (!firstService || !companyIdNum) {
-                console.warn('BookingDialog: Missing firstService or companyIdNum', {
-                    firstService,
+                logClientApiWarn('BookingDialog: missing firstService or companyIdNum', new Error('Missing data'), {
+                    hasFirstService: !!firstService,
                     companyIdNum,
-                    servicesList,
-                    validServicesList,
-                    'currentProfile.service': currentProfile.service,
                 })
                 return
             }
@@ -261,10 +238,7 @@ const BookingDialog = ({
             const serviceId = serviceIdStr && !isNaN(parseInt(serviceIdStr)) ? parseInt(serviceIdStr) : null
             
             if (!serviceId) {
-                console.warn('BookingDialog: Invalid serviceId', {
-                    serviceIdStr,
-                    firstService,
-                })
+                logClientApiWarn('BookingDialog: invalid serviceId', new Error('Invalid id'), { serviceIdStr })
                 return
             }
             
@@ -314,19 +288,11 @@ const BookingDialog = ({
                         
                         return { dateId: date.id !== undefined ? date.id : idx, slots: formattedSlots }
                     } catch (error) {
-                        console.error(`BookingDialog: Error loading slots for date ${dateStr}:`, {
-                            error: error.message,
-                            response: error.response?.data,
-                            status: error.response?.status,
-                            params: {
+                        if (error?.response?.status !== 404) {
+                            logClientApiError(`BookingDialog: error loading slots for ${dateStr}`, error, {
                                 company_id: companyIdNum,
                                 service_id: serviceId,
-                                date: dateStr,
-                                advertisement_id: isAdvertisement && adId ? adId : undefined,
-                            },
-                        })
-                        if (error.response?.status !== 404) {
-                            console.error(`Error loading slots for date ${dateStr}:`, error)
+                            })
                         }
                         return null
                     }
@@ -345,7 +311,7 @@ const BookingDialog = ({
                 
                 setAvailableSlotsData(newSlotsData)
             } catch (error) {
-                console.error('Error loading available slots:', error)
+                logClientApiError('BookingDialog: error loading available slots', error)
             } finally {
                 if (!isCancelled) {
                     setLoadingSlots(false)
@@ -452,15 +418,6 @@ const BookingDialog = ({
         const companyIdNum = companyId || (profile.service.company_id ? parseInt(profile.service.company_id) : null)
         
         // Используем adId, определенный выше в области видимости компонента
-        // Логируем для отладки
-        console.log('Advertisement ID determination in handleSubmit:', {
-            isAdvertisement,
-            advertisementId_prop: advertisementId,
-            'profile.service.advertisement_id': profile.service?.advertisement_id,
-            'profile.service.id': profile.service?.id,
-            final_adId: adId,
-        })
-        
         let serviceId = null
         
         if (isAdvertisement && adId) {
@@ -521,24 +478,17 @@ const BookingDialog = ({
             }
             
             // Разделяем дополнительные услуги на БД и локальные
-            console.log('[BookingDialog] === Обработка дополнительных услуг ===')
-            console.log('[BookingDialog] Все выбранные дополнительные услуги:', selectedAdditionalServices)
-            
             const dbAdditionalServices = selectedAdditionalServices.filter(s => {
                 // БД услуги имеют числовые ID или строковые, которые можно преобразовать в число
                 const id = typeof s.id === 'string' ? parseInt(s.id) : s.id
                 const isLocal = s.id.toString().startsWith('local_')
-                console.log(`[BookingDialog] Услуга ${s.id} (${s.name}): isLocal=${isLocal}, isNumeric=${!isNaN(id)}`)
                 return !isNaN(id) && !isLocal
             })
             
-            const localAdditionalServices = selectedAdditionalServices.filter(s => 
+            const localAdditionalServices = selectedAdditionalServices.filter(s =>
                 typeof s.id === 'string' && s.id.startsWith('local_')
             )
-            
-            console.log('[BookingDialog] БД услуги:', dbAdditionalServices)
-            console.log('[BookingDialog] Локальные услуги:', localAdditionalServices)
-            
+
             // Формируем данные дополнительных услуг из БД для отправки
             const additionalServicesData = dbAdditionalServices.length > 0
                 ? dbAdditionalServices.map(s => ({
@@ -557,9 +507,6 @@ const BookingDialog = ({
                     quantity: s.quantity || 1,
                 }))
                 : []
-            
-            console.log('[BookingDialog] Данные БД услуг для отправки:', additionalServicesData)
-            console.log('[BookingDialog] Данные локальных услуг для отправки:', localAdditionalServicesData)
 
             const bookingData = {
                 company_id: companyIdNum,
@@ -584,94 +531,59 @@ const BookingDialog = ({
                     zip: form.zip,
                 } : {}),
             }
-            
-            // Логируем для отладки
-            console.log('=== [BookingDialog] Создание бронирования ===')
-            console.log('[BookingDialog] Данные бронирования:', {
-                isAdvertisement,
-                adId,
-                advertisementId,
-                'profile.service.id': profile.service.id,
-                'profile.service.advertisement_id': profile.service.advertisement_id,
-                serviceId,
-                serviceName: service.name,
-                selectedService: service.id,
-                'service object': service,
-                'all services': services,
-                'selectedService value': selectedService,
-                bookingData: JSON.stringify(bookingData, null, 2),
-            })
-            console.log('[BookingDialog] Выбранные дополнительные услуги:', {
-                selectedAdditionalServices,
-                dbAdditionalServices,
-                localAdditionalServices,
-                additionalServicesData,
-                localAdditionalServicesData,
-            })
-            console.log('[BookingDialog] Полный объект bookingData:', bookingData)
-            
+
             try {
-                const response = await createBooking(bookingData)
-                console.log('=== [BookingDialog] Бронирование успешно создано ===')
-                console.log('[BookingDialog] Ответ от сервера:', response)
-                
+                await createBooking(bookingData)
+
                 handleClose()
                 if (onSuccess) {
                     setTimeout(() => onSuccess(), 150)
                 }
             } catch (bookingError) {
-                console.error('=== [BookingDialog] ОШИБКА ПРИ СОЗДАНИИ БРОНИРОВАНИЯ ===')
-                console.error('[BookingDialog] Полная ошибка:', bookingError)
-                console.error('[BookingDialog] Error response:', bookingError?.response)
-                console.error('[BookingDialog] Error response data:', bookingError?.response?.data)
-                console.error('[BookingDialog] Error response status:', bookingError?.response?.status)
-                console.error('[BookingDialog] Error message:', bookingError?.message)
-                console.error('[BookingDialog] Error stack:', bookingError?.stack)
-                
-                // Сохраняем ошибку в localStorage для отладки
+                logClientApiError('[BookingDialog] createBooking', bookingError)
                 try {
-                    localStorage.setItem('last_booking_error', JSON.stringify({
-                        error: bookingError?.message,
-                        response: bookingError?.response?.data,
-                        status: bookingError?.response?.status,
-                        bookingData: bookingData,
-                        timestamp: new Date().toISOString(),
-                    }))
+                    if (process.env.NODE_ENV !== 'production') {
+                        localStorage.setItem(
+                            'last_booking_error',
+                            JSON.stringify({
+                                status: bookingError?.response?.status,
+                                message: bookingError?.message,
+                                timestamp: new Date().toISOString(),
+                            })
+                        )
+                    }
                 } catch (e) {
-                    console.error('[BookingDialog] Не удалось сохранить ошибку в localStorage:', e)
+                    logClientApiError('[BookingDialog] localStorage booking error', e)
                 }
-                
+
                 if (bookingError?.response?.data?.errors) {
                     const validationErrors = bookingError.response.data.errors
-                    console.error('[BookingDialog] Ошибки валидации:', validationErrors)
                     const errorMessages = Object.values(validationErrors).flat().join(', ')
                     setError(errorMessages || t('errors.validationError'))
                 } else if (bookingError?.response?.data?.message) {
-                    console.error('[BookingDialog] Сообщение об ошибке:', bookingError.response.data.message)
                     setError(bookingError.response.data.message)
                 } else {
-                    console.error('[BookingDialog] Общая ошибка:', bookingError?.message || 'Не удалось создать бронирование')
                     setError(bookingError?.message || t('errors.cannotCreateBooking'))
                 }
             } finally {
                 setIsSubmitting(false)
             }
         } catch (error) {
-            console.error('=== [BookingDialog] КРИТИЧЕСКАЯ ОШИБКА ===')
-            console.error('[BookingDialog] Критическая ошибка:', error)
-            console.error('[BookingDialog] Error stack:', error?.stack)
-            
-            // Сохраняем критическую ошибку в localStorage
+            logClientApiError('[BookingDialog] handleSubmit', error)
             try {
-                localStorage.setItem('last_booking_critical_error', JSON.stringify({
-                    error: error?.message,
-                    stack: error?.stack,
-                    timestamp: new Date().toISOString(),
-                }))
+                if (process.env.NODE_ENV !== 'production') {
+                    localStorage.setItem(
+                        'last_booking_critical_error',
+                        JSON.stringify({
+                            message: error?.message,
+                            timestamp: new Date().toISOString(),
+                        })
+                    )
+                }
             } catch (e) {
-                console.error('[BookingDialog] Не удалось сохранить критическую ошибку:', e)
+                logClientApiError('[BookingDialog] localStorage critical error', e)
             }
-            
+
             setError(error?.message || t('errors.criticalError'))
             setIsSubmitting(false)
         }
@@ -722,7 +634,7 @@ const BookingDialog = ({
             try {
                 normalizedAdditionalServices = JSON.parse(currentService.additional_services)
             } catch (e) {
-                console.warn('[BookingDialog] Failed to parse additional_services as JSON:', e)
+                logClientApiWarn('[BookingDialog] Failed to parse additional_services as JSON', e)
                 normalizedAdditionalServices = null
             }
         } else if (Array.isArray(currentService.additional_services)) {
@@ -738,16 +650,7 @@ const BookingDialog = ({
     
     // Определяем service_type
     const serviceType = normalizedCurrentService?.service_type || currentService?.service_type || 'onsite'
-    
-    // Логируем для отладки
-    console.log('[BookingDialog] Service type determination:', {
-        serviceType,
-        normalizedCurrentService_service_type: normalizedCurrentService?.service_type,
-        currentService_service_type: currentService?.service_type,
-        normalizedCurrentService,
-        currentService,
-    })
-    
+
     // Определяем execution_type на основе service_type
     let finalExecutionType = 'onsite'
     if (serviceType === 'onsite') {
@@ -758,14 +661,7 @@ const BookingDialog = ({
         // Для гибридных услуг используем выбранный executionType
         finalExecutionType = executionType || 'onsite'
     }
-    
-    // Логируем finalExecutionType
-    console.log('[BookingDialog] Execution type:', {
-        serviceType,
-        executionType,
-        finalExecutionType,
-    })
-    
+
     // Определяем advertisement_id для объявлений (ОБЯЗАТЕЛЬНО для правильной работы!)
     // Приоритет: 1) пропс advertisementId, 2) profile.service.advertisement_id, 3) из id (ad_74 -> 74)
     const adId = (() => {
@@ -779,61 +675,31 @@ const BookingDialog = ({
         }
         return null
     })()
-    
-    // Логируем определение adId для отладки
-    console.log('[BookingDialog] adId determination:', {
-        advertisementId_prop: advertisementId,
-        'profile.service.advertisement_id': profile.service?.advertisement_id,
-        'profile.service.id': profile.service?.id,
-        isAdvertisement,
-        final_adId: adId
-    })
-    
+
     // Определяем service_id для загрузки дополнительных услуг
     // 1. Если услуга из объявления и у неё есть service_id в JSON - используем его
     // 2. Если услуга обычная - используем её id напрямую
     const serviceIdForAdditionalServices = (() => {
         if (!currentService) {
-            console.log('[BookingDialog] No currentService, serviceIdForAdditionalServices = null')
             return null
         }
-        
+
         // Проверяем, есть ли service_id в объекте услуги (для объявлений)
         if (isAdvertisement && currentService.service_id) {
             const serviceId = parseInt(currentService.service_id)
-            console.log('[BookingDialog] Advertisement service, serviceIdForAdditionalServices =', serviceId)
             return serviceId
         } else if (!isAdvertisement && currentService.id) {
             // Для обычных услуг используем id напрямую
             const id = parseInt(currentService.id)
             const result = isNaN(id) ? null : id
-            console.log('[BookingDialog] Regular service, serviceIdForAdditionalServices =', result, 'from id:', currentService.id)
             return result
         }
-        
-        console.log('[BookingDialog] Could not determine serviceIdForAdditionalServices, isAdvertisement:', isAdvertisement, 'currentService:', currentService)
+
         return null
     })()
-    
-    // Логируем информацию о дополнительных услугах для отладки
+
     const additionalServicesData = normalizedCurrentService?.additional_services
-    console.log('[BookingDialog] Additional services check:', {
-        isAdvertisement,
-        serviceIdForAdditionalServices,
-        currentServiceId: normalizedCurrentService?.id,
-        currentServiceName: normalizedCurrentService?.name,
-        hasAdditionalServices: !!additionalServicesData,
-        additionalServicesType: typeof additionalServicesData,
-        additionalServicesIsArray: Array.isArray(additionalServicesData),
-        additionalServicesLength: Array.isArray(additionalServicesData) ? additionalServicesData.length : 0,
-        additionalServices: additionalServicesData,
-        originalAdditionalServices: currentService?.additional_services,
-        normalizedAdditionalServices: normalizedAdditionalServices
-    })
-    // Дополнительное логирование для отладки - выводим полный объект
-    console.log('[BookingDialog] Full additionalServices object:', JSON.stringify(additionalServicesData, null, 2))
-    console.log('[BookingDialog] Full currentService object:', JSON.stringify(currentService, null, 2))
-    
+
     // Используем только слоты из API, которые уже проверены на доступность
     const availableSlots = availableSlotsData[selectedDate] || []
 
@@ -1188,34 +1054,13 @@ const BookingDialog = ({
                         {(() => {
                             const hasServiceId = !!serviceIdForAdditionalServices
                             const additionalServices = normalizedCurrentService?.additional_services
-                            const hasLocalServices = isAdvertisement && 
-                                additionalServices && 
-                                Array.isArray(additionalServices) && 
+                            const hasLocalServices = isAdvertisement &&
+                                additionalServices &&
+                                Array.isArray(additionalServices) &&
                                 additionalServices.length > 0
-                            
-                            console.log('[BookingDialog] Rendering additional services component:', {
-                                hasServiceId,
-                                hasLocalServices,
-                                shouldShow: hasServiceId || hasLocalServices,
-                                serviceIdForAdditionalServices,
-                                isAdvertisement,
-                                additionalServicesExists: !!additionalServices,
-                                additionalServicesType: typeof additionalServices,
-                                additionalServicesIsArray: Array.isArray(additionalServices),
-                                localServicesCount: Array.isArray(additionalServices) ? additionalServices.length : 0,
-                                additionalServicesContent: additionalServices,
-                                normalizedCurrentService: normalizedCurrentService
-                            })
-                            
+
                             // Показываем компонент, если есть serviceId ИЛИ advertisementId
                             if (hasServiceId || (isAdvertisement && adId)) {
-                                console.log('[BookingDialog] Rendering BookingAdditionalServices:', {
-                                    serviceId: serviceIdForAdditionalServices,
-                                    advertisementId: isAdvertisement && adId ? adId : null,
-                                    isAdvertisement,
-                                    adId,
-                                    hasServiceId
-                                })
                                 return (
                                     <div className="pt-2">
                                         <BookingAdditionalServices
@@ -1230,16 +1075,14 @@ const BookingDialog = ({
                                 )
                             }
                             
-                            // Если это объявление, но нет ни serviceId, ни adId - логируем предупреждение
                             if (isAdvertisement && !adId) {
-                                console.warn('[BookingDialog] Advertisement detected but adId is null:', {
-                                    advertisementId_prop: advertisementId,
-                                    'profile.service.advertisement_id': profile.service?.advertisement_id,
-                                    'profile.service.id': profile.service?.id,
-                                    isAdvertisement
-                                })
+                                logClientApiWarn(
+                                    '[BookingDialog] Advertisement without adId',
+                                    new Error('Missing adId'),
+                                    { hasAdvertisementIdProp: !!advertisementId }
+                                )
                             }
-                            
+
                             if (hasServiceId || hasLocalServices) {
                                 return (
                                     <div className="pt-2">

@@ -182,6 +182,7 @@ const ClientsTable = ({
             {
                 header: '',
                 id: 'action',
+                meta: { stopRowClick: true },
                 cell: (props) => (
                     <ActionColumn
                         onEdit={() => handleEdit(props.row.original)}
@@ -229,7 +230,18 @@ const ClientsTable = ({
         }
 
         return (
-            <Card className="mb-4">
+            <Card
+                className="mb-4 cursor-pointer"
+                role="button"
+                tabIndex={0}
+                onClick={() => handleViewDetails(client)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleViewDetails(client)
+                    }
+                }}
+            >
                 <div className="flex gap-4">
                     <Avatar size={60} shape="circle" src={client.img || undefined}>
                         {!client.img && getInitials(client.name)}
@@ -276,7 +288,11 @@ const ClientsTable = ({
                             <span className="text-gray-900 dark:text-gray-100">{formatDate(client.lastVisit, timezone, 'short')}</span>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div
+                            className="flex gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                        >
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -331,6 +347,7 @@ const ClientsTable = ({
                     onPaginationChange={handlePaginationChange}
                     onSelectChange={handleSelectChange}
                     onSort={handleSort}
+                    onRowClick={handleViewDetails}
                 />
             </div>
 

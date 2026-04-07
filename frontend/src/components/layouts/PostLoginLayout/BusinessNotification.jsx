@@ -93,7 +93,7 @@ const BusinessNotification = () => {
     }
 
     const handleViewAll = () => {
-        router.push(isSuperadminArea ? '/superadmin/support' : '/business/support')
+        router.push(isSuperadminArea ? '/superadmin/support' : '/business/notifications')
         if (notificationDropdownRef.current) {
             notificationDropdownRef.current.handleDropdownClose?.()
         }

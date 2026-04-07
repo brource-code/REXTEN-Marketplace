@@ -153,6 +153,15 @@ const businessNavigationConfig = [
                 subMenu: [],
             },
             {
+                key: 'business.notifications',
+                path: '/business/notifications',
+                title: 'Уведомления',
+                translateKey: 'nav.business.notifications',
+                icon: 'notifications',
+                type: NAV_ITEM_TYPE_ITEM,
+                subMenu: [],
+            },
+            {
                 key: 'business.support',
                 path: '/business/support',
                 title: 'Поддержка',

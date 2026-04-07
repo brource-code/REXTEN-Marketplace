@@ -1,4 +1,5 @@
 import LaravelAxios from '@/services/axios/LaravelAxios'
+import { logClientApiWarn } from '@/utils/logClientApiError'
 
 export type ReviewStatus = 'published' | 'pending' | 'rejected'
 
@@ -52,7 +53,7 @@ export async function getSuperadminReviewsOverview(): Promise<SuperadminReviewsO
         const response = await LaravelAxios.get('/admin/reviews/stats')
         return response.data || response.data?.data
     } catch (error) {
-        console.warn('Failed to load superadmin reviews overview:', error)
+        logClientApiWarn('Failed to load superadmin reviews overview', error)
         return {
             total_reviews: 0,
             average_rating: 0,
@@ -72,7 +73,7 @@ export async function getSuperadminReviewsRatingDistribution(): Promise<Superadm
         const response = await LaravelAxios.get('/admin/reviews/rating-distribution')
         return response.data || response.data?.data
     } catch (error) {
-        console.warn('Failed to load superadmin reviews rating distribution:', error)
+        logClientApiWarn('Failed to load superadmin reviews rating distribution', error)
         return {
             total: 0,
             counts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
@@ -102,7 +103,7 @@ export async function getSuperadminReviewsList(params: {
 
         return response.data || response.data?.data
     } catch (error) {
-        console.warn('Failed to load superadmin reviews list:', error)
+        logClientApiWarn('Failed to load superadmin reviews list', error)
         return {
             data: [],
             total: 0,
@@ -121,7 +122,7 @@ export async function updateSuperadminReviewResponse(
         const res = await LaravelAxios.put(`/admin/reviews/${reviewId}/response`, payload)
         return res.data || res.data?.data
     } catch (error) {
-        console.warn('Failed to update superadmin review response:', error)
+        logClientApiWarn('Failed to update superadmin review response', error, { reviewId })
         throw error
     }
 }
@@ -130,7 +131,7 @@ export async function deleteSuperadminReview(reviewId: number): Promise<void> {
     try {
         await LaravelAxios.delete(`/admin/reviews/${reviewId}`)
     } catch (error) {
-        console.warn('Failed to delete superadmin review:', error)
+        logClientApiWarn('Failed to delete superadmin review', error, { reviewId })
         throw error
     }
 }

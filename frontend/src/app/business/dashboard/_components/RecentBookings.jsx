@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import Tag from '@/components/ui/Tag'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
@@ -27,23 +27,6 @@ const bookingStatusColor = {
     confirmed: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
     completed: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
     cancelled: 'bg-red-200 dark:bg-red-700 text-red-900 dark:text-red-100',
-}
-
-const BookingColumn = ({ row }) => {
-    const router = useRouter()
-
-    const handleView = useCallback(() => {
-        router.push(`/business/bookings?bookingId=${row.id}`)
-    }, [row, router])
-
-    return (
-        <span
-            className="cursor-pointer select-none text-sm font-bold text-gray-900 dark:text-gray-100 hover:text-primary"
-            onClick={handleView}
-        >
-            #{row.id}
-        </span>
-    )
 }
 
 const RecentBookings = () => {
@@ -75,7 +58,11 @@ const RecentBookings = () => {
             {
                 accessorKey: 'id',
                 header: t('columns.booking'),
-                cell: (props) => <BookingColumn row={props.row.original} />,
+                cell: (props) => (
+                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        #{props.row.original.id}
+                    </span>
+                ),
             },
             {
                 accessorKey: 'date',
@@ -211,13 +198,35 @@ const RecentBookings = () => {
                             </THead>
                             <TBody>
                                 {table.getRowModel().rows.map((row) => {
+                                    const bookingId = row.original.id
+                                    const goToBooking = () => {
+                                        router.push(
+                                            `/business/bookings?bookingId=${bookingId}`,
+                                        )
+                                    }
                                     return (
-                                        <Tr key={row.id}>
+                                        <Tr
+                                            key={row.id}
+                                            className="cursor-pointer"
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={goToBooking}
+                                            onKeyDown={(e) => {
+                                                if (
+                                                    e.key === 'Enter' ||
+                                                    e.key === ' '
+                                                ) {
+                                                    e.preventDefault()
+                                                    goToBooking()
+                                                }
+                                            }}
+                                        >
                                             {row.getVisibleCells().map((cell) => {
                                                 return (
                                                     <Td key={cell.id}>
                                                         {flexRender(
-                                                            cell.column.columnDef.cell,
+                                                            cell.column.columnDef
+                                                                .cell,
                                                             cell.getContext(),
                                                         )}
                                                     </Td>
@@ -238,7 +247,25 @@ const RecentBookings = () => {
                             return (
                                 <div
                                     key={booking.id}
-                                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow"
+                                    role="button"
+                                    tabIndex={0}
+                                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 hover:shadow-md transition-shadow cursor-pointer"
+                                    onClick={() =>
+                                        router.push(
+                                            `/business/bookings?bookingId=${booking.id}`,
+                                        )
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (
+                                            e.key === 'Enter' ||
+                                            e.key === ' '
+                                        ) {
+                                            e.preventDefault()
+                                            router.push(
+                                                `/business/bookings?bookingId=${booking.id}`,
+                                            )
+                                        }
+                                    }}
                                 >
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center gap-2 flex-wrap">

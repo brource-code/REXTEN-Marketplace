@@ -2,6 +2,7 @@
 // Используются с React Query
 
 import LaravelAxios from '@/services/axios/LaravelAxios'
+import { logClientApiError, logClientApiWarn } from '@/utils/logClientApiError'
 import type { KnowledgeArticle, KnowledgeTopic } from '@/lib/api/business'
 
 export type { KnowledgeArticle, KnowledgeTopic }
@@ -87,7 +88,7 @@ export async function getCompanyServices(companyId: number): Promise<CompanyServ
         const response = await LaravelAxios.get(`/admin/companies/${companyId}/services`)
         return response.data.data || response.data || []
     } catch (error) {
-        console.warn('Failed to fetch company services:', error)
+        logClientApiWarn('Failed to fetch company services', error, { companyId })
         return []
     }
 }
@@ -111,7 +112,7 @@ export async function getCompanyChart(companyId: number, period: 'thisWeek' | 't
         const data = response.data.data || response.data
         return data
     } catch (error) {
-        console.warn('Company chart endpoint not available:', error)
+        logClientApiWarn('Company chart endpoint not available', error, { companyId, period })
         return {
             series: [{ name: 'Выручка', data: [] }],
             categories: [],
@@ -835,7 +836,7 @@ export async function getCategories(filters?: {
         
         return { data: [], total: 0 }
     } catch (error) {
-        console.error('Error fetching categories:', error)
+        logClientApiError('Error fetching categories', error)
         return { data: [], total: 0 }
     }
 }

@@ -3,6 +3,7 @@
  */
 
 import { isLocalhostDirectNextPort } from '@/constants/frontend-ports.constant'
+import { logClientApiError, logClientApiWarn } from '@/utils/logClientApiError'
 
 // Статические данные штатов США (для сопоставления с API)
 const STATIC_STATES: Record<string, string> = {
@@ -200,7 +201,7 @@ export async function getStates(activeOnly: boolean = false): Promise<State[]> {
     
     return [];
   } catch (error) {
-    console.error('Error fetching states:', error);
+    logClientApiError('Error fetching states', error);
     return [];
   }
 }
@@ -220,20 +221,18 @@ export async function getCitiesByState(stateId: number | string): Promise<City[]
     // stateId может быть числом (ID) или строкой (код штата)
     const stateParam = String(stateId);
     const url = `${getLaravelApiUrl()}/locations/cities?state=${encodeURIComponent(stateParam)}`;
-    
-    console.log('Fetching cities for state:', stateParam, 'URL:', url);
-    
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
-      console.warn('Failed to fetch cities', response.status, response.statusText);
-      const errorText = await response.text();
-      console.warn('Error response:', errorText);
+      logClientApiWarn('Failed to fetch cities', new Error('HTTP error'), {
+        status: response.status,
+        statusText: response.statusText,
+      });
       return [];
     }
-    
+
     const result = await response.json();
-    console.log('Cities API response:', result);
     
     // API возвращает данные в формате { success: true, data: [...] }
     if (result.success && Array.isArray(result.data)) {
@@ -243,7 +242,6 @@ export async function getCitiesByState(stateId: number | string): Promise<City[]
         state_id: typeof stateId === 'number' ? stateId : 0,
         is_active: city.is_active !== undefined ? city.is_active : true,
       }));
-      console.log('Parsed cities:', cities);
       return cities;
     }
     
@@ -266,10 +264,12 @@ export async function getCitiesByState(stateId: number | string): Promise<City[]
       }));
     }
     
-    console.warn('Unexpected API response format:', result);
+    logClientApiWarn('Unexpected API response format for cities', new Error('Invalid shape'), {
+      stateParam,
+    });
     return [];
   } catch (error) {
-    console.error('Error fetching cities:', error);
+    logClientApiError('Error fetching cities', error, { stateParam: String(stateId) });
     return [];
   }
 }

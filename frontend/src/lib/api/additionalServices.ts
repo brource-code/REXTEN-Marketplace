@@ -3,6 +3,7 @@
  */
 
 import LaravelAxios from '@/services/axios/LaravelAxios'
+import { logClientApiError } from '@/utils/logClientApiError'
 
 export interface AdditionalService {
   id: number;
@@ -72,12 +73,10 @@ export async function getAdditionalServices(serviceId: number): Promise<Addition
     
     // Логируем только реальные ошибки (не 404/403)
     if (errorStatus !== 404 && errorStatus !== 403) {
-      console.error('Error fetching additional services:', {
+      logClientApiError('Error fetching additional services', error, {
         serviceId,
-        status: errorStatus,
         url: errorUrl,
         message: errorMessage,
-        error: error?.response?.data || error
       });
     }
     
@@ -103,10 +102,9 @@ export async function getAllAdditionalServices(filters?: {
     const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
     const errorStatus = error?.response?.status || 'N/A';
     
-    console.error('Error fetching all additional services:', {
+    logClientApiError('Error fetching all additional services', error, {
       status: errorStatus,
       message: errorMessage,
-      error: error?.response?.data || error
     });
     
     return [];
@@ -124,11 +122,10 @@ export async function getAdditionalService(id: number): Promise<AdditionalServic
     const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
     const errorStatus = error?.response?.status || 'N/A';
     
-    console.error('Error fetching additional service:', {
+    logClientApiError('Error fetching additional service', error, {
       id,
       status: errorStatus,
       message: errorMessage,
-      error: error?.response?.data || error
     });
     
     return null;
@@ -153,20 +150,11 @@ export async function createAdditionalService(
     const url = (hasServiceId || !hasAdvertisementId)
       ? '/business/settings/additional-services'
       : '/admin/additional-services';
-    
-    console.log('[createAdditionalService] Request data:', { 
-      service_id: data.service_id, 
-      advertisement_id: data.advertisement_id,
-      hasServiceId,
-      hasAdvertisementId,
-      url,
-      fullData: data
-    });
-    
+
     const response = await LaravelAxios.post(url.replace(/^.*\/api/, ''), data);
     return response.data?.data || response.data;
   } catch (error) {
-    console.error('Error creating additional service:', error);
+    logClientApiError('Error creating additional service', error);
     throw error;
   }
 }
@@ -187,7 +175,7 @@ export async function updateAdditionalService(
     const response = await LaravelAxios.put(url, data);
     return response.data?.data || response.data;
   } catch (error) {
-    console.error('Error updating additional service:', error);
+    logClientApiError('Error updating additional service', error);
     throw error;
   }
 }
@@ -205,7 +193,7 @@ export async function deleteAdditionalService(id: number, serviceId?: number): P
     await LaravelAxios.delete(url);
     return true;
   } catch (error) {
-    console.error('Error deleting additional service:', error);
+    logClientApiError('Error deleting additional service', error);
     return false;
   }
 }
@@ -224,36 +212,25 @@ export async function getAdditionalServicesByAdvertisement(
     }
 
     const url = `/additional-services/by-advertisement/${advertisementId}`;
-    console.log('[getAdditionalServicesByAdvertisement] Request URL:', url);
-    console.log('[getAdditionalServicesByAdvertisement] Request params:', {
-      advertisementId,
-      serviceId,
-      params: params.toString()
-    });
 
     const response = await LaravelAxios.get(url, {
       params: serviceId ? { service_id: serviceId } : {}
     });
 
-    console.log('[getAdditionalServicesByAdvertisement] Response status:', response.status, response.statusText);
-    console.log('[getAdditionalServicesByAdvertisement] Response data:', response.data);
-    
     // Обрабатываем разные форматы ответа
     const services = response.data?.data || response.data;
     const result = Array.isArray(services) ? services : [];
-    console.log('[getAdditionalServicesByAdvertisement] Parsed services:', result);
     return result;
   } catch (error: any) {
     const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
     const errorStatus = error?.response?.status || 'N/A';
-    
-    console.error('[getAdditionalServicesByAdvertisement] Error:', {
+
+    logClientApiError('[getAdditionalServicesByAdvertisement] Error', error, {
       advertisementId,
       serviceId,
       status: errorStatus,
       message: errorMessage,
-      url,
-      error: error?.response?.data || error
+      path: `/additional-services/by-advertisement/${advertisementId}`,
     });
     
     // Если это 404, это нормально (возможно, нет дополнительных услуг)

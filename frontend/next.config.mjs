@@ -5,6 +5,11 @@ const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // В production убираем console.log/info/debug из клиентского бандла; console.error/warn оставляем (см. безопасное логирование в lib/api)
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
   // Для локальной разработки используйте пустой basePath
   // Для продакшена на сервере используйте '/project3'
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',

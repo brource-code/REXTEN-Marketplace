@@ -100,6 +100,7 @@ import {
     PiStarDuotone,
     PiCreditCardDuotone,
     PiClockCounterClockwiseDuotone,
+    PiBellDuotone,
 } from 'react-icons/pi'
 
 const navigationIcon = {
@@ -213,6 +214,7 @@ const navigationIcon = {
     settings: <PiGearSixDuotone />,
     guide: <PiBookOpenDuotone />,
     support: <PiHeadsetDuotone />,
+    notifications: <PiBellDuotone />,
     storefront: <PiStorefrontDuotone />,
     reviews: <PiStarDuotone />,
     reports: <PiChartBarDuotone />,

@@ -3,6 +3,7 @@
 import { State, City, LocationSearchResult, LocationValidationResult, LocationApiResponse } from './types'
 import { US_STATES, US_CITIES_BY_STATE } from '@/constants/us-locations.constant'
 import { isLocalhostDirectNextPort } from '@/constants/frontend-ports.constant'
+import { logClientApiWarn } from '@/utils/logClientApiError'
 
 // Функция для динамического определения API URL
 const getLaravelApiUrl = () => {
@@ -93,7 +94,7 @@ export async function getStates(activeOnly: boolean = false): Promise<State[]> {
 
         throw new Error('Invalid response format')
     } catch (error) {
-        console.warn('Error fetching states from API, using fallback:', error)
+        logClientApiWarn('Error fetching states from API, using fallback', error)
         
         // Fallback на статические данные
         const fallbackStates: State[] = US_STATES.map(s => ({
@@ -171,7 +172,7 @@ export async function getCities(
 
         throw new Error('Invalid response format')
     } catch (error) {
-        console.warn('Error fetching cities from API, using fallback:', error)
+        logClientApiWarn('Error fetching cities from API, using fallback', error, { stateId })
         
         // Fallback на статические данные
         const fallbackCities: City[] = (US_CITIES_BY_STATE[stateId] || []).map(city => ({
@@ -240,7 +241,7 @@ export async function searchLocations(
 
         throw new Error('Invalid response format')
     } catch (error) {
-        console.warn('Error searching locations from API, using fallback:', error)
+        logClientApiWarn('Error searching locations from API, using fallback', error, { query })
         
         // Fallback на локальный поиск
         const results: LocationSearchResult = {
@@ -330,7 +331,7 @@ export async function validateLocation(
 
         throw new Error('Invalid response format')
     } catch (error) {
-        console.warn('Error validating location from API, using fallback:', error)
+        logClientApiWarn('Error validating location from API, using fallback', error, { stateId, cityName })
         
         // Fallback на локальную валидацию
         const state = US_STATES.find(s => s.id === stateId || s.name === stateId)

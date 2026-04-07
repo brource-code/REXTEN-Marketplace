@@ -58,6 +58,10 @@ const businessRoute = {
         key: 'business.support',
         authority: [BUSINESS_OWNER, SUPERADMIN],
     },
+    '/business/notifications': {
+        key: 'business.notifications',
+        authority: [BUSINESS_OWNER, SUPERADMIN],
+    },
 }
 
 export default businessRoute

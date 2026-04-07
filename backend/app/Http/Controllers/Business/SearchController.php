@@ -80,7 +80,7 @@ class SearchController extends Controller
 
                     return [
                         'key' => 'booking-' . $b->id,
-                        'path' => '/business/schedule',
+                        'path' => '/business/bookings?bookingId=' . $b->id,
                         'title' => 'Booking #' . $b->id,
                         'subtitle' => trim($client . ' · ' . $date . ' ' . $time),
                         'icon' => 'calendar',

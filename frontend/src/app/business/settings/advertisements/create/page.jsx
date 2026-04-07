@@ -53,6 +53,9 @@ import { TbPlus, TbPencil, TbTrash } from 'react-icons/tb'
 import Link from 'next/link'
 import classNames from '@/utils/classNames'
 
+/** Стабильная ссылка: `useQuery` без `data` не должен подставлять новый `[]` на каждый рендер — это ломает useEffect (Maximum update depth). */
+const STABLE_EMPTY_ARRAY = []
+
 // Компонент для управления дополнительными услугами
 const ServiceAdditionalServicesManager = ({ 
     serviceId, 
@@ -74,11 +77,12 @@ const ServiceAdditionalServicesManager = ({
     // Для существующих услуг загружаем из БД
     // Проверяем, что serviceId - это реальный ID из БД (не временный ID > 1000000)
     const isRealServiceId = serviceId && typeof serviceId === 'number' && serviceId < 1000000
-    const { data: additionalServices = [], isLoading } = useQuery({
+    const { data: additionalServicesData, isLoading } = useQuery({
         queryKey: ['additional-services', serviceId],
         queryFn: () => getAdditionalServices(serviceId),
         enabled: !!isRealServiceId, // Загружаем только для реальных ID из БД
     })
+    const additionalServices = additionalServicesData ?? STABLE_EMPTY_ARRAY
 
     const createMutation = useMutation({
         mutationFn: createAdditionalService,
@@ -772,13 +776,14 @@ export default function CreateAdvertisementPage() {
     })
 
     // Загрузка штатов
-    const { data: states = [] } = useQuery({
+    const { data: statesData } = useQuery({
         queryKey: ['states'],
         queryFn: getStates,
     })
-    
+    const states = statesData ?? STABLE_EMPTY_ARRAY
+
     // Загрузка городов по выбранному штату
-    const { data: cities = [], isLoading: citiesLoading } = useQuery({
+    const { data: citiesData, isLoading: citiesLoading } = useQuery({
         queryKey: ['cities', selectedStateId],
         queryFn: () => {
             console.log('Loading cities for stateId:', selectedStateId);
@@ -786,6 +791,7 @@ export default function CreateAdvertisementPage() {
         },
         enabled: !!selectedStateId,
     })
+    const cities = citiesData ?? STABLE_EMPTY_ARRAY
     
     // Отладочная информация
     useEffect(() => {
@@ -795,22 +801,25 @@ export default function CreateAdvertisementPage() {
     }, [selectedStateId, cities, citiesLoading])
 
     // Загрузка команды
-    const { data: companyTeam = [] } = useQuery({
+    const { data: companyTeamData } = useQuery({
         queryKey: ['business-team'],
         queryFn: getTeamMembers,
     })
+    const companyTeam = companyTeamData ?? STABLE_EMPTY_ARRAY
 
     // Загрузка услуг компании
-    const { data: companyServices = [] } = useQuery({
+    const { data: companyServicesData } = useQuery({
         queryKey: ['business-services'],
         queryFn: getBusinessServices,
     })
+    const companyServices = companyServicesData ?? STABLE_EMPTY_ARRAY
 
     // Загрузка категорий
-    const { data: categories = [] } = useQuery({
+    const { data: categoriesData } = useQuery({
         queryKey: ['categories'],
         queryFn: getCategories,
     })
+    const categories = categoriesData ?? STABLE_EMPTY_ARRAY
 
     // Заполнение формы при редактировании
     useEffect(() => {

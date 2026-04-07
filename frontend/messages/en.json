@@ -330,6 +330,7 @@
             "billing": "Billing",
             "settings": "Settings",
             "knowledge": "Knowledge base",
+            "notifications": "Notifications",
             "support": "Support"
         },
         "superadmin": {
@@ -1288,6 +1289,16 @@
                 "specialist": "Specialist",
                 "amount": "Amount"
             }
+        },
+        "notifications": {
+            "title": "All notifications",
+            "description": "Read and manage alerts for your business account.",
+            "clearAll": "Clear all",
+            "clearAllConfirm": "Delete all notifications? This cannot be undone.",
+            "markAllAsRead": "Mark all as read",
+            "empty": "No notifications yet",
+            "emptyHint": "Booking updates and other alerts will appear here.",
+            "delete": "Delete"
         },
         "schedule": {
             "title": "Schedule",

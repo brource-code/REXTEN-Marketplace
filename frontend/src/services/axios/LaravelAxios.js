@@ -89,6 +89,20 @@ const getLocale = () => {
     return 'en'
 }
 
+const isDevBundle = process.env.NODE_ENV !== 'production'
+
+function safeApiMessage(data) {
+    if (data == null || typeof data !== 'object') return undefined
+    if (typeof data.message === 'string') return data.message
+    if (typeof data.error === 'string') return data.error
+    return undefined
+}
+
+function logAxiosFailure(prefix, { status, method, url, data }) {
+    const message = safeApiMessage(data) || 'Request failed'
+    console.error(prefix, { status, method, url, message })
+}
+
 // Создаем axios инстанс для Laravel API
 const LaravelAxios = axios.create({
     timeout: 60000,
@@ -317,86 +331,75 @@ LaravelAxios.interceptors.response.use(
             const url = config?.url || 'unknown'
             const method = config?.method?.toUpperCase() || 'UNKNOWN'
 
-            // Формируем информативное сообщение об ошибке
             const errorMessage = data?.message || data?.error || 'Unknown error'
-            const errorDetails = data && Object.keys(data).length > 0 
-                ? (data.message || JSON.stringify(data)) 
-                : 'No error details provided'
+            const payload = { status, method, url, data }
 
             switch (status) {
                 case 403:
                     // Доступ запрещен
                     // Не логируем ошибки 403 для публичных endpoints, так как это нормально
-                    const isPublicEndpoint = url.includes('/settings/public') || url.includes('/marketplace') || url.includes('/auth/')
+                    var isPublicEndpoint = url.includes('/settings/public') || url.includes('/marketplace') || url.includes('/auth/')
                     if (!isPublicEndpoint && (errorMessage !== 'Unknown error' || Object.keys(data || {}).length > 0)) {
-                        console.error(`[${method} ${url}] Access forbidden:`, errorDetails)
+                        logAxiosFailure(`[${method} ${url}] Access forbidden`, payload)
                     }
                     break
                 case 404:
                     // Ресурс не найден - не логируем как ошибку, это нормальное поведение для некоторых запросов
-                    // console.error('Resource not found:', data)
                     break
                 case 409:
                     // Конфликт (например, бэкап уже выполняется) — ожидаемая ситуация, не спамим консоль
                     break
                 case 422:
-                    // Ошибка валидации
+                    // Ошибка валидации — в консоль только статус и message, без полного тела ответа
                     if (data && Object.keys(data).length > 0) {
-                        console.error(`❌ [${method} ${url}] Validation error:`, errorDetails)
-                        console.error(`❌ [${method} ${url}] Validation errors details:`, JSON.stringify(errorDetails, null, 2))
-                        
-                        // Сохраняем ошибку валидации в localStorage для отладки
-                        try {
-                            const validationError = {
-                                method,
-                                url,
-                                status: 422,
-                                errors: data.errors || data,
-                                timestamp: new Date().toISOString(),
+                        logAxiosFailure(`[${method} ${url}] Validation error`, payload)
+                        if (isDevBundle) {
+                            try {
+                                localStorage.setItem(
+                                    'last_validation_error',
+                                    JSON.stringify({
+                                        method,
+                                        url,
+                                        status: 422,
+                                        message: safeApiMessage(data),
+                                        timestamp: new Date().toISOString(),
+                                    })
+                                )
+                            } catch (e) {
+                                console.error('Не удалось сохранить ошибку валидации в localStorage:', e?.message)
                             }
-                            localStorage.setItem('last_validation_error', JSON.stringify(validationError))
-                            console.error(`❌ [${method} ${url}] Ошибка сохранена в localStorage как 'last_validation_error'`)
-                        } catch (e) {
-                            console.error('Не удалось сохранить ошибку валидации в localStorage:', e)
                         }
                     }
                     break
                 case 500:
-                    // Ошибка сервера - логируем только если есть информация
-                    console.error(`❌ [${method} ${url}] Server error (500):`, errorDetails)
-                    if (errorMessage !== 'Unknown error' || (data && Object.keys(data).length > 0)) {
-                        console.error(`❌ [${method} ${url}] Server error details:`, JSON.stringify(errorDetails, null, 2))
-                    } else {
-                        // Если данных нет, логируем только URL и метод
-                        console.error(`❌ [${method} ${url}] Server error: Internal server error (no details)`)
-                    }
-                    
-                    // Сохраняем ошибку сервера в localStorage
-                    try {
-                        const serverError = {
-                            method,
-                            url,
-                            status: 500,
-                            error: errorMessage || 'Internal server error',
-                            data: data || {},
-                            timestamp: new Date().toISOString(),
+                    logAxiosFailure(`[${method} ${url}] Server error (500)`, payload)
+                    if (isDevBundle) {
+                        try {
+                            localStorage.setItem(
+                                'last_server_error',
+                                JSON.stringify({
+                                    method,
+                                    url,
+                                    status: 500,
+                                    message: safeApiMessage(data) || errorMessage || 'Internal server error',
+                                    timestamp: new Date().toISOString(),
+                                })
+                            )
+                        } catch (e) {
+                            console.error('Не удалось сохранить ошибку сервера в localStorage:', e?.message)
                         }
-                        localStorage.setItem('last_server_error', JSON.stringify(serverError))
-                        console.error(`❌ [${method} ${url}] Ошибка сохранена в localStorage как 'last_server_error'`)
-                    } catch (e) {
-                        console.error('Не удалось сохранить ошибку сервера в localStorage:', e)
                     }
                     break
                 default:
                     // Не логируем ошибку 400 "Already in favorites" как ошибку, так как это нормальная ситуация
-                    const isAlreadyInFavorites = status === 400 && (
+                    var isAlreadyInFavorites = status === 400 && (
                         (data?.message && (data.message.includes('Already in favorites') || data.message.includes('уже в избранном'))) ||
                         (errorMessage && (errorMessage.includes('Already in favorites') || errorMessage.includes('уже в избранном')))
                     )
-                    
+
                     if (!isAlreadyInFavorites) {
                         if (data && Object.keys(data).length > 0) {
-                            console.error(`[${method} ${url}] API error (${status}):`, errorDetails)
+                            logAxiosFailure(`[${method} ${url}] API error (${status})`, payload)
                         } else {
                             console.error(`[${method} ${url}] API error (${status}): No error details`)
                         }

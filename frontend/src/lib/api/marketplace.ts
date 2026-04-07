@@ -1,6 +1,7 @@
 // API слой для marketplace
 // Использует реальные API вызовы с fallback на пустые данные
 
+import { logClientApiError } from '@/utils/logClientApiError'
 import { Service, ServiceProfile, Category, State, ServiceItem, ScheduleDay, TimeSlot, Review, TeamMember, PortfolioItem } from '@/types/marketplace'
 import { mockServices, mockCategories, mockStates } from '@/mocks/services'
 import { isLocalhostDirectNextPort } from '@/constants/frontend-ports.constant'
@@ -62,7 +63,7 @@ export async function getServicesList(): Promise<Service[]> {
         const data = await response.json()
         return Array.isArray(data) ? data : []
     } catch (error) {
-        console.error('Error fetching services list:', error)
+        logClientApiError('Error fetching services list', error)
         return []
     }
 }
@@ -84,7 +85,7 @@ export async function getCategories(): Promise<Category[]> {
         const data = await response.json()
         return data
     } catch (error) {
-        console.error('Error fetching categories:', error)
+        logClientApiError('Error fetching categories', error)
         // Только для сетевых ошибок используем моки как fallback
         if (error instanceof TypeError && error.message.includes('fetch')) {
             console.warn('Network error, using fallback categories')
@@ -111,7 +112,7 @@ export async function getStates(): Promise<State[]> {
         const data = await response.json()
         return data
     } catch (error) {
-        console.error('Error fetching states:', error)
+        logClientApiError('Error fetching states', error)
         // Только для сетевых ошибок используем моки как fallback
         if (error instanceof TypeError && error.message.includes('fetch')) {
             console.warn('Network error, using fallback states')
@@ -135,7 +136,7 @@ export async function getServiceBySlug(slug: string): Promise<Service | null> {
         const data = await response.json()
         return data
     } catch (error) {
-        console.error('Error fetching service by slug:', error)
+        logClientApiError('Error fetching service by slug', error, { slug })
         return null
     }
 }
@@ -178,7 +179,7 @@ export async function getCompanyProfile(slug: string): Promise<CompanyProfile | 
         const data = await response.json()
         return data
     } catch (error) {
-        console.error('Error fetching company profile:', error)
+        logClientApiError('Error fetching company profile', error, { slug })
         return null
     }
 }
@@ -214,7 +215,7 @@ export async function getServiceProfile(slug: string, forceRefresh: boolean = fa
             showPortfolio: data.showPortfolio,
         }
     } catch (error) {
-        console.error('Error fetching service profile:', error)
+        logClientApiError('Error fetching service profile', error, { slug })
         return null
     }
 }
@@ -264,7 +265,7 @@ export async function getFilteredServices(filters: ServicesFilters): Promise<Ser
         const data = await response.json()
         return data
     } catch (error) {
-        console.error('Error fetching services:', error)
+        logClientApiError('Error fetching services (filtered)', error)
         // Только для сетевых ошибок используем моки как fallback
         if (error instanceof TypeError && error.message.includes('fetch')) {
             console.warn('Network error, using fallback services')
@@ -366,7 +367,7 @@ export async function getFeaturedServices(
             businessName: item.businessName || item.company?.name || null,
         }))
     } catch (error) {
-        console.error('Error fetching featured services:', error)
+        logClientApiError('Error fetching featured services', error)
         return []
     }
 }
