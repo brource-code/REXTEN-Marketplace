@@ -84,7 +84,11 @@ function hasStepPermission(
 ) {
     if (!step.permission) return true
     if (isSuperAdmin) return true
-    return Boolean(permissions?.includes(step.permission))
+    const req = step.permission
+    if (Array.isArray(req)) {
+        return req.some((p) => permissions?.includes(p))
+    }
+    return Boolean(permissions?.includes(req))
 }
 
 function OnboardingRuntime({ children }: { children: ReactNode }) {

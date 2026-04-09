@@ -20,6 +20,8 @@ const AddressAutocomplete = ({
     value, 
     onChange, 
     onAddressParsed,
+    /** После выбора места из подсказок: адрес + координаты (Google Places). Для сохранения на бэкенде без повторного геокода. */
+    onPlaceResolved,
     placeholder = 'Введите адрес',
     ...rest 
 }) => {
@@ -280,20 +282,43 @@ const AddressAutocomplete = ({
             placesServiceRef.current.getDetails(
                 {
                     placeId: prediction.place_id,
-                    fields: ['formatted_address', 'address_components'],
+                    fields: ['formatted_address', 'address_components', 'geometry'],
                     sessionToken: sessionTokenRef.current,
                 },
                 (place, status) => {
                     if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
                         const formattedAddress = place.formatted_address || prediction.description
                         setInputValue(formattedAddress)
-                        onChange(formattedAddress)
-                        
+
+                        const loc = place.geometry?.location
+                        let lat
+                        let lng
+                        if (loc) {
+                            lat = typeof loc.lat === 'function' ? loc.lat() : loc.lat
+                            lng = typeof loc.lng === 'function' ? loc.lng() : loc.lng
+                        }
+
+                        if (
+                            onPlaceResolved &&
+                            lat != null &&
+                            lng != null &&
+                            !Number.isNaN(Number(lat)) &&
+                            !Number.isNaN(Number(lng))
+                        ) {
+                            onPlaceResolved({
+                                formattedAddress,
+                                lat: Number(lat),
+                                lng: Number(lng),
+                            })
+                        } else {
+                            onChange(formattedAddress)
+                        }
+
                         if (onAddressParsed && place.address_components) {
                             const parsed = parseAddressComponents(place.address_components)
                             onAddressParsed(parsed)
                         }
-                        
+
                         // Создаем новый session token для следующего поиска
                         sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken()
                     } else {
@@ -317,7 +342,7 @@ const AddressAutocomplete = ({
             setSuggestions([])
             setOpen(false)
         }
-    }, [onChange, onAddressParsed, parseAddressComponents])
+    }, [onChange, onAddressParsed, onPlaceResolved, parseAddressComponents])
 
     // Обработка Enter
     const handleKeyDown = (e) => {

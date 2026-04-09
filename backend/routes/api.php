@@ -56,6 +56,7 @@ use App\Http\Controllers\FamilyBudgetController;
 use App\Http\Controllers\FamilyBudget\FamilyBudgetApiController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\Business\SearchController as BusinessSearchController;
+use App\Http\Controllers\Business\RouteController;
 use App\Http\Controllers\Admin\SearchController as AdminSearchController;
 use App\Http\Controllers\Admin\RealtimeMetricsController;
 use App\Http\Controllers\UserPresenceController;
@@ -127,6 +128,14 @@ Route::prefix('bookings')->group(function () {
 
 // Public platform settings (for logo customization)
 Route::get('/settings/public', [AdminSettingsController::class, 'getPublicSettings']);
+
+/** Публичный pk-токен Mapbox: в Docker nginx весь /api идёт в Laravel, не в Next.js — см. frontend RouteMap.jsx */
+Route::get('/business/mapbox-config', function () {
+    $raw = config('services.mapbox.public_token');
+    $accessToken = is_string($raw) ? trim($raw) : '';
+
+    return response()->json(['accessToken' => $accessToken]);
+});
 
 // Public review routes (for unregistered clients)
 Route::prefix('public/reviews')->group(function () {
@@ -226,6 +235,29 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
         Route::get('/dashboard/recent-bookings', [DashboardController::class, 'recentBookings']);
         Route::get('/dashboard/chart', [DashboardController::class, 'chart']);
+
+        // Route Intelligence (daily routes / optimization)
+        Route::prefix('routes')->group(function () {
+            Route::get('/{specialist}/saved', [RouteController::class, 'savedList'])
+                ->whereNumber('specialist');
+            Route::post('/{routeId}/recalculate', [RouteController::class, 'recalculate'])
+                ->where('routeId', '[0-9a-fA-F\-]{36}');
+            Route::put('/{specialist}/{date}/included-bookings', [RouteController::class, 'updateIncluded'])
+                ->whereNumber('specialist')
+                ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+            Route::put('/{specialist}/{date}/include-return-leg', [RouteController::class, 'updateIncludeReturnLeg'])
+                ->whereNumber('specialist')
+                ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+            Route::get('/{specialist}/{date}', [RouteController::class, 'show'])
+                ->whereNumber('specialist')
+                ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+            Route::post('/{specialist}/{date}/optimize/preview', [RouteController::class, 'optimizePreview'])
+                ->whereNumber('specialist')
+                ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+            Route::post('/{specialist}/{date}/optimize/apply', [RouteController::class, 'optimizeApply'])
+                ->whereNumber('specialist')
+                ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+        });
 
         // Schedule
         Route::get('/schedule/slots', [ScheduleController::class, 'index']);

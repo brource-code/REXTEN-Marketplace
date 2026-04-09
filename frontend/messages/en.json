@@ -246,6 +246,7 @@
             "businessDesc": "Business management panel",
             "dashboard": "Dashboard",
             "bookings": "Bookings",
+            "routes": "Routes",
             "schedule": {
                 "schedule": "Schedule",
                 "reports": {
@@ -471,6 +472,7 @@
             "promo_codes": "Promo codes",
             "reviews": "Reviews",
             "recurring": "Recurring bookings",
+            "routes": "Routes",
             "companies": "Companies",
             "users": "Users",
             "categories": "Categories"
@@ -1290,11 +1292,127 @@
                 "amount": "Amount"
             }
         },
+        "routes": {
+            "title": "Routes",
+            "description": "Optimize daily routes for specialists",
+            "selectSpecialist": "Select specialist",
+            "selectDate": "Select date",
+            "noRouteForDate": "No bookings for this date",
+            "totalDistance": "Total distance",
+            "unitMi": "mi",
+            "totalDuration": "Total duration",
+            "stops": "Stops",
+            "mapSection": "Map",
+            "routeIncludeReturnLeg": "Include return to base",
+            "mapLoading": "Loading map…",
+            "helpIntro": "Here you only view and optimize routes for bookings that already exist. Create and edit bookings in Schedule or Bookings. For visits at the client’s address, use off-site execution and fill in the address so we can geocode it.",
+            "ctaSchedule": "Schedule",
+            "ctaBookings": "Bookings",
+            "ctaSettingsTeam": "Settings → Team",
+            "mapHelpHint": "Drag to move the map. Each visit has its own color on the line and markers; amber = return leg when shown. S/E = same home for start and return.",
+            "mapFlyToHome": "Center map on home (starting point)",
+            "mapMarkerStartEnd": "Start and return (same address)",
+            "mapMarkerStart": "Start (departure)",
+            "mapMarkerEnd": "End (return)",
+            "mapMarkerVisit": "Visit {n}",
+            "optimize": "Optimize route",
+            "optimizing": "Optimizing…",
+            "recalculate": "Recalculate",
+            "apply": "Apply",
+            "cancel": "Cancel",
+            "optimizeApplied": "Route optimization applied",
+            "mapNoGeoHint": "Nothing to show on the map yet. Add a service address for off-site visits so stops can appear here.",
+            "mapNoTokenHint": "The map cannot load because the map service is not configured. Stops are still listed below. Ask an administrator to set the public map token in the deployment environment.",
+            "bookingUnassignedSpecialist": "No specialist on booking",
+            "dayBookingsTitle": "Visits for this day",
+            "homeBase": "Starting point",
+            "homeBaseOnMap": "Home location saved (map)",
+            "addHomeAddress": "Add a home address for this specialist",
+            "addHomeAddressHint": "Routes start and end from this location. You can add it in Team settings.",
+            "openTeamSettings": "Team settings",
+            "includedCount": "{included} of {total} visits in the route",
+            "savingSelection": "Saving…",
+            "helpCompact": "Tip: create and edit visits in",
+            "optimizeSingleVisitHint": "Only one client visit on this route: stop order cannot change. Use Recalculate to refresh driving distance and the line on the map. Add more visits to let optimization reorder stops.",
+            "previewSuppressedWorse": "The suggested order wouldn't shorten your route on the road. Your current order is kept.",
+            "addressNotOnMapYet": "Address is not on the map yet — check the booking after saving.",
+            "stopOffsiteAddressMissing": "No visit address for {client}. Add an address on the booking (off-site) or in the client profile.",
+            "stopBookingFallbackName": "Client",
+            "timeline": {
+                "title": "Route timeline",
+                "startTitle": "Departure (home)",
+                "endTitle": "Return home",
+                "inTransit": "Driving",
+                "legStats": "{mi} mi · {min} min",
+                "visitFallback": "Visit",
+                "homeUnknown": "Home address not set",
+                "addressUnknown": "No address on stop",
+                "serviceDuration": "On site ~ {min} min",
+                "routingArrival": "Routing arrival",
+                "waitUntilAppointment": "Wait {duration} until scheduled start",
+                "lateArrival": "Late by {min} min"
+            },
+            "savedRoutes": {
+                "title": "Saved routes by day",
+                "hint": "Click a date to open that day’s route.",
+                "empty": "No saved routes for this specialist yet.",
+                "loading": "Loading saved routes…",
+                "lineStats": "{mi} mi · {min} min · {visits} visits"
+            },
+            "preview": {
+                "title": "Optimization preview",
+                "current": "Current order",
+                "proposed": "Proposed order",
+                "routeSummaryLine": "{mi} mi · {min} min",
+                "savingsDistance": "{mi} mi ({pct}%)",
+                "savings": "Savings",
+                "noChanges": "Route is already optimal",
+                "confidence": {
+                    "high": "High confidence",
+                    "medium": "Medium confidence",
+                    "low": "Low confidence"
+                },
+                "extraDistance": "Extra distance",
+                "insufficientData": "Not enough data to compare routes. Set specialist home or company location.",
+                "summaryImproved": "Road distance is shorter with the proposed order (HERE estimate).",
+                "summaryWorse": "Road distance is longer with the proposed order (HERE estimate). You can still apply it or cancel.",
+                "summaryTie": "Stop order would change, but road distance is about the same (HERE estimate)."
+            },
+            "status": {
+                "draft": "Draft",
+                "stale": "Needs update",
+                "optimizing": "Optimizing",
+                "ready": "Ready",
+                "in_progress": "In progress",
+                "completed": "Completed"
+            },
+            "stopType": {
+                "start": "Start",
+                "booking": "Booking",
+                "end": "End"
+            },
+            "warnings": {
+                "overload": "Specialist overloaded: {count} bookings (limit: {limit})",
+                "lateArrival": "Late arrival expected",
+                "noCoordinates": "Address not geocoded"
+            },
+            "errors": {
+                "loadFailed": "Failed to load route",
+                "optimizeFailed": "Failed to optimize route",
+                "bookingModalLoadFailed": "Could not open this booking. Refresh and try again."
+            },
+            "dayBookingOpenLink": "View booking"
+        },
         "notifications": {
             "title": "All notifications",
             "description": "Read and manage alerts for your business account.",
             "clearAll": "Clear all",
-            "clearAllConfirm": "Delete all notifications? This cannot be undone.",
+            "clearAllDialog": {
+                "title": "Clear all notifications?",
+                "message": "All notifications will be removed. This cannot be undone.",
+                "confirm": "Clear all",
+                "cancel": "Cancel"
+            },
             "markAllAsRead": "Mark all as read",
             "empty": "No notifications yet",
             "emptyHint": "Booking updates and other alerts will appear here.",
@@ -1382,7 +1500,10 @@
                     "eventType": "Event Type",
                     "customEvent": "Custom Event",
                     "title": "Event Title",
-                    "titlePlaceholder": "Enter event title"
+                    "titlePlaceholder": "Enter event title",
+                    "hybridWhere": "Where will this visit take place?",
+                    "hybridOnsite": "At our location",
+                    "hybridOffsite": "At the client's address"
                 },
                 "durationPicker": {
                     "min15": "15 minutes",
@@ -2448,7 +2569,10 @@
                     "name": "Name",
                     "namePlaceholder": "First Last Name",
                     "role": "Position",
-                    "rolePlaceholder": "e.g.: Specialist, Administrator"
+                    "rolePlaceholder": "e.g.: Specialist, Administrator",
+                    "routingSection": "Routes & optimization",
+                    "routingHint": "This address is where the day’s route starts (home base). Enter a full street address; we locate it automatically.",
+                    "homeAddress": "Home address (route start)"
                 },
                 "deleteConfirm": {
                     "title": "Delete Team Member?",
@@ -2463,7 +2587,8 @@
                     "deleted": "Team member successfully deleted",
                     "deleteError": "Failed to delete team member",
                     "avatarUploaded": "Avatar uploaded",
-                    "avatarUploadError": "Failed to upload avatar"
+                    "avatarUploadError": "Failed to upload avatar",
+                    "geocodeFailed": "We couldn’t find that address. Enter a full street address with city and state (or ZIP)."
                 }
             },
             "services": {
@@ -2804,7 +2929,7 @@
             "welcomeBody": "This quick tour will show you how to use the admin panel.",
             "welcomePreviewHint": "Peek inside",
             "welcomePreviewNavTitle": "Menu",
-            "welcomePreviewNavText": "Switch sections from the sidebar: dashboard, schedule, bookings, and more—no hunting through tabs.",
+            "welcomePreviewNavText": "Switch sections from the sidebar: dashboard, schedule, bookings, routes, and more—no hunting through tabs.",
             "welcomePreviewScheduleTitle": "Schedule",
             "welcomePreviewScheduleText": "Pick a slot, see who’s booked, and open a booking—your day flows in one view.",
             "welcomePreviewClientsTitle": "Clients",
@@ -2832,6 +2957,10 @@
                 "nav_bookings": {
                     "title": "Bookings",
                     "text": "Search and filter bookings; open a booking with the same details as in the schedule."
+                },
+                "nav_routes": {
+                    "title": "Routes",
+                    "text": "Daily driving order for specialists, map, and optimization—separate from the calendar list."
                 },
                 "nav_clients": {
                     "title": "Clients",

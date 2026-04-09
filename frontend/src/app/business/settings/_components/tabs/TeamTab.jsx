@@ -26,6 +26,7 @@ import Loading from '@/components/shared/Loading'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
+import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 
 const TeamTab = () => {
     const t = useTranslations('business.settings.team')
@@ -55,6 +56,7 @@ const TeamTab = () => {
         mutationFn: createTeamMember,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-team'] })
+            queryClient.invalidateQueries({ queryKey: ['business-route'] })
             setIsAddModalOpen(false)
             toast.push(
                 <Notification title={tCommon('success')} type="success">
@@ -75,6 +77,8 @@ const TeamTab = () => {
         mutationFn: ({ id, data }) => updateTeamMember(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-team'] })
+            queryClient.invalidateQueries({ queryKey: ['business-route'] })
+            setIsAddModalOpen(false)
             setEditingMember(null)
             toast.push(
                 <Notification title={tCommon('success')} type="success">
@@ -82,10 +86,15 @@ const TeamTab = () => {
                 </Notification>,
             )
         },
-        onError: () => {
+        onError: (error) => {
+            const code = error?.response?.data?.code
+            const msg =
+                code === 'HOME_ADDRESS_GEOCODE_FAILED'
+                    ? t('notifications.geocodeFailed')
+                    : t('notifications.updateError')
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
-                    {t('notifications.updateError')}
+                    {msg}
                 </Notification>,
             )
         },
@@ -281,10 +290,14 @@ const TeamTab = () => {
 const TeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
     const t = useTranslations('business.settings.team')
     const tCommon = useTranslations('business.common')
+    const tClientModal = useTranslations('business.clients.editModal')
     const [formData, setFormData] = useState({
         name: member?.name || '',
         role: member?.role || '',
         img: member?.img || '',
+        home_address: member?.home_address ?? '',
+        home_lat: null,
+        home_lng: null,
     })
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
@@ -304,12 +317,18 @@ const TeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
                 name: member.name || '',
                 role: member.role || '',
                 img: member.img || '',
+                home_address: member.home_address ?? '',
+                home_lat: null,
+                home_lng: null,
             })
         } else {
             setFormData({
                 name: '',
                 role: '',
                 img: '',
+                home_address: '',
+                home_lat: null,
+                home_lng: null,
             })
         }
     }, [member, isOpen])
@@ -348,11 +367,27 @@ const TeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        onSave(formData)
+        const payload = { ...formData }
+        delete payload.home_address
+        delete payload.home_lat
+        delete payload.home_lng
+        if (member) {
+            const trimmed = formData.home_address.trim()
+            const initial = (member?.home_address ?? '').trim()
+            const hasGoogleCoords = formData.home_lat != null && formData.home_lng != null
+            if (trimmed !== initial || hasGoogleCoords) {
+                payload.home_address = trimmed
+                if (hasGoogleCoords) {
+                    payload.home_latitude = formData.home_lat
+                    payload.home_longitude = formData.home_lng
+                }
+            }
+        }
+        onSave(payload)
     }
 
     return (
-        <Dialog isOpen={isOpen} onClose={onClose} width={500}>
+        <Dialog isOpen={isOpen} onClose={onClose} width={560}>
             <div className="flex flex-col h-full max-h-[85vh]">
                 {/* Заголовок */}
                 <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
@@ -417,6 +452,36 @@ const TeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
                                 placeholder={t('form.rolePlaceholder')}
                             />
                         </FormItem>
+                        {member && (
+                            <>
+                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    {t('form.routingSection')}
+                                </p>
+                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('form.routingHint')}</p>
+                                <FormItem label={t('form.homeAddress')}>
+                                    <AddressAutocomplete
+                                        value={formData.home_address}
+                                        onChange={(v) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                home_address: v,
+                                                home_lat: null,
+                                                home_lng: null,
+                                            }))
+                                        }
+                                        onPlaceResolved={({ formattedAddress, lat, lng }) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                home_address: formattedAddress,
+                                                home_lat: lat,
+                                                home_lng: lng,
+                                            }))
+                                        }
+                                        placeholder={tClientModal('addressPlaceholder')}
+                                    />
+                                </FormItem>
+                            </>
+                        )}
                     </form>
                 </div>
 

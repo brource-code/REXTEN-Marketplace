@@ -156,7 +156,17 @@ const _Search = ({ className }) => {
             const order =
                 searchMode === 'admin'
                     ? ['companies', 'users', 'advertisements', 'categories', 'reviews']
-                    : ['clients', 'bookings', 'services', 'team', 'advertisements', 'promo_codes', 'reviews', 'recurring']
+                    : [
+                          'clients',
+                          'bookings',
+                          'routes',
+                          'services',
+                          'team',
+                          'advertisements',
+                          'promo_codes',
+                          'reviews',
+                          'recurring',
+                      ]
 
             const byKey = {}
             ;(apiSections || []).forEach((s) => {

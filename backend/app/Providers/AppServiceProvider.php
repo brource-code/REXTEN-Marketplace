@@ -4,9 +4,14 @@ namespace App\Providers;
 
 use App\Models\Advertisement;
 use App\Models\Booking;
+use App\Models\BookingLocation;
+use App\Models\UserProfile;
 use App\Models\Company;
 use App\Observers\AdvertisementEventObserver;
 use App\Observers\BookingEventObserver;
+use App\Observers\BookingLocationRouteObserver;
+use App\Observers\BookingRouteObserver;
+use App\Observers\UserProfileRouteObserver;
 use App\Observers\BusinessEventObserver;
 use App\Support\PasswordResetMailLocale;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -84,6 +89,9 @@ class AppServiceProvider extends ServiceProvider
         // Register observers for business events
         Company::observe(BusinessEventObserver::class);
         Booking::observe(BookingEventObserver::class);
+        Booking::observe(BookingRouteObserver::class);
+        BookingLocation::observe(BookingLocationRouteObserver::class);
+        UserProfile::observe(UserProfileRouteObserver::class);
         Advertisement::observe(AdvertisementEventObserver::class);
     }
 }

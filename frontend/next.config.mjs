@@ -28,6 +28,7 @@ const nextConfig = {
   },
   // Внешние пакеты для server components (перенесено из experimental)
   serverExternalPackages: ['sharp', 'onnxruntime-node'],
+  transpilePackages: ['mapbox-gl', 'react-map-gl', '@vis.gl/react-mapbox'],
   // Разрешить cross-origin запросы в dev режиме
   allowedDevOrigins: ['rexten.local', 'rexten.pro', 'www.rexten.pro', 'rexten.live', 'www.rexten.live', 'dev.rexten.live', 'localhost', '0.0.0.0'],
   // Оптимизация изображений отключена для избежания проблем с /api/storage/

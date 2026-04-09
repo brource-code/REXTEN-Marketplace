@@ -12,6 +12,7 @@ use App\Models\ServiceCategory;
 use App\Models\TeamMember;
 use App\Jobs\AutoApproveAdvertisement;
 use App\Services\ActivityService;
+use App\Services\Routing\GeocodingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -922,6 +923,10 @@ class SettingsController extends Controller
                     'role' => $member->role ?? '',
                     'status' => $member->status ?? 'active',
                     'img' => $member->img ?? null,
+                    'home_address' => $member->home_address ?? null,
+                    'home_latitude' => $member->home_latitude !== null ? (float) $member->home_latitude : null,
+                    'home_longitude' => $member->home_longitude !== null ? (float) $member->home_longitude : null,
+                    'max_jobs_per_day' => $member->max_jobs_per_day !== null ? (int) $member->max_jobs_per_day : null,
                 ];
             });
 
@@ -1012,15 +1017,73 @@ class SettingsController extends Controller
             ], 404);
         }
         
-        // Обновляем данные
-        $specialist->update([
-            'name' => $request->name ?? $specialist->name,
-            'email' => $request->email ?? $specialist->email,
-            'phone' => $request->phone ?? $specialist->phone,
-            'role' => $request->role ?? $specialist->role,
-            'status' => $request->status ?? $specialist->status,
-            'img' => $request->img ?? $specialist->img,
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'role' => 'nullable|string|max:255',
+            'status' => 'sometimes|in:active,inactive',
+            'img' => 'nullable|string|max:2048',
+            'home_address' => 'nullable|string|max:500',
+            'home_latitude' => 'nullable|numeric|between:-90,90',
+            'home_longitude' => 'nullable|numeric|between:-180,180',
+            'max_jobs_per_day' => 'nullable|integer|min:1|max:500',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $payload = [
+            'name' => $request->has('name') ? $request->name : $specialist->name,
+            'email' => $request->has('email') ? $request->email : $specialist->email,
+            'phone' => $request->has('phone') ? $request->phone : $specialist->phone,
+            'role' => $request->has('role') ? $request->role : $specialist->role,
+            'status' => $request->has('status') ? $request->status : $specialist->status,
+            'img' => $request->has('img') ? $request->img : $specialist->img,
+        ];
+
+        if ($request->has('home_address')) {
+            $addr = trim((string) $request->input('home_address'));
+            if ($addr === '') {
+                $payload['home_address'] = null;
+                $payload['home_latitude'] = null;
+                $payload['home_longitude'] = null;
+            } else {
+                $payload['home_address'] = $addr;
+                $latIn = $request->input('home_latitude');
+                $lngIn = $request->input('home_longitude');
+                if ($latIn !== null && $latIn !== '' && $lngIn !== null && $lngIn !== ''
+                    && is_numeric($latIn) && is_numeric($lngIn)) {
+                    $payload['home_latitude'] = round((float) $latIn, 8);
+                    $payload['home_longitude'] = round((float) $lngIn, 8);
+                } else {
+                    /** @var GeocodingService $geocoder */
+                    $geocoder = app(GeocodingService::class);
+                    $point = $geocoder->geocodeAddress($addr, (int) $companyId);
+                    if ($point === null) {
+                        return response()->json([
+                            'success' => false,
+                            'code' => 'HOME_ADDRESS_GEOCODE_FAILED',
+                            'message' => 'HOME_ADDRESS_GEOCODE_FAILED',
+                        ], 422);
+                    }
+                    $payload['home_latitude'] = $point->latitude;
+                    $payload['home_longitude'] = $point->longitude;
+                }
+            }
+        }
+        if ($request->has('max_jobs_per_day')) {
+            $payload['max_jobs_per_day'] = $request->max_jobs_per_day === '' || $request->max_jobs_per_day === null
+                ? $specialist->max_jobs_per_day
+                : (int) $request->max_jobs_per_day;
+        }
+
+        $specialist->update($payload);
+        $specialist->refresh();
 
         return response()->json([
             'data' => [
@@ -1031,6 +1094,8 @@ class SettingsController extends Controller
                 'role' => $specialist->role ?? '',
                 'status' => $specialist->status,
                 'img' => $specialist->img ?? null,
+                'home_address' => $specialist->home_address ?? null,
+                'max_jobs_per_day' => $specialist->max_jobs_per_day !== null ? (int) $specialist->max_jobs_per_day : null,
             ]
         ]);
     }

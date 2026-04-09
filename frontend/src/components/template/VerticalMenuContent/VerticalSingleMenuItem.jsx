@@ -13,6 +13,7 @@ const NAV_DATA_TOUR = {
     'business.dashboard': 'nav-dashboard',
     'business.schedule': 'nav-schedule',
     'business.bookings': 'nav-bookings',
+    'business.routes': 'nav-routes',
     'business.clients': 'nav-clients',
     'business.billing': 'nav-billing',
     'business.settings': 'nav-settings',

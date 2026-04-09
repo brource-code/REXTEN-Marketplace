@@ -61,6 +61,12 @@ export function useBusinessScheduleSlotModalController({ refetchSlots }) {
                         {errorMessage}. {t('notifications.changeTimeOrDate')}
                     </Notification>,
                 )
+            } else if (errorCode === 'address_required') {
+                toast.push(
+                    <Notification title={tCommon('error')} type="danger">
+                        {errorMessage}
+                    </Notification>,
+                )
             } else {
                 toast.push(
                     <Notification title={tCommon('error')} type="danger">
@@ -193,6 +199,7 @@ export function useBusinessScheduleSlotModalController({ refetchSlots }) {
                 specialist_id: data.specialist_id || null,
                 price: data.title ? Math.round(Number(data.price ?? 0) * 100) / 100 : servicePrice,
                 additional_services: data.additional_services || [],
+                execution_type: data.execution_type || undefined,
                 address_line1: data.address_line1 || null,
                 city: data.city || null,
                 state: data.state || null,

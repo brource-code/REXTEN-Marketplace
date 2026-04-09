@@ -246,6 +246,7 @@
             "businessDesc": "Panel de gestión del negocio",
             "dashboard": "Panel",
             "bookings": "Reservas",
+            "routes": "Rutas",
             "schedule": {
                 "schedule": "Horarios",
                 "reports": {
@@ -469,6 +470,7 @@
             "promo_codes": "Códigos promocionales",
             "reviews": "Reseñas",
             "recurring": "Reservas recurrentes",
+            "routes": "Rutas",
             "companies": "Empresas",
             "users": "Usuarios",
             "categories": "Categorías"
@@ -1288,11 +1290,127 @@
                 "amount": "Monto"
             }
         },
+        "routes": {
+            "title": "Rutas",
+            "description": "Optimiza las rutas diarias de los especialistas",
+            "selectSpecialist": "Seleccionar especialista",
+            "selectDate": "Seleccionar fecha",
+            "noRouteForDate": "No hay reservas para esta fecha",
+            "totalDistance": "Distancia total",
+            "unitMi": "mi",
+            "totalDuration": "Duración total",
+            "stops": "Paradas",
+            "mapSection": "Mapa",
+            "routeIncludeReturnLeg": "Incluir regreso a la base",
+            "mapLoading": "Cargando mapa…",
+            "helpIntro": "Aquí solo ves y optimizas rutas para reservas que ya existen. Crea y edita citas en Horario o Reservas. Para visitas en domicilio, usa ejecución fuera del local y completa la dirección para geocodificar.",
+            "ctaSchedule": "Horario",
+            "ctaBookings": "Reservas",
+            "ctaSettingsTeam": "Ajustes → Equipo",
+            "mapHelpHint": "Arrastra el mapa. Cada visita tiene su color en la línea y marcadores; ámbar = regreso si está activo. S/E = mismo domicilio de salida y regreso.",
+            "mapFlyToHome": "Centrar el mapa en la base (punto de partida)",
+            "mapMarkerStartEnd": "Salida y regreso (misma dirección)",
+            "mapMarkerStart": "Inicio (salida)",
+            "mapMarkerEnd": "Fin (regreso)",
+            "mapMarkerVisit": "Visita {n}",
+            "optimize": "Optimizar ruta",
+            "optimizing": "Optimizando…",
+            "recalculate": "Recalcular",
+            "apply": "Aplicar",
+            "cancel": "Cancelar",
+            "optimizeApplied": "Optimización de ruta aplicada",
+            "mapNoGeoHint": "Aún no hay nada en el mapa. Agrega la dirección del servicio para visitas fuera del local.",
+            "mapNoTokenHint": "El mapa no puede cargarse porque el servicio de mapas no está configurado. Las paradas siguen listadas abajo. Pide al administrador que configure el token público del mapa en el entorno de despliegue.",
+            "bookingUnassignedSpecialist": "Sin especialista en la reserva",
+            "dayBookingsTitle": "Visitas del día",
+            "homeBase": "Punto de partida",
+            "homeBaseOnMap": "Ubicación del hogar guardada (mapa)",
+            "addHomeAddress": "Agrega la dirección de casa del especialista",
+            "addHomeAddressHint": "La ruta empieza y termina aquí. Puedes agregarla en Equipo.",
+            "openTeamSettings": "Configuración del equipo",
+            "includedCount": "{included} de {total} visitas en la ruta",
+            "savingSelection": "Guardando…",
+            "helpCompact": "Consejo: crea y edita visitas en",
+            "optimizeSingleVisitHint": "Solo hay una visita al cliente en esta ruta: el orden de paradas ya está fijado. Usa «Recalcular» para actualizar la distancia y la línea por la calle. Añade más visitas para que la optimización reordene paradas.",
+            "previewSuppressedWorse": "El orden sugerido no acortaría la ruta por carretera. Se mantiene el orden actual.",
+            "addressNotOnMapYet": "La dirección aún no está en el mapa — revisa la reserva después de guardar.",
+            "stopOffsiteAddressMissing": "Sin dirección de visita para {client}. Agrega la dirección en la reserva (fuera del local) o en el perfil del cliente.",
+            "stopBookingFallbackName": "Cliente",
+            "timeline": {
+                "title": "Cronología de la ruta",
+                "startTitle": "Salida (casa)",
+                "endTitle": "Regreso a casa",
+                "inTransit": "En ruta",
+                "legStats": "{mi} mi · {min} min",
+                "visitFallback": "Visita",
+                "homeUnknown": "Dirección de casa no configurada",
+                "addressUnknown": "Sin dirección en la parada",
+                "serviceDuration": "En sitio ~ {min} min",
+                "routingArrival": "Llegada por ruta",
+                "waitUntilAppointment": "Espera {duration} hasta la hora de la cita",
+                "lateArrival": "Retraso de {min} min"
+            },
+            "savedRoutes": {
+                "title": "Rutas guardadas por día",
+                "hint": "Toca una fecha para abrir la ruta de ese día.",
+                "empty": "Aún no hay rutas guardadas para este especialista.",
+                "loading": "Cargando rutas guardadas…",
+                "lineStats": "{mi} mi · {min} min · {visits} visitas"
+            },
+            "preview": {
+                "title": "Vista previa de optimización",
+                "current": "Orden actual",
+                "proposed": "Orden propuesto",
+                "routeSummaryLine": "{mi} mi · {min} min",
+                "savingsDistance": "{mi} mi ({pct}%)",
+                "savings": "Ahorro",
+                "noChanges": "La ruta ya es óptima",
+                "confidence": {
+                    "high": "Alta confianza",
+                    "medium": "Confianza media",
+                    "low": "Baja confianza"
+                },
+                "extraDistance": "Distancia adicional",
+                "insufficientData": "No hay datos suficientes para comparar. Configura el domicilio del especialista o la ubicación de la empresa.",
+                "summaryImproved": "La distancia por carretera es menor con el orden propuesto (estimación HERE).",
+                "summaryWorse": "La distancia por carretera es mayor con el orden propuesto (estimación HERE). Puedes aplicarlo o cancelar.",
+                "summaryTie": "Cambiaría el orden de paradas, pero la distancia por carretera es similar (estimación HERE)."
+            },
+            "status": {
+                "draft": "Borrador",
+                "stale": "Requiere actualización",
+                "optimizing": "Optimizando",
+                "ready": "Listo",
+                "in_progress": "En curso",
+                "completed": "Completado"
+            },
+            "stopType": {
+                "start": "Inicio",
+                "booking": "Reserva",
+                "end": "Fin"
+            },
+            "warnings": {
+                "overload": "Especialista sobrecargado: {count} reservas (límite: {limit})",
+                "lateArrival": "Se espera llegada tarde",
+                "noCoordinates": "Dirección sin geocodificar"
+            },
+            "errors": {
+                "loadFailed": "No se pudo cargar la ruta",
+                "optimizeFailed": "No se pudo optimizar la ruta",
+                "bookingModalLoadFailed": "No se pudo abrir la reserva. Actualiza la página e inténtalo de nuevo."
+            },
+            "dayBookingOpenLink": "Ver reserva"
+        },
         "notifications": {
             "title": "Todas las notificaciones",
             "description": "Lee y gestiona las alertas de tu cuenta de negocio.",
             "clearAll": "Borrar todo",
-            "clearAllConfirm": "¿Eliminar todas las notificaciones? Esta acción no se puede deshacer.",
+            "clearAllDialog": {
+                "title": "¿Borrar todas las notificaciones?",
+                "message": "Se eliminarán todas las notificaciones. Esta acción no se puede deshacer.",
+                "confirm": "Borrar todo",
+                "cancel": "Cancelar"
+            },
             "markAllAsRead": "Marcar todas como leídas",
             "empty": "Aún no hay notificaciones",
             "emptyHint": "Aquí verás actualizaciones de reservas y otras alertas.",
@@ -1378,7 +1496,10 @@
                     "eventType": "Tipo de evento",
                     "customEvent": "Evento personalizado",
                     "title": "Título del evento",
-                    "titlePlaceholder": "Ingresa el título del evento"
+                    "titlePlaceholder": "Ingresa el título del evento",
+                    "hybridWhere": "¿Dónde será la visita?",
+                    "hybridOnsite": "En nuestro local",
+                    "hybridOffsite": "En domicilio del cliente"
                 },
                 "durationPicker": {
                     "min15": "15 minutos",
@@ -2444,7 +2565,10 @@
                     "name": "Nombre",
                     "namePlaceholder": "Nombre y apellido",
                     "role": "Puesto",
-                    "rolePlaceholder": "p. ej.: especialista, administrador"
+                    "rolePlaceholder": "p. ej.: especialista, administrador",
+                    "routingSection": "Rutas y optimización",
+                    "routingHint": "Esta dirección es el punto de inicio de la ruta del día (base). Escribe una dirección completa; la ubicamos automáticamente.",
+                    "homeAddress": "Dirección del hogar (inicio de ruta)"
                 },
                 "deleteConfirm": {
                     "title": "¿Eliminar miembro del equipo?",
@@ -2459,7 +2583,8 @@
                     "deleted": "Miembro eliminado correctamente",
                     "deleteError": "No se pudo eliminar al miembro",
                     "avatarUploaded": "Avatar subido",
-                    "avatarUploadError": "No se pudo subir el avatar"
+                    "avatarUploadError": "No se pudo subir el avatar",
+                    "geocodeFailed": "No encontramos esa dirección. Ingresa calle completa, ciudad y estado (o CP)."
                 }
             },
             "services": {
@@ -2800,7 +2925,7 @@
             "welcomeBody": "This quick tour will show you how to use the admin panel.",
             "welcomePreviewHint": "Peek inside",
             "welcomePreviewNavTitle": "Menu",
-            "welcomePreviewNavText": "Switch sections from the sidebar: dashboard, schedule, bookings, and more—no hunting through tabs.",
+            "welcomePreviewNavText": "Cambia de sección en el menú lateral: panel, horario, reservas, rutas y más—sin perder pestañas.",
             "welcomePreviewScheduleTitle": "Schedule",
             "welcomePreviewScheduleText": "Pick a slot, see who’s booked, and open a booking—your day flows in one view.",
             "welcomePreviewClientsTitle": "Clients",
@@ -2828,6 +2953,10 @@
                 "nav_bookings": {
                     "title": "Bookings",
                     "text": "Search and filter bookings; open a booking with the same details as in the schedule."
+                },
+                "nav_routes": {
+                    "title": "Rutas",
+                    "text": "Orden de conducción diario para especialistas, mapa y optimización—aparte del calendario."
                 },
                 "nav_clients": {
                     "title": "Clients",

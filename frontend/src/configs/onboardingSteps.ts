@@ -8,6 +8,7 @@ export type OnboardingStepId =
     | 'nav_dashboard'
     | 'nav_schedule'
     | 'nav_bookings'
+    | 'nav_routes'
     | 'nav_clients'
     | 'nav_advertisements'
     | 'nav_billing'
@@ -22,7 +23,8 @@ export type OnboardingStepConfig = {
     attachSelector?: string
     /** Сторона тултипа относительно элемента */
     attachOn?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
-    permission?: string | null
+    /** Одно разрешение или несколько (достаточно любого — OR) */
+    permission?: string | string[] | null
 }
 
 export const ONBOARDING_TOUR_STEPS: OnboardingStepConfig[] = [
@@ -52,6 +54,13 @@ export const ONBOARDING_TOUR_STEPS: OnboardingStepConfig[] = [
         attachSelector: '[data-tour="nav-bookings"]',
         attachOn: 'right',
         permission: 'view_schedule',
+    },
+    {
+        id: 'nav_routes',
+        route: '/business/dashboard',
+        attachSelector: '[data-tour="nav-routes"]',
+        attachOn: 'right',
+        permission: ['view_routes', 'view_schedule'],
     },
     {
         id: 'nav_clients',

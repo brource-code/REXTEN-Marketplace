@@ -44,7 +44,7 @@ class ClientsController extends Controller
                     'max:255',
                     // Убираем проверку уникальности - клиенты разделяются по тенантам
                 ],
-                'phone' => 'nullable|string|max:20',
+                'phone' => 'nullable|string|max:40',
                 'status' => 'sometimes|in:regular,permanent,vip',
             ], [
                 'name.required' => 'Имя обязательно для заполнения',
@@ -618,11 +618,12 @@ class ClientsController extends Controller
             ], 404);
         }
 
-        // Валидация с проверкой на placeholder email
+        // Валидация с проверкой на placeholder email (nullable: клиент может прислать null; string не допускает null без nullable)
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
+            'name' => 'sometimes|nullable|string|max:255',
             'email' => [
                 'sometimes',
+                'nullable',
                 function ($attribute, $value, $fail) {
                     // Пропускаем placeholder emails
                     if (empty($value) || strpos($value, '@local.local') !== false) {
@@ -635,9 +636,9 @@ class ClientsController extends Controller
                 },
                 'max:255',
             ],
-            'phone' => 'sometimes|string|max:20',
-            'address' => 'sometimes|string|max:500',
-            'status' => 'sometimes|in:regular,permanent,vip',
+            'phone' => 'sometimes|nullable|string|max:40',
+            'address' => 'sometimes|nullable|string|max:2000',
+            'status' => 'sometimes|nullable|in:regular,permanent,vip',
         ]);
 
         if ($validator->fails()) {

@@ -43,7 +43,7 @@ cd "$(dirname "$0")"
 if lsof -Pi :3003 -sTCP:LISTEN -t >/dev/null ; then
     echo "  ⚠️  Порт 3003 уже занят"
 else
-    export NODE_OPTIONS='--max-old-space-size=6144'
+    export NODE_OPTIONS='--max-old-space-size=12288'
     npx next dev -p 3003 -H 127.0.0.1 > /tmp/nextjs-server.log 2>&1 &
     FRONTEND_PID=$!
     echo "  ✅ Frontend запущен (PID: $FRONTEND_PID)"

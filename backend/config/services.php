@@ -35,6 +35,23 @@ return [
         'chat_id' => env('TELEGRAM_CHAT_ID'),
     ],
 
+    'here' => [
+        'api_key' => env('HERE_API_KEY'),
+        'router_url' => env('HERE_API_URL', 'https://router.hereapi.com'),
+        'geocode_url' => env('HERE_GEOCODE_URL', 'https://geocode.search.hereapi.com'),
+        /** HERE Geocode Search: ограничение области (по умолчанию США). */
+        'geocode_in' => env('HERE_GEOCODE_IN', 'countryCode:USA'),
+    ],
+
+    /*
+    | Публичный токен Mapbox (pk...) для карт в бизнес-админке.
+    | В продакшене nginx отдаёт /api/* в Laravel — см. GET /api/business/mapbox-config.
+    | Задайте MAPBOX_PUBLIC_TOKEN в backend/.env (тот же ключ, что и NEXT_PUBLIC_MAPBOX_TOKEN у фронта).
+    */
+    'mapbox' => [
+        'public_token' => env('MAPBOX_PUBLIC_TOKEN') ?: env('NEXT_PUBLIC_MAPBOX_TOKEN'),
+    ],
+
 ];
 
 

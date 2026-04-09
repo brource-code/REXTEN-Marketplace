@@ -13,6 +13,7 @@ use App\Models\Service;
 use App\Models\TeamMember;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -36,6 +37,11 @@ class SearchController extends Controller
         }
 
         $sections = [];
+
+        $routesNav = $this->routesNavigationShortcut($request, $companyId, $q);
+        if ($routesNav !== null) {
+            $sections[] = $routesNav;
+        }
 
         $clients = $this->searchClients($companyId, $q);
         if ($clients->isNotEmpty()) {
@@ -190,6 +196,47 @@ class SearchController extends Controller
         }
 
         return response()->json(['sections' => $sections]);
+    }
+
+    /**
+     * Подсказка-переход на страницу маршрутов при запросе по ключевым словам.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function routesNavigationShortcut(Request $request, int $companyId, string $query): ?array
+    {
+        $user = $request->user();
+        if (! $user instanceof User) {
+            return null;
+        }
+
+        $canView = $user->hasPermissionInCompany($companyId, 'view_routes')
+            || $user->hasPermissionInCompany($companyId, 'view_schedule');
+        if (! $canView) {
+            return null;
+        }
+
+        $lower = Str::lower($query);
+        $keywords = [
+            'route', 'routes', 'routing', 'маршрут', 'маршруты', 'маршру', 'ruta', 'rutas', 'itinéraire', 'itineraire',
+            'երթուղ', 'шлях', 'itiné', 'optimaliz', 'optimize',
+        ];
+        foreach ($keywords as $kw) {
+            if ($kw !== '' && str_contains($lower, Str::lower($kw))) {
+                return [
+                    'key' => 'routes',
+                    'items' => [[
+                        'key' => 'nav-routes-page',
+                        'path' => '/business/routes',
+                        'title' => 'Routes',
+                        'subtitle' => 'Daily routes & optimization',
+                        'icon' => 'routes',
+                    ]],
+                ];
+            }
+        }
+
+        return null;
     }
 
     private function searchClients(int $companyId, string $search)

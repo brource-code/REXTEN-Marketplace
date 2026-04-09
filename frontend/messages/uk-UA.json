@@ -246,6 +246,7 @@
             "businessDesc": "Панель керування бізнесом",
             "dashboard": "Панель керування",
             "bookings": "Бронювання",
+            "routes": "Маршрути",
             "schedule": {
                 "schedule": "Розклад",
                 "reports": {
@@ -469,6 +470,7 @@
             "promo_codes": "Промокоди",
             "reviews": "Відгуки",
             "recurring": "Повторювані бронювання",
+            "routes": "Маршрути",
             "companies": "Компанії",
             "users": "Користувачі",
             "categories": "Категорії"
@@ -1288,11 +1290,127 @@
                 "amount": "Сума"
             }
         },
+        "routes": {
+            "title": "Маршрути",
+            "description": "Оптимізація щоденних маршрутів для спеціалістів",
+            "selectSpecialist": "Оберіть спеціаліста",
+            "selectDate": "Оберіть дату",
+            "noRouteForDate": "Немає записів на цю дату",
+            "totalDistance": "Загальна відстань",
+            "unitMi": "миль",
+            "totalDuration": "Загальний час у дорозі",
+            "stops": "Зупинки",
+            "mapSection": "Карта",
+            "routeIncludeReturnLeg": "Враховувати повернення на базу",
+            "mapLoading": "Завантаження карти…",
+            "helpIntro": "Тут лише перегляд і оптимізація маршрутів для вже створених бронювань. Створюйте й редагуйте записи в «Розклад» або «Бронювання». Для виїзду до клієнта оберіть тип «у клієнта» і вкажіть адресу — тоді виконається геокод.",
+            "ctaSchedule": "Розклад",
+            "ctaBookings": "Бронювання",
+            "ctaSettingsTeam": "Налаштування → Команда",
+            "mapHelpHint": "Перетягуйте карту. У кожного візиту свій колір на лінії й маркерах; бурштиновий — зворотний шлях, якщо увімкнено. S/E — одна адреса старту й повернення.",
+            "mapFlyToHome": "Центрувати карту на базі (точка старту)",
+            "mapMarkerStartEnd": "Старт і повернення (одна адреса)",
+            "mapMarkerStart": "Старт (виїзд)",
+            "mapMarkerEnd": "Фініш (повернення)",
+            "mapMarkerVisit": "Візит {n}",
+            "optimize": "Оптимізувати маршрут",
+            "optimizing": "Оптимізація…",
+            "recalculate": "Перерахувати",
+            "apply": "Застосувати",
+            "cancel": "Скасувати",
+            "optimizeApplied": "Оптимізацію маршруту застосовано",
+            "mapNoGeoHint": "На карті поки нічого показати. Для виїздів вкажіть адресу в бронюванні — тоді з’являться точки.",
+            "mapNoTokenHint": "Карта не завантажується: сервіс карт не налаштовано. Зупинки нижче все одно відображаються. Попросіть адміністратора задати публічний токен карти в середовищі збірки.",
+            "bookingUnassignedSpecialist": "У бронюванні не призначено виконавця",
+            "dayBookingsTitle": "Візити на цей день",
+            "homeBase": "Точка старту",
+            "homeBaseOnMap": "Дім збережено на карті",
+            "addHomeAddress": "Додайте домашню адресу спеціаліста",
+            "addHomeAddressHint": "Маршрут починається й закінчується тут. Додайте адресу в розділі «Команда».",
+            "openTeamSettings": "Налаштування команди",
+            "includedCount": "{included} з {total} візитів у маршруті",
+            "savingSelection": "Збереження…",
+            "helpCompact": "Підказка: створюйте й редагуйте візити в",
+            "optimizeSingleVisitHint": "На маршруті лише один візит до клієнта — порядок зупинок уже визначений. Натисніть «Перерахувати», щоб оновити відстань і лінію по дорозі. Додайте більше візитів, щоб оптимізація змінювала порядок.",
+            "previewSuppressedWorse": "Запропонований порядок не скоротив би маршрут по дорозі. Залишаємо поточний порядок.",
+            "addressNotOnMapYet": "Адреси ще немає на карті — перевірте бронювання після збереження.",
+            "stopOffsiteAddressMissing": "Немає адреси візиту для {client}. Вкажіть адресу в бронюванні (виїзд) або в профілі клієнта.",
+            "stopBookingFallbackName": "Клієнт",
+            "timeline": {
+                "title": "Хронологія маршруту",
+                "startTitle": "Виїзд (дім)",
+                "endTitle": "Повернення додому",
+                "inTransit": "У дорозі",
+                "legStats": "{mi} миль · {min} хв",
+                "visitFallback": "Візит",
+                "homeUnknown": "Адресу дому не задано",
+                "addressUnknown": "Немає адреси на зупинці",
+                "serviceDuration": "У клієнта ~ {min} хв",
+                "routingArrival": "Прибуття за маршрутом",
+                "waitUntilAppointment": "Очікування {duration} до початку запису",
+                "lateArrival": "Запізнення на {min} хв"
+            },
+            "savedRoutes": {
+                "title": "Збережені маршрути за днями",
+                "hint": "Натисніть дату, щоб відкрити маршрут за цей день.",
+                "empty": "Поки немає збережених маршрутів для цього спеціаліста.",
+                "loading": "Завантаження списку…",
+                "lineStats": "{mi} миль · {min} хв · візитів: {visits}"
+            },
+            "preview": {
+                "title": "Попередній перегляд оптимізації",
+                "current": "Поточний порядок",
+                "proposed": "Запропонований порядок",
+                "routeSummaryLine": "{mi} миль · {min} хв",
+                "savingsDistance": "{mi} миль ({pct}%)",
+                "savings": "Економія",
+                "noChanges": "Маршрут уже оптимальний",
+                "confidence": {
+                    "high": "Висока впевненість",
+                    "medium": "Середня впевненість",
+                    "low": "Низька впевненість"
+                },
+                "extraDistance": "Додаткова відстань",
+                "insufficientData": "Недостатньо даних для порівняння. Вкажіть дім спеціаліста або розташування компанії на карті.",
+                "summaryImproved": "За оцінкою HERE дорожній пробіг із запропонованим порядком коротший.",
+                "summaryWorse": "За оцінкою HERE дорожній пробіг із запропонованим порядком довший. Можна застосувати або залишити поточний порядок.",
+                "summaryTie": "Порядок зупинок зміниться, але за оцінкою HERE відстань приблизно така сама."
+            },
+            "status": {
+                "draft": "Чернетка",
+                "stale": "Потрібне оновлення",
+                "optimizing": "Оптимізація",
+                "ready": "Готово",
+                "in_progress": "У процесі",
+                "completed": "Завершено"
+            },
+            "stopType": {
+                "start": "Старт",
+                "booking": "Візит",
+                "end": "Фініш"
+            },
+            "warnings": {
+                "overload": "Перевантаження спеціаліста: {count} записів (ліміт: {limit})",
+                "lateArrival": "Очікується запізнення",
+                "noCoordinates": "Адресу не геокодовано"
+            },
+            "errors": {
+                "loadFailed": "Не вдалося завантажити маршрут",
+                "optimizeFailed": "Не вдалося оптимізувати маршрут",
+                "bookingModalLoadFailed": "Не вдалося відкрити бронювання. Оновіть сторінку й спробуйте ще раз."
+            },
+            "dayBookingOpenLink": "До бронювання"
+        },
         "notifications": {
             "title": "Усі сповіщення",
             "description": "Переглядайте та керуйте сповіщеннями облікового запису бізнесу.",
             "clearAll": "Очистити все",
-            "clearAllConfirm": "Видалити всі сповіщення? Цю дію не можна скасувати.",
+            "clearAllDialog": {
+                "title": "Видалити всі сповіщення?",
+                "message": "Усі сповіщення буде видалено. Скасувати цю дію неможливо.",
+                "confirm": "Очистити все",
+                "cancel": "Скасувати"
+            },
             "markAllAsRead": "Позначити всі як прочитані",
             "empty": "Поки немає сповіщень",
             "emptyHint": "Тут з’являтимуться оновлення щодо бронювань та інші сповіщення.",
@@ -1378,7 +1496,10 @@
                     "eventType": "Тип події",
                     "customEvent": "Власна подія",
                     "title": "Назва події",
-                    "titlePlaceholder": "Введіть назву події"
+                    "titlePlaceholder": "Введіть назву події",
+                    "hybridWhere": "Де відбудеться візит?",
+                    "hybridOnsite": "У вас (у закладі)",
+                    "hybridOffsite": "У клієнта (виїзд)"
                 },
                 "durationPicker": {
                     "min15": "15 хвилин",
@@ -2444,7 +2565,10 @@
                     "name": "Назва",
                     "namePlaceholder": "Ім’я Прізвище",
                     "role": "Посада",
-                    "rolePlaceholder": "напр.: Спеціаліст, Адміністратор"
+                    "rolePlaceholder": "напр.: Спеціаліст, Адміністратор",
+                    "routingSection": "Маршрути та оптимізація",
+                    "routingHint": "Ця адреса — старт денного маршруту (база). Вкажіть повну адресу вулиці — координати підставляться автоматично.",
+                    "homeAddress": "Домашня адреса (старт маршруту)"
                 },
                 "deleteConfirm": {
                     "title": "Видалити учасника команди?",
@@ -2459,7 +2583,8 @@
                     "deleted": "Учасника команди успішно видалено",
                     "deleteError": "Не вдалося видалити учасника команди",
                     "avatarUploaded": "Аватар завантажено",
-                    "avatarUploadError": "Не вдалося завантажити аватар"
+                    "avatarUploadError": "Не вдалося завантажити аватар",
+                    "geocodeFailed": "Не вдалося знайти цю адресу. Вкажіть повну вулицю, місто, штат або індекс."
                 }
             },
             "services": {
@@ -2800,7 +2925,7 @@
             "welcomeBody": "This quick tour will show you how to use the admin panel.",
             "welcomePreviewHint": "Peek inside",
             "welcomePreviewNavTitle": "Menu",
-            "welcomePreviewNavText": "Switch sections from the sidebar: dashboard, schedule, bookings, and more—no hunting through tabs.",
+            "welcomePreviewNavText": "Перемикайте розділи в бічному меню: дашборд, розклад, бронювання, маршрути й інше — без зайвих вкладок.",
             "welcomePreviewScheduleTitle": "Schedule",
             "welcomePreviewScheduleText": "Pick a slot, see who’s booked, and open a booking—your day flows in one view.",
             "welcomePreviewClientsTitle": "Clients",
@@ -2828,6 +2953,10 @@
                 "nav_bookings": {
                     "title": "Bookings",
                     "text": "Search and filter bookings; open a booking with the same details as in the schedule."
+                },
+                "nav_routes": {
+                    "title": "Маршрути",
+                    "text": "Денний порядок виїздів спеціалістів, карта й оптимізація — окремо від списку в календарі."
                 },
                 "nav_clients": {
                     "title": "Clients",

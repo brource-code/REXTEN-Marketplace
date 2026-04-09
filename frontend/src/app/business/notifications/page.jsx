@@ -1,11 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import classNames from 'classnames'
 import { useTranslations } from 'next-intl'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import Button from '@/components/ui/Button'
 import Loading from '@/components/shared/Loading'
 import { PiBell, PiX } from 'react-icons/pi'
@@ -26,6 +28,7 @@ export default function BusinessNotificationsPage() {
     const router = useRouter()
     const queryClient = useQueryClient()
     const t = useTranslations('business.notifications')
+    const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false)
     const { settings } = useBusinessStore()
     const timezone = settings?.timezone || 'America/Los_Angeles'
 
@@ -59,6 +62,7 @@ export default function BusinessNotificationsPage() {
         mutationFn: deleteAllBusinessNotifications,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            setClearAllDialogOpen(false)
         },
     })
 
@@ -78,10 +82,11 @@ export default function BusinessNotificationsPage() {
         deleteMutation.mutate(id)
     }
 
-    const onClearAll = () => {
-        if (typeof window !== 'undefined' && !window.confirm(t('clearAllConfirm'))) {
-            return
-        }
+    const onClearAllClick = () => {
+        setClearAllDialogOpen(true)
+    }
+
+    const onConfirmClearAll = () => {
         deleteAllMutation.mutate()
     }
 
@@ -101,7 +106,7 @@ export default function BusinessNotificationsPage() {
                                     size="sm"
                                     loading={deleteAllMutation.isPending}
                                     disabled={markAllAsReadMutation.isPending}
-                                    onClick={onClearAll}
+                                    onClick={onClearAllClick}
                                 >
                                     {t('clearAll')}
                                 </Button>
@@ -200,6 +205,22 @@ export default function BusinessNotificationsPage() {
                     )}
                 </div>
             </AdaptiveCard>
+
+            <ConfirmDialog
+                isOpen={clearAllDialogOpen}
+                type="danger"
+                title={t('clearAllDialog.title')}
+                onCancel={() => setClearAllDialogOpen(false)}
+                onConfirm={onConfirmClearAll}
+                confirmText={t('clearAllDialog.confirm')}
+                cancelText={t('clearAllDialog.cancel')}
+                confirmButtonProps={{
+                    loading: deleteAllMutation.isPending,
+                    disabled: deleteAllMutation.isPending,
+                }}
+            >
+                <p>{t('clearAllDialog.message')}</p>
+            </ConfirmDialog>
         </Container>
     )
 }

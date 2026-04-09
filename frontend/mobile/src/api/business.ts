@@ -906,6 +906,7 @@ export interface TeamMember {
   role: string;
   status: 'active' | 'inactive';
   img?: string;
+  home_address?: string | null;
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {

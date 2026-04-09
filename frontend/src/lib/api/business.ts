@@ -572,6 +572,12 @@ export interface TeamMember {
     role: string
     status: 'active' | 'inactive'
     img?: string
+    /** Домашняя база для старта маршрута; координаты — с сервера (HERE) или с Google Places при сохранении */
+    home_address?: string | null
+    /** Опционально при сохранении: координаты из Google Places (обход HERE) */
+    home_latitude?: number | null
+    home_longitude?: number | null
+    max_jobs_per_day?: number | null
 }
 
 export interface PortfolioItem {
@@ -1537,4 +1543,224 @@ export async function getBusinessKnowledgeArticleBySlugs(
     )
     const data = response.data.data ?? response.data
     return data as KnowledgeArticle
+}
+
+// ========== Route Intelligence ==========
+
+export interface BusinessRouteStop {
+    id: number
+    booking_id: number | null
+    sequence_order: number
+    stop_type: 'start' | 'booking' | 'end'
+    latitude: number
+    longitude: number
+    eta: string | null
+    /** Прибытие по маршруту до ожидания до окна записи */
+    arrived_at?: string | null
+    /** Секунды ожидания до начала услуги (окно брони) */
+    wait_before_seconds?: number
+    distance_from_prev_meters: number | null
+    duration_from_prev_seconds: number | null
+    status: 'pending' | 'arrived' | 'completed' | 'skipped'
+    booking?: {
+        id: number
+        client_name: string | null
+        title?: string | null
+        address: string
+        time_window_start: string
+        time_window_end: string
+        priority: number
+        duration_minutes: number
+    } | null
+}
+
+export interface BusinessRouteDayBooking {
+    id: number
+    /** null — исполнитель в брони не назначен; запись всё равно попадает в маршрут выбранного специалиста */
+    specialist_id: number | null
+    client_name: string | null
+    title: string | null
+    address: string
+    execution_type: string
+    offsite_address_missing: boolean
+    time_window_start: string
+    time_window_end: string
+    priority: number
+    duration_minutes: number
+    has_coordinates: boolean
+}
+
+export interface BusinessRouteSpecialistInfo {
+    id: number
+    name: string
+    home_address: string | null
+    home_latitude: number | null
+    home_longitude: number | null
+}
+
+/** Краткая запись маршрута для списка «сохранённые по дням» */
+export interface BusinessRouteSavedSummary {
+    id: string | number
+    route_date: string
+    status: BusinessRoute['status']
+    optimized_at?: string | null
+    total_distance_meters: number | null
+    total_duration_seconds: number | null
+    include_return_leg?: boolean
+    booking_stops_count: number
+}
+
+export interface BusinessRoute {
+    id: string
+    specialist_id: number
+    route_date: string
+    /** IANA (например America/Los_Angeles) — отображение ETA в таймлайне маршрута */
+    display_timezone?: string
+    status: 'draft' | 'stale' | 'optimizing' | 'ready' | 'in_progress' | 'completed'
+    total_distance_meters: number | null
+    total_duration_seconds: number | null
+    /** Линия по дорогам [lng, lat] из HERE; без неё карта соединяет остановки прямой */
+    path_lng_lat?: [number, number][] | null
+    /** null = all day bookings are included */
+    included_booking_ids: number[] | null
+    /** Включать возврат домой в расчёт маршрута */
+    include_return_leg?: boolean
+    specialist: BusinessRouteSpecialistInfo
+    day_bookings: BusinessRouteDayBooking[]
+    stops: BusinessRouteStop[]
+}
+
+export interface BusinessRoutePreview {
+    current: { jobs: unknown[]; total_distance_km: number; total_duration_min: number }
+    proposed: { jobs: unknown[]; total_distance_km: number; total_duration_min: number }
+    comparison: {
+        distance_change_meters: number
+        duration_change_seconds: number
+        distance_change_percent: number
+        jobs_reordered: boolean
+        locked_jobs: number
+        outcome?:
+            | 'unchanged_order'
+            | 'improved'
+            | 'worse'
+            | 'tie'
+            | 'insufficient_data'
+    }
+    confidence: 'high' | 'medium' | 'low'
+    reorder_details: {
+        changed: boolean
+        moved_count: number
+    }
+    warnings: Array<{ type: string; message: string; job_id?: number }>
+    /** HERE-предпросмотр: порядок из эвристики хуже текущего — предложение не показываем (тост на фронте) */
+    suppressed_worse_proposal?: boolean
+}
+
+export async function getBusinessRoute(specialistId: number, date: string): Promise<BusinessRoute | null> {
+    try {
+        const response = await LaravelAxios.get(`/business/routes/${specialistId}/${date}`)
+        const payload = response.data?.data ?? response.data
+        return payload as BusinessRoute
+    } catch (e) {
+        logClientApiError('getBusinessRoute', e)
+        return null
+    }
+}
+
+export async function getBusinessRouteOptimizePreview(
+    specialistId: number,
+    date: string,
+    options?: { includeReturnLeg?: boolean },
+): Promise<BusinessRoutePreview | null> {
+    try {
+        const include_return_leg = options?.includeReturnLeg !== false
+        const response = await LaravelAxios.post(`/business/routes/${specialistId}/${date}/optimize/preview`, {
+            include_return_leg: include_return_leg,
+        })
+        const payload = response.data?.data ?? response.data
+        return payload as BusinessRoutePreview
+    } catch (e) {
+        logClientApiError('getBusinessRouteOptimizePreview', e)
+        return null
+    }
+}
+
+export async function applyBusinessRouteOptimization(
+    specialistId: number,
+    date: string,
+    options?: { includeReturnLeg?: boolean },
+): Promise<BusinessRoute | null> {
+    try {
+        const response = await LaravelAxios.post(`/business/routes/${specialistId}/${date}/optimize/apply`, {
+            include_return_leg: options?.includeReturnLeg ?? true,
+        })
+        const payload = response.data?.data ?? response.data
+        return payload as BusinessRoute
+    } catch (e) {
+        logClientApiError('applyBusinessRouteOptimization', e)
+        return null
+    }
+}
+
+export async function recalculateBusinessRoute(routeId: string): Promise<BusinessRoute | null> {
+    try {
+        const response = await LaravelAxios.post(`/business/routes/${routeId}/recalculate`)
+        const payload = response.data?.data ?? response.data
+        return payload as BusinessRoute
+    } catch (e) {
+        logClientApiError('recalculateBusinessRoute', e)
+        return null
+    }
+}
+
+export async function updateBusinessRouteIncludedBookings(
+    specialistId: number,
+    date: string,
+    bookingIds: number[] | null,
+): Promise<BusinessRoute | null> {
+    try {
+        const response = await LaravelAxios.put(
+            `/business/routes/${specialistId}/${date}/included-bookings`,
+            { booking_ids: bookingIds },
+        )
+        const payload = response.data?.data ?? response.data
+        return payload as BusinessRoute
+    } catch (e) {
+        logClientApiError('updateBusinessRouteIncludedBookings', e)
+        return null
+    }
+}
+
+export async function updateBusinessRouteIncludeReturnLeg(
+    specialistId: number,
+    date: string,
+    includeReturnLeg: boolean,
+): Promise<BusinessRoute | null> {
+    try {
+        const response = await LaravelAxios.put(
+            `/business/routes/${specialistId}/${date}/include-return-leg`,
+            { include_return_leg: includeReturnLeg },
+        )
+        const payload = response.data?.data ?? response.data
+        return payload as BusinessRoute
+    } catch (e) {
+        logClientApiError('updateBusinessRouteIncludeReturnLeg', e)
+        return null
+    }
+}
+
+export async function getBusinessRouteSavedList(
+    specialistId: number,
+    limit?: number,
+): Promise<BusinessRouteSavedSummary[]> {
+    try {
+        const response = await LaravelAxios.get(`/business/routes/${specialistId}/saved`, {
+            params: limit != null ? { limit } : undefined,
+        })
+        const payload = response.data?.data ?? response.data
+        return Array.isArray(payload) ? (payload as BusinessRouteSavedSummary[]) : []
+    } catch (e) {
+        logClientApiError('getBusinessRouteSavedList', e)
+        return []
+    }
 }

@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Service;
 use App\Models\Company;
 use App\Services\ActivityService;
+use App\Services\Routing\GeocodingService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -610,21 +611,30 @@ class BookingService
             throw $e;
         }
 
-        // Если execution_type = 'offsite', создаем booking_location
+        // Если execution_type = 'offsite', создаем booking_location при непустой строке адреса
         if (($data['execution_type'] ?? 'onsite') === 'offsite') {
-            if (isset($data['address_line1']) && isset($data['city']) && isset($data['state']) && isset($data['zip'])) {
+            $line1 = isset($data['address_line1']) ? trim((string) $data['address_line1']) : '';
+            if ($line1 !== '') {
                 \App\Models\BookingLocation::create([
                     'booking_id' => $booking->id,
                     'type' => 'client',
-                    'address_line1' => $data['address_line1'],
-                    'city' => $data['city'],
-                    'state' => $data['state'],
-                    'zip' => $data['zip'],
+                    'address_line1' => $line1,
+                    'city' => isset($data['city']) && $data['city'] !== null && trim((string) $data['city']) !== '' ? trim((string) $data['city']) : null,
+                    'state' => isset($data['state']) && $data['state'] !== null && trim((string) $data['state']) !== '' ? trim((string) $data['state']) : null,
+                    'zip' => isset($data['zip']) && $data['zip'] !== null && trim((string) $data['zip']) !== '' ? trim((string) $data['zip']) : null,
                     'lat' => $data['lat'] ?? null,
                     'lng' => $data['lng'] ?? null,
                     'notes' => $data['location_notes'] ?? null,
                 ]);
             }
+        }
+
+        try {
+            app(GeocodingService::class)->geocodeBooking(
+                $booking->fresh(['location', 'user.profile'])
+            );
+        } catch (\Throwable $e) {
+            Log::warning('BookingService: geocodeBooking after create: '.$e->getMessage());
         }
 
         try {

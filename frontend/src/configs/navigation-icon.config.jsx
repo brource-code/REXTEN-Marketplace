@@ -219,6 +219,7 @@ const navigationIcon = {
     reviews: <PiStarDuotone />,
     reports: <PiChartBarDuotone />,
     billing: <PiCreditCardDuotone />,
+    routes: <PiMapTrifoldDuotone />,
     activityLog: <PiClockCounterClockwiseDuotone />,
 }
 

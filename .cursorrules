@@ -690,7 +690,7 @@ backend/
 
 ## Память и производительность
 
-1. **Node.js память**: Проект использует `NODE_OPTIONS='--max-old-space-size=6144'` для dev сервера
+1. **Node.js память**: dev — `NODE_OPTIONS='--max-old-space-size=12288'`; production build (`npm run build`) — `16384` МиБ heap; Docker-сборка фронта — см. `frontend/Dockerfile` и лимит `frontend` в `docker-compose.yml`
 2. **Next.js оптимизация**: Используется `optimizePackageImports` для больших библиотек
 3. **Изображения**: `unoptimized: true` для избежания проблем с sharp
 

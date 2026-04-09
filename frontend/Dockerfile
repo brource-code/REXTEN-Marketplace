@@ -12,15 +12,22 @@ RUN --mount=type=cache,target=/root/.npm \
 
 COPY . .
 
+# NEXT_PUBLIC_* вшиваются в клиентский бандл на этапе `next build` (в т.ч. для Mapbox)
+ARG NEXT_PUBLIC_MAPBOX_TOKEN=
+ENV NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN
+
 ENV NODE_ENV=production
 ENV PORT=3003
 ENV HOSTNAME="0.0.0.0"
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 # Кэш компиляции Next — ускоряет повторные `docker compose build` при правках кода
+# На машинах с 16–32+ ГБ RAM сборка может брать >8 ГБ heap (Mapbox/Sentry и т.д.)
 RUN --mount=type=cache,target=/app/.next/cache,id=rexten-next-cache \
-    npm run build
+    NODE_OPTIONS="--max-old-space-size=16384" npm run build
+
+# Для `next start` достаточно меньшего лимита
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 EXPOSE 3003
 

@@ -505,7 +505,7 @@ class ScheduleController extends Controller
                     $executionType = 'offsite';
                 } elseif ($serviceType === 'hybrid') {
                     // Для гибридных услуг используем значение из запроса или дефолт 'onsite'
-                    $executionType = $request->input('execution_type', 'onsite');
+                    $executionType = $validated['execution_type'] ?? 'onsite';
                 }
             } else {
                 // Для кастомных событий всегда onsite

@@ -74,12 +74,20 @@ const ClientEditModal = ({ isOpen, onClose, client }) => {
             !formData.email.includes('@') ||
             formData.email.trim() === ''
         )
+
+        const rawAddr = formData.address
+        const addressLine =
+            typeof rawAddr === 'string'
+                ? rawAddr.trim()
+                : rawAddr && typeof rawAddr === 'object' && typeof rawAddr.formattedAddress === 'string'
+                  ? rawAddr.formattedAddress.trim()
+                  : ''
         
         updateMutation.mutate({
             name: formData.name,
             email: (formData.email && !isPlaceholderEmail) ? formData.email : undefined,
-            phone: formData.phone || undefined,
-            address: formData.address || undefined,
+            phone: formData.phone && String(formData.phone).trim() !== '' ? String(formData.phone).trim() : undefined,
+            address: addressLine !== '' ? addressLine : undefined,
             status: formData.status,
         })
     }

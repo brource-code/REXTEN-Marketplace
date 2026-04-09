@@ -35,6 +35,8 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
     // Используем валюту из slot или дефолтную USD
     const currency = slot?.currency || slot?.advertisement?.currency || 'USD'
     const [clientMode, setClientMode] = useState('select') // 'select' или 'manual'
+    /** Для гибридных услуг: выезд к клиенту или приём у вас */
+    const [hybridExecutionType, setHybridExecutionType] = useState('onsite')
     const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [selectedAdditionalServices, setSelectedAdditionalServices] = useState([])
@@ -88,6 +90,36 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
     })
 
     const clients = clientsData?.data || []
+
+    const selectedService = useMemo(() => services.find((s) => s.id === formData.service_id), [services, formData.service_id])
+    const serviceType = selectedService?.service_type ?? 'onsite'
+
+    const needsOffsiteAddressFields = useMemo(() => {
+        if (slot?.type === 'EDIT') {
+            return (slot.execution_type || 'onsite') === 'offsite'
+        }
+        if (serviceType === 'offsite') return true
+        if (serviceType === 'hybrid') return hybridExecutionType === 'offsite'
+        return false
+    }, [slot?.type, slot?.execution_type, serviceType, hybridExecutionType])
+
+    const selectedClientForAddress = useMemo(() => {
+        if (slot?.type !== 'NEW' || clientMode !== 'select') return null
+        return clients.find((c) => c.id === formData.user_id) ?? null
+    }, [slot?.type, clientMode, clients, formData.user_id])
+
+    const crmHasClientAddress = !!(
+        selectedClientForAddress &&
+        (selectedClientForAddress.address ||
+            selectedClientForAddress.city ||
+            selectedClientForAddress.state ||
+            selectedClientForAddress.zip_code)
+    )
+
+    const editHasResolvedAddress = useMemo(
+        () => !!(slot?.location?.address_line1 || slot?.client?.address),
+        [slot?.location?.address_line1, slot?.client?.address],
+    )
 
     // Загружаем список исполнителей
     const { data: teamMembers = [] } = useQuery({
@@ -209,15 +241,17 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                     client_phone: '',
                     advertisement_id: null,
                     specialist_id: slot.specialist_id || slot.specialist?.id || slot.extendedProps?.specialist_id || null,
-                                    address_line1: '',
-                                    city: '',
-                                    state: '',
-                                    zip: '',
-                                    price: null,
-                                })
-                                setClientMode('select')
-                                setSelectedAdditionalServices([])
-                                setIsCustomEvent(false)
+                    execution_type: 'onsite',
+                    address_line1: '',
+                    city: '',
+                    state: '',
+                    zip: '',
+                    price: null,
+                })
+                setClientMode('select')
+                setHybridExecutionType('onsite')
+                setSelectedAdditionalServices([])
+                setIsCustomEvent(false)
             }
         }
     }, [slot])
@@ -417,6 +451,57 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
         }
         return options
     }, [tDuration, intlLocale])
+
+    const renderVisitAddressFields = () => (
+        <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                {t('labels.clientAddress')}
+            </h5>
+            <FormItem label={t('labels.address')}>
+                <AddressAutocomplete
+                    value={formData.address_line1}
+                    onChange={(address) => setFormData((prev) => ({ ...prev, address_line1: address }))}
+                    onAddressParsed={(parsed) => {
+                        setFormData((prev) => ({
+                            ...prev,
+                            address_line1: parsed.address_line1 || prev.address_line1,
+                            city: parsed.city || prev.city,
+                            state: parsed.state || prev.state,
+                            zip: parsed.zip || prev.zip,
+                        }))
+                    }}
+                    placeholder={t('labels.addressPlaceholder')}
+                    size="sm"
+                />
+            </FormItem>
+            <div className="grid grid-cols-3 gap-3">
+                <FormItem label={t('labels.city')}>
+                    <Input
+                        value={formData.city}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
+                        placeholder={t('labels.city')}
+                        size="sm"
+                    />
+                </FormItem>
+                <FormItem label={t('labels.state')}>
+                    <Input
+                        value={formData.state}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
+                        placeholder={t('labels.state')}
+                        size="sm"
+                    />
+                </FormItem>
+                <FormItem label={t('labels.zip')}>
+                    <Input
+                        value={formData.zip}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, zip: e.target.value }))}
+                        placeholder={t('labels.zip')}
+                        size="sm"
+                    />
+                </FormItem>
+            </div>
+        </div>
+    )
 
     // Предотвращаем рендеринг модалки, если она не открыта (для избежания проблем с React-Modal)
     if (!isOpen) {
@@ -900,13 +985,17 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                                 options={services.map(s => ({ value: s.id, label: s.name }))}
                                                 value={services.find(s => s.id === formData.service_id) ? { value: formData.service_id, label: services.find(s => s.id === formData.service_id)?.name } : null}
                                                 onChange={(option) => {
-                                                    const selectedService = services.find(s => s.id === option?.value)
-                                                    setFormData((prev) => ({ 
-                                                        ...prev, 
+                                                    const sel = services.find((s) => s.id === option?.value)
+                                                    const st = sel?.service_type ?? 'onsite'
+                                                    let exec = 'onsite'
+                                                    if (st === 'offsite') exec = 'offsite'
+                                                    else if (st === 'hybrid') exec = hybridExecutionType
+                                                    setFormData((prev) => ({
+                                                        ...prev,
                                                         service_id: option?.value || null,
-                                                        advertisement_id: selectedService?.advertisement_id || null,
+                                                        advertisement_id: sel?.advertisement_id || null,
+                                                        execution_type: exec,
                                                     }))
-                                                    // Сбрасываем выбранные дополнительные услуги при смене услуги
                                                     setSelectedAdditionalServices([])
                                                 }}
                                                 placeholder={t('selectService')}
@@ -914,6 +1003,34 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                                     Input: MobileInput,
                                                 }}
                                             />
+                                        </FormItem>
+                                    )}
+                                    {!isCustomEvent && formData.service_id && serviceType === 'hybrid' && (
+                                        <FormItem label={t('labels.hybridWhere')}>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant={hybridExecutionType === 'onsite' ? 'solid' : 'plain'}
+                                                    onClick={() => {
+                                                        setHybridExecutionType('onsite')
+                                                        setFormData((prev) => ({ ...prev, execution_type: 'onsite' }))
+                                                    }}
+                                                >
+                                                    {t('labels.hybridOnsite')}
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant={hybridExecutionType === 'offsite' ? 'solid' : 'plain'}
+                                                    onClick={() => {
+                                                        setHybridExecutionType('offsite')
+                                                        setFormData((prev) => ({ ...prev, execution_type: 'offsite' }))
+                                                    }}
+                                                >
+                                                    {t('labels.hybridOffsite')}
+                                                </Button>
+                                            </div>
                                         </FormItem>
                                     )}
                                 </>
@@ -936,7 +1053,17 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                                     type="button"
                                                     variant={clientMode === 'manual' ? 'solid' : 'plain'}
                                                     size="sm"
-                                                    onClick={() => setClientMode('manual')}
+                                                    onClick={() => {
+                                                        setClientMode('manual')
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            user_id: null,
+                                                            address_line1: '',
+                                                            city: '',
+                                                            state: '',
+                                                            zip: '',
+                                                        }))
+                                                    }}
                                                 >
                                                     {t('client.enterManually')}
                                                 </Button>
@@ -1004,10 +1131,16 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                                             placeholder={t('client.email')}
                                                         />
                                                     </div>
+                                                    {needsOffsiteAddressFields && renderVisitAddressFields()}
                                                 </div>
                                             )}
                                         </div>
                                     </FormItem>
+                                    {slot?.type === 'NEW' &&
+                                        clientMode === 'select' &&
+                                        needsOffsiteAddressFields &&
+                                        !crmHasClientAddress &&
+                                        renderVisitAddressFields()}
                                 </>
                             )}
                             
@@ -1119,83 +1252,7 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                 </FormItem>
                             )}
 
-                            {/* Адрес для offsite бронирований - показываем только если у клиента нет адреса */}
-                            {(slot?.execution_type === 'offsite' || formData.execution_type === 'offsite') && (() => {
-                                // Проверяем, есть ли адрес у выбранного клиента
-                                const selectedClient = clients.find(c => c.id === formData.user_id)
-                                const hasClientAddress = selectedClient && (
-                                    selectedClient.address || 
-                                    selectedClient.city || 
-                                    selectedClient.state || 
-                                    selectedClient.zip_code
-                                )
-                                
-                                // Проверяем, есть ли адрес в formData (заполнен из карточки клиента или из slot.location)
-                                const hasAddressInForm = formData.address_line1 || formData.city || formData.state || formData.zip
-                                
-                                // Проверяем, есть ли адрес в slot.location при редактировании
-                                const hasAddressInSlot = slot?.location?.address_line1 || slot?.client?.address
-                                
-                                // Скрываем блок если адрес уже есть:
-                                // 1. У выбранного клиента есть адрес в карточке, ИЛИ
-                                // 2. В formData уже заполнен адрес, ИЛИ
-                                // 3. При редактировании есть адрес в slot.location или у клиента
-                                if (hasClientAddress || hasAddressInForm || hasAddressInSlot) {
-                                    return null
-                                }
-                                
-                                // Показываем блок только для ручного ввода клиента или если адреса нет
-                                return (
-                                    <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                            {t('labels.clientAddress')}
-                                        </h5>
-                                        <FormItem label={t('labels.address')}>
-                                            <AddressAutocomplete
-                                                value={formData.address_line1}
-                                                onChange={(address) => setFormData((prev) => ({ ...prev, address_line1: address }))}
-                                                onAddressParsed={(parsed) => {
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        address_line1: parsed.address_line1 || prev.address_line1,
-                                                        city: parsed.city || prev.city,
-                                                        state: parsed.state || prev.state,
-                                                        zip: parsed.zip || prev.zip,
-                                                    }))
-                                                }}
-                                                placeholder={t('labels.addressPlaceholder')}
-                                                size="sm"
-                                            />
-                                        </FormItem>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            <FormItem label={t('labels.city')}>
-                                                <Input
-                                                    value={formData.city}
-                                                    onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-                                                    placeholder={t('labels.city')}
-                                                    size="sm"
-                                                />
-                                            </FormItem>
-                                            <FormItem label={t('labels.state')}>
-                                                <Input
-                                                    value={formData.state}
-                                                    onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
-                                                    placeholder={t('labels.state')}
-                                                    size="sm"
-                                                />
-                                            </FormItem>
-                                            <FormItem label={t('labels.zip')}>
-                                                <Input
-                                                    value={formData.zip}
-                                                    onChange={(e) => setFormData((prev) => ({ ...prev, zip: e.target.value }))}
-                                                    placeholder={t('labels.zip')}
-                                                    size="sm"
-                                                />
-                                            </FormItem>
-                                        </div>
-                                    </div>
-                                )
-                            })()}
+                            {slot?.type === 'EDIT' && needsOffsiteAddressFields && !editHasResolvedAddress && renderVisitAddressFields()}
 
                             <FormItem label={t('labels.notes')}>
                                 <Input

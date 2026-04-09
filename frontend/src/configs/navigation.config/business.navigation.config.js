@@ -52,6 +52,16 @@ const businessNavigationConfig = [
                 subMenu: [],
             },
             {
+                key: 'business.routes',
+                path: '/business/routes',
+                title: 'Маршруты',
+                translateKey: 'nav.business.routes',
+                icon: 'routes',
+                type: NAV_ITEM_TYPE_ITEM,
+                permission: ['view_routes', 'view_schedule'],
+                subMenu: [],
+            },
+            {
                 key: 'business.reports',
                 path: '/business/schedule/reports',
                 title: 'Отчеты',

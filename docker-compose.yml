@@ -29,9 +29,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN:-}
     container_name: rexten_frontend
     expose:
       - "3003"
+    # Токен карты: MAPBOX_PUBLIC_TOKEN или NEXT_PUBLIC_MAPBOX_TOKEN в frontend/.env.local
+    # (см. frontend/.env.mapbox.example). API /api/business/mapbox-config читает env в runtime — пересборка не обязательна.
     env_file:
       - ./frontend/.env.local
     environment:
@@ -44,7 +48,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 8G
+          # Сборка Next в образе до ~16 ГБ heap; на хосте 32 ГБ оставляем запас под БД/бэкенд
+          memory: 20G
         reservations:
           memory: 2G
 
@@ -113,6 +118,8 @@ services:
         reservations:
           memory: 128M
 
+  # Очередь Laravel: без этого не обрабатываются джобы (в т.ч. OptimizeRouteJob при >8 остановок).
+  # Ручной запуск для отладки: docker exec -it rexten_backend php artisan queue:work
   queue:
     build:
       context: ./backend
