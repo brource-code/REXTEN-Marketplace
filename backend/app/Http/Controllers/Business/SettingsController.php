@@ -13,6 +13,7 @@ use App\Models\TeamMember;
 use App\Jobs\AutoApproveAdvertisement;
 use App\Services\ActivityService;
 use App\Services\Routing\GeocodingService;
+use App\Services\SubscriptionLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -474,6 +475,13 @@ class SettingsController extends Controller
                 'success' => false,
                 'errors' => $validator->errors(),
             ], 422);
+        }
+
+        if (!SubscriptionLimitService::canCreate((int) $companyId, 'services')) {
+            return response()->json(
+                SubscriptionLimitService::limitExceededPayload((int) $companyId, 'services'),
+                403
+            );
         }
 
         // Создаем услугу в таблице services
@@ -962,6 +970,13 @@ class SettingsController extends Controller
                 'success' => false,
                 'errors' => $validator->errors(),
             ], 422);
+        }
+
+        if (!SubscriptionLimitService::canCreate((int) $companyId, 'team_members')) {
+            return response()->json(
+                SubscriptionLimitService::limitExceededPayload((int) $companyId, 'team_members'),
+                403
+            );
         }
 
         // Создаем нового специалиста в таблице team_members
@@ -1806,6 +1821,13 @@ class SettingsController extends Controller
             if ($request->has('end_date')) {
                 $advertisementData['end_date'] = $request->input('end_date');
             }
+        }
+
+        if (!SubscriptionLimitService::canCreate((int) $companyId, 'advertisements')) {
+            return response()->json(
+                SubscriptionLimitService::limitExceededPayload((int) $companyId, 'advertisements'),
+                403
+            );
         }
 
         $advertisement = Advertisement::create($advertisementData);

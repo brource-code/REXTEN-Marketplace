@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\CompanyRole;
 use App\Models\CompanyUser;
 use App\Models\User;
+use App\Services\SubscriptionLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -107,6 +108,13 @@ class CompanyUsersController extends Controller
             'first_name' => 'nullable|string|max:100',
             'last_name' => 'nullable|string|max:100',
         ]);
+
+        if (!SubscriptionLimitService::canCreate((int) $companyId, 'team_members')) {
+            return response()->json(
+                SubscriptionLimitService::limitExceededPayload((int) $companyId, 'team_members'),
+                403
+            );
+        }
 
         $company = Company::findOrFail($companyId);
         $role = CompanyRole::findOrFail($validated['role_id']);

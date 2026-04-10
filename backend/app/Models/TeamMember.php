@@ -14,6 +14,7 @@ class TeamMember extends Model
 
     protected $fillable = [
         'company_id',
+        'is_active',
         'name',
         'email',
         'phone',
@@ -32,6 +33,7 @@ class TeamMember extends Model
     protected $casts = [
         'sort_order' => 'integer',
         'max_jobs_per_day' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     /**

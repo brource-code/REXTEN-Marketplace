@@ -55,6 +55,7 @@ use App\Http\Controllers\Public\ReviewController;
 use App\Http\Controllers\FamilyBudgetController;
 use App\Http\Controllers\FamilyBudget\FamilyBudgetApiController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\Business\SubscriptionController;
 use App\Http\Controllers\Business\SearchController as BusinessSearchController;
 use App\Http\Controllers\Business\RouteController;
 use App\Http\Controllers\Admin\SearchController as AdminSearchController;
@@ -290,8 +291,8 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/salary/export/{type}', [SalaryController::class, 'export'])->where('type', 'csv|excel');
         Route::get('/salary/{id}', [SalaryController::class, 'getDetails'])->where('id', '[0-9]+');
 
-        // Reports
-        Route::prefix('reports')->group(function () {
+        // Reports (analytics feature required)
+        Route::middleware('subscription.feature:analytics')->prefix('reports')->group(function () {
             Route::get('/', [ReportsController::class, 'index']);
             Route::get('/bookings', [ReportsController::class, 'bookings']);
             Route::get('/clients', [ReportsController::class, 'clients']);
@@ -374,6 +375,18 @@ Route::middleware(['jwt.auth'])->group(function () {
         // Stripe payment
         Route::post('/stripe/checkout-session', [StripeController::class, 'createCheckoutSession']);
         Route::get('/stripe/transactions', [StripeController::class, 'getTransactions']);
+
+        // Subscriptions
+        Route::get('/subscription/plans', [SubscriptionController::class, 'plans']);
+        Route::get('/subscription/current', [SubscriptionController::class, 'current']);
+        Route::get('/subscription/usage', [SubscriptionController::class, 'usage']);
+        Route::post('/subscription/checkout', [SubscriptionController::class, 'createCheckoutSession']);
+        Route::post('/subscription/change-plan', [SubscriptionController::class, 'changePlan']);
+        Route::post('/subscription/cancel-scheduled-change', [SubscriptionController::class, 'cancelScheduledChange']);
+        Route::get('/subscription/over-limit', [SubscriptionController::class, 'overLimit']);
+        Route::post('/subscription/resolve-limits', [SubscriptionController::class, 'resolveLimits']);
+        Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel']);
+        Route::post('/subscription/resume', [SubscriptionController::class, 'resume']);
         
         // Onboarding
         Route::post('/onboarding/complete', [SettingsController::class, 'completeOnboarding']);
@@ -572,6 +585,18 @@ Route::middleware(['jwt.auth'])->group(function () {
             Route::get('/articles/{id}', [KnowledgeArticlesController::class, 'show'])->where('id', '[0-9]+');
             Route::put('/articles/{id}', [KnowledgeArticlesController::class, 'update'])->where('id', '[0-9]+');
             Route::delete('/articles/{id}', [KnowledgeArticlesController::class, 'destroy'])->where('id', '[0-9]+');
+        });
+
+        // Subscription Plans — управление планами подписок
+        Route::prefix('subscription-plans')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'index']);
+            Route::get('/stats', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'stats']);
+            Route::post('/', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'store']);
+            Route::get('/{id}', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'show'])->where('id', '[0-9]+');
+            Route::put('/{id}', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'update'])->where('id', '[0-9]+');
+            Route::delete('/{id}', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'destroy'])->where('id', '[0-9]+');
+            Route::post('/{id}/set-default', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'setDefault'])->where('id', '[0-9]+');
+            Route::post('/reorder', [\App\Http\Controllers\Admin\SubscriptionPlansController::class, 'reorder']);
         });
     });
 });

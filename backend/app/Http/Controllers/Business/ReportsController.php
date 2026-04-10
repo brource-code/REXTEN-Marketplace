@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\Order;
 use App\Models\Service;
 use App\Models\TeamMember;
 use App\Models\Advertisement;
@@ -50,68 +49,47 @@ class ReportsController extends Controller
             }
 
             $filters = $this->getFilters($request);
-            
-            // Для сравнения с дашбордом: если фильтры не указаны, используем ту же логику, что и в дашборде
-            // В дашборде: Booking::where('company_id', $companyId)->count()
-            if (!$filters['date_from'] && !$filters['date_to'] && !$filters['specialist_id'] && !$filters['service_id'] && !$filters['status']) {
-                // Без фильтров - считаем как в дашборде
-                $query = Booking::where('company_id', $companyId);
-            } else {
-                $query = $this->getBaseQuery($companyId, $filters);
-            }
+            $query = $this->getBaseQuery($companyId, $filters);
 
-            // Total bookings
+            // Все метрики — из ОДНОГО запроса с ОДИНАКОВЫМИ фильтрами.
+            // Правило: totalBookings = completedBookings + cancelledBookings + activeBookings.
             $totalBookings = (clone $query)->count();
 
-            // Completed bookings
             $completedBookings = (clone $query)
                 ->where('status', 'completed')
                 ->count();
 
-            // Cancelled bookings
             $cancelledBookings = (clone $query)
                 ->where('status', 'cancelled')
                 ->count();
 
-            // Active bookings (new, pending, confirmed)
             $activeBookings = (clone $query)
                 ->whereIn('status', ['new', 'pending', 'confirmed'])
                 ->count();
 
-            // Без фильтров — та же формула, что на дашборде (заказы + брони без order)
-            $noReportFilters = ! $filters['date_from'] && ! $filters['date_to'] && ! $filters['specialist_id'] && ! $filters['service_id'] && ! $filters['status'];
-            if ($noReportFilters) {
-                $totalRevenue = BusinessMetricsService::totalRecognizedRevenue($companyId);
-            } else {
-                $totalRevenue = (clone $query)
-                    ->where('status', 'completed')
-                    ->sum(DB::raw('COALESCE(total_price, price)'));
-                $totalRevenue = $totalRevenue ? (float) $totalRevenue : 0;
-            }
+            $totalRevenue = (float) ((clone $query)
+                ->where('status', 'completed')
+                ->sum(DB::raw('COALESCE(bookings.total_price, bookings.price)')) ?: 0);
 
-            // Revenue in work - активные бронирования (new, pending, confirmed) - все кроме завершенных и отмененных
-            $revenueInWork = (clone $query)
+            $revenueInWork = (float) ((clone $query)
                 ->whereIn('status', ['new', 'pending', 'confirmed'])
-                ->sum(DB::raw('COALESCE(total_price, price)'));
-            $revenueInWork = $revenueInWork ? (float) $revenueInWork : 0;
+                ->sum(DB::raw('COALESCE(bookings.total_price, bookings.price)')) ?: 0);
 
-            // Average check
-            $averageCheck = $completedBookings > 0 
-                ? round($totalRevenue / $completedBookings, 2) 
+            $averageCheck = $completedBookings > 0
+                ? round($totalRevenue / $completedBookings, 2)
                 : 0;
 
-            // Unique clients (including unregistered via client_name)
-            $uniqueClientsQuery = (clone $query);
             $countDistinctSql = DatabaseHelper::countDistinctClients('user_id', 'client_name', 'count');
-            $uniqueClients = $uniqueClientsQuery
+            $uniqueClients = (clone $query)
+                ->where('status', '!=', 'cancelled')
                 ->select(DB::raw($countDistinctSql))
                 ->value('count') ?? 0;
 
-            // Active specialists - считаем всех активных специалистов из team_members
-            // Это основной источник данных о специалистах
-            $activeSpecialists = TeamMember::where('company_id', $companyId)
-                ->where('status', 'active')
-                ->count();
+            $activeSpecialists = (int) ((clone $query)
+                ->where('status', '!=', 'cancelled')
+                ->whereNotNull('bookings.specialist_id')
+                ->select(DB::raw('COUNT(DISTINCT bookings.specialist_id) as cnt'))
+                ->value('cnt'));
 
             return response()->json([
                 'success' => true,
@@ -120,8 +98,8 @@ class ReportsController extends Controller
                     'completedBookings' => $completedBookings,
                     'cancelledBookings' => $cancelledBookings,
                     'activeBookings' => $activeBookings,
-                    'totalRevenue' => $totalRevenue,
-                    'revenueInWork' => $revenueInWork,
+                    'totalRevenue' => round($totalRevenue, 2),
+                    'revenueInWork' => round($revenueInWork, 2),
                     'averageCheck' => $averageCheck,
                     'uniqueClients' => $uniqueClients,
                     'activeSpecialists' => $activeSpecialists,
@@ -308,18 +286,17 @@ class ReportsController extends Controller
             });
 
             // Top clients by revenue
-            // Get raw data first, then format names in PHP to avoid SQL complexity
             $topByRevenueRaw = (clone $query)
                 ->select(
                     'bookings.user_id',
                     'bookings.client_name',
                     'user_profiles.first_name',
                     'user_profiles.last_name',
-                    DB::raw('SUM(COALESCE(total_price, price)) as revenue')
+                    DB::raw('SUM(COALESCE(bookings.total_price, bookings.price)) as revenue')
                 )
                 ->leftJoin('users', 'bookings.user_id', '=', 'users.id')
                 ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-                ->where('status', 'completed')
+                ->where('bookings.status', 'completed')
                 ->groupBy('bookings.user_id', 'bookings.client_name', 'user_profiles.first_name', 'user_profiles.last_name')
                 ->orderBy('revenue', 'desc')
                 ->limit(10)
@@ -415,55 +392,27 @@ class ReportsController extends Controller
             $filters = $this->getFilters($request);
             $dateFormatSql = DatabaseHelper::dateFormatYearMonthDay('bookings.booking_date');
 
-            // Revenue by period (from bookings without orders + paid orders)
             $query = $this->getBaseQuery($companyId, $filters);
-            
-            // Revenue from completed bookings without orders
-            $byPeriodBookings = (clone $query)
+
+            $byPeriod = (clone $query)
                 ->where('bookings.status', 'completed')
-                ->whereDoesntHave('order')
                 ->select(
                     DB::raw("{$dateFormatSql} as period"),
                     DB::raw('SUM(COALESCE(bookings.total_price, bookings.price)) as revenue')
                 )
                 ->groupBy('period')
+                ->orderBy('period')
                 ->get()
-                ->keyBy('period');
-            
-            // Revenue from paid orders (using booking_date from related booking)
-            $byPeriodOrders = Order::where('orders.company_id', $companyId)
-                ->where('orders.payment_status', 'paid')
-                ->join('bookings', 'orders.booking_id', '=', 'bookings.id')
-                ->when($filters['date_from'], function ($q) use ($filters) {
-                    $q->where('bookings.booking_date', '>=', $filters['date_from']);
+                ->map(function ($item) {
+                    return [
+                        'period' => $item->period,
+                        'revenue' => (float) $item->revenue,
+                    ];
                 })
-                ->when($filters['date_to'], function ($q) use ($filters) {
-                    $q->where('bookings.booking_date', '<=', $filters['date_to']);
-                })
-                ->select(
-                    DB::raw("{$dateFormatSql} as period"),
-                    DB::raw('SUM(orders.total) as revenue')
-                )
-                ->groupBy('period')
-                ->get()
-                ->keyBy('period');
-            
-            // Merge bookings and orders revenue by period
-            $allPeriods = $byPeriodBookings->keys()->merge($byPeriodOrders->keys())->unique()->sort();
-            $byPeriod = $allPeriods->map(function ($period) use ($byPeriodBookings, $byPeriodOrders) {
-                $bookingRevenue = (float) ($byPeriodBookings->get($period)->revenue ?? 0);
-                $orderRevenue = (float) ($byPeriodOrders->get($period)->revenue ?? 0);
-                return [
-                    'period' => $period,
-                    'revenue' => $bookingRevenue + $orderRevenue,
-                ];
-            })->values();
+                ->values();
 
-            // Revenue by service (from bookings without orders + paid orders)
-            // Revenue from completed bookings without orders
-            $byServiceBookings = (clone $query)
+            $byService = (clone $query)
                 ->where('bookings.status', 'completed')
-                ->whereDoesntHave('order')
                 ->join('services', 'bookings.service_id', '=', 'services.id')
                 ->select(
                     'services.id as serviceId',
@@ -471,152 +420,47 @@ class ReportsController extends Controller
                     DB::raw('SUM(COALESCE(bookings.total_price, bookings.price)) as revenue')
                 )
                 ->groupBy('services.id', 'services.name')
+                ->orderByDesc('revenue')
+                ->limit(10)
                 ->get()
-                ->keyBy('serviceId');
-            
-            // Revenue from paid orders
-            $byServiceOrders = Order::where('orders.company_id', $companyId)
-                ->where('orders.payment_status', 'paid')
-                ->join('bookings', 'orders.booking_id', '=', 'bookings.id')
-                ->join('services', 'bookings.service_id', '=', 'services.id')
-                ->when($filters['date_from'], function ($q) use ($filters) {
-                    $q->where('bookings.booking_date', '>=', $filters['date_from']);
+                ->map(function ($item) {
+                    return [
+                        'serviceId' => (int) $item->serviceId,
+                        'serviceName' => $item->serviceName,
+                        'revenue' => (float) $item->revenue,
+                    ];
                 })
-                ->when($filters['date_to'], function ($q) use ($filters) {
-                    $q->where('bookings.booking_date', '<=', $filters['date_to']);
-                })
-                ->select(
-                    'services.id as serviceId',
-                    'services.name as serviceName',
-                    DB::raw('SUM(orders.total) as revenue')
-                )
-                ->groupBy('services.id', 'services.name')
-                ->get()
-                ->keyBy('serviceId');
-            
-            // Merge bookings and orders revenue by service
-            $allServices = $byServiceBookings->keys()->merge($byServiceOrders->keys())->unique();
-            $byService = $allServices->map(function ($serviceId) use ($byServiceBookings, $byServiceOrders) {
-                $bookingRevenue = (float) ($byServiceBookings->get($serviceId)->revenue ?? 0);
-                $orderRevenue = (float) ($byServiceOrders->get($serviceId)->revenue ?? 0);
-                $serviceName = $byServiceBookings->get($serviceId)->serviceName ?? $byServiceOrders->get($serviceId)->serviceName;
-                return [
-                    'serviceId' => (int) $serviceId,
-                    'serviceName' => $serviceName,
-                    'revenue' => $bookingRevenue + $orderRevenue,
-                ];
-            })
-            ->sortByDesc('revenue')
-            ->take(10)
-            ->values();
+                ->values();
 
-            // Revenue by specialist (from bookings without orders + paid orders)
-            // Revenue from completed bookings without orders
-            $bySpecialistBookingsRaw = (clone $query)
-                ->where('bookings.status', 'completed')
-                ->whereDoesntHave('order')
-                ->whereNotNull('bookings.specialist_id')
-                ->select(
-                    'bookings.specialist_id as specialistId',
-                    'specialist_profiles.first_name',
-                    'specialist_profiles.last_name',
-                    DB::raw('SUM(COALESCE(bookings.total_price, bookings.price)) as revenue')
-                )
-                ->leftJoin('users as specialists', 'bookings.specialist_id', '=', 'specialists.id')
-                ->leftJoin('user_profiles as specialist_profiles', 'specialists.id', '=', 'specialist_profiles.user_id')
-                ->groupBy('bookings.specialist_id', 'specialist_profiles.first_name', 'specialist_profiles.last_name')
-                ->get();
-            
-            $bySpecialistBookings = $bySpecialistBookingsRaw->map(function ($item) use ($companyId) {
-                // Сначала пытаемся найти специалиста в команде объявления
-                $specialistName = $this->getSpecialistName($item->specialistId, $companyId);
-                
-                // Если не нашли в команде, используем имя из профиля
-                if ($specialistName === 'N/A') {
-                    if ($item->first_name || $item->last_name) {
-                        $firstName = trim($item->first_name ?? '');
-                        $lastName = trim($item->last_name ?? '');
-                        $specialistName = trim($firstName . ' ' . $lastName) ?: 'N/A';
-                    }
-                }
-                
-                return [
-                    'specialistId' => (int) $item->specialistId,
-                    'specialistName' => $specialistName,
-                    'revenue' => (float) $item->revenue,
-                ];
-            })->keyBy('specialistId');
-            
-            // Revenue from paid orders
-            $bySpecialistOrdersRaw = Order::where('orders.company_id', $companyId)
-                ->where('orders.payment_status', 'paid')
-                ->join('bookings', 'orders.booking_id', '=', 'bookings.id')
-                ->whereNotNull('bookings.specialist_id')
-                ->when($filters['date_from'], function ($q) use ($filters) {
-                    $q->where('bookings.booking_date', '>=', $filters['date_from']);
-                })
-                ->when($filters['date_to'], function ($q) use ($filters) {
-                    $q->where('bookings.booking_date', '<=', $filters['date_to']);
-                })
-                ->select(
-                    'bookings.specialist_id as specialistId',
-                    'specialist_profiles.first_name',
-                    'specialist_profiles.last_name',
-                    DB::raw('SUM(orders.total) as revenue')
-                )
-                ->leftJoin('users as specialists', 'bookings.specialist_id', '=', 'specialists.id')
-                ->leftJoin('user_profiles as specialist_profiles', 'specialists.id', '=', 'specialist_profiles.user_id')
-                ->groupBy('bookings.specialist_id', 'specialist_profiles.first_name', 'specialist_profiles.last_name')
-                ->get();
-            
-            $bySpecialistOrders = $bySpecialistOrdersRaw->map(function ($item) use ($companyId) {
-                // Сначала пытаемся найти специалиста в команде объявления
-                $specialistName = $this->getSpecialistName($item->specialistId, $companyId);
-                
-                // Если не нашли в команде, используем имя из профиля
-                if ($specialistName === 'N/A') {
-                    if ($item->first_name || $item->last_name) {
-                        $firstName = trim($item->first_name ?? '');
-                        $lastName = trim($item->last_name ?? '');
-                        $specialistName = trim($firstName . ' ' . $lastName) ?: 'N/A';
-                    }
-                }
-                
-                return [
-                    'specialistId' => (int) $item->specialistId,
-                    'specialistName' => $specialistName,
-                    'revenue' => (float) $item->revenue,
-                ];
-            })->keyBy('specialistId');
-            
-            // Получаем список активных специалистов из team_members
             $validSpecialistIds = TeamMember::where('company_id', $companyId)
                 ->where('status', 'active')
                 ->pluck('id')
                 ->toArray();
-            
-            // Merge bookings and orders revenue by specialist
-            // Фильтруем только тех специалистов, которые есть в team_members
-            $allSpecialists = $bySpecialistBookings->keys()
-                ->merge($bySpecialistOrders->keys())
-                ->unique()
-                ->filter(function ($specialistId) use ($validSpecialistIds) {
-                    return in_array($specialistId, $validSpecialistIds);
-                });
-            
-            $bySpecialist = $allSpecialists->map(function ($specialistId) use ($bySpecialistBookings, $bySpecialistOrders) {
-                $bookingRevenue = (float) ($bySpecialistBookings->get($specialistId)->revenue ?? 0);
-                $orderRevenue = (float) ($bySpecialistOrders->get($specialistId)->revenue ?? 0);
-                $specialistName = $bySpecialistBookings->get($specialistId)->specialistName ?? $bySpecialistOrders->get($specialistId)->specialistName ?? 'N/A';
-                return [
-                    'specialistId' => (int) $specialistId,
-                    'specialistName' => $specialistName,
-                    'revenue' => $bookingRevenue + $orderRevenue,
-                ];
-            })
-            ->sortByDesc('revenue')
-            ->take(10)
-            ->values();
+
+            $bySpecialistRaw = (clone $query)
+                ->where('bookings.status', 'completed')
+                ->whereNotNull('bookings.specialist_id')
+                ->select(
+                    'bookings.specialist_id as specialistId',
+                    DB::raw('SUM(COALESCE(bookings.total_price, bookings.price)) as revenue')
+                )
+                ->groupBy('bookings.specialist_id')
+                ->get();
+
+            $bySpecialist = $bySpecialistRaw
+                ->filter(function ($row) use ($validSpecialistIds) {
+                    return in_array((int) $row->specialistId, $validSpecialistIds, true);
+                })
+                ->map(function ($item) use ($companyId) {
+                    return [
+                        'specialistId' => (int) $item->specialistId,
+                        'specialistName' => $this->getSpecialistName($item->specialistId, $companyId),
+                        'revenue' => (float) $item->revenue,
+                    ];
+                })
+                ->sortByDesc('revenue')
+                ->take(10)
+                ->values();
 
             return response()->json([
                 'success' => true,
@@ -691,9 +535,14 @@ class ReportsController extends Controller
                 $specialistQuery = (clone $query)->where('specialist_id', $specialistId);
                 
                 $bookingsCount = (clone $specialistQuery)->count();
-                $revenue = (clone $specialistQuery)
-                    ->where('status', 'completed')
-                    ->sum(DB::raw('COALESCE(total_price, price)'));
+                $revenue = BusinessMetricsService::recognizedRevenue(
+                    $companyId,
+                    $filters['date_from'],
+                    $filters['date_to'],
+                    $specialistId,
+                    $filters['service_id'],
+                    $filters['status']
+                );
                 $cancellations = (clone $specialistQuery)
                     ->where('status', 'cancelled')
                     ->count();
@@ -1035,6 +884,7 @@ class ReportsController extends Controller
                         ['Cancelled Bookings', $overviewData['cancelledBookings'] ?? 0],
                         ['Active Bookings', $overviewData['activeBookings'] ?? 0],
                         ['Total Revenue', '$' . number_format($overviewData['totalRevenue'] ?? 0, 2)],
+                        ['Revenue in Work', '$' . number_format($overviewData['revenueInWork'] ?? 0, 2)],
                         ['Average Check', '$' . number_format($overviewData['averageCheck'] ?? 0, 2)],
                         ['Unique Clients', $overviewData['uniqueClients'] ?? 0],
                         ['Active Specialists', $overviewData['activeSpecialists'] ?? 0],
@@ -1068,15 +918,23 @@ class ReportsController extends Controller
                     $clients = $this->clients($request);
                     $clientsData = json_decode($clients->getContent(), true)['data'] ?? [];
                     $data = [
+                        ['--- Top Clients by Bookings ---'],
                         ['Client', 'Bookings'],
                     ];
                     foreach ($clientsData['topByBookings'] ?? [] as $item) {
                         $data[] = [$item['clientName'], $item['bookings']];
                     }
                     $data[] = [];
+                    $data[] = ['--- Top Clients by Revenue ---'];
                     $data[] = ['Client', 'Revenue'];
                     foreach ($clientsData['topByRevenue'] ?? [] as $item) {
                         $data[] = [$item['clientName'], '$' . number_format($item['revenue'], 2)];
+                    }
+                    $data[] = [];
+                    $data[] = ['--- New Clients by Period ---'];
+                    $data[] = ['Period', 'New Clients'];
+                    foreach ($clientsData['newClients'] ?? [] as $item) {
+                        $data[] = [$item['period'], $item['count']];
                     }
                     $filename = 'clients_report';
                     break;
@@ -1124,26 +982,44 @@ class ReportsController extends Controller
                     break;
 
                 case 'salary':
-                    $salary = $this->salary($request);
-                    $salaryData = json_decode($salary->getContent(), true)['data'] ?? [];
+                    $salaryResponse = $this->salary($request);
+                    $salaryData = json_decode($salaryResponse->getContent(), true)['data'] ?? [];
                     $data = [
-                        ['Период начало', 'Период конец', 'Сотрудник', 'Бронирований', 'Часов', 'Базовая сумма', 'Процентная сумма', 'Итого ЗП'],
+                        ['--- Salary Summary ---'],
+                        ['Metric', 'Value'],
+                        ['Total Salary', '$' . number_format($salaryData['totalSalary'] ?? 0, 2)],
+                        ['Specialists', $salaryData['totalSpecialists'] ?? 0],
+                        ['Average Salary', '$' . number_format($salaryData['averageSalary'] ?? 0, 2)],
                     ];
-                    // Используем SalaryController для получения детальных данных
-                    $salaryController = app(\App\Http\Controllers\Business\SalaryController::class);
-                    $calculationsResponse = $salaryController->index($request);
-                    $calculationsData = json_decode($calculationsResponse->getContent(), true)['data'] ?? [];
-                    foreach ($calculationsData as $calc) {
+                    $unassigned = $salaryData['unassignedBookings'] ?? [];
+                    if (($unassigned['count'] ?? 0) > 0) {
+                        $data[] = ['Unassigned Bookings', $unassigned['count']];
+                        $data[] = ['Unassigned Revenue', '$' . number_format($unassigned['revenue'] ?? 0, 2)];
+                    }
+                    $data[] = [];
+                    $data[] = ['--- By Specialist ---'];
+                    $data[] = ['Specialist', 'Bookings', 'Hours', 'Total Salary', 'Has Settings'];
+                    foreach ($salaryData['bySpecialist'] ?? [] as $spec) {
                         $data[] = [
-                            $calc['period_start'] ?? '',
-                            $calc['period_end'] ?? '',
-                            $calc['specialist_name'] ?? 'Неизвестно',
-                            $calc['total_bookings'] ?? 0,
-                            number_format($calc['total_hours'] ?? 0, 2),
-                            '$' . number_format($calc['base_amount'] ?? 0, 2),
-                            '$' . number_format($calc['percent_amount'] ?? 0, 2),
-                            '$' . number_format($calc['total_salary'] ?? 0, 2),
+                            $spec['specialist_name'] ?? 'N/A',
+                            $spec['total_bookings'] ?? 0,
+                            number_format($spec['total_hours'] ?? 0, 2),
+                            '$' . number_format($spec['total_salary'] ?? 0, 2),
+                            ($spec['has_salary_settings'] ?? false) ? 'Yes' : 'No',
                         ];
+                    }
+                    if (!empty($salaryData['byPeriod'])) {
+                        $data[] = [];
+                        $data[] = ['--- By Period ---'];
+                        $data[] = ['Period Start', 'Period End', 'Total Salary', 'Calculations'];
+                        foreach ($salaryData['byPeriod'] as $period) {
+                            $data[] = [
+                                $period['period_start'] ?? '',
+                                $period['period_end'] ?? '',
+                                '$' . number_format($period['total_salary'] ?? 0, 2),
+                                $period['calculations_count'] ?? 0,
+                            ];
+                        }
                     }
                     $filename = 'salary_report';
                     break;

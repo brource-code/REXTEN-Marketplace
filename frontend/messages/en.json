@@ -262,7 +262,7 @@
                         "revenueInWork": "Revenue in Work",
                         "averageCheck": "Average Check",
                         "uniqueClients": "Unique Clients",
-                        "activeSpecialists": "Active Specialists"
+                        "activeSpecialists": "Specialists"
                     },
                     "bookings": {
                         "title": "Booking Reports",
@@ -289,7 +289,8 @@
                         "cancellations": "Cancellations",
                         "completed": "Completed",
                         "active": "Active",
-                        "averageCheck": "Average Check"
+                        "averageCheck": "Average Check",
+                        "clients": "Clients"
                     },
                     "filters": {
                         "dateFrom": "Start Date",
@@ -328,11 +329,18 @@
                 "ads": "Advertising"
             },
             "reviews": "Reviews",
+            "subscription": "Subscription",
             "billing": "Billing",
             "settings": "Settings",
             "knowledge": "Knowledge base",
             "notifications": "Notifications",
-            "support": "Support"
+            "support": "Support",
+            "groups": {
+                "work": "Work",
+                "crm": "Clients",
+                "marketing": "Marketing",
+                "more": "More"
+            }
         },
         "superadmin": {
             "superadmin": "Superadmin",
@@ -348,6 +356,7 @@
                 "ads": "Advertising"
             },
             "activityLog": "Activity Log",
+            "subscriptions": "Subscriptions",
             "billing": "Billing",
             "categories": "Categories",
             "reviews": "Reviews",
@@ -2140,7 +2149,21 @@
                 "priceTo": "Price to",
                 "link": "Link",
                 "createdAt": "Created",
-                "updatedAt": "Updated"
+                "updatedAt": "Updated",
+                "services": "Services",
+                "serviceName": "Service",
+                "servicePrice": "Price",
+                "serviceDuration": "Duration",
+                "noServices": "No services added",
+                "portfolio": "Portfolio",
+                "category": "Category",
+                "impressions": "Impressions",
+                "clicks": "Clicks",
+                "visibility": "Visibility",
+                "visible": "Visible",
+                "hidden": "Hidden",
+                "editAd": "Edit",
+                "min": "min"
             },
             "ads": {
                 "title": "My Advertisements",
@@ -2309,6 +2332,152 @@
                 "delete": "Delete"
             }
         },
+        "subscription": {
+            "title": "Subscription",
+            "description": "Choose a plan that fits your business needs",
+            "monthly": "Monthly",
+            "yearly": "Yearly",
+            "savePercent": "-17%",
+            "mo": "mo",
+            "yr": "yr",
+            "popular": "Popular",
+            "subscribe": "Subscribe",
+            "currentPlan": "Current plan",
+            "currentPlanBadge": "Current plan",
+            "changePlan": "Change plan",
+            "active": "Active",
+            "cancel": "Cancel",
+            "renewsOn": "Renews on",
+            "stripeDisabled": "Online payments are currently disabled. Contact support.",
+            "paymentCancelled": "Payment was cancelled.",
+            "cancelSuccess": "Subscription canceled now. Paid features stay active until {endDate}.",
+            "cancelSuccessNoDate": "Subscription canceled now. Paid features stay active until the end of the billing period.",
+            "plans": {
+                "free": {
+                    "name": "Free",
+                    "description": "Basic limits to get started"
+                },
+                "starter": {
+                    "name": "Starter",
+                    "description": "Perfect for getting started with basic tools"
+                },
+                "professional": {
+                    "name": "Professional",
+                    "description": "For growing businesses that need more power"
+                },
+                "enterprise": {
+                    "name": "Enterprise",
+                    "description": "For large teams with advanced requirements"
+                }
+            },
+            "features": {
+                "teamMembers": "team members",
+                "services": "services",
+                "advertisements": "advertisements",
+                "analytics": "Advanced analytics",
+                "prioritySupport": "Priority support",
+                "apiAccess": "API access",
+                "unlimited": "Unlimited"
+            },
+            "cancelDialog": {
+                "title": "Cancel subscription?",
+                "message": "Your subscription is canceled immediately (no further charges for this plan). You keep full paid access until {endDate}. After that, your workspace moves to the free plan.",
+                "messageNoEnd": "Your subscription is canceled immediately (no further charges for this plan). You keep full paid access until the end of the billing period. After that, your workspace moves to the free plan.",
+                "keep": "Keep subscription",
+                "confirm": "Cancel subscription"
+            },
+            "canceledBadge": "Canceled",
+            "resumeSubscription": "Resume subscription",
+            "resumeSuccess": "Subscription resumed. Cancellation has been withdrawn.",
+            "activeUntil": "Access until",
+            "successDialog": {
+                "title": "Subscription activated!",
+                "message": "Your plan has been activated. Enjoy all the features!",
+                "close": "Continue"
+            },
+            "choosePlan": "Choose your plan",
+            "compareTitle": "Compare plans",
+            "feature": "Feature",
+            "roadmapTitle": "Coming soon",
+            "roadmap": {
+                "item1": {
+                    "title": "Mobile app for clients",
+                    "desc": "iOS and Android apps for your customers to book services"
+                },
+                "item2": {
+                    "title": "Advanced reporting",
+                    "desc": "Detailed analytics, custom reports, and data export"
+                },
+                "item3": {
+                    "title": "Integrations",
+                    "desc": "Connect with Google Calendar, Zapier, and more"
+                },
+                "item4": {
+                    "title": "Multi-location support",
+                    "desc": "Manage multiple business locations from one account"
+                }
+            },
+            "faqTitle": "Frequently asked questions",
+            "faq": {
+                "q1": "Can I change my plan later?",
+                "a1": "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.",
+                "q2": "What payment methods do you accept?",
+                "a2": "We accept all major credit cards (Visa, Mastercard, American Express) via Stripe.",
+                "q3": "Is there a free trial?",
+                "a3": "We offer a 14-day free trial for all new accounts. No credit card required to start.",
+                "q4": "What happens if I cancel?",
+                "a4": "You can cancel anytime. Your subscription remains active until the end of the billing period."
+            },
+            "usage": {
+                "title": "Usage",
+                "of": "{current} of {limit}",
+                "unlimited": "Unlimited",
+                "included": "Included",
+                "notIncluded": "Not included"
+            },
+            "limitReached": {
+                "title": "Plan limit reached",
+                "description": "Upgrade your subscription to add more.",
+                "upgrade": "View plans",
+                "teamMembers": "You have reached the limit for team members and staff seats.",
+                "services": "You have reached the limit for services.",
+                "advertisements": "You have reached the limit for listings and advertisements."
+            },
+            "upgrade": "Upgrade",
+            "downgrade": {
+                "dialogTitle": "Schedule downgrade?",
+                "dialogIntro": "You keep your current plan and limits until the billing period ends. After that, the lower plan applies. If you exceed the new limits, deactivate resources on this page — nothing is deleted automatically.",
+                "effectiveOn": "Takes effect on",
+                "scheduledBadge": "Downgrade to {plan} scheduled",
+                "cta": "Downgrade",
+                "scheduledSuccess": "Downgrade scheduled for the end of the billing period.",
+                "cancelSchedule": "Cancel scheduled downgrade",
+                "cancel": "Back",
+                "confirm": "Schedule downgrade",
+                "warningLine": "{resource}: {count} over the new plan limit"
+            },
+            "overLimit": {
+                "bannerTitle": "Usage exceeds your plan limits",
+                "bannerBody": "Deactivate extra resources or upgrade your plan. Nothing is removed automatically.",
+                "graceEnds": "Grace period ends: {date}",
+                "manageLimits": "Manage usage"
+            },
+            "resolveLimits": {
+                "title": "Bring usage within plan limits",
+                "description": "Deactivate items you do not need to keep active. Data is kept; you can reactivate later where the product allows.",
+                "teamMembers": "Specialists & staff",
+                "services": "Services",
+                "advertisements": "Listings",
+                "submit": "Apply deactivations",
+                "success": "Usage updated."
+            },
+            "featureRequired": {
+                "title": "Upgrade required",
+                "description": "This feature is not included in your current plan.",
+                "upgrade": "View subscription plans",
+                "analytics": "Advanced reports and analytics are available on higher plans."
+            }
+        },
         "billing": {
             "title": "Billing",
             "description": "View all transactions and payments",
@@ -2337,6 +2506,9 @@
                 "allTypes": "All Types",
                 "allStatuses": "All Statuses"
             },
+            "subscriptionPayment": "Subscription payment — {planName} ({periodLabel})",
+            "periodLabelMonth": "Monthly",
+            "periodLabelYear": "Yearly",
             "errors": {
                 "loadError": "Failed to load transactions"
             },
@@ -2905,10 +3077,10 @@
                 "settingActive": "Setting is active"
             },
             "paymentTypes": {
-                "percent": "Percentage of booking",
+                "percent": "Percentage",
                 "fixed": "Fixed rate",
-                "fixedPlusPercent": "Fixed + percentage",
-                "hourly": "Hourly rate"
+                "fixedPlusPercent": "Fixed + %",
+                "hourly": "Hourly"
             },
             "placeholders": {
                 "percent": "e.g., 15",
@@ -3163,7 +3335,13 @@
             "businessOwner": "Business Owner",
             "superadmin": "Superadmin",
             "client": "Client"
-        }
+        },
+        "plans": {
+            "starter": "Starter",
+            "professional": "Professional",
+            "enterprise": "Enterprise"
+        },
+        "freePlan": "Free"
     },
     "legal": {
         "cookies": {
@@ -3802,6 +3980,51 @@
             "businessEvents": {
                 "title": "Recent Business Events"
             }
+        },
+        "subscriptions": {
+            "title": "Subscription Plans",
+            "description": "Manage subscription plans, pricing and features",
+            "createPlan": "Create Plan",
+            "totalPlans": "Total Plans",
+            "activePlans": "Active Plans",
+            "totalSubscribers": "Total Subscribers",
+            "mrr": "MRR",
+            "allPlans": "All Plans",
+            "subscribersByPlan": "Subscribers by Plan",
+            "plan": "Plan",
+            "priceMonthly": "Monthly",
+            "priceYearly": "Yearly",
+            "subscribers": "Subscribers",
+            "status": "Status",
+            "actions": "Actions",
+            "active": "Active",
+            "inactive": "Inactive",
+            "default": "Default",
+            "free": "Free",
+            "setDefault": "Set Default",
+            "editPlan": "Edit Plan",
+            "deletePlan": "Delete Plan",
+            "deleteConfirm": "Are you sure you want to delete the plan \"{name}\"? This action cannot be undone.",
+            "planUpdated": "Plan updated successfully",
+            "planCreated": "Plan created successfully",
+            "planDeleted": "Plan deleted successfully",
+            "defaultSet": "Default plan updated",
+            "name": "Name",
+            "slug": "Slug",
+            "descriptionLabel": "Description",
+            "badgeText": "Badge Text",
+            "features": "Features",
+            "maxTeamMembers": "Max Team Members",
+            "maxServices": "Max Services",
+            "maxAdvertisements": "Max Advertisements",
+            "analytics": "Analytics",
+            "prioritySupport": "Priority Support",
+            "apiAccess": "API Access",
+            "isActive": "Active",
+            "isFree": "Free Plan",
+            "cancel": "Cancel",
+            "save": "Save",
+            "create": "Create"
         },
         "billing": {
             "title": "Billing",

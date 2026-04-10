@@ -7,8 +7,11 @@ use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Stripe\Exception\SignatureVerificationException;
 use App\Models\Advertisement;
+use App\Models\Subscription;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\PlatformSettingsService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class StripeController extends Controller
@@ -160,47 +163,15 @@ class StripeController extends Controller
         // Обрабатываем успешную оплату
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
-            
-            $advertisementId = $session->metadata->advertisement_id ?? null;
-            $duration = isset($session->metadata->duration) ? (int) $session->metadata->duration : null;
-            
-            if (!$advertisementId || !$duration) {
-                Log::error('Stripe webhook: Missing metadata', [
-                    'session_id' => $session->id,
-                    'metadata' => $session->metadata,
-                ]);
-                return response()->json(['error' => 'Missing metadata'], 400);
+            $metadata = $session->metadata;
+
+            $type = $metadata->type ?? null;
+
+            if ($type === 'subscription') {
+                $this->handleSubscriptionPayment($session, $metadata);
+            } else {
+                $this->handleAdvertisementPayment($session, $metadata);
             }
-            
-            $advertisement = Advertisement::find($advertisementId);
-            if (!$advertisement) {
-                Log::error('Stripe webhook: Advertisement not found', [
-                    'advertisement_id' => $advertisementId,
-                ]);
-                return response()->json(['error' => 'Advertisement not found'], 404);
-            }
-            
-            // Вычисляем даты
-            $startDate = now();
-            $endDate = now()->addDays($duration);
-            
-            // Обновляем объявление
-            $advertisement->update([
-                'type' => 'advertisement',
-                'placement' => 'services',
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-                'status' => 'approved',
-                'is_active' => true,
-            ]);
-            
-            Log::info('Реклама активирована после оплаты', [
-                'advertisement_id' => $advertisementId,
-                'session_id' => $session->id,
-                'payment_intent' => $session->payment_intent ?? null,
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-            ]);
         }
 
         return response()->json(['status' => 'success']);
@@ -299,16 +270,24 @@ class StripeController extends Controller
                             $description = "Реклама: Advertisement #{$advertisementId} ({$packageId})";
                         }
                     }
-                } elseif (isset($metadata->subscription_id)) {
+                } elseif (
+                    isset($metadata->subscription_id)
+                    || (isset($metadata->type) && (string) $metadata->type === 'subscription')
+                    || (isset($metadata->plan) && ! isset($metadata->advertisement_id))
+                ) {
                     $transactionType = 'subscription';
-                    $description = 'Subscription payment';
-                    
+                    $planSlug = isset($metadata->plan) ? (string) $metadata->plan : '';
+                    $planModel = $planSlug !== '' ? SubscriptionPlan::findBySlug($planSlug) : null;
+                    $description = $planModel
+                        ? 'Subscription: '.$planModel->name
+                        : ($planSlug !== '' ? 'Subscription: '.$planSlug : 'Subscription payment');
+
                     // Проверяем принадлежность
                     if ($user->isSuperAdmin()) {
                         $shouldInclude = true;
-                    } elseif (isset($metadata->user_id) && $metadata->user_id == $user->id) {
+                    } elseif (isset($metadata->user_id) && (int) $metadata->user_id === (int) $user->id) {
                         $shouldInclude = true;
-                    } elseif (isset($metadata->company_id) && $metadata->company_id == $companyId) {
+                    } elseif (isset($metadata->company_id) && (int) $metadata->company_id === (int) $companyId) {
                         $shouldInclude = true;
                     }
                 } else {
@@ -336,6 +315,9 @@ class StripeController extends Controller
                     $status = 'pending';
                 }
 
+                $planMeta = isset($metadata->plan) ? (string) $metadata->plan : null;
+                $intervalMeta = isset($metadata->interval) ? (string) $metadata->interval : null;
+
                 $transactions[] = [
                     'id' => $session->id,
                     'type' => $transactionType,
@@ -343,12 +325,17 @@ class StripeController extends Controller
                     'currency' => $currency,
                     'status' => $status,
                     'description' => $description,
+                    'plan' => $planMeta,
+                    'interval' => $intervalMeta,
                     'created' => date('Y-m-d H:i:s', $session->created),
                     'created_timestamp' => $session->created,
                     'metadata' => [
                         'advertisement_id' => $metadata->advertisement_id ?? null,
                         'package_id' => $metadata->package_id ?? null,
                         'subscription_id' => $metadata->subscription_id ?? null,
+                        'type' => $metadata->type ?? null,
+                        'plan' => $planMeta,
+                        'interval' => $intervalMeta,
                     ],
                 ];
             }
@@ -378,15 +365,99 @@ class StripeController extends Controller
         }
     }
 
+    private function handleSubscriptionPayment($session, $metadata): void
+    {
+        $companyId = $metadata->company_id ?? null;
+        $plan = $metadata->plan ?? null;
+        $interval = $metadata->interval ?? 'month';
+        $priceCents = (int) ($metadata->price_cents ?? 0);
+
+        if (!$companyId || !$plan) {
+            Log::error('Stripe webhook subscription: missing metadata', [
+                'session_id' => $session->id,
+            ]);
+            return;
+        }
+
+        $periodEnd = $interval === 'year' ? now()->addYear() : now()->addMonth();
+
+        $planModel = SubscriptionPlan::findBySlug((string) $plan);
+
+        DB::transaction(function () use ($companyId, $plan, $session, $priceCents, $interval, $periodEnd, $planModel) {
+            Subscription::where('company_id', $companyId)
+                ->where('status', Subscription::STATUS_ACTIVE)
+                ->update(['status' => Subscription::STATUS_CANCELED]);
+
+            Subscription::create([
+                'company_id' => $companyId,
+                'plan' => $plan,
+                'status' => Subscription::STATUS_ACTIVE,
+                'stripe_session_id' => $session->id,
+                'price_cents' => $priceCents,
+                'currency' => $planModel?->currency ?? 'usd',
+                'interval' => $interval,
+                'current_period_start' => now(),
+                'current_period_end' => $periodEnd,
+                'grace_period_ends_at' => null,
+                'scheduled_plan' => null,
+                'previous_plan' => null,
+            ]);
+        });
+
+        Log::info('Subscription activated via webhook', [
+            'company_id' => $companyId,
+            'plan' => $plan,
+            'session_id' => $session->id,
+        ]);
+    }
+
+    private function handleAdvertisementPayment($session, $metadata): void
+    {
+        $advertisementId = $metadata->advertisement_id ?? null;
+        $duration = isset($metadata->duration) ? (int) $metadata->duration : null;
+
+        if (!$advertisementId || !$duration) {
+            Log::error('Stripe webhook: Missing metadata', [
+                'session_id' => $session->id,
+                'metadata' => $metadata,
+            ]);
+            return;
+        }
+
+        $advertisement = Advertisement::find($advertisementId);
+        if (!$advertisement) {
+            Log::error('Stripe webhook: Advertisement not found', [
+                'advertisement_id' => $advertisementId,
+            ]);
+            return;
+        }
+
+        $startDate = now();
+        $endDate = now()->addDays($duration);
+
+        $advertisement->update([
+            'type' => 'advertisement',
+            'placement' => 'services',
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+            'status' => 'approved',
+            'is_active' => true,
+        ]);
+
+        Log::info('Advertisement activated via payment', [
+            'advertisement_id' => $advertisementId,
+            'session_id' => $session->id,
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
+        ]);
+    }
+
     /**
      * Получить URL фронтенда из конфига или переменной окружения
      */
     private function getFrontendUrl(Request $request)
     {
-        // Пробуем получить из переменной окружения
         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3003'));
-        
-        // Убираем trailing slash
         return rtrim($frontendUrl, '/');
     }
 }

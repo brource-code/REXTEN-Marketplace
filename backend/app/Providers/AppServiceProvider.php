@@ -13,6 +13,7 @@ use App\Observers\BookingLocationRouteObserver;
 use App\Observers\BookingRouteObserver;
 use App\Observers\UserProfileRouteObserver;
 use App\Observers\BusinessEventObserver;
+use App\Observers\CompanyObserver;
 use App\Support\PasswordResetMailLocale;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -88,6 +89,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register observers for business events
         Company::observe(BusinessEventObserver::class);
+        Company::observe(CompanyObserver::class);
         Booking::observe(BookingEventObserver::class);
         Booking::observe(BookingRouteObserver::class);
         BookingLocation::observe(BookingLocationRouteObserver::class);

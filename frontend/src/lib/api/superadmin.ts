@@ -1215,3 +1215,87 @@ export async function updateAdminSupportTicket(
     const response = await LaravelAxios.put(`/admin/support/tickets/${id}`, payload)
     return response.data.data
 }
+
+// ========== Subscription Plans ==========
+export interface SubscriptionPlanFeatures {
+    max_team_members: number
+    max_services: number
+    max_advertisements: number
+    analytics: boolean
+    priority_support: boolean
+    api_access: boolean
+}
+
+export interface SubscriptionPlan {
+    id: number
+    slug: string
+    name: string
+    description: string | null
+    price_monthly: number
+    price_yearly: number
+    price_monthly_cents: number
+    price_yearly_cents: number
+    currency: string
+    features: SubscriptionPlanFeatures
+    is_active: boolean
+    is_default: boolean
+    is_free: boolean
+    sort_order: number
+    badge_text: string | null
+    color: string
+    subscribers_count?: number
+}
+
+export interface SubscriptionPlansStats {
+    total_plans: number
+    active_plans: number
+    total_subscribers: number
+    mrr: number
+    by_plan: Array<{
+        slug: string
+        name: string
+        color: string
+        subscribers: number
+        mrr: number
+    }>
+}
+
+export async function getSubscriptionPlans(): Promise<{ plans: SubscriptionPlan[] }> {
+    const response = await LaravelAxios.get('/admin/subscription-plans')
+    return response.data
+}
+
+export async function getSubscriptionPlansStats(): Promise<SubscriptionPlansStats> {
+    const response = await LaravelAxios.get('/admin/subscription-plans/stats')
+    return response.data
+}
+
+export async function getSubscriptionPlan(id: number): Promise<{ plan: SubscriptionPlan }> {
+    const response = await LaravelAxios.get(`/admin/subscription-plans/${id}`)
+    return response.data
+}
+
+export async function createSubscriptionPlan(data: Partial<SubscriptionPlan>): Promise<{ success: boolean; plan: SubscriptionPlan }> {
+    const response = await LaravelAxios.post('/admin/subscription-plans', data)
+    return response.data
+}
+
+export async function updateSubscriptionPlan(id: number, data: Partial<SubscriptionPlan>): Promise<{ success: boolean; plan: SubscriptionPlan }> {
+    const response = await LaravelAxios.put(`/admin/subscription-plans/${id}`, data)
+    return response.data
+}
+
+export async function deleteSubscriptionPlan(id: number): Promise<{ success: boolean }> {
+    const response = await LaravelAxios.delete(`/admin/subscription-plans/${id}`)
+    return response.data
+}
+
+export async function setDefaultSubscriptionPlan(id: number): Promise<{ success: boolean; plan: SubscriptionPlan }> {
+    const response = await LaravelAxios.post(`/admin/subscription-plans/${id}/set-default`)
+    return response.data
+}
+
+export async function reorderSubscriptionPlans(order: number[]): Promise<{ success: boolean }> {
+    const response = await LaravelAxios.post('/admin/subscription-plans/reorder', { order })
+    return response.data
+}

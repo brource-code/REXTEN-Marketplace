@@ -6,6 +6,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { OnboardingProvider } from '@/providers/OnboardingProvider'
 import { BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 import MaintenanceGuard from '@/components/platform/MaintenanceGuard'
+import SubscriptionOverLimitBanner from '@/components/shared/SubscriptionOverLimitBanner'
 
 const Layout = ({ children }) => {
     // BUSINESS_OWNER и SUPERADMIN могут видеть админку бизнеса
@@ -13,7 +14,10 @@ const Layout = ({ children }) => {
         <ProtectedRoute allowedRoles={[BUSINESS_OWNER, SUPERADMIN]}>
             <MaintenanceGuard>
                 <OnboardingProvider>
-                    <PostLoginLayout>{children}</PostLoginLayout>
+                    <PostLoginLayout>
+                        <SubscriptionOverLimitBanner />
+                        {children}
+                    </PostLoginLayout>
                 </OnboardingProvider>
             </MaintenanceGuard>
         </ProtectedRoute>

@@ -262,7 +262,7 @@
                         "revenueInWork": "Ingresos en curso",
                         "averageCheck": "Ticket promedio",
                         "uniqueClients": "Clientes únicos",
-                        "activeSpecialists": "Especialistas activos"
+                        "activeSpecialists": "Especialistas"
                     },
                     "bookings": {
                         "title": "Reportes de reservas",
@@ -289,7 +289,8 @@
                         "cancellations": "Cancelaciones",
                         "completed": "Completadas",
                         "active": "Activas",
-                        "averageCheck": "Ticket promedio"
+                        "averageCheck": "Ticket promedio",
+                        "clients": "Clientes"
                     },
                     "filters": {
                         "dateFrom": "Fecha inicial",
@@ -328,11 +329,18 @@
                 "ads": "Publicidad"
             },
             "reviews": "Reseñas",
+            "subscription": "Suscripción",
             "billing": "Facturación",
             "settings": "Configuración",
             "knowledge": "Base de conocimiento",
             "notifications": "Notificaciones",
-            "support": "Soporte"
+            "support": "Soporte",
+            "groups": {
+                "work": "Trabajo",
+                "crm": "Clientes",
+                "marketing": "Marketing",
+                "more": "Más"
+            }
         },
         "superadmin": {
             "superadmin": "Superadmin",
@@ -354,7 +362,8 @@
             "modules": "Módulos",
             "settings": "Configuración",
             "knowledge": "Base de conocimiento",
-            "support": "Soporte"
+            "support": "Soporte",
+            "subscriptions": "Suscripciones"
         },
         "home": "Inicio"
     },
@@ -2136,7 +2145,21 @@
                 "priceTo": "Precio hasta",
                 "link": "Enlace",
                 "createdAt": "Fecha de creación",
-                "updatedAt": "Actualizado"
+                "updatedAt": "Actualizado",
+                "services": "Servicios",
+                "serviceName": "Servicio",
+                "servicePrice": "Precio",
+                "serviceDuration": "Duración",
+                "noServices": "No hay servicios agregados",
+                "portfolio": "Portafolio",
+                "category": "Categoría",
+                "impressions": "Impresiones",
+                "clicks": "Clics",
+                "visibility": "Visibilidad",
+                "visible": "Visible",
+                "hidden": "Oculto",
+                "editAd": "Editar",
+                "min": "min"
             },
             "ads": {
                 "title": "Mis anuncios publicitarios",
@@ -2305,6 +2328,152 @@
                 "delete": "Eliminar"
             }
         },
+        "subscription": {
+            "title": "Suscripción",
+            "description": "Elige un plan que se adapte a las necesidades de tu negocio",
+            "monthly": "Mensual",
+            "yearly": "Anual",
+            "savePercent": "-17%",
+            "mo": "mes",
+            "yr": "año",
+            "popular": "Popular",
+            "subscribe": "Suscribirse",
+            "currentPlan": "Plan actual",
+            "currentPlanBadge": "Plan actual",
+            "changePlan": "Cambiar plan",
+            "active": "Activa",
+            "cancel": "Cancelar",
+            "renewsOn": "Se renueva el",
+            "stripeDisabled": "Los pagos en línea están deshabilitados. Contacta a soporte.",
+            "paymentCancelled": "El pago fue cancelado.",
+            "cancelSuccess": "Suscripción cancelada ahora. Las funciones de pago siguen activas hasta el {endDate}.",
+            "cancelSuccessNoDate": "Suscripción cancelada ahora. Las funciones de pago siguen activas hasta el final del período facturado.",
+            "plans": {
+                "free": {
+                    "name": "Gratis",
+                    "description": "Límites básicos para empezar"
+                },
+                "starter": {
+                    "name": "Inicial",
+                    "description": "Perfecto para comenzar con herramientas básicas"
+                },
+                "professional": {
+                    "name": "Profesional",
+                    "description": "Para negocios en crecimiento que necesitan más poder"
+                },
+                "enterprise": {
+                    "name": "Empresarial",
+                    "description": "Para equipos grandes con requisitos avanzados"
+                }
+            },
+            "features": {
+                "teamMembers": "miembros del equipo",
+                "services": "servicios",
+                "advertisements": "anuncios",
+                "analytics": "Analíticas avanzadas",
+                "prioritySupport": "Soporte prioritario",
+                "apiAccess": "Acceso a API",
+                "unlimited": "Ilimitado"
+            },
+            "cancelDialog": {
+                "title": "¿Cancelar suscripción?",
+                "message": "La suscripción se cancela de inmediato (no habrá más cargos por este plan). Mantienes el acceso completo de pago hasta el {endDate}. Después, el espacio de trabajo pasa al plan gratuito.",
+                "messageNoEnd": "La suscripción se cancela de inmediato (no habrá más cargos por este plan). Mantienes el acceso completo de pago hasta el final del período facturado. Después, el espacio de trabajo pasa al plan gratuito.",
+                "keep": "Mantener suscripción",
+                "confirm": "Cancelar suscripción"
+            },
+            "canceledBadge": "Cancelada",
+            "resumeSubscription": "Reanudar suscripción",
+            "resumeSuccess": "Suscripción reanudada. Se retiró la cancelación.",
+            "activeUntil": "Acceso hasta",
+            "successDialog": {
+                "title": "¡Suscripción activada!",
+                "message": "Tu plan ha sido activado. ¡Disfruta de todas las funciones!",
+                "close": "Continuar"
+            },
+            "choosePlan": "Elige tu plan",
+            "compareTitle": "Comparar planes",
+            "feature": "Función",
+            "roadmapTitle": "Próximamente",
+            "roadmap": {
+                "item1": {
+                    "title": "App móvil para clientes",
+                    "desc": "Apps iOS y Android para que tus clientes reserven servicios"
+                },
+                "item2": {
+                    "title": "Reportes avanzados",
+                    "desc": "Analíticas detalladas, reportes personalizados y exportación"
+                },
+                "item3": {
+                    "title": "Integraciones",
+                    "desc": "Conecta con Google Calendar, Zapier y más"
+                },
+                "item4": {
+                    "title": "Soporte multi-ubicación",
+                    "desc": "Gestiona múltiples ubicaciones desde una cuenta"
+                }
+            },
+            "faqTitle": "Preguntas frecuentes",
+            "faq": {
+                "q1": "¿Puedo cambiar mi plan después?",
+                "a1": "Sí, puedes subir o bajar de plan en cualquier momento. Los cambios son inmediatos.",
+                "q2": "¿Qué métodos de pago aceptan?",
+                "a2": "Aceptamos las principales tarjetas (Visa, Mastercard, American Express) vía Stripe.",
+                "q3": "¿Hay prueba gratuita?",
+                "a3": "Ofrecemos 14 días de prueba gratis para cuentas nuevas. No se requiere tarjeta.",
+                "q4": "¿Qué pasa si cancelo?",
+                "a4": "Puedes cancelar en cualquier momento. Tu suscripción sigue activa hasta el fin del período."
+            },
+            "usage": {
+                "title": "Uso",
+                "of": "{current} de {limit}",
+                "unlimited": "Ilimitado",
+                "included": "Incluido",
+                "notIncluded": "No incluido"
+            },
+            "limitReached": {
+                "title": "Límite del plan alcanzado",
+                "description": "Mejora tu plan para añadir más.",
+                "upgrade": "Ver planes",
+                "teamMembers": "Alcanzaste el límite de miembros del equipo y plazas de personal.",
+                "services": "Alcanzaste el límite de servicios.",
+                "advertisements": "Alcanzaste el límite de anuncios y fichas."
+            },
+            "upgrade": "Mejorar plan",
+            "downgrade": {
+                "dialogTitle": "¿Programar una bajada de plan?",
+                "dialogIntro": "Mantienes tu plan y límites actuales hasta el fin del período de facturación. Después se aplicará el plan inferior. Si superas los nuevos límites, desactiva recursos en esta página; nada se borra automáticamente.",
+                "effectiveOn": "Entra en vigor el",
+                "scheduledBadge": "Bajada a {plan} programada",
+                "cta": "Bajar de plan",
+                "scheduledSuccess": "Bajada de plan programada para el fin del período de facturación.",
+                "cancelSchedule": "Cancelar bajada programada",
+                "cancel": "Atrás",
+                "confirm": "Programar bajada",
+                "warningLine": "{resource}: {count} por encima del límite del nuevo plan"
+            },
+            "overLimit": {
+                "bannerTitle": "El uso supera los límites de tu plan",
+                "bannerBody": "Desactiva recursos extra o mejora el plan. No se elimina nada automáticamente.",
+                "graceEnds": "Periodo de gracia hasta: {date}",
+                "manageLimits": "Gestionar uso"
+            },
+            "resolveLimits": {
+                "title": "Ajusta el uso a los límites del plan",
+                "description": "Desactiva lo que no necesites mantener activo. Los datos se conservan; puedes reactivar después donde lo permita el producto.",
+                "teamMembers": "Especialistas y personal",
+                "services": "Servicios",
+                "advertisements": "Anuncios",
+                "submit": "Aplicar desactivaciones",
+                "success": "Uso actualizado."
+            },
+            "featureRequired": {
+                "title": "Se requiere actualización",
+                "description": "Esta función no está incluida en tu plan actual.",
+                "upgrade": "Ver planes de suscripción",
+                "analytics": "Los informes y analíticas avanzados están en planes superiores."
+            }
+        },
         "billing": {
             "title": "Facturación",
             "description": "Consulta todas las transacciones y pagos",
@@ -2333,6 +2502,9 @@
                 "allTypes": "Todos los tipos",
                 "allStatuses": "Todos los estados"
             },
+            "subscriptionPayment": "Pago de suscripción — {planName} ({periodLabel})",
+            "periodLabelMonth": "Mensual",
+            "periodLabelYear": "Anual",
             "errors": {
                 "loadError": "No se pudieron cargar las transacciones"
             },
@@ -2901,10 +3073,10 @@
                 "settingActive": "La configuración está activa"
             },
             "paymentTypes": {
-                "percent": "Porcentaje de la reserva",
+                "percent": "Porcentaje",
                 "fixed": "Tarifa fija",
-                "fixedPlusPercent": "Fijo + porcentaje",
-                "hourly": "Tarifa por hora"
+                "fixedPlusPercent": "Fijo + %",
+                "hourly": "Por hora"
             },
             "placeholders": {
                 "percent": "p. ej. 15",
@@ -3159,7 +3331,13 @@
             "businessOwner": "Dueño del negocio",
             "superadmin": "Superadministrador",
             "client": "Cliente"
-        }
+        },
+        "plans": {
+            "starter": "Inicial",
+            "professional": "Profesional",
+            "enterprise": "Empresarial"
+        },
+        "freePlan": "Gratis"
     },
     "legal": {
         "cookies": {
@@ -4478,6 +4656,51 @@
                     "SUPERADMIN": "Superadministrador"
                 }
             }
+        },
+        "subscriptions": {
+            "title": "Planes de Suscripción",
+            "description": "Gestionar planes de suscripción, precios y funciones",
+            "createPlan": "Crear Plan",
+            "totalPlans": "Total de Planes",
+            "activePlans": "Planes Activos",
+            "totalSubscribers": "Total de Suscriptores",
+            "mrr": "MRR",
+            "allPlans": "Todos los Planes",
+            "subscribersByPlan": "Suscriptores por Plan",
+            "plan": "Plan",
+            "priceMonthly": "Mensual",
+            "priceYearly": "Anual",
+            "subscribers": "Suscriptores",
+            "status": "Estado",
+            "actions": "Acciones",
+            "active": "Activo",
+            "inactive": "Inactivo",
+            "default": "Por defecto",
+            "free": "Gratis",
+            "setDefault": "Establecer por defecto",
+            "editPlan": "Editar Plan",
+            "deletePlan": "Eliminar Plan",
+            "deleteConfirm": "¿Estás seguro de que deseas eliminar el plan \"{name}\"? Esta acción no se puede deshacer.",
+            "planUpdated": "Plan actualizado correctamente",
+            "planCreated": "Plan creado correctamente",
+            "planDeleted": "Plan eliminado correctamente",
+            "defaultSet": "Plan por defecto actualizado",
+            "name": "Nombre",
+            "slug": "Slug",
+            "descriptionLabel": "Descripción",
+            "badgeText": "Texto de insignia",
+            "features": "Funciones",
+            "maxTeamMembers": "Máx. miembros del equipo",
+            "maxServices": "Máx. servicios",
+            "maxAdvertisements": "Máx. anuncios",
+            "analytics": "Analíticas",
+            "prioritySupport": "Soporte prioritario",
+            "apiAccess": "Acceso a API",
+            "isActive": "Activo",
+            "isFree": "Plan gratuito",
+            "cancel": "Cancelar",
+            "save": "Guardar",
+            "create": "Crear"
         }
     },
     "maintenance": {

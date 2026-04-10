@@ -22,6 +22,9 @@ class Kernel extends ConsoleKernel
         if (config('backups.schedule_enabled') && app(PlatformBackupService::class)->isS3Ready()) {
             $schedule->command('platform:backup --scheduled')->twiceDaily(6, 18);
         }
+
+        // Подписки: даунгрейд по scheduled_plan и переход на free после окончания периода
+        $schedule->command('subscription:finalize-expired')->hourly();
     }
 
     protected function commands(): void

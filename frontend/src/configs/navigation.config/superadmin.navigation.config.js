@@ -84,6 +84,15 @@ const superadminNavigationConfig = [
                 ],
             },
             {
+                key: 'superadmin.subscriptions',
+                path: '/superadmin/subscriptions',
+                title: 'Подписки',
+                translateKey: 'nav.superadmin.subscriptions',
+                icon: 'subscription',
+                type: NAV_ITEM_TYPE_ITEM,
+                subMenu: [],
+            },
+            {
                 key: 'superadmin.billing',
                 path: '/superadmin/billing',
                 title: 'Биллинг',
