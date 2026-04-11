@@ -1,41 +1,61 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import NavList from './NavList'
 import Drawer from '@/components/ui/Drawer'
+import Dropdown from '@/components/ui/Dropdown'
+import Avatar from '@/components/ui/Avatar'
 import classNames from '@/utils/classNames'
 import useScrollTop from '@/utils/hooks/useScrollTop'
 import Link from 'next/link'
 import { TbMenu2 } from 'react-icons/tb'
+import { HiCheck } from 'react-icons/hi'
 import Logo from '@/components/template/Logo'
 import appConfig from '@/configs/app.config'
+import { useLocale, useTranslations } from 'next-intl'
+import { setLocale } from '@/server/actions/locale'
+import { UI_LANGUAGE_OPTIONS } from '@/constants/languageOptions'
+import { useAuthStore } from '@/store'
 
-const navMenu = [
-    {
-        title: 'Возможности',
-        value: 'features',
-        to: 'features',
-    },
-    {
-        title: 'Примеры',
-        value: 'demos',
-        to: 'demos',
-    },
-    {
-        title: 'Тарифы',
-        value: 'pricing',
-        to: 'pricing',
-    },
-    {
-        title: 'Вопросы',
-        value: 'faq',
-        to: 'faq',
-    },
-]
+const languageList = UI_LANGUAGE_OPTIONS
 
 const Navigation = ({ toggleMode, mode }) => {
     const { isSticky } = useScrollTop()
-
     const [isOpen, setIsOpen] = useState(false)
+    const locale = useLocale()
+    const t = useTranslations('landing.nav')
+    const tNavbar = useTranslations('components.navbar')
+    const { isAuthenticated, authReady } = useAuthStore()
+
+    const navMenu = [
+        {
+            title: t('features'),
+            value: 'features',
+            to: 'features',
+        },
+        {
+            title: t('demos'),
+            value: 'demos',
+            to: 'demos',
+        },
+        {
+            title: t('pricing'),
+            value: 'pricing',
+            to: 'pricing',
+        },
+        {
+            title: t('faq'),
+            value: 'faq',
+            to: 'faq',
+        },
+    ]
+
+    const selectLangFlag = useMemo(() => {
+        return languageList.find((lang) => lang.value === locale)?.flag
+    }, [locale])
+
+    const handleUpdateLocale = async (newLocale) => {
+        await setLocale(newLocale)
+    }
 
     const openDrawer = () => {
         setIsOpen(true)
@@ -55,31 +75,49 @@ const Navigation = ({ toggleMode, mode }) => {
         >
             <div
                 className={classNames(
-                    'flex flex-row self-start items-center justify-between py-3 max-w-7xl mx-auto px-4 rounded-xl relative z-[60] w-full transition duration-200',
+                    'py-3 max-w-7xl mx-auto px-4 rounded-xl relative z-[60] w-full transition duration-200',
                     isSticky
                         ? 'bg-white dark:bg-gray-800 shadow-lg'
-                        : 'bg-transparent dark:bg-transparent',
+                        : 'bg-white dark:bg-gray-900 lg:bg-transparent lg:dark:bg-transparent',
+                    'lg:flex lg:flex-row lg:items-center lg:justify-between',
+                    'grid grid-cols-[1fr_auto_1fr] items-center lg:grid-cols-none',
                 )}
             >
-                <button
-                    onClick={openDrawer}
-                    className="flex lg:hidden items-center gap-4"
-                >
-                    <TbMenu2 size={24} />
-                </button>
-                <Drawer
-                    title="Navigation"
-                    isOpen={isOpen}
-                    onClose={onDrawerClose}
-                    onRequestClose={onDrawerClose}
-                    width={250}
-                    placement="left"
-                >
-                    <div className="flex flex-col gap-4">
-                        <NavList onTabClick={onDrawerClose} tabs={navMenu} />
-                    </div>
-                </Drawer>
-                <Link href={appConfig.marketplaceHomePath} className="flex items-center flex-shrink-0">
+                {/* Left: hamburger + drawer (mobile) */}
+                <div className="flex items-center lg:hidden">
+                    <button
+                        onClick={openDrawer}
+                        className="flex items-center"
+                    >
+                        <TbMenu2 size={24} />
+                    </button>
+                    <Drawer
+                        title={t('drawerTitle')}
+                        isOpen={isOpen}
+                        onClose={onDrawerClose}
+                        onRequestClose={onDrawerClose}
+                        width={250}
+                        placement="left"
+                    >
+                        <div className="flex flex-col gap-4">
+                            <NavList onTabClick={onDrawerClose} tabs={navMenu} />
+                            {authReady && !isAuthenticated && (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700 sm:hidden">
+                                    <Link
+                                        href="/sign-in"
+                                        onClick={onDrawerClose}
+                                        className="flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors"
+                                    >
+                                        {tNavbar('signIn')}
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    </Drawer>
+                </div>
+
+                {/* Center: logo (mobile grid auto column = always centered) */}
+                <Link href={appConfig.marketplaceHomePath} className="flex items-center justify-center lg:justify-start flex-shrink-0 lg:order-first">
                     <Logo
                         type="full"
                         mode={mode}
@@ -87,10 +125,50 @@ const Navigation = ({ toggleMode, mode }) => {
                         imgClass="h-7 w-auto max-w-[130px]"
                     />
                 </Link>
+
+                {/* Desktop nav links (centered absolute) */}
                 <div className="lg:flex flex-row flex-1 absolute inset-0 hidden items-center justify-center text-sm text-zinc-600 font-medium hover:text-zinc-800 transition duration-200 [perspective:1000px] overflow-auto sm:overflow-visible no-visible-scrollbar">
                     <NavList tabs={navMenu} />
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Right: controls */}
+                <div className="flex items-center justify-end gap-2">
+                    {/* Language Selector */}
+                    <Dropdown
+                        renderTitle={
+                            <div className="flex items-center cursor-pointer">
+                                <Avatar
+                                    size={24}
+                                    shape="circle"
+                                    src={`/img/countries/${selectLangFlag}.png`}
+                                />
+                            </div>
+                        }
+                        placement="bottom-end"
+                    >
+                        {languageList.map((lang) => (
+                            <Dropdown.Item
+                                key={lang.label}
+                                className="justify-between"
+                                eventKey={lang.label}
+                                onClick={() => handleUpdateLocale(lang.value)}
+                            >
+                                <span className="flex items-center">
+                                    <Avatar
+                                        size={18}
+                                        shape="circle"
+                                        src={`/img/countries/${lang.flag}.png`}
+                                    />
+                                    <span className="ml-2">{lang.label}</span>
+                                </span>
+                                {locale === lang.value && (
+                                    <HiCheck className="text-emerald-500 text-lg" />
+                                )}
+                            </Dropdown.Item>
+                        ))}
+                    </Dropdown>
+
+                    {/* Theme Toggle */}
                     <button
                         className="relative flex cursor-pointer items-center justify-center rounded-xl p-2 text-neutral-500 hover:shadow-input dark:text-neutral-500"
                         onClick={toggleMode}
@@ -134,6 +212,17 @@ const Navigation = ({ toggleMode, mode }) => {
                         <span className="sr-only">Toggle theme</span>
                     </button>
 
+                    {/* Auth buttons */}
+                    {authReady && !isAuthenticated && (
+                        <Link href="/sign-in" className="hidden sm:block">
+                            <button
+                                type="button"
+                                className="px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors"
+                            >
+                                {tNavbar('signIn')}
+                            </button>
+                        </Link>
+                    )}
                 </div>
             </div>
         </div>

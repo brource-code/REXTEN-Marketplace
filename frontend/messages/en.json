@@ -764,7 +764,11 @@
                 "plumbing": "Plumbing",
                 "tutoring": "Tutoring",
                 "delivery": "Delivery",
-                "medical-services": "Medical Services"
+                "medical-services": "Medical Services",
+                "belleza": "Beauty",
+                "limpieza": "Cleaning",
+                "calefaccin-y-ventilacin": "HVAC",
+                "calefaccin_y_ventilacin": "HVAC"
             }
         },
         "marketplace": {
@@ -4707,6 +4711,243 @@
                     "SUPERADMIN": "Superadmin"
                 }
             }
+        }
+    },
+    "landing": {
+        "meta": {
+            "title": "REXTEN — Service Business Platform for the USA",
+            "description": "All-in-one platform for service businesses: online booking, CRM, scheduling, marketing, and analytics."
+        },
+        "nav": {
+            "features": "Features",
+            "demos": "Examples",
+            "pricing": "Pricing",
+            "faq": "FAQ",
+            "drawerTitle": "Navigation"
+        },
+        "hero": {
+            "title": "Manage and scale your service business with REXTEN",
+            "subtitle": "All tools in one platform: CRM, Online Booking, Marketing, and Analytics. Automate routine tasks, attract new clients, and manage multiple locations from any device.",
+            "ctaSignUp": "Get Started",
+            "ctaDemo": "View Demo"
+        },
+        "features": {
+            "sectionTitle": "Everything you need to run your business",
+            "sectionSubtitle": "REXTEN replaces 5 different services. We combined online booking, CRM, team management, and marketing tools into one convenient platform.",
+            "brand": {
+                "title": "Brand & Online Booking",
+                "description": "Customize colors and style of your booking page. Clients book 24/7, and you receive instant notifications."
+            },
+            "crm": {
+                "title": "Client Database (CRM)",
+                "description": "Visit history, preferences, and client contacts always at hand. Bring clients back with email campaigns."
+            },
+            "schedule": {
+                "title": "Smart Scheduling",
+                "description": "Flexible staff schedules, vacation and break tracking. Automatic appointment distribution and workload control across locations."
+            },
+            "marketing": {
+                "title": "Marketing & Analytics",
+                "description": "Launch ads for your services within REXTEN in one click. Track revenue, conversion, and staff performance through detailed reports."
+            }
+        },
+        "industries": {
+            "sectionTitle": "Built for every service business",
+            "sectionSubtitle": "From beauty salons to HVAC contractors — REXTEN adapts to your industry with specialized features.",
+            "demoButton": "Try Demo",
+            "cleaning": {
+                "title": "Cleaning Services",
+                "description": "Route optimization for field teams, recurring bookings, and automated client reminders."
+            },
+            "beauty": {
+                "title": "Beauty & Wellness",
+                "description": "Online booking calendar, staff schedules, client preferences, and loyalty programs."
+            },
+            "hvac": {
+                "title": "HVAC & Home Services",
+                "description": "Dispatch management, route planning, service history tracking, and seasonal promotions."
+            },
+            "auto": {
+                "title": "Auto Services",
+                "description": "Appointment scheduling, service packages, vehicle history, and automated follow-ups."
+            },
+            "education": {
+                "title": "Education & Training",
+                "description": "Class scheduling, student management, packages, and automated reminders."
+            },
+            "events": {
+                "title": "Events & Entertainment",
+                "description": "Ticket-style booking, staff coordination, deposits, and calendar sync."
+            },
+            "legal": {
+                "title": "Consulting & Legal",
+                "description": "Client intake forms, appointment booking, document management, and billing integration."
+            },
+            "petCare": {
+                "title": "Pet Care",
+                "description": "Pet profiles, grooming schedules, vaccination reminders, and daycare management."
+            }
+        },
+        "demos": {
+            "sectionTitle": "Business showcase examples on REXTEN",
+            "sectionSubtitle": "See how service pages created on our platform look. Everything works automatically, supports online payments, and requires no designer.",
+            "viewAll": "View all services",
+            "loading": "Loading...",
+            "noResults": "No services in this category",
+            "categories": {
+                "all": "All",
+                "beauty": "Beauty",
+                "wellness": "Wellness",
+                "home": "Home & Service",
+                "auto": "Auto",
+                "education": "Education",
+                "events": "Events"
+            }
+        },
+        "pricing": {
+            "sectionTitle": "Simple and transparent pricing",
+            "sectionSubtitle": "Pick Starter, Pro, or Business, or begin on the Free plan with limited usage. When you subscribe to a paid plan, the first 14 days are free.",
+            "freeTierNote": "The Free plan stays available with caps on bookings, staff, and features. Upgrade anytime when you need higher limits.",
+            "popular": "Popular",
+            "perMonth": "/mo",
+            "starter": {
+                "name": "Starter",
+                "description": "For individual professionals",
+                "features": {
+                    "booking": "Personal booking page",
+                    "appointments": "Up to 100 bookings/month",
+                    "reminders": "Client reminders (SMS/Email)",
+                    "analytics": "Basic analytics",
+                    "payments": "Online payments"
+                },
+                "button": "Start Free"
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "For salons with up to 5 staff",
+                "features": {
+                    "includesStarter": "Everything in Starter",
+                    "staff": "Up to 5 team members",
+                    "unlimited": "Unlimited bookings",
+                    "crm": "CRM & client database",
+                    "schedule": "Team schedule management",
+                    "marketing": "Marketing campaigns",
+                    "support": "Priority support"
+                },
+                "button": "Try Free"
+            },
+            "business": {
+                "name": "Business",
+                "description": "For companies with multiple locations",
+                "features": {
+                    "includesPro": "Everything in Pro",
+                    "unlimitedStaff": "Unlimited team members",
+                    "locations": "Multi-location management",
+                    "analytics": "Advanced analytics",
+                    "api": "API integrations",
+                    "manager": "Dedicated account manager",
+                    "branding": "Custom branding"
+                },
+                "button": "Contact Us"
+            }
+        },
+        "otherFeatures": {
+            "sectionTitle": "Business always at your fingertips",
+            "sectionSubtitle": "Manage your company from your smartphone. Dedicated mobile app for owners and staff, synced with the web version.",
+            "mobile": {
+                "title": "Business in your pocket",
+                "description": "Control your schedule, accept payments, and chat with clients through the mobile app. New booking notifications arrive instantly.",
+                "points": {
+                    "schedule": "Manage bookings and staff schedules",
+                    "chat": "Chat with clients and view message history",
+                    "stats": "Real-time daily financial stats"
+                }
+            },
+            "growth": {
+                "title": "Growth & Multi-location",
+                "description": "Easily manage multiple locations across different states. Unified standards, centralized quality control, and network-wide analytics.",
+                "points": {
+                    "access": "Role-based access for managers",
+                    "compare": "Compare location performance",
+                    "languages": "Multi-language support for local markets"
+                }
+            },
+            "integrations": {
+                "title": "Integrations & Payments",
+                "description": "Automate accounting and payment processing. REXTEN integrates with Stripe for secure transactions and automatic payouts to staff.",
+                "points": {
+                    "stripe": "Secure payments via Stripe Connect",
+                    "salary": "Automatic commission and salary calculations",
+                    "export": "Export financial reports for accounting"
+                }
+            }
+        },
+        "testimonials": {
+            "sectionTitle": "Trusted by hundreds of businesses",
+            "sectionSubtitle": "Salon owners, professionals, and service companies already use REXTEN to grow their business.",
+            "items": [
+                {
+                    "name": "Sarah Johnson",
+                    "role": "Owner",
+                    "company": "Glow Beauty Studio",
+                    "quote": "REXTEN helped us increase bookings by 40%. Clients book themselves, and we no longer spend hours on phone calls."
+                },
+                {
+                    "name": "Michael Chen",
+                    "role": "Founder",
+                    "company": "AutoPro Service",
+                    "quote": "Managing a network of 3 auto shops became easier. I see each location's workload in real-time and can react quickly."
+                },
+                {
+                    "name": "Emily Davis",
+                    "role": "Independent Professional",
+                    "company": "Mobile Nail Art",
+                    "quote": "Finally I have a beautiful booking page and client reminders. Fewer missed appointments!"
+                }
+            ]
+        },
+        "faq": {
+            "sectionTitle": "Frequently Asked Questions",
+            "sectionSubtitle": "Answers to popular questions about REXTEN. Didn't find your answer? Chat with us.",
+            "items": [
+                {
+                    "question": "How do I connect my business to REXTEN?",
+                    "answer": "Registration takes 5 minutes. Fill out the form, add your services and staff — and your booking page is ready. We'll help customize everything to match your brand."
+                },
+                {
+                    "question": "How much does it cost?",
+                    "answer": "There is a Free plan with limited usage. Paid plans are Starter ($29/mo) for solos, Pro ($79/mo) for salons with up to 5 staff, and Business ($199/mo) for multi-location companies. The first 14 days are free when you start a paid subscription."
+                },
+                {
+                    "question": "Can I migrate clients from another system?",
+                    "answer": "Yes, we'll help import your client database from Excel, Google Sheets, or other CRM systems. Just send the file to our support team."
+                },
+                {
+                    "question": "How does online payment work?",
+                    "answer": "We're integrated with Stripe. Clients can pay by card when booking. Money goes to your account automatically."
+                },
+                {
+                    "question": "Is there a mobile app?",
+                    "answer": "Yes, there are apps for iOS and Android. Manage bookings, chat with clients, and view stats right from your smartphone."
+                },
+                {
+                    "question": "What support is available?",
+                    "answer": "Chat support works 24/7. Pro and Business plans get priority support with response within an hour. Business plan includes a dedicated account manager."
+                }
+            ]
+        },
+        "footer": {
+            "cta": {
+                "title": "Connect your business to REXTEN",
+                "description": "We'll show you how to list on the marketplace, prepare your storefront to match your brand, and launch bookings in just a few days.",
+                "button": "Try for free"
+            },
+            "links": {
+                "terms": "Terms",
+                "privacy": "Privacy",
+                "cookies": "Cookies"
+            },
+            "copyright": "Copyright © {year} REXTEN. All rights reserved."
         }
     },
     "maintenance": {

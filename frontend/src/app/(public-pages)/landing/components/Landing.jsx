@@ -3,9 +3,9 @@
 import HeroContent from './HeroContent'
 import NavigationBar from './NavigationBar'
 import Features from './Features'
+import Industries from './Industries'
 import Demos from './Demos'
 import Pricing from './Pricing'
-import Testimonials from './Testimonials'
 import OtherFeatures from './OtherFeatures'
 import FAQ from './FAQ'
 import LandingFooter from './LandingFooter'
@@ -43,9 +43,9 @@ const Landing = () => {
                 setSchema={setSchema}
                 onModeChange={(value) => setMode(value ? 'dark' : 'light')}
             />
-            <Demos mode={mode} />
+            <Industries />
+            <Demos />
             <Pricing />
-            <Testimonials />
             <OtherFeatures />
             <FAQ />
             <LandingFooter mode={mode} />

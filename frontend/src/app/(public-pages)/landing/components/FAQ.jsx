@@ -3,33 +3,7 @@ import { useState } from 'react'
 import Container from './LandingContainer'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TbChevronDown } from 'react-icons/tb'
-
-const faqItems = [
-    {
-        question: 'Как подключить свой бизнес к REXTEN?',
-        answer: 'Регистрация занимает 5 минут. Заполните форму, добавьте услуги и сотрудников — и ваша страница бронирования готова. Мы поможем настроить всё под ваш бренд.',
-    },
-    {
-        question: 'Сколько стоит размещение?',
-        answer: 'Есть три тарифа: Старт ($29/мес) для индивидуальных мастеров, Про ($79/мес) для салонов до 5 человек, и Бизнес ($199/мес) для сетей. Первые 14 дней бесплатно.',
-    },
-    {
-        question: 'Можно ли перенести клиентов из другой системы?',
-        answer: 'Да, мы поможем импортировать базу клиентов из Excel, Google Sheets или других CRM-систем. Просто отправьте файл нашей поддержке.',
-    },
-    {
-        question: 'Как работает онлайн-оплата?',
-        answer: 'Мы интегрированы со Stripe. Клиенты могут оплачивать услуги картой при бронировании. Деньги поступают на ваш счет автоматически.',
-    },
-    {
-        question: 'Есть ли мобильное приложение?',
-        answer: 'Да, есть приложения для iOS и Android. Управляйте записями, общайтесь с клиентами и смотрите статистику прямо со смартфона.',
-    },
-    {
-        question: 'Какая поддержка доступна?',
-        answer: 'Чат поддержки работает 24/7. На тарифах Про и Бизнес — приоритетная поддержка с ответом в течение часа. На Бизнес — персональный менеджер.',
-    },
-]
+import { useTranslations } from 'next-intl'
 
 const FAQItem = ({ item, isOpen, onClick }) => {
     return (
@@ -38,12 +12,12 @@ const FAQItem = ({ item, isOpen, onClick }) => {
                 className="w-full py-5 flex items-center justify-between text-left"
                 onClick={onClick}
             >
-                <span className="font-semibold pr-4">{item.question}</span>
+                <span className="font-semibold pr-4 text-gray-900 dark:text-gray-100 text-sm md:text-base">{item.question}</span>
                 <motion.span
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                 >
-                    <TbChevronDown className="text-xl flex-shrink-0" />
+                    <TbChevronDown className="text-xl flex-shrink-0 text-gray-500" />
                 </motion.span>
             </button>
             <AnimatePresence>
@@ -55,7 +29,7 @@ const FAQItem = ({ item, isOpen, onClick }) => {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                     >
-                        <p className="pb-5 text-gray-600 dark:text-gray-400">
+                        <p className="pb-5 text-gray-600 dark:text-gray-400 text-sm md:text-base">
                             {item.answer}
                         </p>
                     </motion.div>
@@ -67,9 +41,19 @@ const FAQItem = ({ item, isOpen, onClick }) => {
 
 const FAQ = () => {
     const [openIndex, setOpenIndex] = useState(0)
+    const t = useTranslations('landing.faq')
+
+    const faqItems = [
+        { question: t('items.0.question'), answer: t('items.0.answer') },
+        { question: t('items.1.question'), answer: t('items.1.answer') },
+        { question: t('items.2.question'), answer: t('items.2.answer') },
+        { question: t('items.3.question'), answer: t('items.3.answer') },
+        { question: t('items.4.question'), answer: t('items.4.answer') },
+        { question: t('items.5.question'), answer: t('items.5.answer') },
+    ]
 
     return (
-        <div id="faq" className="relative z-20 py-10 md:py-40">
+        <div id="faq" className="relative z-20 py-10 md:py-20">
             <Container>
                 <motion.div
                     className="text-center mb-12"
@@ -78,12 +62,11 @@ const FAQ = () => {
                     transition={{ duration: 0.3, type: 'spring', bounce: 0.1 }}
                     viewport={{ once: true }}
                 >
-                    <motion.h2 className="my-6 text-5xl">
-                        Часто задаваемые вопросы
+                    <motion.h2 className="my-6 text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                        {t('sectionTitle')}
                     </motion.h2>
-                    <motion.p className="mx-auto max-w-[600px]">
-                        Ответы на популярные вопросы о REXTEN.
-                        Не нашли ответ? Напишите нам в чат.
+                    <motion.p className="mx-auto max-w-[600px] text-sm md:text-base text-gray-500 dark:text-gray-400">
+                        {t('sectionSubtitle')}
                     </motion.p>
                 </motion.div>
                 <motion.div

@@ -762,7 +762,11 @@
                 "plumbing": "Plomería",
                 "tutoring": "Clases",
                 "delivery": "Delivery",
-                "medical-services": "Servicios médicos"
+                "medical-services": "Servicios médicos",
+                "belleza": "Belleza",
+                "limpieza": "Limpieza",
+                "calefaccin-y-ventilacin": "Calefacción y ventilación",
+                "calefaccin_y_ventilacin": "Calefacción y ventilación"
             }
         },
         "marketplace": {
@@ -4703,6 +4707,243 @@
             "cancel": "Cancelar",
             "save": "Guardar",
             "create": "Crear"
+        }
+    },
+    "landing": {
+        "meta": {
+            "title": "REXTEN — Plataforma para negocios de servicios en EE.UU.",
+            "description": "Plataforma todo en uno para negocios de servicios: reservas en línea, CRM, programación, marketing y análisis."
+        },
+        "nav": {
+            "features": "Funciones",
+            "demos": "Ejemplos",
+            "pricing": "Precios",
+            "faq": "Preguntas",
+            "drawerTitle": "Navegación"
+        },
+        "hero": {
+            "title": "Gestiona y escala tu negocio de servicios con REXTEN",
+            "subtitle": "Todas las herramientas en una plataforma: CRM, Reservas en línea, Marketing y Análisis. Automatiza tareas rutinarias, atrae nuevos clientes y gestiona múltiples ubicaciones desde cualquier dispositivo.",
+            "ctaSignUp": "Comenzar",
+            "ctaDemo": "Ver Demo"
+        },
+        "features": {
+            "sectionTitle": "Todo lo que necesitas para tu negocio",
+            "sectionSubtitle": "REXTEN reemplaza 5 servicios diferentes. Combinamos reservas en línea, CRM, gestión de equipos y herramientas de marketing en una plataforma conveniente.",
+            "brand": {
+                "title": "Marca y Reservas en línea",
+                "description": "Personaliza colores y estilo de tu página de reservas. Los clientes reservan 24/7 y recibes notificaciones instantáneas."
+            },
+            "crm": {
+                "title": "Base de clientes (CRM)",
+                "description": "Historial de visitas, preferencias y contactos de clientes siempre a mano. Recupera clientes con campañas de email."
+            },
+            "schedule": {
+                "title": "Programación inteligente",
+                "description": "Horarios flexibles del personal, seguimiento de vacaciones y descansos. Distribución automática de citas y control de carga en ubicaciones."
+            },
+            "marketing": {
+                "title": "Marketing y Análisis",
+                "description": "Lanza anuncios de tus servicios dentro de REXTEN con un clic. Rastrea ingresos, conversión y rendimiento del personal con informes detallados."
+            }
+        },
+        "industries": {
+            "sectionTitle": "Diseñado para cada negocio de servicios",
+            "sectionSubtitle": "Desde salones de belleza hasta contratistas de HVAC — REXTEN se adapta a tu industria con funciones especializadas.",
+            "demoButton": "Probar Demo",
+            "cleaning": {
+                "title": "Servicios de limpieza",
+                "description": "Optimización de rutas para equipos de campo, reservas recurrentes y recordatorios automáticos a clientes."
+            },
+            "beauty": {
+                "title": "Belleza y Bienestar",
+                "description": "Calendario de reservas en línea, horarios del personal, preferencias de clientes y programas de lealtad."
+            },
+            "hvac": {
+                "title": "HVAC y Servicios del hogar",
+                "description": "Gestión de despacho, planificación de rutas, historial de servicios y promociones de temporada."
+            },
+            "auto": {
+                "title": "Servicios automotrices",
+                "description": "Programación de citas, paquetes de servicios, historial de vehículos y seguimientos automáticos."
+            },
+            "education": {
+                "title": "Educación y capacitación",
+                "description": "Programación de clases, gestión de alumnos, paquetes y recordatorios automáticos."
+            },
+            "events": {
+                "title": "Eventos y entretenimiento",
+                "description": "Reservas estilo entradas, coordinación del personal, depósitos y sincronización de calendario."
+            },
+            "legal": {
+                "title": "Consultoría y Legal",
+                "description": "Formularios de admisión de clientes, reserva de citas, gestión de documentos e integración de facturación."
+            },
+            "petCare": {
+                "title": "Cuidado de mascotas",
+                "description": "Perfiles de mascotas, horarios de peluquería, recordatorios de vacunación y gestión de guardería."
+            }
+        },
+        "demos": {
+            "sectionTitle": "Ejemplos de escaparates de negocios en REXTEN",
+            "sectionSubtitle": "Mira cómo lucen las páginas de servicios creadas en nuestra plataforma. Todo funciona automáticamente, soporta pagos en línea y no requiere diseñador.",
+            "viewAll": "Ver todos los servicios",
+            "loading": "Cargando...",
+            "noResults": "No hay servicios en esta categoría",
+            "categories": {
+                "all": "Todos",
+                "beauty": "Belleza",
+                "wellness": "Bienestar",
+                "home": "Hogar y Servicios",
+                "auto": "Auto",
+                "education": "Educación",
+                "events": "Eventos"
+            }
+        },
+        "pricing": {
+            "sectionTitle": "Precios simples y transparentes",
+            "sectionSubtitle": "Elige Inicial, Pro o Empresa, o empieza con el plan Gratis con límites de uso. Los primeros 14 días son gratis al suscribirte a un plan de pago.",
+            "freeTierNote": "El plan Gratis sigue disponible con límites en reservas, equipo y funciones. Mejora cuando necesites más capacidad.",
+            "popular": "Popular",
+            "perMonth": "/mes",
+            "starter": {
+                "name": "Inicial",
+                "description": "Para profesionales individuales",
+                "features": {
+                    "booking": "Página de reservas personal",
+                    "appointments": "Hasta 100 reservas/mes",
+                    "reminders": "Recordatorios a clientes (SMS/Email)",
+                    "analytics": "Análisis básico",
+                    "payments": "Pagos en línea"
+                },
+                "button": "Comenzar gratis"
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "Para salones de hasta 5 empleados",
+                "features": {
+                    "includesStarter": "Todo en Inicial",
+                    "staff": "Hasta 5 miembros del equipo",
+                    "unlimited": "Reservas ilimitadas",
+                    "crm": "CRM y base de clientes",
+                    "schedule": "Gestión de horarios del equipo",
+                    "marketing": "Campañas de marketing",
+                    "support": "Soporte prioritario"
+                },
+                "button": "Probar gratis"
+            },
+            "business": {
+                "name": "Empresa",
+                "description": "Para empresas con múltiples ubicaciones",
+                "features": {
+                    "includesPro": "Todo en Pro",
+                    "unlimitedStaff": "Miembros del equipo ilimitados",
+                    "locations": "Gestión multi-ubicación",
+                    "analytics": "Análisis avanzado",
+                    "api": "Integraciones API",
+                    "manager": "Gerente de cuenta dedicado",
+                    "branding": "Marca personalizada"
+                },
+                "button": "Contáctanos"
+            }
+        },
+        "otherFeatures": {
+            "sectionTitle": "Tu negocio siempre a mano",
+            "sectionSubtitle": "Gestiona tu empresa desde tu smartphone. App móvil dedicada para propietarios y personal, sincronizada con la versión web.",
+            "mobile": {
+                "title": "Negocio en tu bolsillo",
+                "description": "Controla tu agenda, acepta pagos y chatea con clientes a través de la app móvil. Las notificaciones de nuevas reservas llegan al instante.",
+                "points": {
+                    "schedule": "Gestiona reservas y horarios del personal",
+                    "chat": "Chatea con clientes y ve el historial de mensajes",
+                    "stats": "Estadísticas financieras diarias en tiempo real"
+                }
+            },
+            "growth": {
+                "title": "Crecimiento y Multi-ubicación",
+                "description": "Gestiona fácilmente múltiples ubicaciones en diferentes estados. Estándares unificados, control de calidad centralizado y análisis de toda la red.",
+                "points": {
+                    "access": "Acceso basado en roles para gerentes",
+                    "compare": "Compara el rendimiento de ubicaciones",
+                    "languages": "Soporte multilingüe para mercados locales"
+                }
+            },
+            "integrations": {
+                "title": "Integraciones y Pagos",
+                "description": "Automatiza la contabilidad y el procesamiento de pagos. REXTEN se integra con Stripe para transacciones seguras y pagos automáticos al personal.",
+                "points": {
+                    "stripe": "Pagos seguros vía Stripe Connect",
+                    "salary": "Cálculos automáticos de comisiones y salarios",
+                    "export": "Exporta informes financieros para contabilidad"
+                }
+            }
+        },
+        "testimonials": {
+            "sectionTitle": "Cientos de negocios confían en nosotros",
+            "sectionSubtitle": "Propietarios de salones, profesionales y empresas de servicios ya usan REXTEN para hacer crecer su negocio.",
+            "items": [
+                {
+                    "name": "María García",
+                    "role": "Propietaria",
+                    "company": "Glow Beauty Studio",
+                    "quote": "REXTEN nos ayudó a aumentar las reservas en un 40%. Los clientes reservan solos y ya no pasamos horas en llamadas telefónicas."
+                },
+                {
+                    "name": "Carlos Rodríguez",
+                    "role": "Fundador",
+                    "company": "AutoPro Service",
+                    "quote": "Gestionar una red de 3 talleres se volvió más fácil. Veo la carga de trabajo de cada ubicación en tiempo real y puedo reaccionar rápido."
+                },
+                {
+                    "name": "Ana Martínez",
+                    "role": "Profesional independiente",
+                    "company": "Uñas a Domicilio",
+                    "quote": "¡Por fin tengo una página de reservas bonita y recordatorios para clientes. Menos citas perdidas!"
+                }
+            ]
+        },
+        "faq": {
+            "sectionTitle": "Preguntas frecuentes",
+            "sectionSubtitle": "Respuestas a preguntas populares sobre REXTEN. ¿No encontraste tu respuesta? Escríbenos en el chat.",
+            "items": [
+                {
+                    "question": "¿Cómo conecto mi negocio a REXTEN?",
+                    "answer": "El registro toma 5 minutos. Completa el formulario, agrega tus servicios y personal — y tu página de reservas está lista. Te ayudaremos a personalizar todo según tu marca."
+                },
+                {
+                    "question": "¿Cuánto cuesta?",
+                    "answer": "Hay un plan Gratis con límites y tres planes de pago: Inicial ($29/mes) para profesionales solos, Pro ($79/mes) para salones de hasta 5 personas, y Empresa ($199/mes) para varias ubicaciones. Los primeros 14 días son gratis al iniciar una suscripción de pago."
+                },
+                {
+                    "question": "¿Puedo migrar clientes de otro sistema?",
+                    "answer": "Sí, te ayudaremos a importar tu base de clientes desde Excel, Google Sheets u otros sistemas CRM. Solo envía el archivo a nuestro equipo de soporte."
+                },
+                {
+                    "question": "¿Cómo funciona el pago en línea?",
+                    "answer": "Estamos integrados con Stripe. Los clientes pueden pagar con tarjeta al reservar. El dinero llega a tu cuenta automáticamente."
+                },
+                {
+                    "question": "¿Hay una app móvil?",
+                    "answer": "Sí, hay apps para iOS y Android. Gestiona reservas, chatea con clientes y ve estadísticas directamente desde tu smartphone."
+                },
+                {
+                    "question": "¿Qué soporte está disponible?",
+                    "answer": "El chat de soporte funciona 24/7. Los planes Pro y Empresa tienen soporte prioritario con respuesta en una hora. El plan Empresa incluye un gerente de cuenta dedicado."
+                }
+            ]
+        },
+        "footer": {
+            "cta": {
+                "title": "Conecta tu negocio a REXTEN",
+                "description": "Te mostraremos cómo listarte en el marketplace, prepararemos tu escaparate según tu marca y lanzaremos las reservas en pocos días.",
+                "button": "Probar gratis"
+            },
+            "links": {
+                "terms": "Términos",
+                "privacy": "Privacidad",
+                "cookies": "Cookies"
+            },
+            "copyright": "Copyright © {year} REXTEN. Todos los derechos reservados."
         }
     },
     "maintenance": {

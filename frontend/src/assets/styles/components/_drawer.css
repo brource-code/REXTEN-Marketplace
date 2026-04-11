@@ -33,8 +33,9 @@
   
   .drawer-overlay {
     /* только opacity — transition: all даёт лишнюю работу при анимации оверлея */
+    /* z выше фиксированного навбара (z-40 / z-60), иначе клик по «затемнению» попадает в навбар */
     transition: opacity 0.2s ease-out;
-    @apply bg-black/80 inset-0 fixed z-40;
+    @apply bg-black/80 inset-0 fixed z-[100];
   }
   
   .drawer-overlay-after-open {

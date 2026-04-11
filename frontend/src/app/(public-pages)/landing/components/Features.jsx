@@ -1,13 +1,49 @@
+'use client'
 import Switcher from '@/components/ui/Switcher'
 import Container from './LandingContainer'
 import CardStack from './CardStack'
 import InfiniteMovingCards from './InfinteMovingCard'
 import presetThemeSchemaConfig from '@/configs/preset-theme-schema.config'
 import classNames from '@/utils/classNames'
-import componentsIcons from '../utils/components-icons.config'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { TbCheck } from 'react-icons/tb'
+import {
+    TbCheck,
+    TbChartBar,
+    TbMail,
+    TbSpeakerphone,
+    TbChartPie,
+    TbReportAnalytics,
+    TbTrendingUp,
+    TbUsers,
+    TbCalendarStats,
+    TbCoin,
+    TbBrandGoogle,
+    TbMessageCircle,
+    TbDiscount,
+    TbBell,
+    TbTarget,
+    TbChartDots,
+} from 'react-icons/tb'
+import { useTranslations } from 'next-intl'
+
+const marketingItems1 = [
+    { id: 'analytics', name: 'Analytics', icon: TbChartBar },
+    { id: 'reports', name: 'Reports', icon: TbReportAnalytics },
+    { id: 'trends', name: 'Trends', icon: TbTrendingUp },
+    { id: 'clients', name: 'Clients', icon: TbUsers },
+    { id: 'calendar', name: 'Calendar', icon: TbCalendarStats },
+    { id: 'revenue', name: 'Revenue', icon: TbCoin },
+]
+
+const marketingItems2 = [
+    { id: 'ads', name: 'Ads', icon: TbBrandGoogle },
+    { id: 'sms', name: 'SMS', icon: TbMessageCircle },
+    { id: 'discounts', name: 'Discounts', icon: TbDiscount },
+    { id: 'notifications', name: 'Notifications', icon: TbBell },
+    { id: 'campaigns', name: 'Campaigns', icon: TbTarget },
+    { id: 'insights', name: 'Insights', icon: TbChartDots },
+]
 
 const getCardBgStyles = (mode = 'light') => {
     const bgStyles = {
@@ -42,62 +78,23 @@ const Card = ({
     )
 }
 
-const componentItems1 = [
-    { id: 'uiCommonButton', name: 'Common Button', link: 'button' },
-    { id: 'uiCommonGrid', name: 'Common Grid', link: 'grid' },
-    { id: 'uiCommonTypography', name: 'Common Typography', link: 'typography' },
-    { id: 'uiCommonIcons', name: 'Common Icons', link: 'icons' },
-    { id: 'uiFeedbackAlert', name: 'Feedback Alert', link: 'alert' },
-    { id: 'uiFeedbackDialog', name: 'Feedback Dialog', link: 'dialog' },
-    { id: 'uiFeedbackDrawer', name: 'Feedback Drawer', link: 'drawer' },
-    { id: 'uiFeedbackProgress', name: 'Feedback Progress', link: 'progress' },
-    { id: 'uiFeedbackSpinner', name: 'Feedback Spinner', link: 'spinner' },
-    { id: 'uiFormsSwitcher', name: 'Forms Switcher', link: 'switcher' },
-    {
-        id: 'uiNavigationPagination',
-        name: 'Navigation Pagination',
-        link: 'pagination',
-    },
-]
-
-const componentItems2 = [
-    { id: 'uiDataDisplayAvatar', name: 'Data Display Avatar', link: 'avatar' },
-    { id: 'uiDataDisplayBadge', name: 'Data Display Badge', link: 'badge' },
-    {
-        id: 'uiDataDisplayCalendar',
-        name: 'Data Display Calendar',
-        link: 'calendar',
-    },
-    { id: 'uiDataDisplayCard', name: 'Data Display Card', link: 'card' },
-    { id: 'uiDataDisplayTable', name: 'Data Display Table', link: 'table' },
-    { id: 'uiDataDisplayTag', name: 'Data Display Tag', link: 'tag' },
-    {
-        id: 'uiDataDisplayTimeline',
-        name: 'Data Display Timeline',
-        link: 'timeline',
-    },
-    {
-        id: 'uiDataDisplayTooltip',
-        name: 'Data Display Tooltip',
-        link: 'tooltip',
-    },
-    { id: 'uiFormsCheckbox', name: 'Forms Checkbox', link: 'checkbox' },
-    { id: 'uiFormsDatepicker', name: 'Forms Datepicker', link: 'datepicker' },
-    {
-        id: 'uiFormsFormControl',
-        name: 'Forms Form Control',
-        link: 'form-control',
-    },
-    { id: 'uiFormsInput', name: 'Forms Input', link: 'input' },
-]
-
 const Features = ({ mode, onModeChange, schema, setSchema }) => {
     const cardStyles = getCardBgStyles(mode)
+    const t = useTranslations('landing.features')
+
+    const renderMarketingIcon = (item) => {
+        const Icon = item.icon
+        return (
+            <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 h-16 w-16 flex items-center justify-center rounded-2xl transition-colors">
+                <Icon className="text-primary text-3xl" />
+            </div>
+        )
+    }
 
     const CARDS = [
         {
             id: 0,
-            name: 'График работы',
+            name: 'Schedule',
             content: (
                 <Image
                     className="rounded-xl"
@@ -110,7 +107,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
         },
         {
             id: 1,
-            name: 'Смены',
+            name: 'Shifts',
             content: (
                 <Image
                     className="rounded-xl"
@@ -123,7 +120,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
         },
         {
             id: 2,
-            name: 'Перерывы',
+            name: 'Breaks',
             content: (
                 <Image
                     className="rounded-xl"
@@ -136,7 +133,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
         },
         {
             id: 3,
-            name: 'Отпуска',
+            name: 'Vacations',
             content: (
                 <Image
                     className="rounded-xl"
@@ -149,7 +146,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
         },
         {
             id: 4,
-            name: 'Нагрузка',
+            name: 'Workload',
             content: (
                 <Image
                     className="rounded-xl"
@@ -162,23 +159,8 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
         },
     ]
 
-    const renderComponentIcon = (item) => {
-        return (
-            <a
-                href={`https://ecme-next.themenate.net/ui-components/${item.link}`}
-                target="_blank"
-                rel="noreferrer"
-                className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 h-20 w-20 flex items-center justify-center rounded-2xl"
-            >
-                <span className="text-primary text-4xl">
-                    {componentsIcons[item.id]}
-                </span>
-            </a>
-        )
-    }
-
     return (
-        <div id="features" className="relative z-20 py-10 md:py-40">
+        <div id="features" className="relative z-20 py-6 md:py-20">
             <Container>
                 <motion.div
                     className="text-center mb-12"
@@ -187,17 +169,15 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                     transition={{ duration: 0.3, type: 'spring', bounce: 0.1 }}
                     viewport={{ once: true }}
                 >
-                    <motion.h2 className="my-6 text-5xl">
-                        Всё для управления бизнесом
+                    <motion.h2 className="my-6 text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                        {t('sectionTitle')}
                     </motion.h2>
-                    <motion.p className="mx-auto max-w-[600px]">
-                        REXTEN заменяет 5 разных сервисов. Мы объединили онлайн-запись,
-                        CRM систему, управление сотрудниками и маркетинговые инструменты
-                        в одну удобную платформу.
+                    <motion.p className="mx-auto max-w-[600px] text-sm md:text-base text-gray-500 dark:text-gray-400">
+                        {t('sectionSubtitle')}
                     </motion.p>
                 </motion.div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div className="col-span-2">
+                    <div className="lg:col-span-2">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <Card
                                 initial={{ opacity: 0, y: 40 }}
@@ -219,7 +199,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                             checked={mode === 'dark'}
                                             onChange={onModeChange}
                                         />
-                                        <span>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                             {mode === 'dark' ? 'Dark' : 'Light'}
                                         </span>
                                     </div>
@@ -238,7 +218,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                                     style={{
                                                         backgroundColor:
                                                             value[mode]
-                                                                .primary || '',
+                                                                ?.primary || '',
                                                     }}
                                                     onClick={() =>
                                                         setSchema(key)
@@ -255,12 +235,11 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                     </div>
                                 </div>
                                 <div className="mt-6">
-                                    <h4 className="font-bold">
-                                        Бренд и Онлайн-запись
+                                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                        {t('brand.title')}
                                     </h4>
-                                    <p className="mt-2">
-                                        Настройте цвета и стиль вашей страницы бронирования.
-                                        Клиенты записываются сами 24/7, а вы получаете уведомления.
+                                    <p className="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {t('brand.description')}
                                     </p>
                                 </div>
                             </Card>
@@ -279,13 +258,12 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                     className="rounded-2xl bg-white dark:bg-gray-900 p-4 overflow-hidden relative h-[172px]"
                                     style={cardStyles}
                                 >
-                                    <motion.a
+                                    <motion.div
                                         whileHover={{ scale: 1.05 }}
                                         style={{
                                             transformOrigin:
                                                 'bottom right 10px',
                                         }}
-                                        href="#"
                                         className="absolute max-w-[330px] top-7 -right-12"
                                     >
                                         <div className="p-2 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-lg relative shadow-2xl dark:shadow-white/40">
@@ -308,15 +286,14 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                                 />
                                             )}
                                         </div>
-                                    </motion.a>
+                                    </motion.div>
                                 </div>
                                 <div className="mt-6">
-                                    <h4 className="font-bold">
-                                        База клиентов (CRM)
+                                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                        {t('crm.title')}
                                     </h4>
-                                    <p className="mt-2">
-                                        История посещений, предпочтения и контакты клиентов
-                                        всегда под рукой. Возвращайте клиентов с помощью email-рассылок.
+                                    <p className="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {t('crm.description')}
                                     </p>
                                 </div>
                             </Card>
@@ -345,13 +322,11 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                     </div>
                                 </div>
                                 <div className="mt-6">
-                                    <h4 className="font-bold">
-                                        Умное расписание
+                                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                        {t('schedule.title')}
                                     </h4>
-                                    <p className="mt-2">
-                                        Гибкая настройка графиков работы сотрудников, учет отпусков
-                                        и перерывов. Автоматическое распределение записей и
-                                        контроль загрузки филиалов.
+                                    <p className="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {t('schedule.description')}
                                     </p>
                                 </div>
                             </Card>
@@ -372,40 +347,30 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                 >
                                     <div className="min-h-[270px] flex items-center justify-center w-full">
                                         <div className="h-[38.5rem] rounded-md flex flex-col antialiased items-center justify-center relative overflow-hidden">
-                                            <div className="h-[38.5rem] grid grid-cols-2 gap-x-12">
+                                            <div className="h-[38.5rem] grid grid-cols-2 gap-x-8">
                                                 <InfiniteMovingCards
-                                                    items={componentItems1}
+                                                    items={marketingItems1}
                                                     speed="slow"
                                                     pauseOnHover={false}
-                                                    itemCallback={(item) =>
-                                                        renderComponentIcon(
-                                                            item,
-                                                        )
-                                                    }
+                                                    itemCallback={renderMarketingIcon}
                                                 />
                                                 <InfiniteMovingCards
-                                                    items={componentItems2}
+                                                    items={marketingItems2}
                                                     direction="top"
                                                     speed="slow"
                                                     pauseOnHover={false}
-                                                    itemCallback={(item) =>
-                                                        renderComponentIcon(
-                                                            item,
-                                                        )
-                                                    }
+                                                    itemCallback={renderMarketingIcon}
                                                 />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="mt-6">
-                                    <h4 className="font-bold">
-                                        Маркетинг и Аналитика
+                                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                        {t('marketing.title')}
                                     </h4>
-                                    <p className="mt-2">
-                                        Запускайте рекламу своих услуг внутри REXTEN в один клик.
-                                        Следите за доходами, конверсией и эффективностью сотрудников
-                                        через детальные отчеты.
+                                    <p className="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {t('marketing.description')}
                                     </p>
                                 </div>
                             </div>

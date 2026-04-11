@@ -1,11 +1,14 @@
 import Landing from './components/Landing'
+import { getTranslations } from 'next-intl/server'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata = {
-    title: 'REXTEN Marketplace — услуги по всей Америке',
-    description:
-        'Маркетплейс мастеров и студий: бронирования, расписание и витрины на базе REXTEN.',
+export async function generateMetadata() {
+    const t = await getTranslations('landing.meta')
+    return {
+        title: t('title'),
+        description: t('description'),
+    }
 }
 
 const Page = () => {
@@ -13,5 +16,3 @@ const Page = () => {
 }
 
 export default Page
-
-

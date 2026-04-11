@@ -1,15 +1,17 @@
+'use client'
 import Container from './LandingContainer'
 import Button from '@/components/ui/Button'
 import AuroraBackground from './AuroraBackground'
 import { motion } from 'framer-motion'
-import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/template/Logo'
 import appConfig from '@/configs/app.config'
+import { useTranslations } from 'next-intl'
 
 const LandingFooter = ({ mode }) => {
     const year = new Date().getFullYear()
+    const t = useTranslations('landing.footer')
 
     const router = useRouter()
 
@@ -20,7 +22,7 @@ const LandingFooter = ({ mode }) => {
     return (
         <div id="footer" className="relative z-20">
             <Container className="relative">
-                <div className="py-10 md:py-40">
+                <div className="py-10 md:py-20">
                     <AuroraBackground
                         className="rounded-3xl"
                         auroraClassName="rounded-3xl"
@@ -33,19 +35,17 @@ const LandingFooter = ({ mode }) => {
                                 duration: 0.3,
                                 ease: 'easeInOut',
                             }}
-                            className="relative flex flex-col gap-4 items-center justify-center py-20 px-8 text-center"
+                            className="relative flex flex-col gap-4 items-center justify-center py-12 md:py-20 px-6 md:px-8 text-center"
                         >
-                            <h2 className="text-5xl">
-                                Подключите свой бизнес к REXTEN
+                            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                                {t('cta.title')}
                             </h2>
-                            <p className="mt-4 max-w-[460px] mx-auto">
-                                Расскажем, как разместиться в маркетплейсе,
-                                подготовим витрину под бренд и запустим
-                                бронирования за несколько дней.
+                            <p className="mt-4 max-w-[460px] mx-auto text-sm md:text-base text-gray-600 dark:text-gray-400">
+                                {t('cta.description')}
                             </p>
                             <div className="mt-6">
                                 <Button variant="solid" onClick={handlePreview}>
-                                    Оставить заявку
+                                    {t('cta.button')}
                                 </Button>
                             </div>
                         </motion.div>
@@ -61,8 +61,19 @@ const LandingFooter = ({ mode }) => {
                                 imgClass="h-7 w-auto max-w-[130px]"
                             />
                         </Link>
-                        <p className="text-center">
-                            Copyright © {year} REXTEN. Все права защищены.
+                        <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                            <Link href="/terms" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                {t('links.terms')}
+                            </Link>
+                            <Link href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                {t('links.privacy')}
+                            </Link>
+                            <Link href="/cookies" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                {t('links.cookies')}
+                            </Link>
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                            {t('copyright', { year })}
                         </p>
                     </div>
                 </div>

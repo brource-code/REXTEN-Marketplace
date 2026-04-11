@@ -1,30 +1,7 @@
 'use client'
 import Container from './LandingContainer'
 import { motion } from 'framer-motion'
-
-const testimonials = [
-    {
-        name: 'Анна Петрова',
-        role: 'Владелица салона красоты',
-        company: 'Beauty Lab',
-        avatar: '/img/avatars/thumb-1.jpg',
-        quote: 'REXTEN помог нам увеличить количество записей на 40%. Клиенты сами бронируют время, а мы больше не тратим часы на телефонные звонки.',
-    },
-    {
-        name: 'Михаил Козлов',
-        role: 'Основатель',
-        company: 'AutoPro Service',
-        avatar: '/img/avatars/thumb-2.jpg',
-        quote: 'Управлять сетью из 3 автосервисов стало проще. Вижу загрузку каждого филиала в реальном времени и могу быстро реагировать.',
-    },
-    {
-        name: 'Елена Сидорова',
-        role: 'Частный мастер',
-        company: 'Маникюр на дому',
-        avatar: '/img/avatars/thumb-3.jpg',
-        quote: 'Наконец-то у меня есть красивая страница для записи и напоминания клиентам. Меньше пропущенных визитов!',
-    },
-]
+import { useTranslations } from 'next-intl'
 
 const TestimonialCard = ({ testimonial, index }) => {
     return (
@@ -47,13 +24,13 @@ const TestimonialCard = ({ testimonial, index }) => {
                     className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
-                    <h4 className="font-bold">{testimonial.name}</h4>
+                    <h4 className="font-bold text-gray-900 dark:text-gray-100">{testimonial.name}</h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         {testimonial.role}, {testimonial.company}
                     </p>
                 </div>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 italic">
+            <p className="text-gray-600 dark:text-gray-300 italic text-sm md:text-base">
                 "{testimonial.quote}"
             </p>
         </motion.div>
@@ -61,8 +38,34 @@ const TestimonialCard = ({ testimonial, index }) => {
 }
 
 const Testimonials = () => {
+    const t = useTranslations('landing.testimonials')
+
+    const testimonials = [
+        {
+            name: t('items.0.name'),
+            role: t('items.0.role'),
+            company: t('items.0.company'),
+            avatar: '/img/avatars/thumb-1.jpg',
+            quote: t('items.0.quote'),
+        },
+        {
+            name: t('items.1.name'),
+            role: t('items.1.role'),
+            company: t('items.1.company'),
+            avatar: '/img/avatars/thumb-2.jpg',
+            quote: t('items.1.quote'),
+        },
+        {
+            name: t('items.2.name'),
+            role: t('items.2.role'),
+            company: t('items.2.company'),
+            avatar: '/img/avatars/thumb-3.jpg',
+            quote: t('items.2.quote'),
+        },
+    ]
+
     return (
-        <div id="testimonials" className="relative z-20 py-10 md:py-40">
+        <div id="testimonials" className="relative z-20 py-10 md:py-20">
             <Container>
                 <motion.div
                     className="text-center mb-12"
@@ -71,12 +74,11 @@ const Testimonials = () => {
                     transition={{ duration: 0.3, type: 'spring', bounce: 0.1 }}
                     viewport={{ once: true }}
                 >
-                    <motion.h2 className="my-6 text-5xl">
-                        Нам доверяют сотни бизнесов
+                    <motion.h2 className="my-6 text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                        {t('sectionTitle')}
                     </motion.h2>
-                    <motion.p className="mx-auto max-w-[600px]">
-                        Владельцы салонов, мастера и сервисные компании
-                        уже используют REXTEN для роста своего бизнеса.
+                    <motion.p className="mx-auto max-w-[600px] text-sm md:text-base text-gray-500 dark:text-gray-400">
+                        {t('sectionSubtitle')}
                     </motion.p>
                 </motion.div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

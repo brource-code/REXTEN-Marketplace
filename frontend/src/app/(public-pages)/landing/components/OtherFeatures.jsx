@@ -1,7 +1,9 @@
+'use client'
 import Container from './LandingContainer'
 import { TbCircleCheck } from 'react-icons/tb'
 import { motion } from 'framer-motion'
 import dynamic from 'next/dynamic'
+import { useTranslations } from 'next-intl'
 
 const RegionMap = dynamic(() => import('@/components/shared/RegionMap'), {
     ssr: false,
@@ -44,15 +46,17 @@ const data = [
 const PointList = ({ children }) => {
     return (
         <div className="flex items-center gap-2">
-            <TbCircleCheck className="text-xl" />
-            <span>{children}</span>
+            <TbCircleCheck className="text-xl text-primary flex-shrink-0" />
+            <span className="text-sm md:text-base text-gray-700 dark:text-gray-300">{children}</span>
         </div>
     )
 }
 
 const OtherFeatures = () => {
+    const t = useTranslations('landing.otherFeatures')
+
     return (
-        <div id="otherFeatures" className="relative z-20 py-10 md:py-40">
+        <div id="otherFeatures" className="relative z-20 py-10 md:py-20">
             <Container>
                 <motion.div
                     className="text-center mb-12"
@@ -61,17 +65,16 @@ const OtherFeatures = () => {
                     transition={{ duration: 0.3, type: 'spring', bounce: 0.1 }}
                     viewport={{ once: true }}
                 >
-                    <motion.h2 className="my-6 text-5xl">
-                        Бизнес всегда под рукой
+                    <motion.h2 className="my-6 text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                        {t('sectionTitle')}
                     </motion.h2>
-                    <motion.p className="mx-auto max-w-[600px]">
-                        Управляйте компанией со смартфона. Специальное мобильное приложение
-                        для владельцев и мастеров, синхронизированное с веб-версией.
+                    <motion.p className="mx-auto max-w-[600px] text-sm md:text-base text-gray-500 dark:text-gray-400">
+                        {t('sectionSubtitle')}
                     </motion.p>
                 </motion.div>
-                <div className="mt-20">
+                <div className="mt-10 md:mt-20">
                     <motion.div
-                        className="bg-gray-100 dark:bg-gray-800 rounded-3xl py-12 px-10 lg:py-24 lg:px-16 overflow-hidden mb-10"
+                        className="bg-gray-100 dark:bg-gray-800 rounded-3xl py-8 px-6 lg:py-24 lg:px-16 overflow-hidden mb-6 md:mb-10"
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{
@@ -83,23 +86,16 @@ const OtherFeatures = () => {
                     >
                         <div className="grid lg:grid-cols-2 gap-8 lg:gap-4">
                             <div>
-                                <h3 className="text-4xl">
-                                    Бизнес в вашем кармане
+                                <h3 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+                                    {t('mobile.title')}
                                 </h3>
-                                <p className="mt-6 max-w-[550px] text-lg">
-                                    Контролируйте расписание, принимайте оплату и общайтесь с клиентами
-                                    через мобильное приложение. Уведомления о новых записях приходят мгновенно.
+                                <p className="mt-4 md:mt-6 max-w-[550px] text-sm md:text-lg text-gray-600 dark:text-gray-400">
+                                    {t('mobile.description')}
                                 </p>
-                                <div className="mt-12 flex flex-col gap-4">
-                                    <PointList>
-                                        Управление записями и графиком сотрудников.
-                                    </PointList>
-                                    <PointList>
-                                        Чат с клиентами и история переписки.
-                                    </PointList>
-                                    <PointList>
-                                        Финансовая статистика за день в реальном времени.
-                                    </PointList>
+                                <div className="mt-8 md:mt-12 flex flex-col gap-4">
+                                    <PointList>{t('mobile.points.schedule')}</PointList>
+                                    <PointList>{t('mobile.points.chat')}</PointList>
+                                    <PointList>{t('mobile.points.stats')}</PointList>
                                 </div>
                             </div>
                             <div className="relative flex justify-center">
@@ -120,7 +116,7 @@ const OtherFeatures = () => {
                         </div>
                     </motion.div>
                     <motion.div
-                        className="bg-gray-100 dark:bg-gray-800 rounded-3xl py-12 px-10 lg:py-24 lg:px-16 overflow-hidden mb-10"
+                        className="bg-gray-100 dark:bg-gray-800 rounded-3xl py-8 px-6 lg:py-24 lg:px-16 overflow-hidden mb-6 md:mb-10"
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{
@@ -131,7 +127,7 @@ const OtherFeatures = () => {
                         viewport={{ once: true }}
                     >
                         <div className="grid lg:grid-cols-2 gap-8 lg:gap-4">
-                            <div className="relative flex justify-center">
+                            <div className="relative flex justify-center order-2 lg:order-1">
                                 <div className="lg:absolute h-full w-full left-0 md:left-[-50px] scale-[1.1]">
                                     <RegionMap
                                         data={data}
@@ -172,48 +168,44 @@ const OtherFeatures = () => {
                                     />
                                 </div>
                             </div>
-                            <div>
-                                <h3 className="text-4xl">
-                                    Масштабирование и Франшизы
+                            <div className="order-1 lg:order-2">
+                                <h3 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+                                    {t('growth.title')}
                                 </h3>
-                                <p className="mt-6 max-w-[550px] text-lg">
-                                    Легко управляйте сетью филиалов в разных штатах.
-                                    Единая база стандартов, централизованный контроль качества
-                                    и аналитика по всей сети.
+                                <p className="mt-4 md:mt-6 max-w-[550px] text-sm md:text-lg text-gray-600 dark:text-gray-400">
+                                    {t('growth.description')}
                                 </p>
-                                <div className="mt-12 flex flex-col gap-4">
-                                    <PointList>
-                                        Разграничение прав доступа для управляющих.
-                                    </PointList>
-                                    <PointList>
-                                        Сравнение эффективности филиалов.
-                                    </PointList>
-                                    <PointList>
-                                        Поддержка разных языков для локальных рынков.
-                                    </PointList>
+                                <div className="mt-8 md:mt-12 flex flex-col gap-4">
+                                    <PointList>{t('growth.points.access')}</PointList>
+                                    <PointList>{t('growth.points.compare')}</PointList>
+                                    <PointList>{t('growth.points.languages')}</PointList>
                                 </div>
                             </div>
                         </div>
                     </motion.div>
-                    <motion.div className="bg-gray-100 dark:bg-gray-800 rounded-3xl py-12 px-10 lg:py-24 lg:px-16 overflow-hidden mb-10">
+                    <motion.div
+                        className="bg-gray-100 dark:bg-gray-800 rounded-3xl py-8 px-6 lg:py-24 lg:px-16 overflow-hidden mb-6 md:mb-10"
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{
+                            duration: 0.3,
+                            type: 'spring',
+                            bounce: 0.1,
+                        }}
+                        viewport={{ once: true }}
+                    >
                         <div className="grid lg:grid-cols-2 gap-8 lg:gap-4">
                             <div>
-                                <h3 className="text-4xl">Интеграции и Финансы</h3>
-                                <p className="mt-6 max-w-[550px] text-lg">
-                                    Автоматизируйте бухгалтерию и прием платежей.
-                                    REXTEN интегрирован со Stripe для безопасных транзакций
-                                    и автоматических выплат мастерам.
+                                <h3 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+                                    {t('integrations.title')}
+                                </h3>
+                                <p className="mt-4 md:mt-6 max-w-[550px] text-sm md:text-lg text-gray-600 dark:text-gray-400">
+                                    {t('integrations.description')}
                                 </p>
-                                <div className="mt-12 flex flex-col gap-4">
-                                    <PointList>
-                                        Безопасные платежи через Stripe Connect.
-                                    </PointList>
-                                    <PointList>
-                                        Автоматический расчет комиссий и зарплат.
-                                    </PointList>
-                                    <PointList>
-                                        Экспорт финансовых отчетов для бухгалтерии.
-                                    </PointList>
+                                <div className="mt-8 md:mt-12 flex flex-col gap-4">
+                                    <PointList>{t('integrations.points.stripe')}</PointList>
+                                    <PointList>{t('integrations.points.salary')}</PointList>
+                                    <PointList>{t('integrations.points.export')}</PointList>
                                 </div>
                             </div>
                             <div className="relative flex justify-center">
