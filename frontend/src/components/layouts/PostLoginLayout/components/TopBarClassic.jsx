@@ -32,8 +32,13 @@ const TopBarClassic = ({ children }) => {
                         headerMiddle={<HorizontalNav />}
                         headerEnd={
                             <>
-                                <MarketplaceButton />
-                                <Search />
+                                {/* Скрываем на lg, показываем на xl+ для экономии места */}
+                                <div className="hidden xl:block">
+                                    <MarketplaceButton />
+                                </div>
+                                <div className="hidden xl:block">
+                                    <Search />
+                                </div>
                                 <LanguageSelector />
                                 <BusinessNotification />
                                 <SidePanel />

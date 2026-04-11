@@ -15,6 +15,6 @@ fi
 # Docker + nginx: API на :80, путь /api (не прямой порт PHP 8000 на хосте).
 export K6_API_URL="${K6_API_URL:-http://127.0.0.1/api}"
 export K6_EMAIL="${K6_EMAIL:-business@ecme.com}"
-export K6_PASSWORD="${K6_PASSWORD:-password123}"
+export K6_PASSWORD="${K6_PASSWORD:-demo12345}"
 
 exec k6 run "$ROOT/loadtests/k6/business-admin.js" "$@"

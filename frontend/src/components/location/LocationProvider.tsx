@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { LocationContext, LocationContextValue } from '@/contexts/LocationContext'
 import { State, City } from '@/services/location/types'
-import { getStates, getCities, getStateName as getStateNameUtil, validateLocation } from '@/services/location/LocationService'
+import { getStates, getCities, getStateName as getStateNameUtil, parseUsStateCode } from '@/services/location/LocationService'
 import { useCurrentUser } from '@/hooks/api/useAuth'
 import { useUserStore } from '@/store'
 import { getLocation, setLocation as setLocationCookie } from '@/server/actions/location'
@@ -110,6 +110,17 @@ export default function LocationProvider({
                     restoredState = userState
                     restoredCity = userCity || null
                 }
+
+                // Только двухбуквенные коды US (как в БД / API)
+                if (restoredState) {
+                    const normalized = parseUsStateCode(restoredState)
+                    if (!normalized) {
+                        restoredState = null
+                        restoredCity = null
+                    } else {
+                        restoredState = normalized
+                    }
+                }
                 
                 // Устанавливаем восстановленное состояние
                 if (mounted && (restoredState || restoredCity)) {
@@ -146,10 +157,13 @@ export default function LocationProvider({
         
         // Если локация не установлена и есть данные пользователя - используем их
         if (!state && userState) {
-            setStateInternal(userState)
-            setCityInternal(userCity || null)
+            const normalized = parseUsStateCode(userState)
+            if (normalized) {
+                setStateInternal(normalized)
+                setCityInternal(userCity || null)
+            }
         }
-    }, [userState, userCity]) // Обновляем только если изменились данные пользователя
+    }, [userState, userCity, availableStates])
     
     // Загрузка городов при изменении штата
     useEffect(() => {

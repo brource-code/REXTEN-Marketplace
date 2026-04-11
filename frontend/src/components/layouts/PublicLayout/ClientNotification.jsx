@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useRef } from 'react'
 import classNames from 'classnames'
 import Dropdown from '@/components/ui/Dropdown'
 import ScrollBar from '@/components/ui/ScrollBar'
@@ -11,10 +11,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getClientNotifications, markNotificationAsRead, markAllNotificationsAsRead, deleteNotification } from '@/lib/api/client'
 import { PiBell, PiBellFill, PiCheck, PiX } from 'react-icons/pi'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { formatDateTime } from '@/utils/dateTime'
-import useBusinessStore from '@/store/businessStore'
+import { resolveClientBookingTimezone } from '@/constants/client-datetime.constant'
 
 const notificationHeight = 'h-[280px]'
 
@@ -23,9 +22,6 @@ const ClientNotification = () => {
     const queryClient = useQueryClient()
     const notificationDropdownRef = useRef(null)
     const t = useTranslations('components.notification')
-    const locale = useLocale()
-    const { settings } = useBusinessStore()
-    const clientNotificationTz = settings?.timezone || 'America/Los_Angeles'
 
     const { data: notifications = [], isLoading } = useQuery({
         queryKey: ['client-notifications'],
@@ -157,7 +153,14 @@ const ClientNotification = () => {
                                         {notification.message}
                                     </p>
                                     <span className="text-xs text-gray-400">
-                                        {formatDateTime(notification.createdAt, null, clientNotificationTz, 'short')}
+                                        {formatDateTime(
+                                            notification.createdAt,
+                                            null,
+                                            resolveClientBookingTimezone({
+                                                timezone: notification.companyTimezone,
+                                            }),
+                                            'short',
+                                        )}
                                     </span>
                                 </div>
                                 {/* Кнопка удаления */}
@@ -205,4 +208,3 @@ const ClientNotification = () => {
 }
 
 export default ClientNotification
-

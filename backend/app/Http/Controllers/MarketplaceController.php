@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\Company;
-use App\Models\State;
 use App\Models\Advertisement;
 use App\Models\Review;
 use App\Models\Booking;
 use App\Models\AdditionalService;
 use App\Helpers\DatabaseHelper;
+use App\Support\UsStateCodes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -63,13 +63,22 @@ class MarketplaceController extends Controller
         }
 
         if ($request->has('state')) {
-            $state = $request->get('state');
-            $regularAdsQuery->where(function ($q) use ($state) {
-                $q->where('state', $state)
-                  ->orWhereHas('company', function ($q) use ($state) {
-                      $q->where('state', $state);
-                  });
-            });
+            $stateRaw = $request->get('state');
+            $stateParam = is_string($stateRaw) ? trim($stateRaw) : '';
+            if ($stateParam !== '' && strtolower($stateParam) !== 'all') {
+                $state = UsStateCodes::resolve($stateParam);
+                if ($state) {
+                    $regularAdsQuery->where(function ($q) use ($state) {
+                        $q->where('state', $state)
+                            ->orWhereHas('company', function ($q) use ($state) {
+                                $q->where('state', $state);
+                            });
+                    });
+                } else {
+                    // Невалидный код штата — не показываем «весь каталог», а пустой результат
+                    $regularAdsQuery->whereRaw('0 = 1');
+                }
+            }
         }
 
         if ($request->has('city')) {
@@ -261,7 +270,7 @@ class MarketplaceController extends Controller
             ->where('state', '!=', '')
             ->distinct()
             ->pluck('state');
-        
+
         // Получаем штаты из объявлений
         $adStates = Advertisement::select('state')
             ->where('type', 'regular')
@@ -271,14 +280,19 @@ class MarketplaceController extends Controller
             ->where('state', '!=', '')
             ->distinct()
             ->pluck('state');
-        
-        // Объединяем и убираем дубликаты
-        $allStates = $companyStates->merge($adStates)->unique()->sort()->values();
-        
-        $states = $allStates->map(function ($state) {
+
+        $codes = collect();
+        foreach ($companyStates->merge($adStates) as $raw) {
+            $c = UsStateCodes::resolve((string) $raw);
+            if ($c) {
+                $codes->push($c);
+            }
+        }
+
+        $states = $codes->unique()->sort()->values()->map(function (string $code) {
             return [
-                'id' => $state,
-                'name' => $state,
+                'id' => $code,
+                'name' => UsStateCodes::nameFor($code) ?? $code,
             ];
         });
 

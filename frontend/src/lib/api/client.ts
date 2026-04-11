@@ -495,6 +495,8 @@ export interface ClientNotification {
     read: boolean
     createdAt: string
     link?: string
+    /** IANA TZ компании, к которой относится уведомление (бронирование / тикет); для отображения времени */
+    companyTimezone?: string | null
 }
 
 export async function getClientNotifications(): Promise<ClientNotification[]> {
@@ -510,6 +512,7 @@ export async function getClientNotifications(): Promise<ClientNotification[]> {
                 read: false,
                 createdAt: '2024-01-18T10:00:00Z',
                 link: '/client/booking',
+                companyTimezone: 'America/Los_Angeles',
             },
             {
                 id: 2,
@@ -519,6 +522,7 @@ export async function getClientNotifications(): Promise<ClientNotification[]> {
                 read: false,
                 createdAt: '2024-01-15T18:30:00Z',
                 link: '/client/orders',
+                companyTimezone: 'America/Los_Angeles',
             },
             {
                 id: 3,
@@ -528,6 +532,7 @@ export async function getClientNotifications(): Promise<ClientNotification[]> {
                 read: true,
                 createdAt: '2024-01-16T09:15:00Z',
                 link: '/profile',
+                companyTimezone: 'America/Los_Angeles',
             },
             {
                 id: 4,
@@ -536,6 +541,7 @@ export async function getClientNotifications(): Promise<ClientNotification[]> {
                 message: 'Мы обновили платформу. Теперь доступны новые функции!',
                 read: true,
                 createdAt: '2024-01-10T12:00:00Z',
+                companyTimezone: 'America/Los_Angeles',
             },
         ]
     }

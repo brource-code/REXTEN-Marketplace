@@ -67,26 +67,27 @@ class Review extends Model
      */
     public function scopeForMarketplaceAdvertisement(Builder $query, Advertisement $advertisement): Builder
     {
-        return $query->where(function (Builder $q) use ($advertisement) {
-            $q->where('advertisement_id', $advertisement->id)
-                ->orWhere(function (Builder $subQ) use ($advertisement) {
-                    $subQ->where('company_id', $advertisement->company_id)
-                        ->whereNull('advertisement_id');
-                });
+        $services = [];
+        if (! empty($advertisement->services)) {
+            $services = is_array($advertisement->services)
+                ? $advertisement->services
+                : (json_decode($advertisement->services, true) ?? []);
+        }
+        $serviceIds = collect($services)->pluck('id')->filter(function ($id) {
+            return is_numeric($id);
+        })->map(fn ($id) => (int) $id)->unique()->values()->all();
 
-            $services = [];
-            if (! empty($advertisement->services)) {
-                $services = is_array($advertisement->services)
-                    ? $advertisement->services
-                    : (json_decode($advertisement->services, true) ?? []);
-            }
-            $serviceIds = collect($services)->pluck('id')->filter(function ($id) {
-                return is_numeric($id);
-            })->map(fn ($id) => (int) $id)->unique()->values()->all();
+        return $query->where(function (Builder $outer) use ($advertisement, $serviceIds) {
+            $outer->where('advertisement_id', $advertisement->id);
 
-            if (! empty($serviceIds)) {
-                $q->orWhere(function (Builder $subQ) use ($serviceIds, $advertisement) {
-                    $subQ->whereIn('service_id', $serviceIds)
+            $outer->orWhere(function (Builder $b) use ($advertisement) {
+                $b->where('company_id', $advertisement->company_id)
+                    ->whereNull('advertisement_id');
+            });
+
+            if ($serviceIds !== []) {
+                $outer->orWhere(function (Builder $b) use ($serviceIds, $advertisement) {
+                    $b->whereIn('service_id', $serviceIds)
                         ->where('company_id', $advertisement->company_id);
                 });
             }

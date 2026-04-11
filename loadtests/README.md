@@ -33,7 +33,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 K6_API_URL=http://localhost:8000/api \
 K6_EMAIL=business@ecme.com \
-K6_PASSWORD=password123 \
+K6_PASSWORD=demo12345 \
 ./loadtests/run-business-admin.sh
 ```
 

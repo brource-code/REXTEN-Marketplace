@@ -10,19 +10,19 @@
 
 ### Клиент
 - **Email:** `client@ecme.com`
-- **Пароль:** `123456`
+- **Пароль:** `demo12345`
 - **Роль:** `CLIENT`
 - **Доступ:** `/client/*`
 
 ### Владелец бизнеса
 - **Email:** `business@ecme.com`
-- **Пароль:** `123456`
+- **Пароль:** `demo12345`
 - **Роль:** `BUSINESS_OWNER`
 - **Доступ:** `/business/*`
 
 ### Суперадмин
 - **Email:** `admin@ecme.com`
-- **Пароль:** `123456`
+- **Пароль:** `demo12345`
 - **Роль:** `SUPERADMIN`
 - **Доступ:** `/superadmin/*`
 
@@ -97,7 +97,7 @@ const MyComponent = () => {
     const handleLogin = () => {
         loginMutation.mutate({
             email: 'client@ecme.com',
-            password: '123456'
+            password: 'demo12345'
         })
     }
     

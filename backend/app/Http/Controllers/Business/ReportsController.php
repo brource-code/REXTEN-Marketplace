@@ -433,7 +433,7 @@ class ReportsController extends Controller
                 ->values();
 
             $validSpecialistIds = TeamMember::where('company_id', $companyId)
-                ->where('status', 'active')
+                ->where('is_active', true)
                 ->pluck('id')
                 ->toArray();
 
@@ -517,7 +517,7 @@ class ReportsController extends Controller
             // Получаем ТОЛЬКО специалистов из team_members (основной источник)
             // Не используем старые данные из объявлений или бронирований
             $teamMembers = TeamMember::where('company_id', $companyId)
-                ->where('status', 'active')
+                ->where('is_active', true)
                 ->get();
             
             // Получаем все ID текущих специалистов для фильтрации
@@ -664,7 +664,7 @@ class ReportsController extends Controller
                 // Рассчитываем зарплату на лету БЕЗ сохранения в БД
                 // Получаем всех специалистов с завершенными бронированиями за период
                 $specialists = TeamMember::where('company_id', $companyId)
-                    ->where('status', 'active')
+                    ->where('is_active', true)
                     ->get();
                 
                 // Получаем всех специалистов с завершенными бронированиями за период
@@ -750,13 +750,13 @@ class ReportsController extends Controller
                 // Правильный подсчет уникальных специалистов
                 $specialistIdsFromCalculations = array_keys($bySpecialistData);
                 $totalSpecialists = TeamMember::where('company_id', $companyId)
-                    ->where('status', 'active')
+                    ->where('is_active', true)
                     ->whereIn('id', $specialistIdsFromCalculations)
                     ->count();
                 
                 if (empty($specialistIdsFromCalculations)) {
                     $totalSpecialists = TeamMember::where('company_id', $companyId)
-                        ->where('status', 'active')
+                        ->where('is_active', true)
                         ->count();
                 }
                 
@@ -1090,7 +1090,7 @@ class ReportsController extends Controller
         // Не используем старые данные из объявлений
         $specialist = TeamMember::where('id', $booking->specialist_id)
             ->where('company_id', $booking->company_id)
-            ->where('status', 'active')
+            ->where('is_active', true)
             ->first();
         
         if ($specialist) {
@@ -1114,7 +1114,7 @@ class ReportsController extends Controller
         // Не используем старые данные из объявлений
         $specialist = TeamMember::where('company_id', $companyId)
             ->where('id', $specialistId)
-            ->where('status', 'active')
+            ->where('is_active', true)
             ->first();
         
         if ($specialist && $specialist->name) {

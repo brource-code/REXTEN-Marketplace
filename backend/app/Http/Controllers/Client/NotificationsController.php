@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 
@@ -20,6 +21,11 @@ class NotificationsController extends Controller
             ->get();
 
         $data = $notifications->map(function ($notification) {
+            $companyTimezone = null;
+            if ($notification->company_id) {
+                $companyTimezone = Company::timezoneById((int) $notification->company_id);
+            }
+
             return [
                 'id' => $notification->id,
                 'type' => $notification->type,
@@ -28,6 +34,7 @@ class NotificationsController extends Controller
                 'read' => (bool) $notification->read,
                 'createdAt' => $notification->created_at ? $notification->created_at->toIso8601String() : null,
                 'link' => $notification->link,
+                'companyTimezone' => $companyTimezone,
             ];
         });
 

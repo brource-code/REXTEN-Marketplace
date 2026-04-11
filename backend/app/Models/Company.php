@@ -209,6 +209,7 @@ class Company extends Model
 
     /**
      * IANA-таймзона компании для расписания и отображения (рынок США — дефолт как в миграции).
+     * Пустые строки в БД: см. миграцию backfill_companies_timezone_where_empty.
      */
     public function resolveTimezone(): string
     {
@@ -244,4 +245,3 @@ class Company extends Model
         }
     }
 }
-

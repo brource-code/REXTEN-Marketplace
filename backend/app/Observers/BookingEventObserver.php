@@ -5,16 +5,14 @@ namespace App\Observers;
 use App\Models\Booking;
 use App\Models\BusinessEvent;
 use App\Enums\BusinessEventType;
+use Illuminate\Support\Facades\Cache;
 
 class BookingEventObserver
 {
-    /**
-     * Handle the Booking "created" event.
-     * Создаёт событие "Крупный заказ" если сумма > $500
-     */
     public function created(Booking $booking)
     {
-        // Проверяем, что это крупный заказ (> $500)
+        $this->flushDashboardCache($booking);
+
         if ($booking->total_price && $booking->total_price > 500) {
             BusinessEvent::create([
                 'type' => BusinessEventType::LARGE_ORDER->value,
@@ -38,7 +36,8 @@ class BookingEventObserver
      */
     public function updated(Booking $booking)
     {
-        // Проверяем, что статус изменился на completed
+        $this->flushDashboardCache($booking);
+
         if ($booking->isDirty('status') && $booking->status === 'completed') {
             BusinessEvent::create([
                 'type' => BusinessEventType::PAYMENT_RECEIVED->value,
@@ -52,6 +51,17 @@ class BookingEventObserver
                     'booking_date' => $booking->booking_date->toISOString(),
                 ],
             ]);
+        }
+    }
+
+    private function flushDashboardCache(Booking $booking): void
+    {
+        $id = $booking->company_id;
+        Cache::forget("dashboard.stats.{$id}");
+        foreach (['revenue', 'bookings', 'clients'] as $cat) {
+            foreach (['thisWeek', 'thisMonth', 'thisYear'] as $per) {
+                Cache::forget("dashboard.chart.{$id}.{$cat}.{$per}");
+            }
         }
     }
 }

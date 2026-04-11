@@ -108,8 +108,8 @@ curl -X POST http://localhost:8000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "client@example.com",
-    "password": "password123",
-    "password_confirmation": "password123",
+    "password": "demo12345",
+    "password_confirmation": "demo12345",
     "role": "CLIENT",
     "first_name": "Иван",
     "last_name": "Иванов",
@@ -124,7 +124,7 @@ curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "client@example.com",
-    "password": "password123"
+    "password": "demo12345"
   }'
 ```
 

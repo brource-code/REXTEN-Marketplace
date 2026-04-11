@@ -37,7 +37,7 @@ class DiscountPreviewController extends Controller
         try {
             if ($request->bearerToken()) {
                 $u = JWTAuth::parseToken()->authenticate();
-                if ($u) {
+                if ($u && $u->isClient() && $company->owner_id !== $u->id) {
                     $userId = $u->id;
                 }
             }

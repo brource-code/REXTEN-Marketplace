@@ -32,7 +32,7 @@ Frontend будет использовать реальный Laravel backend в
 
 ## 🔐 Тестовые учетные данные
 
-- **Клиент**: `client@ecme.com` / `password123`
-- **Бизнес**: `business@ecme.com` / `password123`
-- **Суперадмин**: `admin@ecme.com` / `password123`
+- **Клиент**: `client@ecme.com` / `demo12345`
+- **Бизнес**: `business@ecme.com` / `demo12345`
+- **Суперадмин**: `admin@ecme.com` / `demo12345`
 

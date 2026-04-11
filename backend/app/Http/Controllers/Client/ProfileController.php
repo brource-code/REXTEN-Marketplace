@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\UserProfile;
 use App\Models\User;
+use App\Support\UsStateCodes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -58,13 +60,18 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
+        $stateInput = $request->input('state');
+        if ($stateInput === '') {
+            $request->merge(['state' => null]);
+        }
+
         $validator = Validator::make($request->all(), [
             'firstName' => 'sometimes|string|max:255',
             'lastName' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:20',
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
+            'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'zipCode' => 'nullable|string|max:20',
         ]);
 

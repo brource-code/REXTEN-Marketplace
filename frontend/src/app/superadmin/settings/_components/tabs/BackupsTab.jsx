@@ -17,6 +17,7 @@ import {
     getPlatformBackups,
 } from '@/lib/api/superadmin'
 import { PiArchive, PiArrowClockwise, PiDownloadSimple, PiPackage, PiTrash } from 'react-icons/pi'
+import { formatSuperadminDateTime } from '@/utils/dateTime'
 
 function formatMb(bytes) {
     if (!bytes || bytes <= 0) return '—'
@@ -282,9 +283,7 @@ export default function BackupsTab() {
                                         {formatMb(row.sizeBytes)}
                                     </td>
                                     <td className="px-4 py-3 text-sm font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                                        {row.createdAt
-                                            ? new Date(row.createdAt).toLocaleString()
-                                            : '—'}
+                                        {row.createdAt ? formatSuperadminDateTime(row.createdAt) : '—'}
                                     </td>
                                     <td className="px-4 py-3">
                                         <Tag className="text-xs font-bold">

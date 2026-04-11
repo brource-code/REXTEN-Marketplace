@@ -6,45 +6,41 @@ import ModeSwitcher from './ModeSwitcher'
 import LayoutSwitcher from './LayoutSwitcher'
 import ContentWidthSwitcher from './ContentWidthSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
-import CopyButton from './CopyButton'
 import useResponsive from '@/utils/hooks/useResponsive'
 
-const ThemeConfigurator = memo(({ callBackClose }) => {
+const ThemeConfigurator = memo(() => {
     const t = useTranslations('themeConfig')
     const { larger } = useResponsive()
     const isMobile = !larger.md // md breakpoint = 768px
     
     return (
-        <div className="flex flex-col h-full justify-between">
-            <div className="flex flex-col gap-y-10 mb-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h6>{t('darkMode')}</h6>
-                        <span>{t('darkModeDesc')}</span>
-                    </div>
-                    <ModeSwitcher />
-                </div>
+        <div className="flex flex-col gap-y-10">
+            <div className="flex items-center justify-between">
                 <div>
-                    <h6 className="mb-3">{t('theme')}</h6>
-                    <ThemeSwitcher />
+                    <h6>{t('darkMode')}</h6>
+                    <span>{t('darkModeDesc')}</span>
                 </div>
-                {!isMobile && (
-                    <div>
-                        <h6 className="mb-3">{t('layout')}</h6>
-                        <LayoutSwitcher />
-                    </div>
-                )}
-                {!isMobile && (
-                    <div>
-                        <h6 className="mb-1">{t('contentWidth')}</h6>
-                        <span className="text-sm text-gray-500 dark:text-gray-400 block mb-3">
-                            {t('contentWidthDesc')}
-                        </span>
-                        <ContentWidthSwitcher />
-                    </div>
-                )}
+                <ModeSwitcher />
             </div>
-            <CopyButton />
+            <div>
+                <h6 className="mb-3">{t('theme')}</h6>
+                <ThemeSwitcher />
+            </div>
+            {!isMobile && (
+                <div>
+                    <h6 className="mb-3">{t('layout')}</h6>
+                    <LayoutSwitcher />
+                </div>
+            )}
+            {!isMobile && (
+                <div>
+                    <h6 className="mb-1">{t('contentWidth')}</h6>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 block mb-3">
+                        {t('contentWidthDesc')}
+                    </span>
+                    <ContentWidthSwitcher />
+                </div>
+            )}
         </div>
     )
 })

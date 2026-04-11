@@ -610,10 +610,16 @@ class ScheduleController extends Controller
             }
             
             // Всегда пересчитываем общую стоимость (с учетом базовой цены и дополнительных услуг)
-            $booking->refresh(); // Обновляем связи
-            $booking->load('additionalServices'); // Загружаем дополнительные услуги
+            $booking->refresh();
+            $booking->load('additionalServices');
             $booking->total_price = $booking->calculateTotalWithAdditionalServices();
             $booking->save();
+
+            // Применяем скидку лояльности для клиента (если он зарегистрирован)
+            if (!$isCustomEvent && $booking->user_id) {
+                $discountService = app(\App\Services\DiscountCalculationService::class);
+                $discountService->applyToBooking($booking, null, $booking->user_id);
+            }
 
             // Уведомление владельцу бизнеса о новом бронировании (не для кастомных событий)
             if (!$isCustomEvent && $booking->company_id) {
@@ -769,10 +775,21 @@ class ScheduleController extends Controller
             $statusChanged = false;
             
             if ($request->has('status')) {
+                if ($request->status === 'completed') {
+                    $bookingDateStr = $booking->booking_date instanceof \Carbon\Carbon
+                        ? $booking->booking_date->format('Y-m-d')
+                        : substr((string) $booking->booking_date, 0, 10);
+                    if ($bookingDateStr > now()->format('Y-m-d')) {
+                        return response()->json([
+                            'error' => 'Cannot mark a future booking as completed',
+                            'message' => 'Нельзя завершить бронирование с датой в будущем',
+                        ], 422);
+                    }
+                }
+
                 $statusChanged = $oldStatus !== $request->status;
                 $booking->status = $request->status;
                 
-                // Если статус меняется на completed, генерируем токен для клиентов без клиентского аккаунта
                 if ($request->status === 'completed' && $oldStatus !== 'completed') {
                     // Генерируем токен для отзыва, если у клиента нет клиентского аккаунта
                     // Проверяем, что у пользователя нет роли CLIENT ИЛИ это CRM клиент (email содержит @local.local)
@@ -932,16 +949,22 @@ class ScheduleController extends Controller
             }
             
             // Пересчитываем общую стоимость при изменении цены, доп. услуг или базовой услуги
-            if (
-                $request->has('price')
+            $priceChanged = $request->has('price')
                 || $request->has('additional_services')
                 || array_key_exists('service_id', $inputAll)
-                || array_key_exists('advertisement_id', $inputAll)
-            ) {
+                || array_key_exists('advertisement_id', $inputAll);
+
+            if ($priceChanged) {
                 $booking->total_price = $booking->calculateTotalWithAdditionalServices();
             }
 
             $booking->save();
+
+            // Пересчитываем скидку лояльности если изменилась цена/услуга
+            if ($priceChanged && $booking->user_id && $booking->service_id) {
+                $discountService = app(\App\Services\DiscountCalculationService::class);
+                $discountService->applyToBooking($booking, null, $booking->user_id);
+            }
 
             // Отправляем уведомление клиенту при изменении статуса
             if ($statusChanged && $booking->user_id) {
@@ -1187,6 +1210,7 @@ class ScheduleController extends Controller
         try {
             Notification::create([
                 'user_id' => $booking->user_id,
+                'company_id' => $booking->company_id,
                 'type' => 'booking',
                 'title' => $payload['title'],
                 'message' => $payload['message'],

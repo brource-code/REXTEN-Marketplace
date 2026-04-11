@@ -5,7 +5,7 @@
  *   K6_API_URL=http://127.0.0.1/api
  *   (для 127.0.0.1/localhost заголовок Host=rexten.live; прямой artisan serve: K6_NGINX_HOST=)
  *   K6_EMAIL=business@ecme.com \
- *   K6_PASSWORD=password123 \
+ *   K6_PASSWORD=demo12345 \
  *   k6 run loadtests/k6/business-admin.js
  *
  * Несколько аккаунтов (JSON-массив [{ "email", "password" }]):
@@ -47,7 +47,7 @@ const accounts = new SharedArray('accounts', () => {
     return [
         {
             email: __ENV.K6_EMAIL || 'business@ecme.com',
-            password: __ENV.K6_PASSWORD || 'password123',
+            password: __ENV.K6_PASSWORD || 'demo12345',
         },
     ]
 })

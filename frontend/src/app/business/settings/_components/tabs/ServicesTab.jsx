@@ -32,6 +32,8 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { formatDuration } from '@/utils/formatDuration'
+import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
+import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
 
 const { Tr, Td, TBody, THead, Th } = Table
 
@@ -39,6 +41,7 @@ const ServicesTab = () => {
     const t = useTranslations('business.settings.services')
     const tCommon = useTranslations('business.common')
     const queryClient = useQueryClient()
+    const { canCreate } = useSubscriptionLimits()
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [editingService, setEditingService] = useState(null)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -55,6 +58,7 @@ const ServicesTab = () => {
         mutationFn: createBusinessService,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-services'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
             setIsAddModalOpen(false)
             toast.push(
                 <Notification title={tCommon('success')} type="success">
@@ -96,6 +100,7 @@ const ServicesTab = () => {
         mutationFn: deleteBusinessService,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-services'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
             toast.push(
                 <Notification title={tCommon('success')} type="success">
                     {t('notifications.deleted')}
@@ -161,6 +166,7 @@ const ServicesTab = () => {
     return (
         <>
             <div className="flex flex-col gap-4 w-full">
+                <SubscriptionLimitAlert resource="services" />
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
                     <div className="flex-1">
                         <h4>{t('title')}</h4>
@@ -171,7 +177,13 @@ const ServicesTab = () => {
                             💡 {t('hint')}
                         </p>
                     </div>
-                    <Button variant="solid" icon={<PiPlus />} onClick={handleAdd} className="w-full sm:w-auto shrink-0">
+                    <Button
+                        variant="solid"
+                        icon={<PiPlus />}
+                        onClick={handleAdd}
+                        disabled={!canCreate('services')}
+                        className="w-full sm:w-auto shrink-0"
+                    >
                         {t('addService')}
                     </Button>
                 </div>

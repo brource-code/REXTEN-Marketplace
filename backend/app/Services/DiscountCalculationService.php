@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\DiscountTier;
 use App\Models\PromoCode;
 use App\Models\PromoCodeUsage;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -102,6 +103,11 @@ class DiscountCalculationService
     public function evaluateLoyaltyTier(Company $company, ?int $userId, float $subtotal, ?int $excludeBookingId = null): array
     {
         if (!$userId || $subtotal <= 0) {
+            return ['amount' => 0.0, 'tier' => null];
+        }
+
+        $user = User::find($userId);
+        if (!$user || !$user->isClient() || $company->owner_id === $userId) {
             return ['amount' => 0.0, 'tier' => null];
         }
 

@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         // Суперадмин
         $superadmin = User::create([
             'email' => 'admin@ecme.com',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('demo12345'),
             'role' => 'SUPERADMIN',
             'is_active' => true,
             'is_blocked' => false,
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
         // Владелец бизнеса
         $businessOwner = User::create([
             'email' => 'business@ecme.com',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('demo12345'),
             'role' => 'BUSINESS_OWNER',
             'is_active' => true,
             'is_blocked' => false,
@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
         foreach ($clients as $clientData) {
             $client = User::create([
                 'email' => $clientData['email'],
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('demo12345'),
                 'role' => 'CLIENT',
                 'is_active' => true,
                 'is_blocked' => false,
@@ -82,8 +82,8 @@ class UserSeeder extends Seeder
                 'first_name' => $clientData['first_name'],
                 'last_name' => $clientData['last_name'],
                 'phone' => $clientData['phone'],
-                'city' => 'Москва',
-                'state' => 'Московская область',
+                'city' => 'Los Angeles',
+                'state' => 'CA',
             ]);
         }
     }

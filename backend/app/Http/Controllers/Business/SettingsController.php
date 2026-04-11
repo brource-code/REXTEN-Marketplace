@@ -12,6 +12,7 @@ use App\Models\ServiceCategory;
 use App\Models\TeamMember;
 use App\Constants\UsTimezones;
 use App\Jobs\AutoApproveAdvertisement;
+use App\Support\UsStateCodes;
 use App\Services\ActivityService;
 use App\Services\Routing\GeocodingService;
 use App\Services\SubscriptionLimitService;
@@ -19,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class SettingsController extends Controller
 {
@@ -262,7 +264,13 @@ class SettingsController extends Controller
             $company = $user->ownedCompanies()->first();
             $companyId = $company ? $company->id : null;
         }
-        
+
+        if ($request->has('state')) {
+            $request->merge([
+                'state' => UsStateCodes::normalizeNullableStateInput($request->input('state')),
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -273,7 +281,7 @@ class SettingsController extends Controller
             'whatsapp' => 'nullable|string|max:20',
             'website' => 'nullable|url|max:255',
             'city' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
+            'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'timezone' => 'sometimes|nullable|string|timezone',
         ]);
 
@@ -1657,6 +1665,12 @@ class SettingsController extends Controller
             ], 404);
         }
 
+        if ($request->has('state')) {
+            $request->merge([
+                'state' => UsStateCodes::normalizeNullableStateInput($request->input('state')),
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -1667,7 +1681,7 @@ class SettingsController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'city' => 'nullable|string',
-            'state' => 'nullable|string',
+            'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'priceFrom' => 'nullable|numeric',
             'priceTo' => 'nullable|numeric',
             'currency' => 'nullable|string',
@@ -1996,6 +2010,12 @@ class SettingsController extends Controller
             ], 404);
         }
 
+        if ($request->has('state')) {
+            $request->merge([
+                'state' => UsStateCodes::normalizeNullableStateInput($request->input('state')),
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -2006,7 +2026,7 @@ class SettingsController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'city' => 'nullable|string',
-            'state' => 'nullable|string',
+            'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'priceFrom' => 'nullable|numeric',
             'priceTo' => 'nullable|numeric',
             'currency' => 'nullable|string',

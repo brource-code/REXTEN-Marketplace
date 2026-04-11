@@ -9,8 +9,10 @@ use App\Models\ServiceCategory;
 use App\Models\Review;
 use App\Models\AdditionalService;
 use App\Models\Service;
+use App\Support\UsStateCodes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -140,6 +142,12 @@ class AdvertisementsController extends Controller
     {
         $advertisement = Advertisement::findOrFail($id);
 
+        if ($request->has('state')) {
+            $request->merge([
+                'state' => UsStateCodes::normalizeNullableStateInput($request->input('state')),
+            ]);
+        }
+
         $validator = Validator::make($request->all(), [
             'type' => 'sometimes|in:advertisement,regular',
             'title' => 'sometimes|string|max:255',
@@ -148,7 +156,7 @@ class AdvertisementsController extends Controller
             'link' => 'nullable|string|max:2048',
             'placement' => 'nullable|in:homepage,services,sidebar,banner',
             'city' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
+            'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'start_date' => 'sometimes|date',
             'end_date' => 'sometimes|date|after:start_date',
             'priority' => 'nullable|integer|min:1|max:10',
@@ -364,13 +372,14 @@ class AdvertisementsController extends Controller
                   ->whereNotNull('status');
         }
         
-        // 2. Фильтрация по локации
-        // Если state указан - показываем объявления для этого штата + без указания штата
-        // Если state НЕ указан (например, "Все штаты") - показываем ВСЕ объявления (включая с указанием штата)
-        if ($state && $state !== 'all' && $state !== '') {
-            $query->where(function($q) use ($state) {
-                $q->where('state', $state)
-                  ->orWhereNull('state'); // Объявления без указания штата показываются везде
+        // 2. Фильтрация по локации (код штата CA / NY или полное имя → нормализуем)
+        $stateResolved = ($state && $state !== 'all' && $state !== '')
+            ? UsStateCodes::resolve((string) $state)
+            : null;
+        if ($stateResolved) {
+            $query->where(function ($q) use ($stateResolved) {
+                $q->where('state', $stateResolved)
+                    ->orWhereNull('state'); // Объявления без указания штата показываются везде
             });
         }
         // Если state не указан или "all" - показываем все объявления (не фильтруем по штату)
@@ -401,7 +410,7 @@ class AdvertisementsController extends Controller
                     'user_id' => $userId,
                     'placement' => $placement,
                     'displayed_at' => now(),
-                    'state' => $state,
+                    'state' => $stateResolved ?? $state,
                     'city' => $city,
                 ]);
                 
@@ -465,7 +474,7 @@ class AdvertisementsController extends Controller
                 'user_id' => $userId,
                 'placement' => $placement,
                 'displayed_at' => now(),
-                'state' => $state,
+                'state' => $stateResolved ?? $state,
                 'city' => $city,
             ]);
             
@@ -638,7 +647,7 @@ class AdvertisementsController extends Controller
                 'user_id' => auth()->id(),
                 'placement' => request()->get('placement', 'services'),
                 'displayed_at' => now(),
-                'state' => request()->get('state'),
+                'state' => UsStateCodes::normalizeNullableStateInput(request()->get('state')),
                 'city' => request()->get('city'),
             ]);
             
@@ -725,6 +734,12 @@ class AdvertisementsController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->has('state')) {
+            $request->merge([
+                'state' => UsStateCodes::normalizeNullableStateInput($request->input('state')),
+            ]);
+        }
+
         $rules = [
             'type' => 'required|in:advertisement,regular',
             'title' => 'required|string|max:255',
@@ -734,7 +749,7 @@ class AdvertisementsController extends Controller
             'placement' => 'nullable|in:homepage,services,sidebar,banner',
             'company_id' => 'nullable|exists:companies,id',
             'city' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
+            'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'priority' => 'nullable|integer|min:1|max:10',
             'is_active' => 'nullable|boolean',
             'services' => 'nullable|array',

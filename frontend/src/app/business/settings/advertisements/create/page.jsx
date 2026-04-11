@@ -29,8 +29,9 @@ import {
     updateAdditionalService,
     deleteAdditionalService
 } from '@/lib/api/additionalServices'
-import { getCategories, getStates } from '@/lib/api/marketplace'
-import { getCitiesByState, getStateCode } from '@/lib/api/locations'
+import { getCategories } from '@/lib/api/marketplace'
+import { getCitiesByState } from '@/lib/api/locations'
+import { getStates as fetchLocationStates, parseUsStateCode } from '@/services/location/LocationService'
 import { formatDuration } from '@/utils/formatDuration'
 import { normalizeImageUrl, denormalizeImageUrl } from '@/utils/imageUtils'
 import LaravelAxios from '@/services/axios/LaravelAxios'
@@ -777,28 +778,18 @@ export default function CreateAdvertisementPage() {
 
     // Загрузка штатов
     const { data: statesData } = useQuery({
-        queryKey: ['states'],
-        queryFn: getStates,
+        queryKey: ['locations-states', 'advertisement-form'],
+        queryFn: () => fetchLocationStates(false),
     })
     const states = statesData ?? STABLE_EMPTY_ARRAY
 
     // Загрузка городов по выбранному штату
     const { data: citiesData, isLoading: citiesLoading } = useQuery({
         queryKey: ['cities', selectedStateId],
-        queryFn: () => {
-            console.log('Loading cities for stateId:', selectedStateId);
-            return getCitiesByState(selectedStateId);
-        },
+        queryFn: () => getCitiesByState(selectedStateId),
         enabled: !!selectedStateId,
     })
     const cities = citiesData ?? STABLE_EMPTY_ARRAY
-    
-    // Отладочная информация
-    useEffect(() => {
-        console.log('Selected state ID:', selectedStateId);
-        console.log('Cities loaded:', cities);
-        console.log('Cities loading:', citiesLoading);
-    }, [selectedStateId, cities, citiesLoading])
 
     // Загрузка команды
     const { data: companyTeamData } = useQuery({
@@ -870,7 +861,7 @@ export default function CreateAdvertisementPage() {
                     return null
                 })(),
                 city: advertisement.city || '',
-                state: advertisement.state || '',
+                state: parseUsStateCode(advertisement.state ?? '') ?? '',
                 priceFrom: advertisement.price_from || '',
                 priceTo: advertisement.price_to || '',
                 currency: advertisement.currency || 'USD',
@@ -905,21 +896,13 @@ export default function CreateAdvertisementPage() {
                 start_date: advertisement.start_date ? advertisement.start_date.split('T')[0] : '',
                 end_date: advertisement.end_date ? advertisement.end_date.split('T')[0] : '',
             })
-            
-            // Устанавливаем selectedStateId для загрузки городов
-            if (advertisement.state && states.length > 0) {
-                // Ищем штат по названию
-                const stateObj = states.find(s => s.name === advertisement.state || s.id === advertisement.state || s.code === advertisement.state)
-                if (stateObj) {
-                    // В статических данных id - это код штата (например, "CA")
-                    // Используем id (код штата) для запроса городов
-                    const stateIdForCities = stateObj.id || stateObj.code || null
-                    console.log('Setting selectedStateId for edit:', stateIdForCities, 'from state:', advertisement.state)
-                    setSelectedStateId(stateIdForCities)
-                }
+
+            const code = parseUsStateCode(advertisement.state ?? '')
+            if (code) {
+                setSelectedStateId(code)
             }
         }
-        }, [advertisement, isEdit, states, categories])
+        }, [advertisement, isEdit, categories])
     
     // Автоматическая генерация link (slug) из title
     useEffect(() => {
@@ -1706,57 +1689,33 @@ export default function CreateAdvertisementPage() {
                                                 <FormItem label={t('general.state')}>
                                                     <Select
                                                         size="sm"
-                                                        options={states.map(state => ({ value: state.name, label: state.name }))}
-                                                        value={states.find(s => s.name === formData.state) ? { value: formData.state, label: formData.state } : null}
+                                                        isSearchable={false}
+                                                        options={states.map((s) => ({
+                                                            value: s.id,
+                                                            label: s.name,
+                                                        }))}
+                                                        value={
+                                                            states.find((s) => s.id === formData.state)
+                                                                ? {
+                                                                      value: formData.state,
+                                                                      label:
+                                                                          states.find((s) => s.id === formData.state)
+                                                                              ?.name ?? formData.state,
+                                                                  }
+                                                                : null
+                                                        }
                                                         onChange={(option) => {
-                                                            const stateName = option?.value || ''
-                                                            if (!stateName) {
+                                                            const stateCode = option?.value || ''
+                                                            if (!stateCode) {
                                                                 setSelectedStateId(null)
                                                                 setFormData({ ...formData, state: '', city: '' })
                                                                 return
                                                             }
-                                                            
-                                                            // Находим штат для загрузки городов
-                                                            // Ищем по точному совпадению названия
-                                                            let stateObj = states.find(s => s.name === stateName)
-                                                            
-                                                            // Если не нашли, пробуем найти похожий штат (для обработки опечаток)
-                                                            if (!stateObj) {
-                                                                // Нормализуем название для поиска (убираем пробелы, приводим к нижнему регистру)
-                                                                const normalizedName = stateName.toLowerCase().trim().replace(/\s+/g, ' ')
-                                                                stateObj = states.find(s => {
-                                                                    const normalizedStateName = s.name.toLowerCase().trim().replace(/\s+/g, ' ')
-                                                                    return normalizedStateName === normalizedName || 
-                                                                           normalizedStateName.includes(normalizedName) ||
-                                                                           normalizedName.includes(normalizedStateName)
-                                                                })
-                                                            }
-                                                            
-                                                            if (!stateObj) {
-                                                                console.error('State not found:', stateName, 'Available states:', states.map(s => s.name))
-                                                                setSelectedStateId(null)
-                                                                setFormData({ ...formData, state: stateName, city: '' })
-                                                                return
-                                                            }
-                                                            
-                                                            // Получаем правильный код штата из статических данных
-                                                            // Это важно, так как API может возвращать опечатки в названиях
-                                                            const stateCode = getStateCode(stateObj.name) || stateObj.id || stateObj.code
-                                                            
-                                                            if (!stateCode) {
-                                                                console.error('State code not found for state:', stateObj)
-                                                                setSelectedStateId(null)
-                                                                setFormData({ ...formData, state: stateName, city: '' })
-                                                                return
-                                                            }
-                                                            
-                                                            console.log('State selected:', stateName, 'State object:', stateObj, 'State code for cities:', stateCode)
-                                                            // Используем код штата из статических данных для запроса городов
                                                             setSelectedStateId(stateCode)
-                                                            setFormData({ 
-                                                                ...formData, 
-                                                                state: stateObj.name, // Используем правильное название из статических данных
-                                                                city: '' // Сбрасываем город при смене штата
+                                                            setFormData({
+                                                                ...formData,
+                                                                state: stateCode,
+                                                                city: '',
                                                             })
                                                         }}
                                                         isClearable

@@ -4,6 +4,25 @@ import { cookies } from 'next/headers'
 
 const LOCATION_COOKIE_KEY = 'location'
 
+function parseLocationCookie(raw) {
+    if (raw == null || typeof raw !== 'string') {
+        return null
+    }
+    const trimmed = raw.trim()
+    if (!trimmed) {
+        return null
+    }
+    try {
+        return JSON.parse(trimmed)
+    } catch {
+        try {
+            return JSON.parse(decodeURIComponent(trimmed))
+        } catch {
+            return null
+        }
+    }
+}
+
 /**
  * Получить локацию из cookies
  * @returns {Promise<{state: string|null, city: string|null, updatedAt: number|null}>}
@@ -12,16 +31,18 @@ export async function getLocation() {
     try {
         const cookieStore = await cookies()
         const locationCookie = cookieStore.get(LOCATION_COOKIE_KEY)?.value
-        
+
         if (locationCookie) {
-            const parsed = JSON.parse(locationCookie)
-            return {
-                state: parsed.state || null,
-                city: parsed.city || null,
-                updatedAt: parsed.updatedAt || null,
+            const parsed = parseLocationCookie(locationCookie)
+            if (parsed && typeof parsed === 'object') {
+                return {
+                    state: parsed.state || null,
+                    city: parsed.city || null,
+                    updatedAt: parsed.updatedAt || null,
+                }
             }
         }
-        
+
         return { state: null, city: null, updatedAt: null }
     } catch (error) {
         console.error('Error reading location from cookies:', error)

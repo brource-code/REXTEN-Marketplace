@@ -162,6 +162,7 @@ class SupportTicketsController extends Controller
 
         Notification::create([
             'user_id' => $ticket->user_id,
+            'company_id' => $ticket->company_id,
             'type' => 'system',
             'title' => $copy['title'],
             'message' => $copy['message'],
@@ -187,6 +188,7 @@ class SupportTicketsController extends Controller
 
         Notification::create([
             'user_id' => $ticket->user_id,
+            'company_id' => $ticket->company_id,
             'type' => 'system',
             'title' => $copy['title'],
             'message' => $copy['message'],

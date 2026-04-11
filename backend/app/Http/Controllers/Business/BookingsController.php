@@ -480,6 +480,7 @@ class BookingsController extends Controller
 
         Notification::create([
             'user_id' => $booking->user_id,
+            'company_id' => $booking->company_id,
             'type' => 'booking',
             'title' => $payload['title'],
             'message' => $payload['message'],

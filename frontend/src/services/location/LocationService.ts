@@ -368,6 +368,25 @@ export async function validateLocation(
     }
 }
 
+const US_STATE_ID_SET = new Set((US_STATES as State[]).map(s => s.id))
+
+/**
+ * Принимает только двухбуквенный код штата (CA, NY, DC …), как в API после унификации.
+ * Полные имена и произвольный текст не маппятся — отбрасываются.
+ */
+export function parseUsStateCode(raw: string | null | undefined): string | null {
+    if (raw == null || typeof raw !== 'string') return null
+    const t = raw.trim()
+    if (!t) return null
+    const upper = t.toUpperCase()
+    if (upper === 'US' || upper === 'USA' || upper === 'U.S.' || upper === 'U.S.A.') {
+        return null
+    }
+    if (upper.length !== 2) return null
+    if (!US_STATE_ID_SET.has(upper)) return null
+    return upper
+}
+
 /**
  * Получить название штата по ID
  */
@@ -380,7 +399,7 @@ export function getStateName(stateId: string | null, states: State[] = []): stri
     
     // Fallback на статические данные
     const staticState = US_STATES.find(s => s.id === stateId || s.name === stateId)
-    return staticState ? staticState.name : stateId
+    return staticState ? staticState.name : ''
 }
 
 /**

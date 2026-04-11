@@ -16,6 +16,7 @@ import {
     PiBuildings,
     PiChartLine,
 } from 'react-icons/pi'
+import { formatSuperadminDateTime } from '@/utils/dateTime'
 
 /** Единый нейтральный бейдж роли — без «радуги», как обычные теги в админке */
 function roleBadgeClass() {
@@ -50,14 +51,7 @@ const RealtimeTab = () => {
         refetchInterval: 10_000,
     })
 
-    const fmtTime = (iso) => {
-        if (!iso) return '—'
-        try {
-            return new Date(iso).toLocaleString()
-        } catch {
-            return iso
-        }
-    }
+    const fmtTime = (iso) => (iso ? formatSuperadminDateTime(iso) : '—')
 
     const roleLabel = (role) => t(`roles.${role}`, { defaultValue: role ?? '—' })
 

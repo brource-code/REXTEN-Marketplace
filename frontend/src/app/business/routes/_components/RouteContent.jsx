@@ -145,85 +145,89 @@ export default function RouteContent({
                     </div>
                 </div>
 
-                <div className="flex min-h-0 flex-col lg:h-[min(85vh,900px)] lg:min-h-[360px] lg:flex-row lg:gap-6 lg:items-stretch">
-                    <div className="flex min-h-0 max-h-[min(72vh,640px)] flex-col gap-4 overflow-y-auto overscroll-contain min-w-0 flex-1 scroll-py-2 lg:max-h-none lg:h-full lg:max-w-xl lg:shrink-0 lg:pr-1">
-                        {specialist ? <SpecialistHomeCard specialist={specialist} /> : null}
+                <div className="flex min-h-0 flex-col lg:h-[min(92vh,1100px)] lg:min-h-[520px] lg:flex-row lg:gap-6 lg:items-stretch">
+                    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-0 lg:max-w-xl lg:shrink-0 lg:h-full lg:pr-1">
+                        <div className="flex shrink-0 flex-col gap-4">
+                            {specialist ? <SpecialistHomeCard specialist={specialist} /> : null}
 
-                        <RouteDayBookingsPanel
-                            dayBookings={dayBookings}
-                            includedBookingIds={route.included_booking_ids ?? null}
-                            updatingSelection={updatingIncluded}
-                            onToggle={onUpdateIncluded}
-                            onOpenBooking={onOpenBooking}
-                            selectionReadOnly={!canManageRoutes}
-                        />
+                            <RouteDayBookingsPanel
+                                dayBookings={dayBookings}
+                                includedBookingIds={route.included_booking_ids ?? null}
+                                updatingSelection={updatingIncluded}
+                                onToggle={onUpdateIncluded}
+                                onOpenBooking={onOpenBooking}
+                                selectionReadOnly={!canManageRoutes}
+                            />
 
-                        {canShowReturnLegToggle ? (
-                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                <label className="flex items-center gap-2 cursor-pointer select-none">
-                                    <input
-                                        type="checkbox"
-                                        className="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-                                        checked={includeReturnLeg}
-                                        disabled={updatingReturnLeg || !canManageRoutes}
-                                        onChange={(e) => onIncludeReturnLegChange(e.target.checked)}
-                                    />
-                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                        {t('routeIncludeReturnLeg')}
-                                        {updatingReturnLeg ? ' ...' : ''}
-                                    </span>
-                                </label>
+                            {canShowReturnLegToggle ? (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            className="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+                                            checked={includeReturnLeg}
+                                            disabled={updatingReturnLeg || !canManageRoutes}
+                                            onChange={(e) => onIncludeReturnLegChange(e.target.checked)}
+                                        />
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                            {t('routeIncludeReturnLeg')}
+                                            {updatingReturnLeg ? ' ...' : ''}
+                                        </span>
+                                    </label>
+                                </div>
+                            ) : null}
+
+                            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <Button
+                                    size="sm"
+                                    variant="solid"
+                                    loading={optimizingPreview}
+                                    disabled={updatingIncluded || !canManageRoutes}
+                                    onClick={onOptimizePreview}
+                                >
+                                    {t('optimize')}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="plain"
+                                    loading={recalculating}
+                                    disabled={!route.id || updatingIncluded || !canManageRoutes}
+                                    onClick={onRecalculate}
+                                >
+                                    {t('recalculate')}
+                                </Button>
                             </div>
-                        ) : null}
 
-                        <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <Button
-                                size="sm"
-                                variant="solid"
-                                loading={optimizingPreview}
-                                disabled={updatingIncluded || !canManageRoutes}
-                                onClick={onOptimizePreview}
-                            >
-                                {t('optimize')}
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="plain"
-                                loading={recalculating}
-                                disabled={!route.id || updatingIncluded || !canManageRoutes}
-                                onClick={onRecalculate}
-                            >
-                                {t('recalculate')}
-                            </Button>
+                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                {t('helpCompact')}{' '}
+                                <Link
+                                    href="/business/schedule"
+                                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                                >
+                                    {t('ctaSchedule')}
+                                </Link>
+                                {' · '}
+                                <Link
+                                    href="/business/bookings"
+                                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                                >
+                                    {t('ctaBookings')}
+                                </Link>
+                            </p>
+
+                            {bookingStopsCount <= 1 ? (
+                                <p className="text-xs font-bold text-amber-800/90 dark:text-amber-200/90 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 rounded-lg px-3 py-2">
+                                    {t('optimizeSingleVisitHint')}
+                                </p>
+                            ) : null}
                         </div>
 
-                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                            {t('helpCompact')}{' '}
-                            <Link
-                                href="/business/schedule"
-                                className="text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                                {t('ctaSchedule')}
-                            </Link>
-                            {' · '}
-                            <Link
-                                href="/business/bookings"
-                                className="text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                                {t('ctaBookings')}
-                            </Link>
-                        </p>
-
-                        {bookingStopsCount <= 1 ? (
-                            <p className="text-xs font-bold text-amber-800/90 dark:text-amber-200/90 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 rounded-lg px-3 py-2">
-                                {t('optimizeSingleVisitHint')}
-                            </p>
-                        ) : null}
-
-                        <RouteTimeline route={route} includeReturnLeg={includeReturnLeg} />
+                        <div className="booking-modal-scroll mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-gray-200 dark:border-gray-700 pt-3 max-h-[min(72vh,900px)] lg:mt-4 lg:max-h-none lg:min-h-[280px]">
+                            <RouteTimeline route={route} includeReturnLeg={includeReturnLeg} />
+                        </div>
                     </div>
 
-                    <div className="flex min-h-0 max-h-[min(72vh,640px)] min-w-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain scroll-py-2 lg:max-h-none lg:h-full lg:pr-1">
+                    <div className="booking-modal-scroll flex min-h-0 max-h-[min(72vh,640px)] min-w-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain scroll-py-2 lg:max-h-none lg:h-full lg:pr-1">
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400 shrink-0">{t('mapSection')}</p>
                         <div className="w-full min-h-[280px] shrink-0">
                             <RouteMap

@@ -6,6 +6,8 @@ import useNavigation from '@/utils/hooks/useNavigation'
 import queryRoute from '@/utils/queryRoute'
 import appConfig from '@/configs/app.config'
 import { usePathname } from 'next/navigation'
+import { BUSINESS_OWNER } from '@/constants/roles.constant'
+import businessHorizontalNavigationConfig from '@/configs/navigation.config/business.horizontal.navigation.config'
 
 const HorizontalNav = ({
     translationSetup = appConfig.activeNavTranslation,
@@ -23,9 +25,14 @@ const HorizontalNav = ({
     // Преобразуем роль в массив authority для совместимости
     const userAuthority = userRole ? [userRole] : []
 
+    // Для бизнеса используем компактную горизонтальную навигацию с группировкой
+    const effectiveNavigationTree = userRole === BUSINESS_OWNER
+        ? businessHorizontalNavigationConfig
+        : navigationTree
+
     return (
         <HorizontalMenuContent
-            navigationTree={navigationTree}
+            navigationTree={effectiveNavigationTree}
             routeKey={currentRouteKey}
             userAuthority={userAuthority}
             translationSetup={translationSetup}

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
+import { formatDateTimeFromIso } from '@/utils/dateTime'
 
 /**
  * Постоянный баннер при превышении лимитов плана (после даунгрейда и т.п.).
@@ -21,7 +22,7 @@ export default function SubscriptionOverLimitBanner({ className = '' }) {
 
     const graceDate =
         gracePeriodEndsAt && !Number.isNaN(Date.parse(gracePeriodEndsAt))
-            ? new Date(gracePeriodEndsAt).toLocaleString()
+            ? formatDateTimeFromIso(gracePeriodEndsAt)
             : null
 
     return (

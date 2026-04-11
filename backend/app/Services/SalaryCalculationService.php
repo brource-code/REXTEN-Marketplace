@@ -355,10 +355,16 @@ class SalaryCalculationService
 
     /**
      * Apply payment settings to a booking and calculate salary.
+     *
+     * Сумма для расчёта = total_price + discount_amount (до скидки, включая допы).
+     * Скидка клиенту — решение бизнеса; исполнитель работает одинаково.
      */
     public function applyPaymentSettings($booking, $settings)
     {
-        $totalPrice = (float) ($booking->total_price ?? $booking->price ?? 0);
+        $finalPrice = (float) ($booking->total_price ?? $booking->price ?? 0);
+        $discount = (float) ($booking->discount_amount ?? 0);
+        $subtotal = $finalPrice + $discount;
+
         $durationMinutes = $booking->duration_minutes ?? 60;
         $durationHours = $durationMinutes / 60;
 
@@ -367,7 +373,7 @@ class SalaryCalculationService
                 if (!$settings->percent_rate) {
                     return 0;
                 }
-                return $totalPrice * ($settings->percent_rate / 100);
+                return $subtotal * ($settings->percent_rate / 100);
 
             case 'fixed':
                 if (!$settings->fixed_amount) {
@@ -379,7 +385,7 @@ class SalaryCalculationService
                 $fixedPart = $settings->fixed_amount ?? 0;
                 $percentPart = 0;
                 if ($settings->percent_rate) {
-                    $percentPart = $totalPrice * ($settings->percent_rate / 100);
+                    $percentPart = $subtotal * ($settings->percent_rate / 100);
                 }
                 return $fixedPart + $percentPart;
 

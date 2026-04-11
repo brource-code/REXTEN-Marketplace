@@ -190,7 +190,7 @@ Route::middleware(['jwt.auth'])->group(function () {
     });
 
     // Client routes
-    Route::prefix('client')->middleware(['role:CLIENT'])->group(function () {
+    Route::prefix('client')->middleware(['role:CLIENT', 'tenant'])->group(function () {
         // Profile
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::put('/profile', [ProfileController::class, 'update']);

@@ -23,7 +23,7 @@ import { CLIENT } from '@/constants/roles.constant'
  */
 const ServiceCard = ({ 
     service, 
-    variant = 'default', // 'default' | 'compact' | 'featured'
+    variant = 'default', // 'default' | 'compact' | 'featured' | 'catalog'
     showBadges = true,
     showRating = true,
     showTags = true,
@@ -37,7 +37,8 @@ const ServiceCard = ({
     const t = useTranslations('components.serviceCard')
     const tCommon = useTranslations('common')
     const tServices = useTranslations('public.services')
-    
+    const isCatalogVariant = variant === 'catalog'
+
     // Загружаем избранное через React Query (автоматически загружается при монтировании)
     const { data: favoriteServices = [] } = useQuery({
         queryKey: ['client-favorite-services'],
@@ -502,7 +503,7 @@ const ServiceCard = ({
     // Десктопная версия (вертикальная карточка)
     const isFeaturedVariant = variant === 'featured'
     const cardClasses = classNames(
-        isFeaturedVariant ? 'flex' : 'hidden md:flex',
+        isFeaturedVariant || isCatalogVariant ? 'flex' : 'hidden md:flex',
         'rounded-xl border border-gray-200 dark:border-white/10',
         'bg-white dark:bg-gray-900 overflow-hidden flex-col',
         'shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer h-full',
@@ -517,7 +518,12 @@ const ServiceCard = ({
             className={cardClasses}
         >
             {/* Изображение */}
-            <div className="relative h-48 w-full flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+            <div
+                className={classNames(
+                    'relative w-full flex-shrink-0 bg-gray-100 dark:bg-gray-800',
+                    isCatalogVariant ? 'h-52' : 'h-48',
+                )}
+            >
                 {service?.imageUrl ? (
                     <img
                         src={normalizeImageUrl(service.imageUrl) || FALLBACK_IMAGE}
@@ -602,7 +608,12 @@ const ServiceCard = ({
             </div>
 
             {/* Контент */}
-            <div className="p-4 flex flex-col gap-2.5 flex-1 min-h-0">
+            <div
+                className={classNames(
+                    'flex flex-col gap-2.5 flex-1 min-h-0',
+                    isCatalogVariant ? 'p-5 gap-3' : 'p-4',
+                )}
+            >
                 {/* Категория */}
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
                         {getCategoryName(service.category || service.groupLabel, tServices) || t('service')}
@@ -615,14 +626,24 @@ const ServiceCard = ({
                             {service.businessName}
                         </p>
                     )}
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white line-clamp-1">
+                    <h3
+                        className={classNames(
+                            'font-semibold text-gray-900 dark:text-white line-clamp-1',
+                            isCatalogVariant ? 'text-lg' : 'text-base',
+                        )}
+                    >
                         {service.name}
                     </h3>
                 </div>
                 
                 {/* Описание */}
                 {service.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-1">
+                    <p
+                        className={classNames(
+                            'text-sm text-gray-600 dark:text-gray-300',
+                            isCatalogVariant ? 'line-clamp-2' : 'line-clamp-1',
+                        )}
+                    >
                         {service.description}
                     </p>
                 )}

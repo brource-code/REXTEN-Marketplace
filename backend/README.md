@@ -134,3 +134,39 @@ backend/
 
 Настроен для работы с фронтендом на `http://localhost:3003`
 
+## Демо-данные для презентаций (LA Home & Glow)
+
+Команда наполняет компанию владельца **только выездным клинингом** (offsite, маршруты): несколько услуг с более высокими ценами, **~96 броней** в окне **апрель–июнь** (от сегодняшней даты внутри квартала; преобладает статус `completed`). Клиенты с адресами публичных POI в Greater LA, телефоны +1-555. Бьюти — в отдельном демо-аккаунте.
+
+```bash
+docker exec rexten_backend php artisan demo:seed-business --owner-email=demo@rexten.pro
+```
+
+Повторный полный прогон с удалением предыдущих записей с меткой `[demo-seed]`:
+
+```bash
+docker exec rexten_backend php artisan demo:seed-business --owner-email=demo@rexten.pro --force
+```
+
+Если у пользователя ещё нет строки в `companies`, команда создаст компанию автоматически (роль владельца должна быть `BUSINESS_OWNER`). Оптимизация маршрутов вызывается для выездных специалистов; при ошибке внешнего API маршрутизации сообщение выводится в консоль, брони остаются в БД.
+
+### Демо бьюти (отдельный аккаунт: маникюр, брови, парикмахер)
+
+Владелец по умолчанию: **`demo-beauty@rexten.pro`** (вариант «к `demo@rexten.pro` добавлено» — отдельный email). Клиенты демо — отдельный пул `rexten_demo_b_*@clients.rexten.demo`, чтобы не пересекаться с клинингом.
+
+Первый запуск (создать владельца `BUSINESS_OWNER` и наполнить салон):
+
+```bash
+docker exec rexten_backend php artisan demo:seed-beauty-business --create-owner --force
+```
+
+Пароль владельца при `--create-owner` выводится в консоль (для демо совпадает с тестовыми учётками README: `demo12345`). Повторное полное пересоздание: добавьте `--force`.
+
+### Демо HVAC (отопление / кондиционирование, выезд)
+
+Владелец по умолчанию: **`demo-hvac@rexten.pro`**. Клиенты — пул `rexten_demo_h_*@clients.rexten.demo`. Два техника с депо как у клининга; услуги в категории **hvac** (AC tune-up, heating safety, duct cleaning), **~88 броней** offsite, маршруты при ≥2 выездах в день на специалиста.
+
+```bash
+docker exec rexten_backend php artisan demo:seed-hvac-business --create-owner --force
+```
+

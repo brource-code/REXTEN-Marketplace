@@ -27,11 +27,14 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
+import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
+import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
 
 const TeamTab = () => {
     const t = useTranslations('business.settings.team')
     const tCommon = useTranslations('business.common')
     const queryClient = useQueryClient()
+    const { canCreate } = useSubscriptionLimits()
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [editingMember, setEditingMember] = useState(null)
     const [isSalarySettingsModalOpen, setIsSalarySettingsModalOpen] = useState(false)
@@ -57,6 +60,7 @@ const TeamTab = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-team'] })
             queryClient.invalidateQueries({ queryKey: ['business-route'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
             setIsAddModalOpen(false)
             toast.push(
                 <Notification title={tCommon('success')} type="success">
@@ -104,6 +108,7 @@ const TeamTab = () => {
         mutationFn: deleteTeamMember,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-team'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
             toast.push(
                 <Notification title={tCommon('success')} type="success">
                     {t('notifications.deleted')}
@@ -172,6 +177,7 @@ const TeamTab = () => {
     return (
         <>
             <div className="flex flex-col gap-4 w-full">
+                <SubscriptionLimitAlert resource="team_members" />
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full">
                     <div className="flex-1">
                         <h4>{t('title')}</h4>
@@ -179,7 +185,13 @@ const TeamTab = () => {
                             {t('description')}
                         </p>
                     </div>
-                    <Button variant="solid" icon={<PiUserPlus />} onClick={handleAdd} className="w-full sm:w-auto shrink-0">
+                    <Button
+                        variant="solid"
+                        icon={<PiUserPlus />}
+                        onClick={handleAdd}
+                        disabled={!canCreate('team_members')}
+                        className="w-full sm:w-auto shrink-0"
+                    >
                         {t('addMember')}
                     </Button>
                 </div>

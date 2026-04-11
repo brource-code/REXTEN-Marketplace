@@ -95,6 +95,17 @@ class TenantMiddleware
             return $this->withCompanyTimezone($request, $next, $company);
         }
 
+        // Клиент: при передаче X-Company-Id / current_company_id — таймзона этой компании для now() в запросе
+        if ($user->isClient()) {
+            $companyId = $request->input('current_company_id') ?? $request->header('X-Company-Id');
+            $company = null;
+            if ($companyId) {
+                $company = Company::find($companyId);
+            }
+
+            return $this->withCompanyTimezone($request, $next, $company);
+        }
+
         return $next($request);
     }
 

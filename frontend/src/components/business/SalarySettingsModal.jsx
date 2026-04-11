@@ -6,9 +6,9 @@ import Dialog from '@/components/ui/Dialog'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import Select from '@/components/ui/Select'
 import Radio from '@/components/ui/Radio'
 import DatePicker from '@/components/ui/DatePicker'
+import Switcher from '@/components/ui/Switcher'
 import { useUpdateSalarySettings, useSalarySettings } from '@/hooks/api/useBusinessSalary'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -166,94 +166,96 @@ const SalarySettingsModal = ({ isOpen, onClose, specialistId, specialistName }) 
         { value: 'hourly', label: t('paymentTypes.hourly') },
     ]
 
-    return (
-        <Dialog isOpen={isOpen} onClose={onClose} width={600}>
-            <form onSubmit={handleSubmit}>
-                <div className="flex flex-col h-full max-h-[85vh]">
-                    {/* Заголовок */}
-                    <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-                        <h3 className="text-lg">{t('title')}</h3>
-                        {specialistName && (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                {specialistName}
-                            </p>
-                        )}
-                    </div>
+    const dialogStyle = {
+        content: { overflow: 'visible' },
+    }
 
-                    {/* Скроллируемый контент */}
-                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                        {isLoadingSettings && (
-                            <div className="text-center py-4 text-gray-500 dark:text-gray-400">
-                                {t('loading')}
-                            </div>
-                        )}
-                        <FormItem label={t('labels.paymentType')} required>
-                            <div className="space-y-2">
-                                {paymentTypeOptions.map((option) => (
+    return (
+        <Dialog isOpen={isOpen} onClose={onClose} width={500} style={dialogStyle}>
+            <form onSubmit={handleSubmit}>
+                <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('title')}</h3>
+                    {specialistName && (
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
+                            {specialistName}
+                        </p>
+                    )}
+                </div>
+
+                <div className="px-6 py-4 space-y-4">
+                    {isLoadingSettings && (
+                        <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                            {t('loading')}
+                        </div>
+                    )}
+
+                    <FormItem label={t('labels.paymentType')} required>
+                        <div className="grid grid-cols-2 gap-2">
+                            {paymentTypeOptions.map((option) => (
+                                <label
+                                    key={option.value}
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-sm transition-colors ${
+                                        paymentType === option.value
+                                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300'
+                                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                                    }`}
+                                >
                                     <Radio
-                                        key={option.value}
                                         checked={paymentType === option.value}
                                         onChange={() => setPaymentType(option.value)}
                                         value={option.value}
-                                    >
-                                        {option.label}
-                                    </Radio>
-                                ))}
-                            </div>
+                                        className="!m-0"
+                                    />
+                                    <span className="leading-tight">{option.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </FormItem>
+
+                    {(paymentType === 'percent' || paymentType === 'fixed_plus_percent') && (
+                        <FormItem label={t('labels.percentRate')} required>
+                            <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                max="100"
+                                value={percentRate}
+                                onChange={(e) => setPercentRate(e.target.value)}
+                                placeholder={t('placeholders.percent')}
+                                required
+                            />
                         </FormItem>
+                    )}
 
-                        {(paymentType === 'percent' || paymentType === 'fixed_plus_percent') && (
-                            <FormItem label={t('labels.percentRate')} required>
-                                <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    max="100"
-                                    value={percentRate}
-                                    onChange={(e) => {
-                                        const value = e.target.value
-                                        setPercentRate(value === '' ? '' : value)
-                                    }}
-                                    placeholder={t('placeholders.percent')}
-                                    required
-                                />
-                            </FormItem>
-                        )}
+                    {(paymentType === 'fixed' || paymentType === 'fixed_plus_percent') && (
+                        <FormItem label={t('labels.fixedAmount')} required>
+                            <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={fixedAmount}
+                                onChange={(e) => setFixedAmount(e.target.value)}
+                                placeholder={t('placeholders.fixed')}
+                                required
+                            />
+                        </FormItem>
+                    )}
 
-                        {(paymentType === 'fixed' || paymentType === 'fixed_plus_percent') && (
-                            <FormItem label={t('labels.fixedAmount')} required>
-                                <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={fixedAmount}
-                                    onChange={(e) => {
-                                        const value = e.target.value
-                                        setFixedAmount(value === '' ? '' : value)
-                                    }}
-                                    placeholder={t('placeholders.fixed')}
-                                    required
-                                />
-                            </FormItem>
-                        )}
+                    {paymentType === 'hourly' && (
+                        <FormItem label={t('labels.hourlyRate')} required>
+                            <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={hourlyRate}
+                                onChange={(e) => setHourlyRate(e.target.value)}
+                                placeholder={t('placeholders.hourly')}
+                                required
+                            />
+                        </FormItem>
+                    )}
 
-                        {paymentType === 'hourly' && (
-                            <FormItem label={t('labels.hourlyRate')} required>
-                                <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={hourlyRate}
-                                    onChange={(e) => {
-                                        const value = e.target.value
-                                        setHourlyRate(value === '' ? '' : value)
-                                    }}
-                                    placeholder={t('placeholders.hourly')}
-                                    required
-                                />
-                            </FormItem>
-                        )}
-
+                    <div className="grid grid-cols-2 gap-4 items-end">
                         <FormItem label={t('labels.effectiveFrom')} required>
                             <DatePicker
                                 value={effectiveFrom}
@@ -269,37 +271,33 @@ const SalarySettingsModal = ({ isOpen, onClose, specialistId, specialistName }) 
                                 onChange={setEffectiveTo}
                                 inputtable
                                 inputtableBlur={false}
+                                clearable
                             />
                         </FormItem>
-
-                        <FormItem label={t('labels.active')}>
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={isActive}
-                                    onChange={(e) => setIsActive(e.target.checked)}
-                                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                />
-                                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                                    {t('labels.settingActive')}
-                                </span>
-                            </div>
-                        </FormItem>
                     </div>
 
-                    {/* Футер */}
-                    <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end gap-2">
-                        <Button variant="plain" onClick={onClose}>
-                            {tCommon('cancel')}
-                        </Button>
-                        <Button
-                            variant="solid"
-                            type="submit"
-                            loading={updateSettingsMutation.isPending}
-                        >
-                            {tCommon('save')}
-                        </Button>
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                            {t('labels.settingActive')}
+                        </span>
+                        <Switcher
+                            checked={isActive}
+                            onChange={(val) => setIsActive(val)}
+                        />
                     </div>
+                </div>
+
+                <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+                    <Button variant="plain" onClick={onClose}>
+                        {tCommon('cancel')}
+                    </Button>
+                    <Button
+                        variant="solid"
+                        type="submit"
+                        loading={updateSettingsMutation.isPending}
+                    >
+                        {tCommon('save')}
+                    </Button>
                 </div>
             </form>
         </Dialog>

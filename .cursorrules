@@ -497,9 +497,9 @@ FRONTEND_URL=http://localhost:3004
 
 ### Тестовые пользователи
 
-- **Клиент**: `client@ecme.com` / `password123` или `123456`
-- **Владелец бизнеса**: `business@ecme.com` / `password123` или `123456`
-- **Суперадмин**: `admin@ecme.com` / `password123` или `123456`
+- **Клиент**: `client@ecme.com` / `demo12345`
+- **Владелец бизнеса**: `business@ecme.com` / `demo12345`
+- **Суперадмин**: `admin@ecme.com` / `demo12345`
 
 ## Важные паттерны
 

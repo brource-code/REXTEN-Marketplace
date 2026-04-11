@@ -12,7 +12,7 @@ const MOCK_USERS = [
         id: 1,
         name: 'Иван Иванов',
         email: 'client@ecme.com',
-        password: '123456', // В реальном приложении пароль должен быть хеширован
+        password: 'demo12345', // В реальном приложении пароль должен быть хеширован
         role: 'CLIENT',
         avatar: null,
     },
@@ -20,7 +20,7 @@ const MOCK_USERS = [
         id: 2,
         name: 'Петр Петров',
         email: 'business@ecme.com',
-        password: '123456',
+        password: 'demo12345',
         role: 'BUSINESS_OWNER',
         avatar: null,
     },
@@ -28,7 +28,7 @@ const MOCK_USERS = [
         id: 3,
         name: 'Администратор',
         email: 'admin@ecme.com',
-        password: '123456',
+        password: 'demo12345',
         role: 'SUPERADMIN',
         avatar: null,
     },

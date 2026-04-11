@@ -9,6 +9,7 @@ use App\Models\Advertisement;
 use App\Helpers\DatabaseHelper;
 use App\Services\BusinessMetricsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -107,7 +108,8 @@ class DashboardController extends Controller
             // Рассчитываем статистику по периодам
             // Используем те же периоды, что и в отчётах для согласованности
             $now = now();
-            $startOfWeek = $now->copy()->startOfWeek(); // Начало недели (понедельник)
+            // ISO-неделя с понедельника — как dayjs.isoWeek и подписи на фронте
+            $startOfWeek = $now->copy()->startOfWeek(Carbon::MONDAY);
             $startOfMonth = $now->copy()->startOfMonth(); // Начало месяца
             $startOfYear = $now->copy()->startOfYear(); // Начало года
             $today = $now->format('Y-m-d');
@@ -134,16 +136,19 @@ class DashboardController extends Controller
                 ->whereDate('booking_date', '<=', $today)
                 ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0);
 
-            // Бронирования по периодам (используем booking_date)
+            // Бронирования по периодам — без cancelled (согласованно с выручкой)
             $bookingsThisWeek = Booking::where('company_id', $companyId)
+                ->where('status', '!=', 'cancelled')
                 ->whereDate('booking_date', '>=', $weekStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->count();
             $bookingsThisMonth = Booking::where('company_id', $companyId)
+                ->where('status', '!=', 'cancelled')
                 ->whereDate('booking_date', '>=', $monthStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->count();
             $bookingsThisYear = Booking::where('company_id', $companyId)
+                ->where('status', '!=', 'cancelled')
                 ->whereDate('booking_date', '>=', $yearStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->count();
@@ -371,141 +376,196 @@ class DashboardController extends Controller
 
             $payload = Cache::remember($cacheKey, 60, function () use ($companyId, $category, $period) {
             $now = now();
+            $todayStr = $now->format('Y-m-d');
+            $currentMonthNum = (int) $now->format('n');
             $data = [];
             $categories = [];
 
             if ($category === 'revenue') {
                 if ($period === 'thisWeek') {
-                    // Данные за последние 7 дней
-                    $startDate = $now->copy()->startOfWeek();
+                    $startDate = $now->copy()->startOfWeek(Carbon::MONDAY);
                     for ($i = 0; $i < 7; $i++) {
                         $date = $startDate->copy()->addDays($i);
                         $dayFormatted = $date->format('Y-m-d');
-                        
+                        if ($dayFormatted > $todayStr) {
+                            $data[] = 0.0;
+                            $categories[] = $date->format('D');
+                            continue;
+                        }
+
                         $bookingsAmount = Booking::where('company_id', $companyId)
                             ->where('status', 'completed')
                             ->whereDate('booking_date', $dayFormatted)
                             ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0;
-                        
+
                         $data[] = (float) $bookingsAmount;
                         $categories[] = $date->format('D');
                     }
                 } elseif ($period === 'thisMonth') {
-                    // Данные за текущий месяц по дням
                     $startDate = $now->copy()->startOfMonth();
-                    $endDate = $now->copy()->endOfMonth();
-                    $daysInMonth = $endDate->day;
-                    
-                    // Берем каждые 5 дней для оптимизации, но суммируем данные за весь период
+                    $daysInMonth = $now->copy()->endOfMonth()->day;
+
                     for ($i = 1; $i <= $daysInMonth; $i += 5) {
-                        $periodStart = $startDate->copy()->addDays($i - 1)->startOfDay();
-                        $periodEnd = $startDate->copy()->addDays(min($i + 4, $daysInMonth) - 1)->endOfDay();
+                        $periodStart = $startDate->copy()->addDays($i - 1);
+                        $periodEnd = $startDate->copy()->addDays(min($i + 4, $daysInMonth) - 1);
                         $periodStartDate = $periodStart->format('Y-m-d');
                         $periodEndDate = $periodEnd->format('Y-m-d');
-                        
+
+                        if ($periodStartDate > $todayStr) {
+                            $data[] = 0.0;
+                            $categories[] = $periodStart->format('d');
+                            continue;
+                        }
+                        if ($periodEndDate > $todayStr) {
+                            $periodEndDate = $todayStr;
+                        }
+
                         $bookingsAmount = Booking::where('company_id', $companyId)
                             ->where('status', 'completed')
                             ->whereBetween('booking_date', [$periodStartDate, $periodEndDate])
                             ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0;
-                        
+
                         $data[] = (float) $bookingsAmount;
                         $categories[] = $periodStart->format('d');
                     }
                 } elseif ($period === 'thisYear') {
-                    // Данные за текущий год по месяцам — завершённые брони по дате услуги
                     for ($i = 1; $i <= 12; $i++) {
-                        $monthStart = $now->copy()->month($i)->startOfMonth();
-                        $monthEnd = $now->copy()->month($i)->endOfMonth();
-                        $monthStartDate = $monthStart->format('Y-m-d');
-                        $monthEndDate = $monthEnd->format('Y-m-d');
-                        
+                        if ($i > $currentMonthNum) {
+                            $data[] = 0.0;
+                            $categories[] = $now->copy()->month($i)->format('M');
+                            continue;
+                        }
+                        $monthStartDate = $now->copy()->month($i)->startOfMonth()->format('Y-m-d');
+                        $monthEndDate = $i === $currentMonthNum
+                            ? $todayStr
+                            : $now->copy()->month($i)->endOfMonth()->format('Y-m-d');
+
                         $bookingAmount = Booking::where('company_id', $companyId)
                             ->where('status', 'completed')
                             ->whereBetween('booking_date', [$monthStartDate, $monthEndDate])
                             ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0;
-                        
+
                         $data[] = (float) $bookingAmount;
-                        $categories[] = $monthStart->format('M');
+                        $categories[] = $now->copy()->month($i)->format('M');
                     }
                 }
             } elseif ($category === 'bookings') {
                 if ($period === 'thisWeek') {
-                    $startDate = $now->copy()->startOfWeek();
+                    $startDate = $now->copy()->startOfWeek(Carbon::MONDAY);
                     for ($i = 0; $i < 7; $i++) {
                         $date = $startDate->copy()->addDays($i);
                         $dayStart = $date->copy()->startOfDay()->format('Y-m-d');
+                        if ($dayStart > $todayStr) {
+                            $data[] = 0;
+                            $categories[] = $date->format('D');
+                            continue;
+                        }
                         $dayEnd = $date->copy()->endOfDay()->format('Y-m-d');
-                        
+
                         $count = Booking::where('company_id', $companyId)
+                            ->where('status', '!=', 'cancelled')
                             ->whereBetween('booking_date', [$dayStart, $dayEnd])
                             ->count();
-                        
+
                         $data[] = $count;
                         $categories[] = $date->format('D');
                     }
                 } elseif ($period === 'thisMonth') {
                     $startDate = $now->copy()->startOfMonth();
-                    $endDate = $now->copy()->endOfMonth();
-                    $daysInMonth = $endDate->day;
-                    
+                    $daysInMonth = $now->copy()->endOfMonth()->day;
+
                     for ($i = 1; $i <= $daysInMonth; $i += 5) {
-                        $periodStart = $startDate->copy()->addDays($i - 1)->format('Y-m-d');
-                        $periodEnd = $startDate->copy()->addDays(min($i + 4, $daysInMonth) - 1)->format('Y-m-d');
-                        
+                        $periodStartDate = $startDate->copy()->addDays($i - 1)->format('Y-m-d');
+                        $periodEndDate = $startDate->copy()->addDays(min($i + 4, $daysInMonth) - 1)->format('Y-m-d');
+
+                        if ($periodStartDate > $todayStr) {
+                            $data[] = 0;
+                            $categories[] = $startDate->copy()->addDays($i - 1)->format('d');
+                            continue;
+                        }
+                        $periodEndCapped = $periodEndDate > $todayStr ? $todayStr : $periodEndDate;
+
                         $count = Booking::where('company_id', $companyId)
-                            ->whereBetween('booking_date', [$periodStart, $periodEnd])
+                            ->where('status', '!=', 'cancelled')
+                            ->whereBetween('booking_date', [$periodStartDate, $periodEndCapped])
                             ->count();
-                        
+
                         $data[] = $count;
                         $categories[] = $startDate->copy()->addDays($i - 1)->format('d');
                     }
                 } elseif ($period === 'thisYear') {
                     for ($i = 1; $i <= 12; $i++) {
+                        if ($i > $currentMonthNum) {
+                            $data[] = 0;
+                            $categories[] = $now->copy()->month($i)->format('M');
+                            continue;
+                        }
                         $monthStart = $now->copy()->month($i)->startOfMonth()->format('Y-m-d');
-                        $monthEnd = $now->copy()->month($i)->endOfMonth()->format('Y-m-d');
-                        
+                        $monthEnd = $i === $currentMonthNum
+                            ? $todayStr
+                            : $now->copy()->month($i)->endOfMonth()->format('Y-m-d');
+
                         $count = Booking::where('company_id', $companyId)
+                            ->where('status', '!=', 'cancelled')
                             ->whereBetween('booking_date', [$monthStart, $monthEnd])
                             ->count();
-                        
+
                         $data[] = $count;
                         $categories[] = $now->copy()->month($i)->format('M');
                     }
                 }
             } elseif ($category === 'clients') {
                 if ($period === 'thisWeek') {
-                    $startDate = $now->copy()->startOfWeek();
+                    $startDate = $now->copy()->startOfWeek(Carbon::MONDAY);
                     for ($i = 0; $i < 7; $i++) {
                         $date = $startDate->copy()->addDays($i);
                         $dayStart = $date->copy()->startOfDay()->format('Y-m-d');
+                        if ($dayStart > $todayStr) {
+                            $data[] = 0;
+                            $categories[] = $date->format('D');
+                            continue;
+                        }
                         $dayEnd = $date->copy()->endOfDay()->format('Y-m-d');
-                        
+
                         $count = BusinessMetricsService::countDistinctRegisteredClients($companyId, $dayStart, $dayEnd);
-                        
+
                         $data[] = $count;
                         $categories[] = $date->format('D');
                     }
                 } elseif ($period === 'thisMonth') {
                     $startDate = $now->copy()->startOfMonth();
-                    $endDate = $now->copy()->endOfMonth();
-                    $daysInMonth = $endDate->day;
-                    
+                    $daysInMonth = $now->copy()->endOfMonth()->day;
+
                     for ($i = 1; $i <= $daysInMonth; $i += 5) {
                         $periodStart = $startDate->copy()->addDays($i - 1)->format('Y-m-d');
                         $periodEnd = $startDate->copy()->addDays(min($i + 4, $daysInMonth) - 1)->format('Y-m-d');
-                        
-                        $count = BusinessMetricsService::countDistinctRegisteredClients($companyId, $periodStart, $periodEnd);
-                        
+
+                        if ($periodStart > $todayStr) {
+                            $data[] = 0;
+                            $categories[] = $startDate->copy()->addDays($i - 1)->format('d');
+                            continue;
+                        }
+                        $periodEndCapped = $periodEnd > $todayStr ? $todayStr : $periodEnd;
+
+                        $count = BusinessMetricsService::countDistinctRegisteredClients($companyId, $periodStart, $periodEndCapped);
+
                         $data[] = $count;
                         $categories[] = $startDate->copy()->addDays($i - 1)->format('d');
                     }
                 } elseif ($period === 'thisYear') {
                     for ($i = 1; $i <= 12; $i++) {
+                        if ($i > $currentMonthNum) {
+                            $data[] = 0;
+                            $categories[] = $now->copy()->month($i)->format('M');
+                            continue;
+                        }
                         $monthStart = $now->copy()->month($i)->startOfMonth()->format('Y-m-d');
-                        $monthEnd = $now->copy()->month($i)->endOfMonth()->format('Y-m-d');
-                        
+                        $monthEnd = $i === $currentMonthNum
+                            ? $todayStr
+                            : $now->copy()->month($i)->endOfMonth()->format('Y-m-d');
+
                         $count = BusinessMetricsService::countDistinctRegisteredClients($companyId, $monthStart, $monthEnd);
-                        
+
                         $data[] = $count;
                         $categories[] = $now->copy()->month($i)->format('M');
                     }
@@ -563,6 +623,7 @@ class DashboardController extends Controller
     private function bookingsCountBetween(int $companyId, string $from, string $to): int
     {
         return (int) Booking::where('company_id', $companyId)
+            ->where('status', '!=', 'cancelled')
             ->whereDate('booking_date', '>=', $from)
             ->whereDate('booking_date', '<=', $to)
             ->count();

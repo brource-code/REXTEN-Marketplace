@@ -49,7 +49,7 @@ export default function SpecialistsReport({ filters }) {
     return (
         <Card>
             <div className="mb-4">
-                <h2 className="h4 heading-text">{t('title')}</h2>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
             </div>
 
             <Table>
@@ -81,35 +81,49 @@ export default function SpecialistsReport({ filters }) {
                                             <HiChevronRight className="text-lg" />
                                         )}
                                     </td>
-                                    <td className="font-medium">{specialist.name}</td>
-                                    <td>{specialist.bookingsCount}</td>
                                     <td>
-                                        <NumericFormat
-                                            displayType="text"
-                                            value={specialist.revenue}
-                                            prefix="$"
-                                            thousandSeparator={true}
-                                            decimalScale={2}
-                                        />
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{specialist.name}</span>
                                     </td>
-                                    <td>{specialist.cancellations}</td>
-                                    <td>{specialist.completed}</td>
-                                    <td>{specialist.active}</td>
                                     <td>
-                                        <NumericFormat
-                                            displayType="text"
-                                            value={specialist.averageCheck}
-                                            prefix="$"
-                                            thousandSeparator={true}
-                                            decimalScale={2}
-                                        />
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{specialist.bookingsCount}</span>
+                                    </td>
+                                    <td>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                            <NumericFormat
+                                                displayType="text"
+                                                value={specialist.revenue}
+                                                prefix="$"
+                                                thousandSeparator={true}
+                                                decimalScale={2}
+                                            />
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{specialist.cancellations}</span>
+                                    </td>
+                                    <td>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{specialist.completed}</span>
+                                    </td>
+                                    <td>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{specialist.active}</span>
+                                    </td>
+                                    <td>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                            <NumericFormat
+                                                displayType="text"
+                                                value={specialist.averageCheck}
+                                                prefix="$"
+                                                thousandSeparator={true}
+                                                decimalScale={2}
+                                            />
+                                        </span>
                                     </td>
                                 </tr>
                                 {isExpanded && specialist.clients && specialist.clients.length > 0 && (
                                     <tr>
                                         <td colSpan={8} className="bg-gray-50 dark:bg-gray-800">
                                             <div className="p-4">
-                                                <h4 className="text-sm font-semibold heading-text mb-2">{t('clients')}</h4>
+                                                <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('clients')}</div>
                                                 <Table>
                                                     <thead>
                                                         <tr>
@@ -120,8 +134,12 @@ export default function SpecialistsReport({ filters }) {
                                                     <tbody>
                                                         {specialist.clients.map((client, clientIndex) => (
                                                             <tr key={`${specialist.id}-client-${client.id || client.name || clientIndex}`}>
-                                                                <td>{client.name}</td>
-                                                                <td>{client.bookings}</td>
+                                                                <td>
+                                                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{client.name}</span>
+                                                                </td>
+                                                                <td>
+                                                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{client.bookings}</span>
+                                                                </td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
