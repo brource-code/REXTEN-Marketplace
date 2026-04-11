@@ -10,8 +10,8 @@ export const STACKED_SIDE_NAV_SECONDARY_WIDTH = 270
 export const SIDE_NAV_CONTENT_GUTTER = 'px-2'
 export const LOGO_X_GUTTER = 'px-6'
 export const HEADER_HEIGHT = 64
-export const PAGE_CONTAINER_GUTTER_X = 'px-4 sm:px-6 md:px-8'
-export const PAGE_CONTAINER_GUTTER_Y = 'py-4 sm:py-6 md:px-8'
+export const PAGE_CONTAINER_GUTTER_X = 'px-2 sm:px-4 md:px-6 lg:px-8'
+export const PAGE_CONTAINER_GUTTER_Y = 'py-2 sm:py-4 md:py-6'
 
 export const LAYOUT_COLLAPSIBLE_SIDE = 'collapsibleSide'
 export const LAYOUT_STACKED_SIDE = 'stackedSide'

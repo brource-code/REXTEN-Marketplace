@@ -36,10 +36,9 @@ const CollapsibleSide = ({ children }) => {
         }
     }, [])
 
-    // Вычисляем margin напрямую без задержки
     const contentMargin = isMounted && isDesktop 
         ? (sideNavCollapse ? SIDE_NAV_COLLAPSED_WIDTH : SIDE_NAV_WIDTH)
-        : (isMounted ? 0 : SIDE_NAV_WIDTH) // На сервере используем дефолтный margin
+        : (isMounted ? 0 : 0)
 
     return (
         <LayoutBase

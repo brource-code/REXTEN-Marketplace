@@ -6,7 +6,6 @@ import useTheme from '@/utils/hooks/useTheme'
 import {
     CONTENT_WIDTH_BOXED,
     CONTENT_WIDTH_FULL,
-    PAGE_CONTAINER_GUTTER_X,
 } from '@/constants/theme.constant'
 
 const ADMIN_CONTENT_WIDTH_ROUTES = ['/business', '/superadmin']
@@ -29,7 +28,7 @@ const Container = (props) => {
         isAdminShell && (layoutContentWidth ?? CONTENT_WIDTH_BOXED) === CONTENT_WIDTH_FULL
 
     const widthClass = useFullWidth
-        ? classNames('w-full max-w-none mx-auto', PAGE_CONTAINER_GUTTER_X)
+        ? 'w-full max-w-none mx-auto'
         : 'container mx-auto'
 
     return (

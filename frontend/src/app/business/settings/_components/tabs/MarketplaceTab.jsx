@@ -27,12 +27,15 @@ import Link from 'next/link'
 import { normalizeImageUrl } from '@/utils/imageUtils'
 import useDebounce from '@/utils/hooks/useDebounce'
 import { formatDate } from '@/utils/dateTime'
+import useBusinessStore from '@/store/businessStore'
 
 const { Tr, Td, TBody, THead, Th } = Table
 
 const MarketplaceTab = () => {
     const t = useTranslations('business.settings.marketplace')
     const tCommon = useTranslations('business.common')
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     const queryClient = useQueryClient()
     const router = useRouter()
     const [formData, setFormData] = useState({
@@ -52,7 +55,7 @@ const MarketplaceTab = () => {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [adToDelete, setAdToDelete] = useState(null)
 
-    const { data: settings, isLoading, refetch } = useQuery({
+    const { data: marketplaceSettings, isLoading, refetch } = useQuery({
         queryKey: ['business-marketplace-settings'],
         queryFn: getMarketplaceSettings,
         refetchOnMount: 'always',
@@ -130,25 +133,24 @@ const MarketplaceTab = () => {
     })
 
     useEffect(() => {
-        if (settings) {
+        if (marketplaceSettings) {
             setFormData({
-                visible: settings.visible ?? true,
-                showInSearch: settings.showInSearch ?? true,
-                allowBooking: settings.allowBooking ?? true,
-                showReviews: settings.showReviews ?? true,
-                showPortfolio: settings.showPortfolio ?? true,
-                seoTitle: settings.seoTitle || '',
-                seoDescription: settings.seoDescription || '',
-                metaKeywords: settings.metaKeywords || '',
+                visible: marketplaceSettings.visible ?? true,
+                showInSearch: marketplaceSettings.showInSearch ?? true,
+                allowBooking: marketplaceSettings.allowBooking ?? true,
+                showReviews: marketplaceSettings.showReviews ?? true,
+                showPortfolio: marketplaceSettings.showPortfolio ?? true,
+                seoTitle: marketplaceSettings.seoTitle || '',
+                seoDescription: marketplaceSettings.seoDescription || '',
+                metaKeywords: marketplaceSettings.metaKeywords || '',
             })
             isInitialMount.current = true
             hasChanges.current = false
-            // Даем время на установку начальных значений
             setTimeout(() => {
                 isInitialMount.current = false
             }, 150)
         }
-    }, [settings])
+    }, [marketplaceSettings])
 
     // Автосохранение при изменении данных
     useEffect(() => {
@@ -409,7 +411,7 @@ const MarketplaceTab = () => {
                                                         </Td>
                                                         <Td className="whitespace-nowrap">
                                                             <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                                {ad.created_at ? formatDate(ad.created_at, 'America/Los_Angeles', 'short') : '-'}
+                                                                {ad.created_at ? formatDate(ad.created_at, businessTz, 'short') : '-'}
                                                             </span>
                                                         </Td>
                                                         <Td className="whitespace-nowrap">
@@ -483,7 +485,7 @@ const MarketplaceTab = () => {
                                                         {t('advertisements.columns.createdAt')}
                                                     </div>
                                                     <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {ad.created_at ? formatDate(ad.created_at, 'America/Los_Angeles', 'short') : '—'}
+                                                        {ad.created_at ? formatDate(ad.created_at, businessTz, 'short') : '—'}
                                                     </span>
                                                 </div>
                                             </div>
