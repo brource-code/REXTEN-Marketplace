@@ -28,9 +28,7 @@ class ClientBookingNotificationTexts
 
         $bookingDate = '';
         if ($booking->booking_date) {
-            $date = $booking->booking_date instanceof Carbon
-                ? $booking->booking_date
-                : Carbon::parse($booking->booking_date);
+            $date = $booking->getTimeWindow()['start'];
             $bookingDate = ($locale === 'en' || $locale === 'es-mx' || $locale === 'hy-am' || $locale === 'uk-ua')
                 ? $date->format('M d, Y')
                 : $date->format('d.m.Y');

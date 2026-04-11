@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { formatDateTime } from '@/utils/dateTime'
+import useBusinessStore from '@/store/businessStore'
 
 const notificationHeight = 'h-[280px]'
 
@@ -23,6 +24,8 @@ const ClientNotification = () => {
     const notificationDropdownRef = useRef(null)
     const t = useTranslations('components.notification')
     const locale = useLocale()
+    const { settings } = useBusinessStore()
+    const clientNotificationTz = settings?.timezone || 'America/Los_Angeles'
 
     const { data: notifications = [], isLoading } = useQuery({
         queryKey: ['client-notifications'],
@@ -154,7 +157,7 @@ const ClientNotification = () => {
                                         {notification.message}
                                     </p>
                                     <span className="text-xs text-gray-400">
-                                        {formatDateTime(notification.createdAt, null, 'America/Los_Angeles', 'short')}
+                                        {formatDateTime(notification.createdAt, null, clientNotificationTz, 'short')}
                                     </span>
                                 </div>
                                 {/* Кнопка удаления */}

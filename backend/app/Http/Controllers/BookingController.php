@@ -58,11 +58,13 @@ class BookingController extends Controller
             'promo_code' => 'nullable|string|max:64',
         ]);
         
-        // Дополнительная проверка даты с учетом таймзоны
-        $timezone = config('app.timezone') ?: date_default_timezone_get();
+        // Дополнительная проверка даты с учетом таймзоны компании
+        $timezone = $request->filled('company_id')
+            ? Company::timezoneById((int) $request->company_id)
+            : (config('app.timezone') ?: date_default_timezone_get());
         $today = Carbon::today($timezone);
         $bookingDate = Carbon::parse($request->booking_date, $timezone)->startOfDay();
-        
+
         if ($bookingDate->lt($today)) {
             $validator->errors()->add('booking_date', 'Дата бронирования не может быть в прошлом');
         }
@@ -568,11 +570,11 @@ class BookingController extends Controller
             'advertisement_id' => 'nullable|exists:advertisements,id', // Добавляем опциональный advertisement_id
         ]);
 
-        // Дополнительная проверка даты с учетом таймзоны
-        $timezone = config('app.timezone') ?: date_default_timezone_get();
+        // Дополнительная проверка даты с учетом таймзоны компании
+        $timezone = Company::timezoneById((int) $request->company_id);
         $today = Carbon::today($timezone);
         $requestDate = Carbon::parse($request->date, $timezone)->startOfDay();
-        
+
         if ($requestDate->lt($today)) {
             $validator->errors()->add('date', 'Дата не может быть в прошлом');
         }
@@ -753,11 +755,11 @@ class BookingController extends Controller
             'advertisement_id' => 'nullable|exists:advertisements,id', // Добавляем опциональный advertisement_id
         ]);
 
-        // Дополнительная проверка даты с учетом таймзоны
-        $timezone = config('app.timezone') ?: date_default_timezone_get();
+        // Дополнительная проверка даты с учетом таймзоны компании
+        $timezone = Company::timezoneById((int) $request->company_id);
         $today = Carbon::today($timezone);
         $bookingDate = Carbon::parse($request->booking_date, $timezone)->startOfDay();
-        
+
         if ($bookingDate->lt($today)) {
             $validator->errors()->add('booking_date', 'Дата бронирования не может быть в прошлом');
         }

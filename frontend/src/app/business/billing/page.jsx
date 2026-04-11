@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, Suspense } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
@@ -12,11 +12,26 @@ import Button from '@/components/ui/Button'
 import { useQuery } from '@tanstack/react-query'
 import { getStripeTransactions } from '@/lib/api/stripe'
 import Loading from '@/components/shared/Loading'
-import { formatDate } from '@/utils/dateTime'
+import { formatDateLocalized } from '@/utils/dateTime'
 import Select from '@/components/ui/Select'
 import { PiCreditCard, PiMegaphone, PiCalendarCheck } from 'react-icons/pi'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import PermissionGuard from '@/components/shared/PermissionGuard'
+import useBusinessStore from '@/store/businessStore'
+
+function getBillingTransactionDescription(transaction, tBilling, tSub) {
+    if (transaction.type === 'subscription' && transaction.plan) {
+        const planName = tSub(`plans.${transaction.plan}.name`, {
+            defaultValue: transaction.plan,
+        })
+        const periodLabel =
+            transaction.interval === 'year'
+                ? tBilling('periodLabelYear')
+                : tBilling('periodLabelMonth')
+        return tBilling('subscriptionPayment', { planName, periodLabel })
+    }
+    return transaction.description
+}
 
 const typeColors = {
     advertisement: 'bg-blue-200 dark:bg-blue-700 text-blue-900 dark:text-blue-100',
@@ -58,9 +73,12 @@ function BillingSuspenseFallback() {
 
 function BillingPageContent() {
     const t = useTranslations('business.billing')
-    const tCommon = useTranslations('common')
+    const tSub = useTranslations('business.subscription')
+    const locale = useLocale()
     const searchParams = useSearchParams()
     const { onAppendQueryParams } = useAppendQueryParams()
+    const { settings } = useBusinessStore()
+    const billingTxTimezone = settings?.timezone || 'America/Los_Angeles'
     
     const pageIndex = parseInt(searchParams.get('pageIndex') || '1')
     const pageSize = parseInt(searchParams.get('pageSize') || '10')
@@ -115,7 +133,11 @@ function BillingPageContent() {
                 <div className="flex items-center gap-2">
                     <PiCalendarCheck className="text-gray-400" size={16} />
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {formatDate(props.row.original.created, 'America/Los_Angeles', 'numeric')}
+                        {formatDateLocalized(
+                            props.row.original.created,
+                            billingTxTimezone,
+                            locale
+                        )}
                     </span>
                 </div>
             ),
@@ -135,7 +157,7 @@ function BillingPageContent() {
                     <div className="flex items-center gap-2">
                         {icon}
                         <Tag className={typeColors[transaction.type] || typeColors.unknown}>
-                            {t(`types.${transaction.type}`)}
+                            {t(`types.${transaction.type}`, { defaultValue: transaction.type })}
                         </Tag>
                     </div>
                 )
@@ -146,7 +168,11 @@ function BillingPageContent() {
             accessorKey: 'description',
             cell: (props) => (
                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                    {props.row.original.description}
+                    {getBillingTransactionDescription(
+                        props.row.original,
+                        t,
+                        tSub
+                    )}
                 </span>
             ),
         },
@@ -176,7 +202,9 @@ function BillingPageContent() {
 
                 return (
                     <Tag className={statusColor}>
-                        {t(`statuses.${transaction.status}`)}
+                        {t(`statuses.${transaction.status}`, {
+                            defaultValue: transaction.status,
+                        })}
                     </Tag>
                 )
             },
@@ -217,15 +245,21 @@ function BillingPageContent() {
                             {typeIcon}
                             <div>
                                 <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                    {transaction.description}
+                                    {getBillingTransactionDescription(transaction, t, tSub)}
                                 </div>
                                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                    {formatDate(transaction.created, 'America/Los_Angeles', 'numeric')}
+                                    {formatDateLocalized(
+                                        transaction.created,
+                                        billingTxTimezone,
+                                        locale
+                                    )}
                                 </div>
                             </div>
                         </div>
                         <Tag className={statusColors[transaction.status] || statusColors.pending}>
-                            {t(`statuses.${transaction.status}`)}
+                            {t(`statuses.${transaction.status}`, {
+                                defaultValue: transaction.status,
+                            })}
                         </Tag>
                     </div>
                     
@@ -235,7 +269,7 @@ function BillingPageContent() {
                                 {t('columns.type')}
                             </div>
                             <Tag className={typeColors[transaction.type] || typeColors.unknown}>
-                                {t(`types.${transaction.type}`)}
+                                {t(`types.${transaction.type}`, { defaultValue: transaction.type })}
                             </Tag>
                         </div>
                         <div className="text-right">

@@ -25,6 +25,8 @@ import { PiBell, PiBellFill, PiCheck, PiX } from 'react-icons/pi'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { formatDateTime } from '@/utils/dateTime'
+import useBusinessStore from '@/store/businessStore'
+import { SUPERADMIN_DISPLAY_TIMEZONE } from '@/constants/superadmin-datetime.constant'
 
 const notificationHeight = 'h-[280px]'
 
@@ -34,8 +36,12 @@ const BusinessNotification = () => {
     const queryClient = useQueryClient()
     const notificationDropdownRef = useRef(null)
     const t = useTranslations('components.notification')
+    const { settings } = useBusinessStore()
 
     const isSuperadminArea = pathname?.startsWith('/superadmin')
+    const notificationDisplayTz = isSuperadminArea
+        ? SUPERADMIN_DISPLAY_TIMEZONE
+        : settings?.timezone || 'America/Los_Angeles'
 
     const queryKey = isSuperadminArea ? ['admin-notifications'] : ['business-notifications']
 
@@ -169,7 +175,7 @@ const BusinessNotification = () => {
                                         {notification.message}
                                     </p>
                                     <span className="text-xs text-gray-400">
-                                        {formatDateTime(notification.createdAt, null, 'America/Los_Angeles', 'short')}
+                                        {formatDateTime(notification.createdAt, null, notificationDisplayTz, 'short')}
                                     </span>
                                 </div>
                                 <button

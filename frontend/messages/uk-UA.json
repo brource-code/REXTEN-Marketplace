@@ -2715,7 +2715,9 @@
                 "emailPlaceholder": "email@example.com",
                 "telegramPlaceholder": "@username або username",
                 "whatsappPlaceholder": "+1234567890",
-                "websitePlaceholder": "https://example.com"
+                "websitePlaceholder": "https://example.com",
+                "timezone": "Часовий пояс",
+                "timezoneHint": "Використовується для розкладу, панелі, часу бронювань та звітів вашого бізнесу."
             },
             "team": {
                 "title": "Команда",

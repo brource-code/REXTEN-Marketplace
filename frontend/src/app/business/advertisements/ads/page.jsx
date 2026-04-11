@@ -26,6 +26,7 @@ import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { formatDate } from '@/utils/dateTime'
 import PermissionGuard from '@/components/shared/PermissionGuard'
+import useBusinessStore from '@/store/businessStore'
 
 const statusColors = {
     draft: 'bg-yellow-400 dark:bg-yellow-500 text-gray-900 dark:text-gray-900',
@@ -143,6 +144,8 @@ function AdvertisementsAdsPageContent() {
     const t = useTranslations('business.advertisements.ads')
     const tAds = useTranslations('business.advertisements')
     const tCommon = useTranslations('business.common')
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     const router = useRouter()
     const searchParams = useSearchParams()
     const queryClient = useQueryClient()
@@ -327,10 +330,10 @@ function AdvertisementsAdsPageContent() {
                         return (
                             <div className="text-xs">
                                 <div className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                                    {row.start_date ? formatDate(row.start_date, 'America/Los_Angeles', 'short') : '-'}
+                                    {row.start_date ? formatDate(row.start_date, businessTz, 'short') : '-'}
                                 </div>
                                 <div className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                                    {row.end_date ? formatDate(row.end_date, 'America/Los_Angeles', 'short') : '-'}
+                                    {row.end_date ? formatDate(row.end_date, businessTz, 'short') : '-'}
                                 </div>
                             </div>
                         )
@@ -344,7 +347,7 @@ function AdvertisementsAdsPageContent() {
                 cell: (props) => (
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {props.row.original.created_at 
-                            ? formatDate(props.row.original.created_at, 'America/Los_Angeles', 'short') 
+                            ? formatDate(props.row.original.created_at, businessTz, 'short') 
                             : '-'}
                     </span>
                 ),
@@ -509,7 +512,7 @@ function AdvertisementsAdsPageContent() {
                                                                 <div>
                                                                     <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Создано</div>
                                                                     <div className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                                                                        {formatDate(ad.created_at, 'America/Los_Angeles', 'short')}
+                                                                        {formatDate(ad.created_at, businessTz, 'short')}
                                                                     </div>
                                                                 </div>
                                                             )}
@@ -695,7 +698,7 @@ function AdvertisementsAdsPageContent() {
                                         <div>
                                             <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Дата начала</div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                {formatDate(selectedAd.start_date, 'America/Los_Angeles', 'short')}
+                                                {formatDate(selectedAd.start_date, businessTz, 'short')}
                                             </div>
                                         </div>
                                     )}
@@ -703,7 +706,7 @@ function AdvertisementsAdsPageContent() {
                                         <div>
                                             <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Дата окончания</div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                {formatDate(selectedAd.end_date, 'America/Los_Angeles', 'short')}
+                                                {formatDate(selectedAd.end_date, businessTz, 'short')}
                                             </div>
                                         </div>
                                     )}

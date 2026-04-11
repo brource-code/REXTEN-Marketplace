@@ -15,6 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getChartData } from '@/lib/api/business'
 import { useTranslations } from 'next-intl'
 import { getBusinessDashboardPeriodRange } from '@/utils/businessDashboardPeriodRange'
+import useBusinessStore from '@/store/businessStore'
 
 const Chart = dynamic(() => import('@/components/shared/Chart'), {
     ssr: false,
@@ -202,6 +203,8 @@ const mockChartData = {
 
 const BusinessOverview = ({ data }) => {
     const t = useTranslations('business.dashboard')
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     const [selectedCategory, setSelectedCategory] = useState('revenue')
     const [selectedPeriod, setSelectedPeriod] = useState('thisMonth')
     const [isChartUpdating, setIsChartUpdating] = useState(false)
@@ -282,9 +285,9 @@ const BusinessOverview = ({ data }) => {
     ), [data?.clients, selectedPeriod])
 
     const periodCardsRangeLine = useMemo(() => {
-        const { from, to } = getBusinessDashboardPeriodRange(selectedPeriod)
+        const { from, to } = getBusinessDashboardPeriodRange(selectedPeriod, businessTz)
         return t('stats.periodCardsRange', { from, to })
-    }, [selectedPeriod, t])
+    }, [selectedPeriod, t, businessTz])
 
     // Оптимизированный обработчик изменения категории с debounce
     const handleCategoryChange = useCallback((category) => {
@@ -357,11 +360,13 @@ const BusinessOverview = ({ data }) => {
                     className="w-[150px]"
                     size="sm"
                     placeholder={t('selectPeriod')}
-                    value={periodOptions.filter(
-                        (option) => option.value === selectedPeriod,
-                    )}
+                    value={
+                        periodOptions.find((option) => option.value === selectedPeriod) ??
+                        null
+                    }
                     options={periodOptions}
                     isSearchable={false}
+                    isOptionEqualToValue={(a, b) => a?.value === b?.value}
                     onChange={handlePeriodChange}
                 />
             </div>

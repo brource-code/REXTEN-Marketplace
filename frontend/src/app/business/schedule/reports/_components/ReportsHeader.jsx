@@ -8,9 +8,16 @@ import Select from '@/components/ui/Select'
 import DatePicker from '@/components/ui/DatePicker'
 import dayjs from 'dayjs'
 import ExportButton from './ExportButton'
+import {
+    getBusinessPresetDateRange,
+    detectBusinessPresetFromDates,
+} from '@/utils/businessDashboardPeriodRange'
+import useBusinessStore from '@/store/businessStore'
 
 export default function ReportsHeader({ filters, onFiltersChange }) {
     const t = useTranslations('nav.business.schedule.reports.filters')
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     
     const [localFilters, setLocalFilters] = useState(filters)
 
@@ -19,73 +26,8 @@ export default function ReportsHeader({ filters, onFiltersChange }) {
         setLocalFilters(filters)
     }, [filters])
 
-    // Определяем текущий период на основе дат
-    const detectPeriod = (dateFrom, dateTo) => {
-        if (!dateFrom || !dateTo) return null
-
-        const from = dayjs(dateFrom)
-        const to = dayjs(dateTo)
-        const now = dayjs()
-        const today = now.format('YYYY-MM-DD')
-
-        // Проверяем "Сегодня"
-        if (dateFrom === today && dateTo === today) {
-            return 'today'
-        }
-
-        // Проверяем "Неделя" - последние 7 дней
-        const weekStart = now.subtract(7, 'day').format('YYYY-MM-DD')
-        if (dateFrom === weekStart && dateTo === today) {
-            return 'week'
-        }
-
-        // Проверяем "Месяц" - последний месяц
-        const monthStart = now.subtract(1, 'month').format('YYYY-MM-DD')
-        if (dateFrom === monthStart && dateTo === today) {
-            return 'month'
-        }
-
-        // Проверяем "Квартал" - последние 3 месяца
-        const quarterStart = now.subtract(3, 'month').format('YYYY-MM-DD')
-        if (dateFrom === quarterStart && dateTo === today) {
-            return 'quarter'
-        }
-
-        // Проверяем "Год" - с начала года
-        const yearStart = now.startOf('year').format('YYYY-MM-DD')
-        if (dateFrom === yearStart && dateTo === today) {
-            return 'year'
-        }
-
-        return null
-    }
-
     const handleQuickPeriod = (period) => {
-        const now = dayjs()
-        let dateFrom
-        let dateTo = now.format('YYYY-MM-DD')
-
-        switch (period) {
-            case 'today':
-                dateFrom = dateTo
-                break
-            case 'week':
-                dateFrom = now.subtract(7, 'day').format('YYYY-MM-DD')
-                break
-            case 'month':
-                dateFrom = now.subtract(1, 'month').format('YYYY-MM-DD')
-                break
-            case 'quarter':
-                // Последние 3 месяца
-                dateFrom = now.subtract(3, 'month').format('YYYY-MM-DD')
-                break
-            case 'year':
-                // С начала года
-                dateFrom = now.startOf('year').format('YYYY-MM-DD')
-                break
-            default:
-                dateFrom = now.subtract(1, 'month').format('YYYY-MM-DD')
-        }
+        const { dateFrom, dateTo } = getBusinessPresetDateRange(period, businessTz)
 
         const newFilters = { 
             date_from: dateFrom, 
@@ -121,10 +63,9 @@ export default function ReportsHeader({ filters, onFiltersChange }) {
         { value: 'year', label: t('year') },
     ]
 
-    // Определяем текущий период на основе дат
     const currentPeriod = useMemo(() => {
-        return detectPeriod(localFilters.date_from, localFilters.date_to)
-    }, [localFilters.date_from, localFilters.date_to])
+        return detectBusinessPresetFromDates(localFilters.date_from, localFilters.date_to, businessTz)
+    }, [localFilters.date_from, localFilters.date_to, businessTz])
 
     // Текущее значение для Select
     const currentPeriodValue = currentPeriod 

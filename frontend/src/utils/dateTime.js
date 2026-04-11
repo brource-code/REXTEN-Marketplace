@@ -55,6 +55,39 @@ export const formatDate = (date, timezone = 'America/Los_Angeles', format = 'sho
 }
 
 /**
+ * Дата в таймзоне с учётом локали UI (Intl), в отличие от formatDate (фиксированные US-шаблоны dayjs).
+ */
+export const formatDateLocalized = (
+  date,
+  timezone = 'America/Los_Angeles',
+  intlLocale = 'en-US'
+) => {
+  if (!date) return '—'
+
+  try {
+    let d
+    if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      d = dayjs.tz(date, timezone).startOf('day')
+    } else {
+      d = dayjs(date).tz(timezone)
+    }
+
+    if (!d.isValid()) {
+      return '—'
+    }
+
+    const tag = intlLocale || 'en-US'
+    return new Intl.DateTimeFormat(tag, {
+      dateStyle: 'medium',
+      timeZone: timezone,
+    }).format(d.toDate())
+  } catch (error) {
+    console.error('Error formatting date (localized):', error, date)
+    return '—'
+  }
+}
+
+/**
  * Форматирует время в таймзоне бизнеса с учётом локали UI (next-intl), не только en-US.
  * @param {string} time - время HH:mm или HH:mm:ss
  * @param {string} timezone - таймзона бизнеса
@@ -91,6 +124,23 @@ export const formatTime = (time, timezone = 'America/Los_Angeles', intlLocale = 
  * @param {string} format - формат ('short' или 'long')
  * @returns {string} Отформатированная дата и время
  */
+/**
+ * ISO UTC (или любой парсабельный момент) → дата и время в таймзоне, US short (Feb 5, 2026 9:30 AM).
+ */
+export const formatDateTimeFromIso = (iso, timezone = 'America/Los_Angeles') => {
+    if (!iso) return '—'
+    try {
+        const d = dayjs(iso).tz(timezone)
+        if (!d.isValid()) {
+            return '—'
+        }
+        return d.format(US_DATETIME_FORMAT)
+    } catch (error) {
+        console.error('formatDateTimeFromIso:', error, iso)
+        return '—'
+    }
+}
+
 export const formatDateTime = (date, time = null, timezone = 'America/Los_Angeles', format = 'short') => {
   if (!date) return '—'
   

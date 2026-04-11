@@ -19,9 +19,8 @@ class BookingService
      */
     public function isSlotAvailable($companyId, $serviceId, $date, $time, $durationMinutes = 60, $excludeBookingId = null, $serviceData = null, $specialistId = null)
     {
-        // Используем системную таймзону (пока системную, в будущем по штату)
-        $timezone = config('app.timezone') ?: date_default_timezone_get();
-        
+        $timezone = Company::timezoneById((int) $companyId);
+
         // Нормализуем формат даты (может быть datetime или только дата)
         $bookingDate = Carbon::parse($date, $timezone)->startOfDay();
         
@@ -287,6 +286,8 @@ class BookingService
             return [];
         }
 
+        $timezone = $company->resolveTimezone();
+
         // Получаем длительность услуги
         // ВАЖНО: duration из расписания (daySchedule['duration']) - это НЕ длительность услуги!
         // Также duration из JSON услуги может быть 1440 (24 часа) - это срок выполнения, а не длительность сеанса!
@@ -343,8 +344,6 @@ class BookingService
         }
         
         if ($schedule && is_array($schedule)) {
-            // Используем системную таймзону (пока системную, в будущем по штату)
-            $timezone = config('app.timezone') ?: date_default_timezone_get();
             $dateObj = Carbon::parse($date, $timezone);
             $dayOfWeek = strtolower($dateObj->format('l')); // monday, tuesday, etc.
             
@@ -376,8 +375,6 @@ class BookingService
         }
 
         // Генерируем слоты
-        // Используем системную таймзону (пока системную, в будущем по штату)
-        $timezone = config('app.timezone') ?: date_default_timezone_get();
         $now = Carbon::now($timezone);
         
         // Получаем существующие бронирования на эту дату

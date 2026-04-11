@@ -4,8 +4,11 @@ import { useEffect } from 'react'
 import Container from '@/components/shared/Container'
 import Card from '@/components/ui/Card'
 import { formatDate } from '@/utils/dateTime'
+import useBusinessStore from '@/store/businessStore'
 
 export default function BusinessPrivacyPage() {
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     useEffect(() => {
         document.title = 'Политика конфиденциальности для бизнесов | REXTEN Marketplace'
     }, [])
@@ -21,7 +24,7 @@ export default function BusinessPrivacyPage() {
                             Политика конфиденциальности для бизнесов
                         </h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
-                            Последнее обновление: {formatDate(new Date(), 'America/Los_Angeles', 'long')}
+                            Последнее обновление: {formatDate(new Date(), businessTz, 'long')}
                         </p>
 
                         <div className="prose prose-gray dark:prose-invert max-w-none space-y-6 text-gray-700 dark:text-gray-300">

@@ -386,10 +386,7 @@ class RouteController extends Controller
         }
 
         $company = Company::query()->find((int) $route->company_id);
-        $displayTz = $company !== null ? trim((string) ($company->timezone ?? '')) : '';
-        if ($displayTz === '') {
-            $displayTz = 'America/Los_Angeles';
-        }
+        $displayTz = $company !== null ? $company->resolveTimezone() : 'America/Los_Angeles';
 
         $specialistPayload = [
             'id' => $specialist?->id ?? (int) $route->specialist_id,

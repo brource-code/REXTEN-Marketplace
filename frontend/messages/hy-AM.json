@@ -2715,7 +2715,9 @@
                 "emailPlaceholder": "email@example.com",
                 "telegramPlaceholder": "@username կամ username",
                 "whatsappPlaceholder": "+1234567890",
-                "websitePlaceholder": "https://example.com"
+                "websitePlaceholder": "https://example.com",
+                "timezone": "Ժամային գոտի",
+                "timezoneHint": "Օգտագործվում է ձեր բիզնեսի ժամանակացույցի, վահանակի, ամրագրումների և հաշվետվությունների համար։"
             },
             "team": {
                 "title": "Թիմ",

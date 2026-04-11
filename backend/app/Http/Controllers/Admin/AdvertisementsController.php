@@ -522,13 +522,12 @@ class AdvertisementsController extends Controller
                 $categoryName = $company->category;
             }
             
-            // Вычисляем рейтинг из отзывов для этого объявления (как в MarketplaceController)
-            $adReviews = Review::where('advertisement_id', $ad->id)
-                ->where('is_visible', true)
+            $adReviews = Review::query()
+                ->forMarketplaceAdvertisement($ad)
                 ->get();
-            
-            $rating = $adReviews->count() > 0 
-                ? round($adReviews->avg('rating'), 1) 
+
+            $rating = $adReviews->count() > 0
+                ? round((float) $adReviews->avg('rating'), 1)
                 : 0.0;
             $reviewsCount = $adReviews->count();
             

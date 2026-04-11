@@ -9,6 +9,7 @@ import classNames from '@/utils/classNames'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { formatDate } from '@/utils/dateTime'
+import { resolveClientBookingTimezone } from '@/constants/client-datetime.constant'
 
 const ReviewModal = ({ isOpen, onClose, order, onSubmit, isLoading }) => {
     const t = useTranslations('components.reviewModal')
@@ -16,6 +17,7 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit, isLoading }) => {
     const [hoveredRating, setHoveredRating] = useState(0)
     const [comment, setComment] = useState('')
     const [errors, setErrors] = useState({})
+    const bookingTz = order ? resolveClientBookingTimezone(order) : 'America/Los_Angeles'
 
     if (!isOpen || !order) return null
 
@@ -101,7 +103,7 @@ const ReviewModal = ({ isOpen, onClose, order, onSubmit, isLoading }) => {
                                 {order.businessName}
                             </Link>
                             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                <span>{formatDate(order.date, 'America/Los_Angeles', 'short')}</span>
+                                <span>{formatDate(order.date, bookingTz, 'short')}</span>
                                 <span>•</span>
                                 <span>{order.time}</span>
                                 <span>•</span>

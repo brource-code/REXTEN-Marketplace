@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, Suspense } from 'react'
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Container from '@/components/shared/Container'
@@ -46,6 +46,8 @@ import {
 } from 'react-icons/pi'
 import PermissionGuard from '@/components/shared/PermissionGuard'
 import Checkbox from '@/components/ui/Checkbox'
+import { formatDate } from '@/utils/dateTime'
+import useBusinessStore from '@/store/businessStore'
 
 const planIcons = {
     starter: PiRocketLaunch,
@@ -104,6 +106,12 @@ function SubscriptionContent() {
     const tCommon = useTranslations('business.common')
     const router = useRouter()
     const queryClient = useQueryClient()
+    const { settings } = useBusinessStore()
+    const subscriptionDisplayTz = settings?.timezone || 'America/Los_Angeles'
+    const usShortDate = useCallback(
+        (iso) => formatDate(iso, subscriptionDisplayTz, 'short'),
+        [subscriptionDisplayTz],
+    )
 
     const { data: publicPlatform } = usePlatformPublicRuntime()
     const stripeOn = publicPlatform?.stripePaymentsEnabled !== false
@@ -175,9 +183,7 @@ function SubscriptionContent() {
         onSuccess: () => {
             const cached = queryClient.getQueryData(['current-subscription'])
             const endRaw = cached?.subscription?.current_period_end
-            const endDateStr = endRaw
-                ? new Date(endRaw).toLocaleDateString()
-                : null
+            const endDateStr = endRaw ? usShortDate(endRaw) : null
             queryClient.invalidateQueries({ queryKey: ['current-subscription'] })
             queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
             setCancelDialogOpen(false)
@@ -483,7 +489,7 @@ function SubscriptionContent() {
                                                                 <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
                                                                     <PiCalendarCheck size={14} />
                                                                     {t('downgrade.effectiveOn')}{' '}
-                                                                    {new Date(activeSub.current_period_end).toLocaleDateString()}
+                                                                    {usShortDate(activeSub.current_period_end)}
                                                                 </span>
                                                             )}
                                                         </>
@@ -496,7 +502,7 @@ function SubscriptionContent() {
                                                                 <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
                                                                     <PiCalendarCheck size={14} />
                                                                     {t('activeUntil')}{' '}
-                                                                    {new Date(activeSub.current_period_end).toLocaleDateString()}
+                                                                    {usShortDate(activeSub.current_period_end)}
                                                                 </span>
                                                             )}
                                                         </>
@@ -509,7 +515,7 @@ function SubscriptionContent() {
                                                                 <span className="flex items-center gap-1">
                                                                     <PiCalendarCheck size={14} />
                                                                     {t('renewsOn')}{' '}
-                                                                    {new Date(activeSub.current_period_end).toLocaleDateString()}
+                                                                    {usShortDate(activeSub.current_period_end)}
                                                                 </span>
                                                             )}
                                                         </>
@@ -1048,7 +1054,7 @@ function SubscriptionContent() {
                     {activeSub?.current_period_end && (
                         <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-4">
                             {t('downgrade.effectiveOn')}:{' '}
-                            {new Date(activeSub.current_period_end).toLocaleDateString()}
+                            {usShortDate(activeSub.current_period_end)}
                         </p>
                     )}
                     {pendingDowngradePlan && (
@@ -1114,7 +1120,7 @@ function SubscriptionContent() {
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-6">
                         {activeSub?.current_period_end
                             ? t('cancelDialog.message', {
-                                  endDate: new Date(activeSub.current_period_end).toLocaleDateString(),
+                                  endDate: usShortDate(activeSub.current_period_end),
                               })
                             : t('cancelDialog.messageNoEnd')}
                     </p>

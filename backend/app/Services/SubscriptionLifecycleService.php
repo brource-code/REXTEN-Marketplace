@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Company;
 use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use Illuminate\Support\Facades\DB;
@@ -51,9 +52,12 @@ class SubscriptionLifecycleService
             ->distinct()
             ->pluck('company_id');
 
+        $appTz = (string) config('app.timezone');
         foreach ($ids as $companyId) {
+            date_default_timezone_set(Company::timezoneById((int) $companyId));
             self::finalizeExpiredForCompany((int) $companyId);
         }
+        date_default_timezone_set($appTz);
 
         return $ids->count();
     }

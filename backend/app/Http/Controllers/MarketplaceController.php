@@ -138,14 +138,13 @@ class MarketplaceController extends Controller
                 $adServiceIds = array_filter($adServiceIds);
             }
             
-            // Вычисляем рейтинг из отзывов для этого объявления
-            // Используем advertisement_id для точной привязки
-            $adReviews = Review::where('advertisement_id', $ad->id)
-                ->where('is_visible', true)
+            // Рейтинг и число отзывов — та же логика, что на странице объявления (getServiceProfile)
+            $adReviews = Review::query()
+                ->forMarketplaceAdvertisement($ad)
                 ->get();
-            
-            $rating = $adReviews->count() > 0 
-                ? round($adReviews->avg('rating'), 1) 
+
+            $rating = $adReviews->count() > 0
+                ? round((float) $adReviews->avg('rating'), 1)
                 : 0.0;
             $reviewsCount = $adReviews->count();
             
@@ -567,9 +566,10 @@ class MarketplaceController extends Controller
                 $days = [];
                 $slots = [];
                 
-                // Генерируем дни на 30 дней вперед
-                // Используем системную таймзону (пока системную, в будущем по штату)
-                $timezone = config('app.timezone') ?: date_default_timezone_get();
+                // Генерируем дни на 30 дней вперед в таймзоне компании (как в публичном бронировании).
+                $timezone = $advertisement->company_id
+                    ? Company::timezoneById((int) $advertisement->company_id)
+                    : (config('app.timezone') ?: date_default_timezone_get());
                 $today = \Carbon\Carbon::now($timezone);
                 $dayIndex = 0;
                 
@@ -812,42 +812,11 @@ class MarketplaceController extends Controller
                 $adServiceIds = array_filter($adServiceIds);
             }
             
-            // Ищем отзывы для этого объявления:
-            // 1. По advertisement_id (прямые отзывы на объявление)
-            // 2. По company_id (общие отзывы на компанию)
-            // 3. По service_id услуг из объявления (отзывы на конкретные услуги)
-            $adReviews = Review::where(function($q) use ($advertisement) {
-                    // Отзывы напрямую на объявление
-                    $q->where('advertisement_id', $advertisement->id)
-                      // Или общие отзывы на компанию
-                      ->orWhere(function($subQ) use ($advertisement) {
-                          $subQ->where('company_id', $advertisement->company_id)
-                               ->whereNull('advertisement_id');
-                      });
-                    
-                    // Также включаем отзывы на услуги из этого объявления
-                    if (!empty($advertisement->services)) {
-                        $services = is_array($advertisement->services) 
-                            ? $advertisement->services 
-                            : (json_decode($advertisement->services, true) ?? []);
-                        $serviceIds = collect($services)->pluck('id')->filter(function($id) {
-                            return is_numeric($id);
-                        })->map(function($id) {
-                            return (int)$id;
-                        })->unique()->toArray();
-                        
-                        if (!empty($serviceIds)) {
-                            $q->orWhere(function($subQ) use ($serviceIds, $advertisement) {
-                                $subQ->whereIn('service_id', $serviceIds)
-                                     ->where('company_id', $advertisement->company_id);
-                            });
-                        }
-                    }
-                })
-                ->where('is_visible', true)
+            $adReviews = Review::query()
+                ->forMarketplaceAdvertisement($advertisement)
                 ->with(['service', 'booking.specialist', 'order.booking.specialist', 'booking'])
                 ->get()
-                ->unique('id'); // Убираем дубликаты
+                ->unique('id');
             
             // Загружаем пользователей отдельно для отзывов с user_id
             $userIds = $adReviews->pluck('user_id')->filter()->unique();

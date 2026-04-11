@@ -2715,7 +2715,9 @@
                 "emailPlaceholder": "correo@ejemplo.com",
                 "telegramPlaceholder": "@usuario o usuario",
                 "whatsappPlaceholder": "+1234567890",
-                "websitePlaceholder": "https://ejemplo.com"
+                "websitePlaceholder": "https://ejemplo.com",
+                "timezone": "Zona horaria",
+                "timezoneHint": "Se usa para el horario, el panel, las horas de reserva y los informes de tu negocio."
             },
             "team": {
                 "title": "Equipo",

@@ -2729,7 +2729,9 @@
                 "telegram": "Telegram",
                 "whatsapp": "WhatsApp",
                 "telegramPlaceholder": "@username или username",
-                "whatsappPlaceholder": "+1234567890"
+                "whatsappPlaceholder": "+1234567890",
+                "timezone": "Часовой пояс",
+                "timezoneHint": "Используется для расписания, дашборда, времени бронирований и отчётов вашего бизнеса."
             },
             "team": {
                 "title": "Команда",

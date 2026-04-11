@@ -10,6 +10,7 @@ use App\Models\Advertisement;
 use App\Models\AdditionalService;
 use App\Models\ServiceCategory;
 use App\Models\TeamMember;
+use App\Constants\UsTimezones;
 use App\Jobs\AutoApproveAdvertisement;
 use App\Services\ActivityService;
 use App\Services\Routing\GeocodingService;
@@ -273,6 +274,7 @@ class SettingsController extends Controller
             'website' => 'nullable|url|max:255',
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
+            'timezone' => 'sometimes|nullable|string|timezone',
         ]);
 
         if ($validator->fails()) {
@@ -292,6 +294,8 @@ class SettingsController extends Controller
             }
             
             // Создаем новую компанию с данными из запроса
+            $stateCode = $request->input('state');
+            $tzInput = $request->input('timezone');
             $companyData = [
                 'owner_id' => $user->id,
                 'name' => $request->input('name', ''),
@@ -303,7 +307,12 @@ class SettingsController extends Controller
                 'whatsapp' => $request->input('whatsapp'),
                 'website' => $request->input('website'),
                 'city' => $request->input('city'),
-                'state' => $request->input('state'),
+                'state' => $stateCode,
+                'timezone' => is_string($tzInput) && $tzInput !== ''
+                    ? $tzInput
+                    : (is_string($stateCode) && trim($stateCode) !== ''
+                        ? UsTimezones::getByState($stateCode)
+                        : 'America/Los_Angeles'),
             ];
             
             // Генерируем slug из названия
@@ -320,14 +329,24 @@ class SettingsController extends Controller
             $company = Company::findOrFail($companyId);
             
             $updateData = $request->only([
-                'name', 'description', 'address', 'phone', 'email', 'telegram', 'whatsapp', 'website', 'city', 'state'
+                'name', 'description', 'address', 'phone', 'email', 'telegram', 'whatsapp', 'website', 'city', 'state', 'timezone',
             ]);
-            
+
+            if (array_key_exists('state', $updateData) && ! array_key_exists('timezone', $updateData)) {
+                $currentTz = trim((string) ($company->timezone ?? ''));
+                if ($currentTz === '' || $currentTz === 'America/Los_Angeles') {
+                    $st = $updateData['state'] ?? '';
+                    if (is_string($st) && trim($st) !== '') {
+                        $updateData['timezone'] = UsTimezones::getByState($st);
+                    }
+                }
+            }
+
             // Обновляем slug, если изменилось название
             if (isset($updateData['name']) && $updateData['name'] !== $company->name) {
                 $updateData['slug'] = $this->generateSlug($updateData['name']);
             }
-            
+
             $company->update($updateData);
         }
 
@@ -344,7 +363,8 @@ class SettingsController extends Controller
                 'slug' => $company->slug ?? null,
                 'city' => $company->city ?? null,
                 'state' => $company->state ?? null,
-            ]
+                'timezone' => $company->timezone ?? 'America/Los_Angeles',
+            ],
         ]);
     }
 

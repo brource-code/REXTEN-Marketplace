@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -56,6 +57,40 @@ class Review extends Model
     public function advertisement()
     {
         return $this->belongsTo(Advertisement::class);
+    }
+
+    /**
+     * Отзывы, относящиеся к объявлению на маркетплейсе (как на странице профиля объявления):
+     * — привязка к advertisement_id;
+     * — общие отзывы на компанию без advertisement_id;
+     * — отзывы на услуги из JSON services объявления (service_id + company_id).
+     */
+    public function scopeForMarketplaceAdvertisement(Builder $query, Advertisement $advertisement): Builder
+    {
+        return $query->where(function (Builder $q) use ($advertisement) {
+            $q->where('advertisement_id', $advertisement->id)
+                ->orWhere(function (Builder $subQ) use ($advertisement) {
+                    $subQ->where('company_id', $advertisement->company_id)
+                        ->whereNull('advertisement_id');
+                });
+
+            $services = [];
+            if (! empty($advertisement->services)) {
+                $services = is_array($advertisement->services)
+                    ? $advertisement->services
+                    : (json_decode($advertisement->services, true) ?? []);
+            }
+            $serviceIds = collect($services)->pluck('id')->filter(function ($id) {
+                return is_numeric($id);
+            })->map(fn ($id) => (int) $id)->unique()->values()->all();
+
+            if (! empty($serviceIds)) {
+                $q->orWhere(function (Builder $subQ) use ($serviceIds, $advertisement) {
+                    $subQ->whereIn('service_id', $serviceIds)
+                        ->where('company_id', $advertisement->company_id);
+                });
+            }
+        })->where('is_visible', true);
     }
 }
 

@@ -4,9 +4,10 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import Select from '@/components/ui/Select'
 import { FormItem, FormContainer } from '@/components/ui/Form'
 import Avatar from '@/components/ui/Avatar'
-import { PiUpload, PiEye, PiArrowSquareOut } from 'react-icons/pi'
+import { PiUpload, PiArrowSquareOut } from 'react-icons/pi'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getBusinessProfile, updateBusinessProfile, uploadBusinessAvatar } from '@/lib/api/business'
 import Loading from '@/components/shared/Loading'
@@ -15,6 +16,8 @@ import Notification from '@/components/ui/Notification'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import useDebounce from '@/utils/hooks/useDebounce'
 import { useOnboardingTour } from '@/providers/OnboardingProvider'
+import useBusinessStore from '@/store/businessStore'
+import { US_IANA_TIMEZONES } from '@/constants/us-timezones.constant'
 
 const ProfileTab = () => {
     const t = useTranslations('business.settings.profile')
@@ -22,6 +25,7 @@ const ProfileTab = () => {
     const { restartTour } = useOnboardingTour()
     const tCommon = useTranslations('business.common')
     const queryClient = useQueryClient()
+    const updateBusinessSettings = useBusinessStore((s) => s.updateSettings)
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -31,7 +35,13 @@ const ProfileTab = () => {
         telegram: '',
         whatsapp: '',
         website: '',
+        timezone: 'America/Los_Angeles',
     })
+
+    const timezoneOptions = useMemo(
+        () => US_IANA_TIMEZONES.map((value) => ({ value, label: value })),
+        [],
+    )
     const [avatar, setAvatar] = useState(null)
     const isInitialMount = useRef(true)
     const hasChanges = useRef(false)
@@ -43,9 +53,12 @@ const ProfileTab = () => {
 
     const updateProfileMutation = useMutation({
         mutationFn: updateBusinessProfile,
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['business-profile'] })
             hasChanges.current = false
+            if (data?.timezone) {
+                updateBusinessSettings({ timezone: data.timezone })
+            }
             toast.push(
                 <Notification title={tCommon('success')} type="success">
                     {t('success')}
@@ -88,6 +101,7 @@ const ProfileTab = () => {
                 telegram: profile.telegram || '',
                 whatsapp: profile.whatsapp || '',
                 website: profile.website || '',
+                timezone: profile.timezone || 'America/Los_Angeles',
             })
             setAvatar(profile.avatar)
             isInitialMount.current = true
@@ -136,6 +150,7 @@ const ProfileTab = () => {
                 telegram: profile.telegram || '',
                 whatsapp: profile.whatsapp || '',
                 website: profile.website || '',
+                timezone: profile.timezone || 'America/Los_Angeles',
             })
             setAvatar(profile.avatar)
         }
@@ -270,6 +285,23 @@ const ProfileTab = () => {
                             onChange={(e) => handleChange('website', e.target.value)}
                             placeholder={t('websitePlaceholder')}
                         />
+                    </FormItem>
+
+                    <FormItem label={t('timezone')}>
+                        <Select
+                            isSearchable={false}
+                            options={timezoneOptions}
+                            value={
+                                timezoneOptions.find((o) => o.value === formData.timezone) ||
+                                timezoneOptions.find((o) => o.value === 'America/Los_Angeles') ||
+                                null
+                            }
+                            onChange={(option) =>
+                                handleChange('timezone', option?.value || 'America/Los_Angeles')
+                            }
+                            placeholder={t('timezone')}
+                        />
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">{t('timezoneHint')}</p>
                     </FormItem>
 
                     {/* Ссылка на публичный профиль */}

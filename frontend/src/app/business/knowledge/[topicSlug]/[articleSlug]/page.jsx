@@ -7,6 +7,8 @@ import Container from '@/components/shared/Container'
 import Button from '@/components/ui/Button'
 import Loading from '@/components/shared/Loading'
 import { getBusinessKnowledgeArticleBySlugs } from '@/lib/api/business'
+import { formatDate } from '@/utils/dateTime'
+import useBusinessStore from '@/store/businessStore'
 import ReactHtmlParser from 'html-react-parser'
 import { TbArrowNarrowLeft } from 'react-icons/tb'
 
@@ -35,6 +37,8 @@ export default function KnowledgeArticlePage() {
     const router = useRouter()
     const t = useTranslations('business.knowledge.article')
     const locale = useLocale()
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     const topicSlug = params?.topicSlug ? decodeURIComponent(String(params.topicSlug)) : ''
     const articleSlug = params?.articleSlug ? decodeURIComponent(String(params.articleSlug)) : ''
 
@@ -65,7 +69,9 @@ export default function KnowledgeArticlePage() {
         )
     }
 
-    const updated = article.updated_at ? new Date(article.updated_at).toLocaleDateString() : ''
+    const updated = article.updated_at
+        ? formatDate(article.updated_at, businessTz, 'short')
+        : ''
 
     return (
         <Container>

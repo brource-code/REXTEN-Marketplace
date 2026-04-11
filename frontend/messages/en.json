@@ -2719,7 +2719,9 @@
                 "emailPlaceholder": "email@example.com",
                 "telegramPlaceholder": "@username or username",
                 "whatsappPlaceholder": "+1234567890",
-                "websitePlaceholder": "https://example.com"
+                "websitePlaceholder": "https://example.com",
+                "timezone": "Time zone",
+                "timezoneHint": "Used for schedule, dashboard, booking times, and reports for your business."
             },
             "team": {
                 "title": "Team",

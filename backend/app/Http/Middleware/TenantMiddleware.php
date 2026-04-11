@@ -2,10 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Company;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\Company;
 
 class TenantMiddleware
 {
@@ -25,10 +25,10 @@ class TenantMiddleware
                 'url' => $request->fullUrl(),
             ]);
         }
-        
+
         $user = auth('api')->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
@@ -37,6 +37,7 @@ class TenantMiddleware
 
         // Суперадмин: используем current_company_id из запроса, если передан
         if ($user->isSuperAdmin()) {
+            $company = null;
             $companyId = $request->input('current_company_id') ?? $request->header('X-Company-Id');
             if ($companyId) {
                 $company = Company::find($companyId);
@@ -44,7 +45,8 @@ class TenantMiddleware
                     $request->merge(['current_company_id' => $company->id]);
                 }
             }
-            return $next($request);
+
+            return $this->withCompanyTimezone($request, $next, $company);
         }
 
         // Для владельцев бизнеса и staff - изоляция по company_id
@@ -59,25 +61,26 @@ class TenantMiddleware
                 }
             }
             // Иначе используем первую компанию: owned или staff
-            if (!$company) {
+            if (! $company) {
                 $company = $user->ownedCompanies()->first();
-                if (!$company) {
+                if (! $company) {
                     $companyUser = $user->companyUsers()->where('is_active', true)->with('company')->first();
                     $company = $companyUser?->company;
                 }
             }
 
             // Разрешаем запросы на создание/обновление профиля компании, даже если компании еще нет
-            $isProfileUpdate = (str_contains($path, 'business/settings/profile') || 
-                               str_contains($path, 'api/business/settings/profile')) && 
-                              in_array($request->method(), ['PUT', 'POST']);
-            
-            if (!$company && !$isProfileUpdate) {
+            $isProfileUpdate = (str_contains($path, 'business/settings/profile') ||
+                               str_contains($path, 'api/business/settings/profile')) &&
+                              in_array($request->method(), ['PUT', 'POST'], true);
+
+            if (! $company && ! $isProfileUpdate) {
                 \Log::warning('TenantMiddleware: Company not found', [
                     'path' => $path,
                     'method' => $request->method(),
                     'user_id' => $user->id,
                 ]);
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Бизнес не найден',
@@ -88,9 +91,28 @@ class TenantMiddleware
             if ($company) {
                 $request->merge(['current_company_id' => $company->id]);
             }
+
+            return $this->withCompanyTimezone($request, $next, $company);
         }
 
         return $next($request);
     }
-}
 
+    /**
+     * Выполняет запрос с date_default_timezone_set на таймзону компании (если есть) и восстанавливает app.timezone после.
+     */
+    private function withCompanyTimezone(Request $request, Closure $next, ?Company $company): Response
+    {
+        $appTz = (string) config('app.timezone');
+        if ($company) {
+            $tz = $company->resolveTimezone();
+            date_default_timezone_set($tz);
+            $request->merge(['current_company_timezone' => $tz]);
+        }
+        try {
+            return $next($request);
+        } finally {
+            date_default_timezone_set($appTz);
+        }
+    }
+}

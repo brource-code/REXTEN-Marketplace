@@ -26,6 +26,9 @@ import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { formatDate } from '@/utils/dateTime'
 import PermissionGuard from '@/components/shared/PermissionGuard'
+import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
+import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
+import useBusinessStore from '@/store/businessStore'
 
 const statusColors = {
     draft: 'bg-yellow-400 dark:bg-yellow-500 text-gray-900 dark:text-gray-900',
@@ -88,6 +91,9 @@ export default function AdvertisementsPage() {
 function AdvertisementsPageContent() {
     const t = useTranslations('business.advertisements')
     const tCommon = useTranslations('business.common')
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
+    const { canCreate } = useSubscriptionLimits()
     const router = useRouter()
     const searchParams = useSearchParams()
     const queryClient = useQueryClient()
@@ -124,6 +130,7 @@ function AdvertisementsPageContent() {
         mutationFn: deleteBusinessAdvertisement,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-advertisements-regular'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
             setIsDeleteDialogOpen(false)
             setAdToDelete(null)
             toast.push(
@@ -250,7 +257,7 @@ function AdvertisementsPageContent() {
                 cell: (props) => (
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {props.row.original.created_at 
-                            ? formatDate(props.row.original.created_at, 'America/Los_Angeles', 'short') 
+                            ? formatDate(props.row.original.created_at, businessTz, 'short') 
                             : '-'}
                     </span>
                 ),
@@ -303,6 +310,7 @@ function AdvertisementsPageContent() {
         <Container>
             <AdaptiveCard>
                 <div className="flex flex-col gap-4">
+                    <SubscriptionLimitAlert resource="advertisements" />
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                         <div>
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('myAds')}</h4>
@@ -320,14 +328,17 @@ function AdvertisementsPageContent() {
                                     {t('buyAds')}
                                 </Button>
                             </Link>
-                            <Link href="/business/settings/advertisements/create">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                >
+                            {canCreate('advertisements') ? (
+                                <Link href="/business/settings/advertisements/create">
+                                    <Button variant="outline" size="sm">
+                                        {t('createButton')}
+                                    </Button>
+                                </Link>
+                            ) : (
+                                <Button variant="outline" size="sm" disabled>
                                     {t('createButton')}
                                 </Button>
-                            </Link>
+                            )}
                         </div>
                     </div>
 
@@ -345,14 +356,17 @@ function AdvertisementsPageContent() {
                                     </p>
                                 </div>
                             )}
-                            <Link href="/business/settings/advertisements/create">
-                                <Button
-                                    variant="solid"
-                                    icon={<PiPlus />}
-                                >
+                            {canCreate('advertisements') ? (
+                                <Link href="/business/settings/advertisements/create">
+                                    <Button variant="solid" icon={<PiPlus />}>
+                                        {t('createButton')}
+                                    </Button>
+                                </Link>
+                            ) : (
+                                <Button variant="solid" icon={<PiPlus />} disabled>
                                     {t('createButton')}
                                 </Button>
-                            </Link>
+                            )}
                         </div>
                     ) : (
                         <>
@@ -404,7 +418,7 @@ function AdvertisementsPageContent() {
                                                                 </Tag>
                                                                 {ad.created_at && (
                                                                     <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                                                                        {formatDate(ad.created_at, 'America/Los_Angeles', 'short')}
+                                                                        {formatDate(ad.created_at, businessTz, 'short')}
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -536,7 +550,7 @@ function AdvertisementsPageContent() {
                     setIsViewModalOpen(false)
                     setSelectedAd(null)
                 }}
-                width={800}
+                width={700}
             >
                 {selectedAd && (
                     <div className="flex flex-col h-full max-h-[85vh]">
@@ -544,105 +558,199 @@ function AdvertisementsPageContent() {
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('viewModal.title')}</h4>
                         </div>
                         
-                        <div className="flex-1 overflow-y-auto booking-modal-scroll px-6 py-4">
-                            <div className="space-y-4">
-                                {selectedAd.image && (
-                                    <div className="relative w-full h-80 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                        <img
-                                            src={normalizeImageUrl(selectedAd.image)}
-                                            alt={selectedAd.title}
-                                            className="w-full h-full object-contain"
-                                            onError={(e) => {
-                                                e.target.src = FALLBACK_IMAGE
-                                                e.target.onerror = null
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                                <div>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">{selectedAd.title}</h4>
-                                    {selectedAd.description && (
-                                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-4">{selectedAd.description}</p>
-                                    )}
+                        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                            {/* Изображение */}
+                            {selectedAd.image && (
+                                <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                    <img
+                                        src={normalizeImageUrl(selectedAd.image)}
+                                        alt={selectedAd.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.src = FALLBACK_IMAGE
+                                            e.target.onerror = null
+                                        }}
+                                    />
                                 </div>
-                                {/* Причина отклонения */}
-                                {selectedAd.status === 'rejected' && selectedAd.moderation_reason && (
-                                    <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                                        <div className="text-sm font-bold text-red-800 dark:text-red-300 mb-1">
-                                            {t('viewModal.rejectionReason')}:
-                                        </div>
-                                        <div className="text-sm font-bold text-red-600 dark:text-red-400">
-                                            {selectedAd.moderation_reason}
-                                        </div>
-                                        {selectedAd.moderated_at && (
-                                            <div className="text-xs font-bold text-red-500 dark:text-red-400 mt-2">
-                                                {t('viewModal.checkedAt')}: <span className="text-gray-900 dark:text-gray-100">{new Date(selectedAd.moderated_at).toLocaleString()}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                            )}
 
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <div>
-                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.status')}</div>
-                                        <Tag className={statusColors[selectedAd.status] || statusColors.inactive}>
-                                            {getStatusLabel(selectedAd.status)}
-                                        </Tag>
+                            {/* Заголовок и описание */}
+                            <div>
+                                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">{selectedAd.title}</h4>
+                                {selectedAd.description && (
+                                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{selectedAd.description}</p>
+                                )}
+                            </div>
+
+                            {/* Статус + видимость */}
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <Tag className={statusColors[selectedAd.status] || statusColors.inactive}>
+                                    {getStatusLabel(selectedAd.status)}
+                                </Tag>
+                                <span className={`text-xs font-bold px-2 py-1 rounded-full ${selectedAd.is_active ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
+                                    {selectedAd.is_active ? t('viewModal.visible') : t('viewModal.hidden')}
+                                </span>
+                                {selectedAd.category_slug && (
+                                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
+                                        {selectedAd.category_slug}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Причина отклонения */}
+                            {selectedAd.status === 'rejected' && selectedAd.moderation_reason && (
+                                <div className="p-3 bg-red-50 dark:bg-red-500/10 rounded-lg border border-red-200 dark:border-red-800">
+                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-0.5">
+                                        {t('viewModal.rejectionReason')}
                                     </div>
-                                    {selectedAd.placement && (
-                                        <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.placement')}</div>
-                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedAd.placement}</div>
-                                        </div>
-                                    )}
+                                    <div className="text-sm text-red-600 dark:text-red-400">
+                                        {selectedAd.moderation_reason}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Услуги */}
+                            {selectedAd.services && selectedAd.services.length > 0 && (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('viewModal.services')}</div>
+                                    <div className="space-y-2">
+                                        {selectedAd.services.map((service, idx) => (
+                                            <div key={service.id || idx} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{service.name}</div>
+                                                    {service.description && (
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{service.description}</div>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+                                                    {service.duration && (
+                                                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                            {service.duration} {t('viewModal.min')}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                        ${Number(service.price || 0).toFixed(2)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Портфолио */}
+                            {selectedAd.portfolio && selectedAd.portfolio.length > 0 && (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{t('viewModal.portfolio')}</div>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                        {selectedAd.portfolio.map((item, idx) => (
+                                            <div key={item.id || idx} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                                <img
+                                                    src={normalizeImageUrl(item.image || item.url || item)}
+                                                    alt=""
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.target.src = FALLBACK_IMAGE
+                                                        e.target.onerror = null
+                                                    }}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Детали */}
+                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {selectedAd.city && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.city')}</div>
-                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedAd.city}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.city')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.city}</div>
                                         </div>
                                     )}
                                     {selectedAd.state && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.state')}</div>
-                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedAd.state}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.state')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.state}</div>
                                         </div>
                                     )}
-                                    {selectedAd.price_from && (
+                                    {selectedAd.placement && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.priceFrom')}</div>
-                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.price_from} {selectedAd.currency || 'USD'}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.placement')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.placement}</div>
                                         </div>
                                     )}
-                                    {selectedAd.price_to && (
+                                    {(selectedAd.price_from || selectedAd.price_to) && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.priceTo')}</div>
-                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.price_to} {selectedAd.currency || 'USD'}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.priceFrom')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {selectedAd.price_from && `$${selectedAd.price_from}`}
+                                                {selectedAd.price_from && selectedAd.price_to && ' — '}
+                                                {selectedAd.price_to && `$${selectedAd.price_to}`}
+                                            </div>
                                         </div>
                                     )}
-                                    {selectedAd.link && (
-                                        <div className="col-span-2">
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.link')}</div>
-                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 break-all">{selectedAd.link}</div>
-                                        </div>
+                                    {(selectedAd.impressions > 0 || selectedAd.clicks > 0) && (
+                                        <>
+                                            <div>
+                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.impressions')}</div>
+                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.impressions || 0}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.clicks')}</div>
+                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.clicks || 0}</div>
+                                            </div>
+                                        </>
                                     )}
                                     {selectedAd.created_at && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.createdAt')}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.createdAt')}</div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                {formatDate(selectedAd.created_at, 'America/Los_Angeles', 'short')}
+                                                {formatDate(selectedAd.created_at, businessTz, 'short')}
                                             </div>
                                         </div>
                                     )}
                                     {selectedAd.updated_at && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{t('viewModal.updatedAt')}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.updatedAt')}</div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                {formatDate(selectedAd.updated_at, 'America/Los_Angeles', 'short')}
+                                                {formatDate(selectedAd.updated_at, businessTz, 'short')}
                                             </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
+
+                            {/* Ссылка на маркетплейс */}
+                            {selectedAd.link && (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.link')}</div>
+                                    <Link
+                                        href={`/marketplace/${selectedAd.link}`}
+                                        target="_blank"
+                                        className="text-sm font-bold text-primary hover:underline break-all"
+                                    >
+                                        /marketplace/{selectedAd.link}
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer с кнопками */}
+                        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end gap-2">
+                            {selectedAd.link && (
+                                <Link href={`/marketplace/${selectedAd.link}`} target="_blank">
+                                    <Button variant="outline" size="sm" icon={<PiArrowRight />}>
+                                        {t('viewModal.link')}
+                                    </Button>
+                                </Link>
+                            )}
+                            <Link href={`/business/settings/advertisements/create?edit=${selectedAd.id}`}>
+                                <Button variant="solid" size="sm" icon={<PiPencil />}>
+                                    {t('viewModal.editAd')}
+                                </Button>
+                            </Link>
                         </div>
                     </div>
                 )}

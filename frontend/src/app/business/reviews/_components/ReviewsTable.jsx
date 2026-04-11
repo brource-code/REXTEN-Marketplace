@@ -21,6 +21,7 @@ import classNames from '@/utils/classNames'
 import { useTranslations } from 'next-intl'
 import { formatDate } from '@/utils/dateTime'
 import { usePermission } from '@/hooks/usePermission'
+import useBusinessStore from '@/store/businessStore'
 
 const RatingColumn = ({ row }) => {
     const rating = row.rating || 0
@@ -125,6 +126,8 @@ export default function ReviewsTable({
     total = 0,
 }) {
     const t = useTranslations('business.reviews.table')
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     const canManageReviews = usePermission('manage_reviews')
     const tModal = useTranslations('business.reviews.responseModal')
     const tNotifications = useTranslations('business.reviews.notifications')
@@ -259,7 +262,7 @@ export default function ReviewsTable({
                         : null
                     return (
                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                            {date ? formatDate(date, 'America/Los_Angeles', 'short') : '-'}
+                            {date ? formatDate(date, businessTz, 'short') : '-'}
                         </span>
                     )
                 },
@@ -277,7 +280,7 @@ export default function ReviewsTable({
                 ),
             },
         ],
-        [t, canManageReviews]
+        [t, canManageReviews, businessTz]
     )
 
     // Мобильная версия - карточки
@@ -374,7 +377,7 @@ export default function ReviewsTable({
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
                                 {review.createdAt
-                                    ? formatDate(review.createdAt, 'America/Los_Angeles', 'short')
+                                    ? formatDate(review.createdAt, businessTz, 'short')
                                     : ''}
                             </span>
                             {canManageReviews && (

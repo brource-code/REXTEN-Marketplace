@@ -5,11 +5,15 @@ import { useTranslations } from 'next-intl'
 import { NumericFormat } from 'react-number-format'
 import { PiCurrencyDollar, PiClock, PiCheckCircle, PiCalendarCheck, PiMinusCircle } from 'react-icons/pi'
 import dayjs from 'dayjs'
+import { formatDate } from '@/utils/dateTime'
 import Card from '@/components/ui/Card'
+import useBusinessStore from '@/store/businessStore'
 import { getScheduleSlotMonetaryTotal } from '@/utils/schedule/slotMonetaryTotal'
 
 const ScheduleStats = ({ slots = [], dateRange, statsMode = 'visibleRange' }) => {
     const t = useTranslations('business.schedule.stats')
+    const { settings } = useBusinessStore()
+    const scheduleDisplayTz = settings?.timezone || 'America/Los_Angeles'
 
     const stats = useMemo(() => {
         if (!dateRange?.start || !dateRange?.end) {
@@ -71,10 +75,10 @@ const ScheduleStats = ({ slots = [], dateRange, statsMode = 'visibleRange' }) =>
             return { rangeStart: null, rangeEnd: null }
         }
         return {
-            rangeStart: start.format('DD.MM.YYYY'),
-            rangeEnd: lastInclusive.format('DD.MM.YYYY'),
+            rangeStart: formatDate(start, scheduleDisplayTz, 'short'),
+            rangeEnd: formatDate(lastInclusive, scheduleDisplayTz, 'short'),
         }
-    }, [dateRange])
+    }, [dateRange, scheduleDisplayTz])
 
     const statsList = [
         {

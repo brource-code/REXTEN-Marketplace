@@ -20,6 +20,7 @@ import {
 } from '@/lib/api/business'
 import { formatDateTime } from '@/utils/dateTime'
 import toast from '@/components/ui/toast'
+import useBusinessStore from '@/store/businessStore'
 
 const CATEGORY_KEYS = ['bug', 'question', 'feature', 'billing', 'other']
 const AREA_PRESET_KEYS = [
@@ -57,6 +58,8 @@ export default function BusinessSupportPage() {
 
 function BusinessSupportPageInner() {
     const t = useTranslations('business.support')
+    const { settings } = useBusinessStore()
+    const businessTz = settings?.timezone || 'America/Los_Angeles'
     const searchParams = useSearchParams()
     const queryClient = useQueryClient()
     const fileInputRef = useRef(null)
@@ -352,7 +355,7 @@ function BusinessSupportPageInner() {
                                             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-bold">
                                                 <span className="text-gray-900 dark:text-gray-100">#{row.id}</span>
                                                 <span className="text-gray-900 dark:text-gray-100">
-                                                    {formatDateTime(row.createdAt, null, 'America/Los_Angeles', 'short')}
+                                                    {formatDateTime(row.createdAt, null, businessTz, 'short')}
                                                 </span>
                                             </div>
                                         </div>
@@ -395,7 +398,7 @@ function BusinessSupportPageInner() {
                                                         </Tag>
                                                     </td>
                                                     <td className="py-3 pr-4 text-sm font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                                                        {formatDateTime(row.createdAt, null, 'America/Los_Angeles', 'short')}
+                                                        {formatDateTime(row.createdAt, null, businessTz, 'short')}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -433,7 +436,7 @@ function BusinessSupportPageInner() {
                                         date: formatDateTime(
                                             detailData.createdAt,
                                             null,
-                                            'America/Los_Angeles',
+                                            businessTz,
                                             'long',
                                         ),
                                     })}

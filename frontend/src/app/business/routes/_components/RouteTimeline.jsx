@@ -4,9 +4,9 @@ import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { metersToMiles } from '../_utils/routeMiles'
 import { getVisitColorHex } from '../_utils/bookingRouteColors'
+import useBusinessStore from '@/store/businessStore'
 
 const US_LOCALE = 'en-US'
-const DEFAULT_TZ = 'America/Los_Angeles'
 
 /**
  * Дата/время в американском формате (MM/DD/YYYY, 12h) и указанной IANA-таймзоне.
@@ -50,7 +50,7 @@ function formatEtaUs(iso, timeZone) {
     }
     try {
         const d = new Date(iso)
-        const tz = timeZone && String(timeZone).trim() !== '' ? String(timeZone).trim() : DEFAULT_TZ
+        const tz = timeZone && String(timeZone).trim() !== '' ? String(timeZone).trim() : 'America/Los_Angeles'
         return new Intl.DateTimeFormat(US_LOCALE, {
             timeZone: tz,
             month: 'numeric',
@@ -76,8 +76,9 @@ function formatEtaUs(iso, timeZone) {
  */
 export default function RouteTimeline({ route, includeReturnLeg = true }) {
     const t = useTranslations('business.routes.timeline')
+    const { settings } = useBusinessStore()
     const specialist = route.specialist
-    const displayTz = route.display_timezone || DEFAULT_TZ
+    const displayTz = route.display_timezone || settings?.timezone || 'America/Los_Angeles'
 
     const bookingVisitNumberByStopId = useMemo(() => {
         const sorted = [...(route.stops ?? [])].sort((a, b) => a.sequence_order - b.sequence_order)
@@ -152,7 +153,7 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
     }
 
     return (
-        <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+        <div>
             <div className="flex items-center gap-2 mb-4">
                 <span className="text-emerald-600 dark:text-emerald-400" aria-hidden>
                     <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

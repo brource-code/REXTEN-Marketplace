@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeZone;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -204,6 +205,43 @@ class Company extends Model
     public function getAverageRatingAttribute(): float
     {
         return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    /**
+     * IANA-таймзона компании для расписания и отображения (рынок США — дефолт как в миграции).
+     */
+    public function resolveTimezone(): string
+    {
+        $tz = trim((string) ($this->timezone ?? ''));
+        if ($tz !== '' && self::isValidIanaTimezone($tz)) {
+            return $tz;
+        }
+
+        return 'America/Los_Angeles';
+    }
+
+    /**
+     * Таймзона компании по id без загрузки модели (для сервисов и бронирований).
+     */
+    public static function timezoneById(int $id): string
+    {
+        $row = self::query()->whereKey($id)->first(['timezone']);
+        if ($row === null) {
+            return 'America/Los_Angeles';
+        }
+
+        return $row->resolveTimezone();
+    }
+
+    public static function isValidIanaTimezone(string $tz): bool
+    {
+        try {
+            new DateTimeZone($tz);
+
+            return true;
+        } catch (\Exception) {
+            return false;
+        }
     }
 }
 

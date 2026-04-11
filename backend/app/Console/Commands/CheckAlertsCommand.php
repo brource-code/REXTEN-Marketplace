@@ -33,6 +33,7 @@ class CheckAlertsCommand extends Command
      */
     public function handle()
     {
+        // Пороги в днях и дедупликация по «сегодня» завязаны на app.timezone (cron); для платформенных метрик этого достаточно.
         $this->info('Checking platform metrics for alerts...');
 
         $alertsCreated = 0;

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Services\Routing\Dto\GeoPoint;
 use Carbon\CarbonInterface;
-use DateTimeZone;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -394,34 +393,14 @@ class Booking extends Model
     public function resolveBusinessTimezone(): string
     {
         if ($this->relationLoaded('company') && $this->company) {
-            $tz = trim((string) ($this->company->timezone ?? ''));
-            if ($tz !== '' && $this->isValidIanaTimezone($tz)) {
-                return $tz;
-            }
+            return $this->company->resolveTimezone();
         }
 
         if ($this->company_id) {
-            $tz = Company::query()->whereKey($this->company_id)->value('timezone');
-            if (is_string($tz)) {
-                $tz = trim($tz);
-                if ($tz !== '' && $this->isValidIanaTimezone($tz)) {
-                    return $tz;
-                }
-            }
+            return Company::timezoneById((int) $this->company_id);
         }
 
         return 'America/Los_Angeles';
-    }
-
-    private function isValidIanaTimezone(string $tz): bool
-    {
-        try {
-            new DateTimeZone($tz);
-
-            return true;
-        } catch (\Exception) {
-            return false;
-        }
     }
 
     /**

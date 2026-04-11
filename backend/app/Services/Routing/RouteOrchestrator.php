@@ -309,7 +309,8 @@ class RouteOrchestrator
             ->map(static fn (RouteStop $s) => $s->booking)
             ->values();
 
-        $timed = $this->computeEtasWithBookingWindows($dayStart, $waypoints, $legs, $bookingsOrdered, $tz);
+        $includeReturnLeg = (bool) ($route->include_return_leg ?? true);
+        $timed = $this->computeEtasWithBookingWindows($dayStart, $waypoints, $legs, $bookingsOrdered, $tz, $includeReturnLeg);
 
         foreach ($stops as $i => $stop) {
             $ti = $timed[$i] ?? null;
@@ -905,10 +906,7 @@ class RouteOrchestrator
     protected function companyTimezone(?Company $company): string
     {
         if ($company !== null) {
-            $t = trim((string) ($company->timezone ?? ''));
-            if ($t !== '') {
-                return $t;
-            }
+            return $company->resolveTimezone();
         }
 
         return 'America/Los_Angeles';
