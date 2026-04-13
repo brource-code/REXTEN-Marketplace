@@ -2757,21 +2757,19 @@ public function deleteAdvertisement(Request $request, $id)
             ], 404);
         }
 
-        // Возвращаем настройки маркетплейса из компании
         return response()->json([
             'success' => true,
             'data' => [
-                // Настройки видимости
                 'visible' => (bool) ($company->is_visible_on_marketplace ?? true),
                 'showInSearch' => (bool) ($company->show_in_search ?? true),
                 'allowBooking' => (bool) ($company->allow_booking ?? true),
-                // Настройки отображения контента
                 'showReviews' => (bool) ($company->show_reviews ?? true),
                 'showPortfolio' => (bool) ($company->show_portfolio ?? true),
-                // SEO настройки
                 'seoTitle' => $company->seo_title ?? '',
                 'seoDescription' => $company->seo_description ?? '',
                 'metaKeywords' => $company->meta_keywords ?? '',
+                'onlinePaymentEnabled' => (bool) ($company->online_payment_enabled ?? false),
+                'stripeConnected' => $company->isStripeConnected(),
             ],
         ]);
     }
@@ -2842,23 +2840,32 @@ public function deleteAdvertisement(Request $request, $id)
             $company->meta_keywords = $request->input('metaKeywords');
         }
 
+        if ($request->has('onlinePaymentEnabled')) {
+            $enable = (bool) $request->input('onlinePaymentEnabled');
+            if ($enable && !$company->isStripeConnected()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Connect Stripe account first to enable online payments.',
+                ], 422);
+            }
+            $company->online_payment_enabled = $enable;
+        }
+
         $company->save();
 
         return response()->json([
             'success' => true,
             'message' => 'Marketplace settings updated successfully',
             'data' => [
-                // Настройки видимости
                 'visible' => (bool) ($company->is_visible_on_marketplace ?? true),
                 'showInSearch' => (bool) ($company->show_in_search ?? true),
                 'allowBooking' => (bool) ($company->allow_booking ?? true),
-                // Настройки отображения контента
                 'showReviews' => (bool) ($company->show_reviews ?? true),
                 'showPortfolio' => (bool) ($company->show_portfolio ?? true),
-                // SEO настройки
                 'seoTitle' => $company->seo_title ?? '',
                 'seoDescription' => $company->seo_description ?? '',
                 'metaKeywords' => $company->meta_keywords ?? '',
+                'onlinePaymentEnabled' => (bool) ($company->online_payment_enabled ?? false),
             ],
         ]);
     }
@@ -2904,6 +2911,7 @@ public function deleteAdvertisement(Request $request, $id)
             'data' => [
                 'email' => (bool) ($company->notification_email_enabled ?? true),
                 'sms' => (bool) ($company->notification_sms_enabled ?? false),
+                'telegram' => (bool) ($company->notification_telegram_enabled ?? false),
                 'newBookings' => (bool) ($company->notification_new_bookings ?? true),
                 'cancellations' => (bool) ($company->notification_cancellations ?? true),
                 'payments' => (bool) ($company->notification_payments ?? true),
@@ -2956,6 +2964,10 @@ public function deleteAdvertisement(Request $request, $id)
             'sms',
             (bool) ($company->notification_sms_enabled ?? false)
         );
+        $company->notification_telegram_enabled = $request->boolean(
+            'telegram',
+            (bool) ($company->notification_telegram_enabled ?? false)
+        );
         $company->notification_new_bookings = $request->boolean(
             'newBookings',
             (bool) ($company->notification_new_bookings ?? true)
@@ -2981,6 +2993,7 @@ public function deleteAdvertisement(Request $request, $id)
             'data' => [
                 'email' => (bool) $company->notification_email_enabled,
                 'sms' => (bool) $company->notification_sms_enabled,
+                'telegram' => (bool) $company->notification_telegram_enabled,
                 'newBookings' => (bool) $company->notification_new_bookings,
                 'cancellations' => (bool) $company->notification_cancellations,
                 'payments' => (bool) $company->notification_payments,

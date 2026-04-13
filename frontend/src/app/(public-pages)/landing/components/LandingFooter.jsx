@@ -71,6 +71,9 @@ const LandingFooter = ({ mode }) => {
                             <Link href="/cookies" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                                 {t('links.cookies')}
                             </Link>
+                            <Link href="/marketplace-terms" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                                {t('links.marketplaceTerms')}
+                            </Link>
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
                             {t('copyright', { year })}

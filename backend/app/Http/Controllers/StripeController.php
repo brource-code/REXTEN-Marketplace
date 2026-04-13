@@ -274,6 +274,11 @@ class StripeController extends Controller
     {
         $payment = Payment::where('stripe_payment_intent_id', $paymentIntent->id)->first();
         if (!$payment) {
+            Log::warning('Stripe webhook: payment_intent.amount_capturable_updated — no Payment row for PI (skipping)', [
+                'pi_id' => $paymentIntent->id ?? null,
+                'metadata_booking_id' => $paymentIntent->metadata->booking_id ?? null,
+            ]);
+
             return;
         }
 
@@ -285,6 +290,12 @@ class StripeController extends Controller
         }
 
         if ($payment->status !== Payment::STATUS_PENDING) {
+            Log::info('Stripe webhook: amount_capturable_updated skipped (payment not pending)', [
+                'payment_id' => $payment->id,
+                'pi_id' => $paymentIntent->id,
+                'payment_status' => $payment->status,
+            ]);
+
             return;
         }
 
@@ -293,8 +304,12 @@ class StripeController extends Controller
         if ($payment->booking_id) {
             Booking::where('id', $payment->booking_id)->update([
                 'payment_status' => 'authorized',
-                'status' => 'confirmed',
             ]);
+
+            $booking = Booking::with(['company', 'service', 'user.profile'])->find($payment->booking_id);
+            if ($booking) {
+                app(\App\Services\BookingService::class)->notifyOwnerAboutPayment($booking);
+            }
         }
 
         Log::info('Payment authorized via webhook', ['payment_id' => $payment->id, 'pi_id' => $paymentIntent->id]);
@@ -304,6 +319,11 @@ class StripeController extends Controller
     {
         $payment = Payment::where('stripe_payment_intent_id', $paymentIntent->id)->first();
         if (!$payment) {
+            Log::warning('Stripe webhook: payment_intent.succeeded — no Payment row for PI (skipping)', [
+                'pi_id' => $paymentIntent->id ?? null,
+                'metadata_booking_id' => $paymentIntent->metadata->booking_id ?? null,
+            ]);
+
             return;
         }
 
@@ -336,6 +356,10 @@ class StripeController extends Controller
     {
         $payment = Payment::where('stripe_payment_intent_id', $paymentIntent->id)->first();
         if (!$payment) {
+            Log::warning('Stripe webhook: payment_intent.payment_failed — no Payment row for PI (skipping)', [
+                'pi_id' => $paymentIntent->id ?? null,
+            ]);
+
             return;
         }
 
@@ -352,6 +376,10 @@ class StripeController extends Controller
     {
         $payment = Payment::where('stripe_payment_intent_id', $paymentIntent->id)->first();
         if (!$payment) {
+            Log::warning('Stripe webhook: payment_intent.canceled — no Payment row for PI (skipping)', [
+                'pi_id' => $paymentIntent->id ?? null,
+            ]);
+
             return;
         }
 
@@ -758,6 +786,69 @@ class StripeController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Get booking payments for the business billing page.
+     */
+    public function getBookingPayments(Request $request)
+    {
+        $user = auth('api')->user();
+        $companyId = $request->input('current_company_id');
+
+        if (!$companyId && $user->isBusinessOwner()) {
+            $company = $user->ownedCompanies()->first();
+            $companyId = $company?->id;
+        }
+
+        if (!$companyId && !$user->isSuperAdmin()) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        $query = Payment::with(['booking.service', 'booking.user.profile'])
+            ->whereHas('booking', function ($q) use ($companyId, $user) {
+                if (!$user->isSuperAdmin()) {
+                    $q->where('company_id', $companyId);
+                }
+            })
+            ->whereNotNull('booking_id')
+            ->orderByDesc('created_at');
+
+        $payments = $query->limit($request->input('limit', 50))->get();
+
+        $result = $payments->map(function ($payment) {
+            $booking = $payment->booking;
+            $clientName = $booking?->client_name
+                ?: ($booking?->user?->profile?->full_name ?? $booking?->user?->name ?? '—');
+            $serviceName = $booking?->service?->name ?? '—';
+
+            $amountCents = (float) $payment->amount;
+            $feeCents = (float) ($payment->application_fee ?? 0);
+
+            return [
+                'id' => $payment->id,
+                'type' => 'booking',
+                'booking_id' => $payment->booking_id,
+                'amount' => round($amountCents / 100, 2),
+                'net_amount' => round(($amountCents - $feeCents) / 100, 2),
+                'platform_fee' => round($feeCents / 100, 2),
+                'currency' => strtoupper($payment->currency ?? 'USD'),
+                'status' => $payment->status,
+                'capture_status' => $payment->capture_status,
+                'client_name' => $clientName,
+                'service_name' => $serviceName,
+                'description' => "{$serviceName} — {$clientName}",
+                'created' => $payment->created_at?->format('Y-m-d H:i:s'),
+                'created_timestamp' => $payment->created_at?->timestamp,
+                'captured_at' => $payment->captured_at,
+                'booking_status' => $booking?->status,
+                'booking_date' => $booking?->booking_date,
+            ];
+        });
+
+        return response()->json([
+            'payments' => $result,
+        ]);
     }
 
     private function handleSubscriptionPayment($session, $metadata): void
@@ -1227,9 +1318,7 @@ class StripeController extends Controller
                     ], 400);
                 }
 
-                $capturedPi = PaymentIntent::capture($payment->stripe_payment_intent_id, [], [
-                    'idempotency_key' => "capture_booking_{$booking->id}_v1",
-                ]);
+                $capturedPi = $paymentIntent->capture();
 
                 $payment->addAuditTrail('capture', $user?->id, $user?->role, [
                     'amount' => $payment->amount,

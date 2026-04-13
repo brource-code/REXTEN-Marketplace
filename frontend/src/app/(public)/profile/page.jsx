@@ -46,7 +46,6 @@ import {
     PiTrash,
     PiCheck,
     PiEnvelope,
-    PiDeviceMobile,
     PiPaperPlaneTilt,
     PiTicket,
     PiGift,
@@ -1100,26 +1099,6 @@ const NotificationsTab = () => {
                         disabled={settingsLoading || updateSettingsMutation.isPending}
                     />
                 </div>
-                {/* SMS временно скрыт
-                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                            <PiDeviceMobile className="text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div>
-                            <div className="font-semibold text-sm sm:text-base">{t('notifications.sms')}</div>
-                            <div className="text-xs sm:text-sm text-gray-500">
-                                {t('notifications.smsDescription')}
-                            </div>
-                        </div>
-                    </div>
-                    <Switcher
-                        checked={settings.sms}
-                        onChange={(checked) => handleSettingChange('sms', checked)}
-                        disabled={settingsLoading || updateSettingsMutation.isPending}
-                    />
-                </div>
-                */}
                 <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/20 flex items-center justify-center">

@@ -87,7 +87,18 @@ class BookingController extends Controller
             
             // Проверяем существование компании
             $company = Company::findOrFail($request->company_id);
-            
+
+            if ($company->online_payment_enabled && $company->isStripeConnected()) {
+                $authUser = auth('api')->user();
+                if (!$authUser && empty(trim((string) ($request->client_email ?? '')))) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Email is required for online payment.',
+                        'errors' => ['client_email' => ['Укажите email для онлайн-оплаты.']],
+                    ], 422);
+                }
+            }
+
             // ВАЖНО: Если передан advertisement_id, это объявление с виртуальными услугами
             // НЕ ищем в таблице services, сразу переходим к объявлениям!
             $service = null;
@@ -515,10 +526,17 @@ class BookingController extends Controller
                 return $booking;
             });
 
-            // Уведомление владельцу бизнеса о новом бронировании
+            $company = Company::find($booking->company_id);
+            $requiresPayment = $company
+                && $company->online_payment_enabled
+                && $company->isStripeConnected();
+
+            if ($requiresPayment) {
+                $booking->update(['payment_status' => 'pending_payment']);
+            }
+
             $this->bookingService->notifyOwnerAboutNewBooking($booking);
 
-            // Загружаем дополнительные услуги для ответа
             $booking->load('additionalServices');
 
             return response()->json([
@@ -529,6 +547,8 @@ class BookingController extends Controller
                     'booking_date' => $booking->booking_date->format('Y-m-d'),
                     'booking_time' => $booking->booking_time,
                     'status' => $booking->status,
+                    'payment_status' => $booking->payment_status,
+                    'requires_payment' => $requiresPayment,
                     'price' => (float) $booking->price,
                     'total_price' => (float) ($booking->total_price ?? $booking->price ?? 0),
                     'discount_amount' => (float) ($booking->discount_amount ?? 0),
@@ -559,18 +579,127 @@ class BookingController extends Controller
     }
 
     /**
-     * Получить доступные слоты для бронирования
+     * Batch: получить доступные слоты для нескольких дат за один запрос
+     */
+    public function getAvailableSlotsBatch(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'company_id' => 'required|exists:companies,id',
+            'service_id' => 'required|integer',
+            'dates' => 'required|array|min:1|max:60',
+            'dates.*' => 'required|date',
+            'advertisement_id' => 'nullable|exists:advertisements,id',
+            'specialist_id' => 'nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        try {
+            $company = Company::findOrFail($request->company_id);
+            $service = $this->resolveService($request, $company);
+
+            if (!$service) {
+                return response()->json(['success' => false, 'message' => 'Услуга не найдена'], 404);
+            }
+
+            $slots = $this->bookingService->getAvailableSlotsBatch(
+                $request->company_id,
+                $request->service_id,
+                $request->dates,
+                $service,
+                $request->specialist_id ?? null
+            );
+
+            return response()->json(['success' => true, 'data' => $slots]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Не удалось получить слоты: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Resolve service object from request (shared between single and batch endpoints).
+     */
+    private function resolveService(Request $request, $company)
+    {
+        $dbService = Service::find($request->service_id);
+        if ($dbService && $dbService->company_id === $company->id) {
+            $advertisementForSchedule = Advertisement::where('company_id', $company->id)
+                ->whereIn('type', ['regular', 'advertisement'])
+                ->where('is_active', true)
+                ->where('status', 'approved');
+
+            if ($request->has('advertisement_id') && $request->advertisement_id) {
+                $advertisementForSchedule->where('id', $request->advertisement_id);
+            }
+
+            $adForSchedule = $advertisementForSchedule->first();
+            $dbService->schedule = $adForSchedule ? $adForSchedule->schedule : null;
+            $dbService->advertisement_id = $adForSchedule ? $adForSchedule->id : null;
+
+            return $dbService;
+        }
+
+        $advertisementQuery = Advertisement::where('company_id', $company->id)
+            ->whereIn('type', ['regular', 'advertisement'])
+            ->where('is_active', true)
+            ->where('status', 'approved');
+
+        if ($request->has('advertisement_id') && $request->advertisement_id) {
+            $advertisementQuery->where('id', $request->advertisement_id);
+        }
+
+        $advertisement = $advertisementQuery->first();
+        if (!$advertisement) return null;
+
+        $services = is_array($advertisement->services) ? $advertisement->services : (json_decode($advertisement->services, true) ?? []);
+        $serviceIdStr = (string)$request->service_id;
+        $serviceIdInt = (int)$request->service_id;
+
+        $serviceData = collect($services)->first(function ($s) use ($serviceIdStr, $serviceIdInt) {
+            $sId = $s['id'] ?? null;
+            if ($sId === null) return false;
+            return ((string)$sId === $serviceIdStr) || ((int)$sId === $serviceIdInt);
+        });
+
+        if (!$serviceData) return null;
+
+        $serviceDuration = $serviceData['duration'] ?? 60;
+        if (is_numeric($serviceDuration)) {
+            $serviceDuration = (int)$serviceDuration;
+            if ($serviceDuration >= 480) $serviceDuration = 60;
+            elseif ($serviceDuration < 15) $serviceDuration = 15;
+        } else {
+            $serviceDuration = 60;
+        }
+
+        return (object)[
+            'id' => $request->service_id,
+            'company_id' => $company->id,
+            'name' => $serviceData['name'] ?? 'Услуга',
+            'price' => $serviceData['price'] ?? 0,
+            'duration_minutes' => $serviceDuration,
+            'schedule' => $advertisement->schedule ?? null,
+            'advertisement_id' => $advertisement->id,
+        ];
+    }
+
+    /**
+     * Получить доступные слоты для бронирования (одна дата)
      */
     public function getAvailableSlots(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'company_id' => 'required|exists:companies,id',
-            'service_id' => 'required|integer', // Изменено с exists:services,id
+            'service_id' => 'required|integer',
             'date' => 'required|date',
-            'advertisement_id' => 'nullable|exists:advertisements,id', // Добавляем опциональный advertisement_id
+            'advertisement_id' => 'nullable|exists:advertisements,id',
         ]);
 
-        // Дополнительная проверка даты с учетом таймзоны компании
         $timezone = Company::timezoneById((int) $request->company_id);
         $today = Carbon::today($timezone);
         $requestDate = Carbon::parse($request->date, $timezone)->startOfDay();
@@ -580,159 +709,26 @@ class BookingController extends Controller
         }
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
         try {
             $company = Company::findOrFail($request->company_id);
-            $service = null;
-
-            Log::info('getAvailableSlots request', [
-                'company_id' => $request->company_id,
-                'service_id' => $request->service_id,
-                'service_id_type' => gettype($request->service_id),
-                'date' => $request->date,
-            ]);
-
-            // Попытка найти услугу в таблице services
-            $dbService = Service::find($request->service_id);
-            if ($dbService && $dbService->company_id === $company->id) {
-                // Услуга найдена в БД, но расписание берём из объявления
-                $advertisementForSchedule = Advertisement::where('company_id', $company->id)
-                    ->whereIn('type', ['regular', 'advertisement'])
-                    ->where('is_active', true)
-                    ->where('status', 'approved');
-                
-                if ($request->has('advertisement_id') && $request->advertisement_id) {
-                    $advertisementForSchedule->where('id', $request->advertisement_id);
-                }
-                
-                $adForSchedule = $advertisementForSchedule->first();
-                
-                // Добавляем расписание из объявления к услуге из БД
-                $dbService->schedule = $adForSchedule ? $adForSchedule->schedule : null;
-                $dbService->advertisement_id = $adForSchedule ? $adForSchedule->id : null;
-                
-                $service = $dbService;
-                Log::info('Service found in DB', [
-                    'service_id' => $dbService->id,
-                    'hasScheduleFromAd' => $adForSchedule && $adForSchedule->schedule ? true : false,
-                ]);
-            } else {
-                // Если услуга не найдена в таблице, ищем ее в JSON данных объявления
-                // Если передан advertisement_id, используем его, иначе ищем первое активное объявление
-                // ВАЖНО: Ищем объявления типа 'regular' И 'advertisement' (рекламные объявления тоже могут иметь услуги)
-                $advertisementQuery = Advertisement::where('company_id', $company->id)
-                    ->whereIn('type', ['regular', 'advertisement'])
-                    ->where('is_active', true)
-                    ->where('status', 'approved');
-                
-                if ($request->has('advertisement_id') && $request->advertisement_id) {
-                    // Используем конкретное объявление, если указано
-                    $advertisementQuery->where('id', $request->advertisement_id);
-                }
-                
-                $advertisement = $advertisementQuery->first();
-
-                Log::info('Advertisement search', [
-                    'found' => $advertisement ? true : false,
-                    'advertisement_id' => $advertisement ? $advertisement->id : null,
-                    'requested_advertisement_id' => $request->advertisement_id ?? null,
-                ]);
-
-                if ($advertisement) {
-                    $services = is_array($advertisement->services) ? $advertisement->services : (json_decode($advertisement->services, true) ?? []);
-                    
-                    if (empty($services)) {
-                        Log::warning('Advertisement has no services', [
-                            'advertisement_id' => $advertisement->id,
-                            'company_id' => $company->id,
-                        ]);
-                    }
-                    
-                    // Преобразуем service_id в строку и число для сравнения, так как в JSON это может быть строка или число
-                    $serviceIdStr = (string)$request->service_id;
-                    $serviceIdInt = (int)$request->service_id;
-                    $serviceData = collect($services)->first(function ($s) use ($serviceIdStr, $serviceIdInt) {
-                        $sId = $s['id'] ?? null;
-                        if ($sId === null) return false;
-                        // Нормализуем оба ID для сравнения (преобразуем в строку и число)
-                        $sIdStr = (string)$sId;
-                        $sIdInt = (int)$sId;
-                        // Сравниваем как строку и как число (в обоих направлениях)
-                        return ($sIdStr === $serviceIdStr) || ($sIdInt === $serviceIdInt) || 
-                               ((string)$sIdInt === $serviceIdStr) || ((int)$sIdStr === $serviceIdInt);
-                    });
-
-                    if ($serviceData) {
-                        // Нормализуем duration: значения >= 480 минут (8 часов) - это срок выполнения, а не длительность сеанса
-                        $serviceDuration = $serviceData['duration'] ?? 60;
-                        if (is_numeric($serviceDuration)) {
-                            $serviceDuration = (int)$serviceDuration;
-                            if ($serviceDuration >= 480) {
-                                $serviceDuration = 60; // Используем дефолтное значение
-                            } elseif ($serviceDuration < 15) {
-                                $serviceDuration = 15; // Минимум 15 минут
-                            }
-                        } else {
-                            $serviceDuration = 60;
-                        }
-                        
-                        // Создаем временный объект услуги из данных объявления
-                        $service = (object)[
-                            'id' => $request->service_id,
-                            'company_id' => $company->id,
-                            'name' => $serviceData['name'] ?? 'Услуга',
-                            'price' => $serviceData['price'] ?? 0,
-                            'duration_minutes' => $serviceDuration,
-                            'schedule' => $advertisement->schedule ?? null, // Добавляем расписание
-                            'advertisement_id' => $advertisement->id, // Добавляем ID объявления для получения slot_step_minutes
-                        ];
-                        Log::info('Service found in advertisement', ['service_id' => $request->service_id]);
-                    } else {
-                        Log::warning('Service not found in advertisement', [
-                            'advertisement_id' => $advertisement->id,
-                            'company_id' => $company->id,
-                            'requested_service_id' => $request->service_id,
-                            'requested_service_id_str' => $serviceIdStr,
-                            'requested_service_id_int' => $serviceIdInt,
-                            'available_service_ids' => collect($services)->pluck('id')->toArray(),
-                            'available_services' => $services,
-                        ]);
-                    }
-                } else {
-                    Log::warning('No active approved advertisement found', [
-                        'company_id' => $company->id,
-                        'requested_service_id' => $request->service_id,
-                    ]);
-                }
-            }
+            $service = $this->resolveService($request, $company);
 
             if (!$service) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Услуга не найдена или не принадлежит этой компании',
-                ], 404);
+                return response()->json(['success' => false, 'message' => 'Услуга не найдена'], 404);
             }
 
-            // Передаем объект услуги в метод сервиса
-            // ВАЖНО: Передаем specialist_id для правильной фильтрации бронирований
             $slots = $this->bookingService->getAvailableSlots(
                 $request->company_id,
                 $request->service_id,
                 $request->date,
-                $service, // Передаем объект услуги
-                $request->specialist_id ?? null // Передаем specialist_id для фильтрации
+                $service,
+                $request->specialist_id ?? null
             );
 
-            return response()->json([
-                'success' => true,
-                'data' => $slots,
-            ]);
-
+            return response()->json(['success' => true, 'data' => $slots]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

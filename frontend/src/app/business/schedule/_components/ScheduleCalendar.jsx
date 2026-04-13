@@ -311,6 +311,11 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
             ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(totalAmount)
             : null
 
+        const isPaidOnline = slot.payment_status === 'authorized' || slot.payment_status === 'paid'
+        if (isPaidOnline) {
+            eventTitle = `${t('paidOnlineShort')} · ${eventTitle}`
+        }
+
         return {
             id: slot.id,
             title: eventTitle,
@@ -323,6 +328,7 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 specialistName: slot.specialist?.name || slot.specialistName || null,
                 specialist_id: slot.specialist_id || slot.specialist?.id || null,
                 amountLabel,
+                payment_status: slot.payment_status,
             },
         }
     })

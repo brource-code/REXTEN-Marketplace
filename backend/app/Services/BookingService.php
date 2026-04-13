@@ -8,9 +8,11 @@ use App\Models\Company;
 use App\Services\ActivityService;
 use App\Services\Routing\GeocodingService;
 use Carbon\Carbon;
+use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Support\NotificationLocale;
+use Stripe\PaymentIntent;
 
 class BookingService
 {
@@ -65,11 +67,6 @@ class BookingService
         }
         
         $existingBookings = $existingBookingsQuery->get();
-        
-        Log::info('BookingService: isSlotAvailable - filtering bookings by specialist', [
-            'specialist_id' => $specialistId,
-            'bookings_count' => $existingBookings->count(),
-        ]);
 
         if ($excludeBookingId) {
             $existingBookings = $existingBookings->reject(function ($booking) use ($excludeBookingId) {
@@ -77,13 +74,6 @@ class BookingService
             });
         }
 
-        // Проверяем пересечение временных интервалов
-        Log::info('BookingService: isSlotAvailable - checking overlaps', [
-            'bookingDateTime' => $bookingDateTime->format('Y-m-d H:i:s'),
-            'endDateTime' => $endDateTime->format('Y-m-d H:i:s'),
-            'existingBookingsCount' => $existingBookings->count(),
-        ]);
-        
         foreach ($existingBookings as $existing) {
             // Нормализуем формат времени (может быть HH:mm или HH:mm:ss)
             $existingTime = $existing->booking_time;
@@ -109,37 +99,13 @@ class BookingService
                 $endDateTime->gt($existingStart)     // Конец нового > начало существующего
             );
             
-            Log::info('BookingService: isSlotAvailable - checking booking', [
-                'existing_id' => $existing->id,
-                'existing_time' => $existingTime,
-                'existing_start' => $existingStart->format('Y-m-d H:i:s'),
-                'existing_end' => $existingEnd->format('Y-m-d H:i:s'),
-                'booking_start' => $bookingDateTime->format('Y-m-d H:i:s'),
-                'booking_end' => $endDateTime->format('Y-m-d H:i:s'),
-                'overlaps' => $overlaps,
-            ]);
-            
             if ($overlaps) {
-                // Реальное пересечение (не просто касание)
-                Log::warning('BookingService: isSlotAvailable - slot overlaps with existing booking', [
-                    'slot_start' => $bookingDateTime->format('H:i'),
-                    'slot_end' => $endDateTime->format('H:i'),
-                    'existing_start' => $existingStart->format('H:i'),
-                    'existing_end' => $existingEnd->format('H:i'),
-                    'existing_id' => $existing->id,
-                ]);
                 return false;
             }
         }
 
         // Проверяем, что время находится в рабочих часах (если есть расписание)
         // ВАЖНО: Если расписание не настроено, разрешаем бронирование (для совместимости со старыми данными)
-        Log::info('BookingService: checking serviceData for schedule', [
-            'hasServiceData' => $serviceData !== null,
-            'hasSchedule' => $serviceData && isset($serviceData->schedule),
-            'scheduleType' => $serviceData && isset($serviceData->schedule) ? gettype($serviceData->schedule) : 'none',
-        ]);
-        
         if ($serviceData && isset($serviceData->schedule)) {
             // Если расписание - это строка JSON, декодируем ее
             $schedule = null;
@@ -152,55 +118,20 @@ class BookingService
             if ($schedule && is_array($schedule) && !empty($schedule)) {
                 $dayOfWeek = strtolower($bookingDate->format('l')); // monday, tuesday, etc.
                 
-                Log::info('BookingService: isSlotAvailable - checking schedule', [
-                    'date' => $date,
-                    'dayOfWeek' => $dayOfWeek,
-                    'schedule_keys' => array_keys($schedule),
-                    'daySchedule_exists' => isset($schedule[$dayOfWeek]),
-                    'daySchedule' => $schedule[$dayOfWeek] ?? null,
-                    'bookingDateTime' => $bookingDateTime->format('Y-m-d H:i:s'),
-                    'endDateTime' => $endDateTime->format('Y-m-d H:i:s'),
-                ]);
-                
                 if (isset($schedule[$dayOfWeek]) && isset($schedule[$dayOfWeek]['enabled']) && $schedule[$dayOfWeek]['enabled']) {
                     $daySchedule = $schedule[$dayOfWeek];
                     if (isset($daySchedule['from']) && isset($daySchedule['to'])) {
                         $workStart = Carbon::parse($date . ' ' . $daySchedule['from'], $timezone);
                         $workEnd = Carbon::parse($date . ' ' . $daySchedule['to'], $timezone);
                         
-                        Log::info('BookingService: isSlotAvailable - checking working hours', [
-                            'workStart' => $workStart->format('Y-m-d H:i:s'),
-                            'workEnd' => $workEnd->format('Y-m-d H:i:s'),
-                            'bookingDateTime' => $bookingDateTime->format('Y-m-d H:i:s'),
-                            'endDateTime' => $endDateTime->format('Y-m-d H:i:s'),
-                            'isBeforeWorkStart' => $bookingDateTime->lt($workStart),
-                            'isAfterWorkEnd' => $endDateTime->gt($workEnd),
-                        ]);
-                        
                         // Проверяем, что бронирование полностью находится в рабочих часах
                         // ВАЖНО: Если время 00:00, это может быть полночь, которая технически находится вне рабочих часов
                         // Но если пользователь явно выбрал это время, разрешаем его (возможно, это круглосуточная услуга)
                         $isMidnight = $bookingDateTime->format('H:i') === '00:00';
                         if (!$isMidnight && ($bookingDateTime->lt($workStart) || $endDateTime->gt($workEnd))) {
-                            Log::warning('BookingService: isSlotAvailable - outside working hours', [
-                                'date' => $date,
-                                'time' => $time,
-                                'workStart' => $daySchedule['from'],
-                                'workEnd' => $daySchedule['to'],
-                                'bookingDateTime' => $bookingDateTime->format('Y-m-d H:i:s'),
-                                'endDateTime' => $endDateTime->format('Y-m-d H:i:s'),
-                            ]);
                             return false;
                         }
                         // Если время 00:00, пропускаем проверку рабочих часов (может быть круглосуточная услуга)
-                        
-                        // Проверяем перерывы
-                        Log::info('BookingService: checking breaks', [
-                            'breakEnabled' => $schedule['breakEnabled'] ?? null,
-                            'breakFrom' => $schedule['breakFrom'] ?? null,
-                            'breakTo' => $schedule['breakTo'] ?? null,
-                            'time' => $time,
-                        ]);
                         
                         if (isset($schedule['breakEnabled']) && $schedule['breakEnabled'] && 
                             isset($schedule['breakFrom']) && isset($schedule['breakTo'])) {
@@ -212,14 +143,6 @@ class BookingService
                             $overlapsBreak = $bookingDateTime->lt($breakEnd) && $endDateTime->gt($breakStart);
                             
                             if ($overlapsBreak) {
-                                Log::warning('BookingService: isSlotAvailable - overlaps with break time', [
-                                    'date' => $date,
-                                    'time' => $time,
-                                    'breakFrom' => $schedule['breakFrom'],
-                                    'breakTo' => $schedule['breakTo'],
-                                    'bookingDateTime' => $bookingDateTime->format('Y-m-d H:i:s'),
-                                    'endDateTime' => $endDateTime->format('Y-m-d H:i:s'),
-                                ]);
                                 return false;
                             }
                         }
@@ -236,12 +159,6 @@ class BookingService
                     }
                     
                     if ($hasAnyEnabledDay) {
-                        // Расписание настроено, но этот день не активен
-                        Log::warning('BookingService: isSlotAvailable - day not enabled in schedule', [
-                            'date' => $date,
-                            'dayOfWeek' => $dayOfWeek,
-                            'schedule' => $schedule,
-                        ]);
                         return false;
                     }
                     // Если расписание пустое или не настроено, разрешаем бронирование
@@ -249,12 +166,6 @@ class BookingService
             }
             // Если расписание пустое или не настроено, разрешаем бронирование
         }
-
-        Log::info('BookingService: isSlotAvailable - slot is available', [
-            'date' => $date,
-            'time' => $time,
-            'durationMinutes' => $durationMinutes,
-        ]);
 
         return true;
     }
@@ -264,127 +175,54 @@ class BookingService
      */
     public function getAvailableSlots($companyId, $serviceId, $date, $serviceData = null, $specialistId = null)
     {
-        // Логирование убрано для производительности (можно включить при отладке)
-        
         $service = $serviceData;
         if (!$service) {
             $service = Service::find($serviceId);
         }
         if (!$service) {
-            Log::warning('BookingService: Service not found', [
-                'serviceId' => $serviceId,
-                'hasServiceData' => $serviceData !== null,
-            ]);
             return [];
         }
 
         $company = Company::find($companyId);
         if (!$company) {
-            Log::warning('BookingService: Company not found', [
-                'companyId' => $companyId,
-            ]);
             return [];
         }
 
         $timezone = $company->resolveTimezone();
+        $durationMinutes = $this->resolveServiceDuration($service);
 
-        // Получаем длительность услуги
-        // ВАЖНО: duration из расписания (daySchedule['duration']) - это НЕ длительность услуги!
-        // Также duration из JSON услуги может быть 1440 (24 часа) - это срок выполнения, а не длительность сеанса!
-        // Используем только разумные значения или дефолт 60 минут
-        $durationMinutes = 60; // Дефолтное значение
-        
-        // Сначала проверяем duration_minutes (если есть)
-        if (isset($service->duration_minutes) && is_numeric($service->duration_minutes)) {
-            $durationValue = (int)$service->duration_minutes;
-            if ($durationValue >= 15 && $durationValue <= 480) { // От 15 минут до 8 часов
-                $durationMinutes = $durationValue;
-            }
-        }
-        
-        // Если duration_minutes не подходит, проверяем duration из JSON
-        // Но игнорируем значения >= 480 минут (8 часов), так как это скорее всего срок выполнения, а не длительность сеанса
-        if ($durationMinutes === 60 && isset($service->duration) && is_numeric($service->duration)) {
-            $durationValue = (int)$service->duration;
-            // Принимаем только разумные значения для длительности сеанса
-            if ($durationValue >= 15 && $durationValue < 480) { // От 15 минут до 8 часов (не включая 8 часов)
-                $durationMinutes = $durationValue;
-            }
-            // Если duration >= 480 (например, 1440), игнорируем его - это не длительность сеанса
-        }
-        
-        if ($durationMinutes < 15) {
-            $durationMinutes = 15;
-        }
-        
-        Log::info('BookingService: Service duration determined', [
-            'durationMinutes' => $durationMinutes,
-            'service->duration_minutes' => $service->duration_minutes ?? null,
-            'service->duration' => $service->duration ?? null,
-            'service_type' => gettype($service),
-            'service_object' => is_object($service) ? get_object_vars($service) : $service,
-        ]);
+        $workingHours = ['start' => '09:00', 'end' => '18:00'];
+        $schedule = $this->resolveSchedule($service);
+        $breakStart = null;
+        $breakEnd = null;
 
-        // Определяем рабочие часы из расписания объявления или используем дефолтные
-        $workingHours = [
-            'start' => '09:00',
-            'end' => '18:00',
-            'duration' => $durationMinutes, // Длительность услуги для генерации слотов
-        ];
-
-        // Если есть расписание в объекте услуги (из объявления), используем его
-        $schedule = null;
-        if (isset($service->schedule)) {
-            // Если расписание - это строка JSON, декодируем ее
-            if (is_string($service->schedule)) {
-                $schedule = json_decode($service->schedule, true);
-            } elseif (is_array($service->schedule)) {
-                $schedule = $service->schedule;
-            }
-        }
-        
         if ($schedule && is_array($schedule)) {
             $dateObj = Carbon::parse($date, $timezone);
-            $dayOfWeek = strtolower($dateObj->format('l')); // monday, tuesday, etc.
-            
-            Log::info('BookingService: Checking schedule for slots', [
-                'date' => $date,
-                'dayOfWeek' => $dayOfWeek,
-                'schedule_keys' => array_keys($schedule),
-                'daySchedule_exists' => isset($schedule[$dayOfWeek]),
-                'daySchedule' => $schedule[$dayOfWeek] ?? null,
-            ]);
-            
-            if (isset($schedule[$dayOfWeek]) && isset($schedule[$dayOfWeek]['enabled']) && $schedule[$dayOfWeek]['enabled']) {
+            $dayOfWeek = strtolower($dateObj->format('l'));
+
+            if (isset($schedule[$dayOfWeek]['enabled']) && $schedule[$dayOfWeek]['enabled']) {
                 $daySchedule = $schedule[$dayOfWeek];
                 if (isset($daySchedule['from']) && isset($daySchedule['to'])) {
                     $workingHours['start'] = $daySchedule['from'];
                     $workingHours['end'] = $daySchedule['to'];
-                    // НЕ используем daySchedule['duration'] - это не длительность услуги!
                 }
             } else {
-                // Если день не активен в расписании, возвращаем пустой массив
-                Log::warning('BookingService: Day not enabled in schedule', [
-                    'date' => $date,
-                    'dayOfWeek' => $dayOfWeek,
-                    'schedule' => $schedule,
-                    'daySchedule' => $schedule[$dayOfWeek] ?? null,
-                ]);
                 return [];
+            }
+
+            if (!empty($schedule['breakEnabled']) && isset($schedule['breakFrom']) && isset($schedule['breakTo'])) {
+                $breakStart = Carbon::parse($date . ' ' . $schedule['breakFrom'], $timezone);
+                $breakEnd = Carbon::parse($date . ' ' . $schedule['breakTo'], $timezone);
             }
         }
 
-        // Генерируем слоты
         $now = Carbon::now($timezone);
-        
-        // Получаем существующие бронирования на эту дату
-        // Форматируем дату для сравнения (Y-m-d)
         $dateFormatted = Carbon::parse($date, $timezone)->format('Y-m-d');
+
         $existingBookingsQuery = Booking::where('company_id', $companyId)
             ->whereDate('booking_date', $dateFormatted)
             ->whereIn('status', ['new', 'pending', 'confirmed', 'completed']);
-        
-        // Фильтруем по specialist_id (логика такая же, как в isSlotAvailable)
+
         if ($specialistId !== null) {
             $existingBookingsQuery->where(function($q) use ($specialistId) {
                 $q->where('specialist_id', $specialistId)
@@ -393,90 +231,60 @@ class BookingService
         } else {
             $existingBookingsQuery->whereNull('specialist_id');
         }
-        
+
         $existingBookings = $existingBookingsQuery->get();
-        
-        Log::info('BookingService: Generating slots', [
-            'date' => $date,
-            'dateFormatted' => $dateFormatted,
-            'workingHours' => $workingHours,
-            'durationMinutes' => $durationMinutes,
-            'existingBookingsCount' => $existingBookings->count(),
-            'existingBookings' => $existingBookings->map(function($b) {
-                return [
-                    'id' => $b->id,
-                    'time' => $b->booking_time,
-                    'duration' => $b->duration_minutes,
-                    'status' => $b->status,
-                ];
-            })->toArray(),
-        ]);
-        
-        // Получаем шаг слотов из объявления или используем дефолт (60 минут = 1 час)
-        $slotStepMinutes = 60; // Дефолтное значение (1 час)
-        
-        // Пытаемся получить шаг слотов из объявления
-        if ($serviceData && isset($serviceData->advertisement_id)) {
-            $advertisement = \App\Models\Advertisement::find($serviceData->advertisement_id);
-            if ($advertisement && $advertisement->slot_step_minutes) {
-                $slotStepValue = (int)$advertisement->slot_step_minutes;
-                // Минимум 15 минут, максимум 240 минут (4 часа)
-                if ($slotStepValue >= 15 && $slotStepValue <= 240) {
-                    $slotStepMinutes = $slotStepValue;
-                }
-            }
-        } elseif ($serviceData && isset($serviceData->slot_step_minutes)) {
-            // Если шаг слотов передан напрямую в serviceData
-            $slotStepValue = (int)$serviceData->slot_step_minutes;
-            if ($slotStepValue >= 15 && $slotStepValue <= 240) {
-                $slotStepMinutes = $slotStepValue;
-            }
-        }
-        
-        Log::info('BookingService: Slot step determined', [
-            'slotStepMinutes' => $slotStepMinutes,
-            'hasAdvertisementId' => isset($serviceData->advertisement_id),
-        ]);
-        
+
+        $parsedBookings = $existingBookings->map(function ($b) use ($dateFormatted, $timezone) {
+            $t = $b->booking_time;
+            if (strlen($t) === 5) $t .= ':00';
+            $start = Carbon::parse($dateFormatted . ' ' . $t, $timezone);
+            $end = $start->copy()->addMinutes($b->duration_minutes ?? 60);
+            return (object)['start' => $start, 'end' => $end];
+        });
+
+        $slotStepMinutes = $this->resolveSlotStep($serviceData);
+
         $slots = [];
         $startTime = Carbon::parse($date . ' ' . $workingHours['start'], $timezone);
         $endTime = Carbon::parse($date . ' ' . $workingHours['end'], $timezone);
         $currentTime = $startTime->copy();
-        
-        // ВАЖНО: Слоты генерируются с настраиваемым шагом (из объявления или дефолт 60 минут)
-        // Проверка доступности использует длительность услуги (durationMinutes)
-        // Это позволяет показывать слоты с нужным шагом, но проверять, можно ли начать бронирование
-        // с длительностью услуги в это время
-        $slotDisplayDuration = $slotStepMinutes; // Длительность отображения слота = шаг слотов
+        $slotDisplayDuration = $slotStepMinutes;
 
         while ($currentTime->copy()->addMinutes($slotDisplayDuration)->lte($endTime)) {
             $slotTime = $currentTime->format('H:i');
-            // end_time используется только для отображения в UI, не для проверки доступности
             $slotEndTime = $currentTime->copy()->addMinutes($slotDisplayDuration)->format('H:i');
 
-            // ВАЖНО: Используем isSlotAvailable для проверки каждого слота
-            // Проверяем, можно ли начать бронирование в это время с длительностью услуги
-            // Это гарантирует, что проверка такая же, как при создании бронирования
-            // (рабочие часы, пересечения с существующими бронированиями, прошлое время)
-            $isAvailable = $this->isSlotAvailable(
-                $companyId,
-                $serviceId,
-                $date,
-                $slotTime,
-                $durationMinutes, // Используем длительность услуги для проверки доступности
-                null, // excludeBookingId
-                $serviceData, // Передаем данные услуги для проверки расписания
-                $specialistId // Передаем specialist_id для фильтрации бронирований
-            );
+            $bookingStart = $currentTime->copy();
+            $bookingEnd = $currentTime->copy()->addMinutes($durationMinutes);
 
-            // Добавляем слот с правильным флагом доступности
+            $isAvailable = true;
+
+            if ($bookingStart->lt($now)) {
+                $isAvailable = false;
+            }
+
+            if ($isAvailable && $breakStart && $breakEnd) {
+                if ($bookingStart->lt($breakEnd) && $bookingEnd->gt($breakStart)) {
+                    $isAvailable = false;
+                }
+            }
+
+            if ($isAvailable) {
+                foreach ($parsedBookings as $pb) {
+                    if ($bookingStart->lt($pb->end) && $bookingEnd->gt($pb->start)) {
+                        $isAvailable = false;
+                        break;
+                    }
+                }
+            }
+
             $slots[] = [
                 'time' => $slotTime,
-                'end_time' => $slotEndTime, // Только для отображения в UI
+                'end_time' => $slotEndTime,
                 'available' => $isAvailable,
             ];
 
-            $currentTime->addMinutes($slotStepMinutes); // Используем шаг слотов из настройки
+            $currentTime->addMinutes($slotStepMinutes);
         }
 
         Log::info('BookingService: Generated slots', [
@@ -486,6 +294,191 @@ class BookingService
         ]);
 
         return $slots;
+    }
+
+    /**
+     * Resolve service duration from various sources (duration_minutes, duration JSON field).
+     * Returns value in minutes (15..480), default 60.
+     */
+    private function resolveServiceDuration($service): int
+    {
+        $durationMinutes = 60;
+
+        if (isset($service->duration_minutes) && is_numeric($service->duration_minutes)) {
+            $v = (int)$service->duration_minutes;
+            if ($v >= 15 && $v <= 480) $durationMinutes = $v;
+        }
+
+        if ($durationMinutes === 60 && isset($service->duration) && is_numeric($service->duration)) {
+            $v = (int)$service->duration;
+            if ($v >= 15 && $v < 480) $durationMinutes = $v;
+        }
+
+        return max(15, $durationMinutes);
+    }
+
+    /**
+     * Parse schedule from service object (string or array).
+     */
+    private function resolveSchedule($service): ?array
+    {
+        if (!isset($service->schedule)) return null;
+
+        if (is_string($service->schedule)) {
+            return json_decode($service->schedule, true);
+        }
+        if (is_array($service->schedule)) {
+            return $service->schedule;
+        }
+        return null;
+    }
+
+    /**
+     * Resolve slot step minutes from advertisement or serviceData.
+     */
+    private function resolveSlotStep($serviceData): int
+    {
+        $slotStepMinutes = 60;
+
+        if ($serviceData && isset($serviceData->advertisement_id)) {
+            $ad = \App\Models\Advertisement::find($serviceData->advertisement_id);
+            if ($ad && $ad->slot_step_minutes) {
+                $v = (int)$ad->slot_step_minutes;
+                if ($v >= 15 && $v <= 240) $slotStepMinutes = $v;
+            }
+        } elseif ($serviceData && isset($serviceData->slot_step_minutes)) {
+            $v = (int)$serviceData->slot_step_minutes;
+            if ($v >= 15 && $v <= 240) $slotStepMinutes = $v;
+        }
+
+        return $slotStepMinutes;
+    }
+
+    /**
+     * Batch: get available slots for multiple dates at once.
+     * Returns ['2025-04-12' => [...slots], '2025-04-13' => [...slots], ...]
+     */
+    public function getAvailableSlotsBatch($companyId, $serviceId, array $dates, $serviceData = null, $specialistId = null): array
+    {
+        $service = $serviceData;
+        if (!$service) {
+            $service = Service::find($serviceId);
+        }
+        if (!$service) return [];
+
+        $company = Company::find($companyId);
+        if (!$company) return [];
+
+        $timezone = $company->resolveTimezone();
+        $durationMinutes = $this->resolveServiceDuration($service);
+        $schedule = $this->resolveSchedule($service);
+        $slotStepMinutes = $this->resolveSlotStep($serviceData);
+        $now = Carbon::now($timezone);
+
+        $globalBreakFrom = ($schedule && !empty($schedule['breakEnabled']) && isset($schedule['breakFrom'])) ? $schedule['breakFrom'] : null;
+        $globalBreakTo = ($schedule && !empty($schedule['breakEnabled']) && isset($schedule['breakTo'])) ? $schedule['breakTo'] : null;
+
+        $formattedDates = array_map(fn($d) => Carbon::parse($d, $timezone)->format('Y-m-d'), $dates);
+
+        $existingBookingsQuery = Booking::where('company_id', $companyId)
+            ->whereIn(\DB::raw("TO_CHAR(booking_date, 'YYYY-MM-DD')"), $formattedDates)
+            ->whereIn('status', ['new', 'pending', 'confirmed', 'completed']);
+
+        if ($specialistId !== null) {
+            $existingBookingsQuery->where(function($q) use ($specialistId) {
+                $q->where('specialist_id', $specialistId)
+                  ->orWhereNull('specialist_id');
+            });
+        } else {
+            $existingBookingsQuery->whereNull('specialist_id');
+        }
+
+        $allBookings = $existingBookingsQuery->get();
+
+        $bookingsByDate = [];
+        foreach ($allBookings as $b) {
+            $bDate = Carbon::parse($b->booking_date, $timezone)->format('Y-m-d');
+            $t = $b->booking_time;
+            if (strlen($t) === 5) $t .= ':00';
+            $start = Carbon::parse($bDate . ' ' . $t, $timezone);
+            $end = $start->copy()->addMinutes($b->duration_minutes ?? 60);
+
+            if (!isset($bookingsByDate[$bDate])) $bookingsByDate[$bDate] = [];
+            $bookingsByDate[$bDate][] = (object)['start' => $start, 'end' => $end];
+        }
+
+        $result = [];
+        foreach ($formattedDates as $dateStr) {
+            $workingHours = ['start' => '09:00', 'end' => '18:00'];
+            $breakStart = null;
+            $breakEnd = null;
+
+            if ($schedule && is_array($schedule)) {
+                $dayOfWeek = strtolower(Carbon::parse($dateStr, $timezone)->format('l'));
+                if (isset($schedule[$dayOfWeek]['enabled']) && $schedule[$dayOfWeek]['enabled']) {
+                    $ds = $schedule[$dayOfWeek];
+                    if (isset($ds['from']) && isset($ds['to'])) {
+                        $workingHours['start'] = $ds['from'];
+                        $workingHours['end'] = $ds['to'];
+                    }
+                } else {
+                    $result[$dateStr] = [];
+                    continue;
+                }
+
+                if ($globalBreakFrom && $globalBreakTo) {
+                    $breakStart = Carbon::parse($dateStr . ' ' . $globalBreakFrom, $timezone);
+                    $breakEnd = Carbon::parse($dateStr . ' ' . $globalBreakTo, $timezone);
+                }
+            }
+
+            $parsedBookings = $bookingsByDate[$dateStr] ?? [];
+            $startTime = Carbon::parse($dateStr . ' ' . $workingHours['start'], $timezone);
+            $endTime = Carbon::parse($dateStr . ' ' . $workingHours['end'], $timezone);
+            $currentTime = $startTime->copy();
+            $slotDisplayDuration = $slotStepMinutes;
+            $slots = [];
+
+            while ($currentTime->copy()->addMinutes($slotDisplayDuration)->lte($endTime)) {
+                $slotTime = $currentTime->format('H:i');
+                $slotEndTime = $currentTime->copy()->addMinutes($slotDisplayDuration)->format('H:i');
+                $bookingStart = $currentTime->copy();
+                $bookingEnd = $currentTime->copy()->addMinutes($durationMinutes);
+
+                $isAvailable = true;
+
+                if ($bookingStart->lt($now)) {
+                    $isAvailable = false;
+                }
+
+                if ($isAvailable && $breakStart && $breakEnd) {
+                    if ($bookingStart->lt($breakEnd) && $bookingEnd->gt($breakStart)) {
+                        $isAvailable = false;
+                    }
+                }
+
+                if ($isAvailable) {
+                    foreach ($parsedBookings as $pb) {
+                        if ($bookingStart->lt($pb->end) && $bookingEnd->gt($pb->start)) {
+                            $isAvailable = false;
+                            break;
+                        }
+                    }
+                }
+
+                $slots[] = [
+                    'time' => $slotTime,
+                    'end_time' => $slotEndTime,
+                    'available' => $isAvailable,
+                ];
+
+                $currentTime->addMinutes($slotStepMinutes);
+            }
+
+            $result[$dateStr] = $slots;
+        }
+
+        return $result;
     }
 
     /**
@@ -861,6 +854,84 @@ class BookingService
     }
 
     /**
+     * Уведомить владельца бизнеса об онлайн-оплате бронирования.
+     */
+    public function notifyOwnerAboutPayment(Booking $booking): void
+    {
+        $company = $booking->company;
+        if (!$company || !$company->owner_id) {
+            return;
+        }
+
+        $serviceName = 'Service';
+        if ($booking->advertisement_id) {
+            $advertisement = \App\Models\Advertisement::find($booking->advertisement_id);
+            if ($advertisement) {
+                $services = is_array($advertisement->services) ? $advertisement->services : (json_decode($advertisement->services, true) ?? []);
+                $serviceData = collect($services)->first(fn($s) => isset($s['id']) && (string)($s['id'] ?? '') === (string)$booking->service_id);
+                if ($serviceData && isset($serviceData['name'])) {
+                    $serviceName = $serviceData['name'];
+                }
+            }
+        }
+        if ($serviceName === 'Service' && $booking->service) {
+            $serviceName = $booking->service->name;
+        }
+
+        $clientName = $booking->client_name;
+        if (!$clientName && $booking->user_id && $booking->user) {
+            $profile = $booking->user->profile;
+            $clientName = $profile ? trim(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? '')) : $booking->user->email;
+        }
+
+        $owner = \App\Models\User::find($company->owner_id);
+        $ownerLocale = NotificationLocale::forBusinessOwner($owner);
+        $clientName = $clientName ?: ($ownerLocale === 'ru' ? 'Клиент' : ($ownerLocale === 'es-mx' ? 'Cliente' : ($ownerLocale === 'hy-am' ? 'Հաճախորդ' : ($ownerLocale === 'uk-ua' ? 'Клієнт' : 'Client'))));
+
+        $amount = $booking->total_price ?? $booking->price ?? 0;
+
+        $translations = [
+            'ru' => ['title' => 'Оплата онлайн', 'message' => "Клиент {$clientName} оплатил «{$serviceName}» — \${$amount}."],
+            'en' => ['title' => 'Online payment', 'message' => "Client {$clientName} paid for «{$serviceName}» — \${$amount}."],
+            'es-mx' => ['title' => 'Pago en línea', 'message' => "El cliente {$clientName} pagó «{$serviceName}» — \${$amount}."],
+            'hy-am' => ['title' => 'Առցանց վճարում', 'message' => "Հաճախորդ {$clientName}-ը վճարեց «{$serviceName}»-ի համար — \${$amount}։"],
+            'uk-ua' => ['title' => 'Онлайн-оплата', 'message' => "Клієнт {$clientName} оплатив(ла) «{$serviceName}» — \${$amount}."],
+        ];
+
+        $t = $translations[$ownerLocale] ?? $translations['en'];
+
+        if (BusinessOwnerNotificationPreferences::allowsOwnerInAppNotification(
+            $company,
+            BusinessOwnerNotificationPreferences::EVENT_PAYMENT
+        )) {
+            try {
+                \App\Models\Notification::create([
+                    'user_id' => $company->owner_id,
+                    'type' => 'booking_paid',
+                    'title' => $t['title'],
+                    'message' => $t['message'],
+                    'link' => '/business/schedule',
+                    'read' => false,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('BookingService: Failed to send payment notification', [
+                    'booking_id' => $booking->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        BusinessOwnerMailer::notifyIfEnabled(
+            $company,
+            (int) $company->owner_id,
+            BusinessOwnerNotificationPreferences::EVENT_PAYMENT,
+            $t['title'],
+            $t['message'],
+            '/business/schedule'
+        );
+    }
+
+    /**
      * Отправить уведомление владельцу бизнеса о новом отзыве.
      */
     public function notifyOwnerAboutNewReview(\App\Models\Review $review): void
@@ -936,6 +1007,77 @@ class BookingService
             $t['message'],
             '/business/reviews'
         );
+    }
+
+    /**
+     * Capture an authorized (held) payment for a booking.
+     * Called automatically when business marks booking as completed.
+     *
+     * @return array{captured: bool, error?: string}
+     */
+    public function captureAuthorizedPayment(Booking $booking, ?int $userId = null, ?string $userRole = null): array
+    {
+        if ($booking->payment_status !== 'authorized') {
+            return ['captured' => false, 'error' => 'not_authorized'];
+        }
+
+        $payment = Payment::where('booking_id', $booking->id)->first();
+        if (!$payment || $payment->capture_status !== Payment::CAPTURE_PENDING) {
+            return ['captured' => false, 'error' => 'no_pending_payment'];
+        }
+
+        try {
+            $pi = PaymentIntent::retrieve($payment->stripe_payment_intent_id);
+
+            if ($pi->status === 'succeeded') {
+                $payment->update([
+                    'status' => Payment::STATUS_SUCCEEDED,
+                    'capture_status' => Payment::CAPTURE_CAPTURED,
+                    'captured_at' => now(),
+                ]);
+                $booking->update(['payment_status' => 'paid']);
+                return ['captured' => true];
+            }
+
+            if ($pi->status !== 'requires_capture') {
+                Log::warning('BookingService: cannot capture, unexpected PI status', [
+                    'booking_id' => $booking->id,
+                    'pi_status' => $pi->status,
+                ]);
+                return ['captured' => false, 'error' => "pi_status_{$pi->status}"];
+            }
+
+            $capturedPi = $pi->capture();
+
+            $payment->addAuditTrail('capture', $userId, $userRole, [
+                'amount' => $payment->amount,
+                'trigger' => 'booking_completed',
+            ]);
+
+            $payment->update([
+                'status' => Payment::STATUS_SUCCEEDED,
+                'capture_status' => Payment::CAPTURE_CAPTURED,
+                'captured_at' => now(),
+                'stripe_charge_id' => $capturedPi->latest_charge ?? null,
+            ]);
+
+            $booking->update(['payment_status' => 'paid']);
+
+            Log::info('BookingService: Payment auto-captured on booking completion', [
+                'booking_id' => $booking->id,
+                'payment_id' => $payment->id,
+                'amount' => $payment->amount,
+            ]);
+
+            return ['captured' => true];
+        } catch (\Exception $e) {
+            Log::error('BookingService: Auto-capture failed', [
+                'booking_id' => $booking->id,
+                'payment_id' => $payment->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            return ['captured' => false, 'error' => $e->getMessage()];
+        }
     }
 }
 

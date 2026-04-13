@@ -34,6 +34,7 @@ const RecentBookings = () => {
     const t = useTranslations('business.dashboard.recentBookings')
     const tSchedule = useTranslations('business.schedule.statuses')
     const tCommon = useTranslations('business.common')
+    const tBookings = useTranslations('business.bookings')
     const { settings } = useBusinessStore()
     const timezone = settings?.timezone || 'America/Los_Angeles'
 
@@ -112,12 +113,21 @@ const RecentBookings = () => {
                 accessorKey: 'status',
                 header: t('columns.status'),
                 cell: (props) => {
-                    const { status } = props.row.original
-                    const currentStatus = status || 'new'
+                    const row = props.row.original
+                    const currentStatus = row.status || 'new'
+                    const paidOnline =
+                        row.payment_status === 'authorized' || row.payment_status === 'paid'
                     return (
-                        <Tag className={bookingStatusColor[currentStatus] || bookingStatusColor.new}>
-                            {getStatusLabel(currentStatus)}
-                        </Tag>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <Tag className={bookingStatusColor[currentStatus] || bookingStatusColor.new}>
+                                {getStatusLabel(currentStatus)}
+                            </Tag>
+                            {paidOnline && (
+                                <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
+                                    {tBookings('paidOnline')}
+                                </Tag>
+                            )}
+                        </div>
                     )
                 },
             },
@@ -138,7 +148,7 @@ const RecentBookings = () => {
                 },
             },
         ],
-        [timezone, t, tSchedule, tCommon],
+        [timezone, t, tSchedule, tCommon, tBookings],
     )
 
     const table = useReactTable({
@@ -243,6 +253,9 @@ const RecentBookings = () => {
                     <div className="md:hidden space-y-3">
                         {bookings.map((booking) => {
                             const currentStatus = booking.status || 'new'
+                            const paidOnline =
+                                booking.payment_status === 'authorized' ||
+                                booking.payment_status === 'paid'
 
                             return (
                                 <div
@@ -275,6 +288,11 @@ const RecentBookings = () => {
                                             <Tag className={bookingStatusColor[currentStatus] || bookingStatusColor.new}>
                                                 {getStatusLabel(currentStatus)}
                                             </Tag>
+                                            {paidOnline && (
+                                                <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
+                                                    {tBookings('paidOnline')}
+                                                </Tag>
+                                            )}
                                         </div>
                                         <NumericFormat
                                             className="text-sm font-bold text-gray-900 dark:text-gray-100"

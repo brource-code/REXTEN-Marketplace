@@ -20,7 +20,7 @@ const NotificationsTab = () => {
     const queryClient = useQueryClient()
     const [settings, setSettings] = useState({
         email: true,
-        sms: false,
+        telegram: false,
         newBookings: true,
         cancellations: true,
         payments: true,
@@ -89,10 +89,10 @@ const NotificationsTab = () => {
                             loading={updateSettingsMutation.isPending}
                         />
                     </FormItem>
-                    <FormItem label={t('smsNotifications')}>
+                    <FormItem label={t('telegramNotifications')}>
                         <Switcher 
-                            checked={settings.sms}
-                            onChange={() => handleToggle('sms')}
+                            checked={!!settings.telegram}
+                            onChange={() => handleToggle('telegram')}
                             loading={updateSettingsMutation.isPending}
                         />
                     </FormItem>

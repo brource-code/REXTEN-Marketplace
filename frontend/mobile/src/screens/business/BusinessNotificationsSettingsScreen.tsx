@@ -30,8 +30,8 @@ const T = {
   fields: {
     email: 'Email уведомления',
     emailDesc: 'Получать уведомления на email',
-    sms: 'SMS уведомления',
-    smsDesc: 'Получать SMS сообщения',
+    telegram: 'Уведомления в Telegram',
+    telegramDesc: 'Получать оповещения в Telegram',
     newBookings: 'Новые бронирования',
     newBookingsDesc: 'Уведомлять о новых записях',
     cancellations: 'Отмены',
@@ -130,17 +130,17 @@ const queryClient = useQueryClient();
 
           <View style={[styles.switchItem, { borderBottomWidth: 0, borderBottomColor: colors.border }]}>
             <View style={[styles.switchIcon, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="chatbubble-outline" size={20} color={colors.primary} />
+              <Ionicons name="paper-plane-outline" size={20} color={colors.primary} />
             </View>
             <View style={styles.switchInfo}>
-              <Text style={[styles.switchLabel, { color: colors.text }]}>{T.fields.sms}</Text>
-              <Text style={[styles.switchDesc, { color: colors.textSecondary }]}>{T.fields.smsDesc}</Text>
+              <Text style={[styles.switchLabel, { color: colors.text }]}>{T.fields.telegram}</Text>
+              <Text style={[styles.switchDesc, { color: colors.textSecondary }]}>{T.fields.telegramDesc}</Text>
             </View>
             <Switch
-              value={draft.sms}
-              onValueChange={toggle('sms')}
+              value={!!draft.telegram}
+              onValueChange={toggle('telegram')}
               trackColor={{ false: colors.border, true: colors.primaryLight }}
-              thumbColor={draft.sms ? colors.primary : colors.backgroundTertiary}
+              thumbColor={draft.telegram ? colors.primary : colors.backgroundTertiary}
             />
           </View>
         </View>

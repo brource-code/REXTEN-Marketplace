@@ -2,14 +2,16 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { PiX, PiStarFill, PiCaretLeft, PiCaretRight } from 'react-icons/pi'
+import { PiX, PiStarFill, PiCaretLeft, PiCaretRight, PiCheckCircle } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
-import { createBooking, getAvailableSlots, checkSlotAvailability, previewBookingDiscount } from '@/lib/api/bookings'
+import { createBooking, getAvailableSlots, getAvailableSlotsBatch, checkSlotAvailability, previewBookingDiscount } from '@/lib/api/bookings'
+import { createClientBookingPayment } from '@/lib/api/stripe'
 import { getServiceProfile } from '@/lib/api/marketplace'
 import { useAuthStore, useUserStore } from '@/store'
 import { useCurrentUser } from '@/hooks/api/useAuth'
 import { CLIENT } from '@/constants/roles.constant'
 import BookingAdditionalServices from '@/components/BookingAdditionalServices'
+import BookingPayment from '@/components/marketplace/BookingPayment'
 import { formatDuration } from '@/utils/formatDuration'
 import { formatCurrency } from '@/utils/formatCurrency'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
@@ -59,6 +61,11 @@ const BookingDialog = ({
     const [promoExpanded, setPromoExpanded] = useState(false)
     const [discountPreview, setDiscountPreview] = useState(null)
     const [discountPreviewLoading, setDiscountPreviewLoading] = useState(false)
+    const [paymentStep, setPaymentStep] = useState(false)
+    const [paymentClientSecret, setPaymentClientSecret] = useState(null)
+    const [paymentAmount, setPaymentAmount] = useState(null)
+    const [paymentSuccess, setPaymentSuccess] = useState(false)
+    const [createdBookingId, setCreatedBookingId] = useState(null)
     const t = useTranslations('components.bookingDialog')
 
     // Проверка авторизации и получение данных пользователя
@@ -254,59 +261,40 @@ const BookingDialog = ({
             
             try {
                 const datesToLoad = currentProfile.schedule.days.slice(0, 30)
-                const slotPromises = datesToLoad.map(async (date, idx) => {
-                    if (isCancelled) return null
-                    
-                    const dateStr = date.date || new Date().toISOString().split('T')[0]
-                    if (!dateStr) return null
-                    
-                    try {
-                        const slotsParams = {
-                            company_id: companyIdNum,
-                            service_id: serviceId,
-                            date: dateStr,
-                        }
-                        
-                        // ВАЖНО: Для объявлений ОБЯЗАТЕЛЬНО передаем advertisement_id!
-                        if (isAdvertisement && adId) {
-                            slotsParams.advertisement_id = adId
-                        }
-                        
-                        // ВАЖНО: Передаем specialist_id для правильной фильтрации бронирований
-                        // Если специалист выбран, передаем его ID
-                        if (selectedMaster) {
-                            slotsParams.specialist_id = parseInt(selectedMaster)
-                        }
-                        
-                        const slots = await getAvailableSlots(slotsParams)
-                        
-                        const formattedSlots = Array.isArray(slots) ? slots.map(s => ({
-                            time: s.time || s.start_time || '',
-                            end_time: s.end_time || s.endTime || '',
-                            available: s.available !== false,
-                        })) : []
-                        
-                        return { dateId: date.id !== undefined ? date.id : idx, slots: formattedSlots }
-                    } catch (error) {
-                        if (error?.response?.status !== 404) {
-                            logClientApiError(`BookingDialog: error loading slots for ${dateStr}`, error, {
-                                company_id: companyIdNum,
-                                service_id: serviceId,
-                            })
-                        }
-                        return null
-                    }
-                })
-                
-                const results = await Promise.all(slotPromises)
+                const dateStrings = datesToLoad.map(d => d.date || new Date().toISOString().split('T')[0]).filter(Boolean)
+
+                if (dateStrings.length === 0) {
+                    setAvailableSlotsData({})
+                    return
+                }
+
+                const batchParams = {
+                    company_id: companyIdNum,
+                    service_id: serviceId,
+                    dates: dateStrings,
+                }
+
+                if (isAdvertisement && adId) {
+                    batchParams.advertisement_id = adId
+                }
+                if (selectedMaster) {
+                    batchParams.specialist_id = parseInt(selectedMaster)
+                }
+
+                const batchResult = await getAvailableSlotsBatch(batchParams)
                 
                 if (isCancelled) return
                 
                 const newSlotsData = {}
-                results.forEach(result => {
-                    if (result) {
-                        newSlotsData[result.dateId] = result.slots
-                    }
+                datesToLoad.forEach((date, idx) => {
+                    const dateStr = date.date || new Date().toISOString().split('T')[0]
+                    const dateId = date.id !== undefined ? date.id : idx
+                    const slots = batchResult[dateStr] || []
+                    newSlotsData[dateId] = Array.isArray(slots) ? slots.map(s => ({
+                        time: s.time || s.start_time || '',
+                        end_time: s.end_time || s.endTime || '',
+                        available: s.available !== false,
+                    })) : []
                 })
                 
                 setAvailableSlotsData(newSlotsData)
@@ -364,6 +352,10 @@ const BookingDialog = ({
     }, [isOpen, services, selectedService, team.length])
 
     const handleClose = () => {
+        if (paymentSuccess && onSuccess) {
+            onSuccess({ hadOnlinePayment: true })
+        }
+
         setSelectedDate(0)
         setSelectedTime(null)
         setSelectedMaster(null)
@@ -376,6 +368,11 @@ const BookingDialog = ({
         setPromoCode('')
         setPromoExpanded(false)
         setDiscountPreview(null)
+        setPaymentStep(false)
+        setPaymentClientSecret(null)
+        setPaymentAmount(null)
+        setPaymentSuccess(false)
+        setCreatedBookingId(null)
         onClose()
     }
 
@@ -533,11 +530,32 @@ const BookingDialog = ({
             }
 
             try {
-                await createBooking(bookingData)
+                const bookingResponse = await createBooking(bookingData)
+                const bookingResult = bookingResponse.data
+
+                if (bookingResult?.requires_payment && bookingResult?.id) {
+                    setCreatedBookingId(bookingResult.id)
+                    setIsSubmitting(false)
+
+                    try {
+                        const payRes = await createClientBookingPayment(
+                            bookingResult.id,
+                            form.email || undefined
+                        )
+                        setPaymentClientSecret(payRes.client_secret)
+                        const totalCents = Math.round((bookingResult.total_price || bookingResult.price || 0) * 100)
+                        setPaymentAmount(totalCents)
+                        setPaymentStep(true)
+                    } catch (payError) {
+                        logClientApiError('[BookingDialog] createClientBookingPayment', payError)
+                        setError(payError?.response?.data?.message || t('errors.paymentInitFailed'))
+                    }
+                    return
+                }
 
                 handleClose()
                 if (onSuccess) {
-                    setTimeout(() => onSuccess(), 150)
+                    setTimeout(() => onSuccess({ hadOnlinePayment: false }), 150)
                 }
             } catch (bookingError) {
                 logClientApiError('[BookingDialog] createBooking', bookingError)
@@ -733,42 +751,71 @@ const BookingDialog = ({
                     </button>
 
                     {/* Заголовок */}
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white pr-8 mb-1">
-                        {t('title')}
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        {t('description')}
-                    </p>
+                    {paymentSuccess ? (
+                        <>
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white pr-8 mb-1">
+                                {t('successTitle')}
+                            </h2>
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-0">
+                                {t('successSubtitle')}
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white pr-8 mb-1">
+                                {t('title')}
+                            </h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                {t('description')}
+                            </p>
 
-                    {/* Шаги прогресса */}
-                    <div className="flex items-center gap-2">
-                    {[1, 2, 3].map((step) => (
-                        <div key={step} className="flex-1 flex items-center">
-                            <div className={classNames(
-                                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition',
-                                currentStep >= step
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                            )}>
-                                {step}
+                            {/* Шаги прогресса */}
+                            <div className="flex items-center gap-2">
+                                {[1, 2, 3].map((step) => (
+                                    <div key={step} className="flex-1 flex items-center">
+                                        <div
+                                            className={classNames(
+                                                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition',
+                                                currentStep >= step
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                                            )}
+                                        >
+                                            {step}
+                                        </div>
+                                        {step < 3 && (
+                                            <div
+                                                className={classNames(
+                                                    'flex-1 h-0.5 mx-2 transition',
+                                                    currentStep > step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700',
+                                                )}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                            {step < 3 && (
-                                <div className={classNames(
-                                    'flex-1 h-0.5 mx-2 transition',
-                                    currentStep > step
-                                        ? 'bg-blue-600'
-                                        : 'bg-gray-200 dark:bg-gray-700'
-                                )} />
-                            )}
-                        </div>
-                    ))}
-                    </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Скроллируемый контент */}
                 <div className="flex-1 overflow-y-auto booking-modal-scroll px-6 pb-4">
+                {paymentSuccess && (
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
+                        <div className="flex gap-3 items-start">
+                            <PiCheckCircle
+                                className="w-6 h-6 shrink-0 text-gray-500 dark:text-gray-400 mt-0.5"
+                                aria-hidden
+                            />
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('paymentSuccess')}</p>
+                        </div>
+                    </div>
+                )}
+
+                {!paymentSuccess && (
+                <>
                 {/* Шаг 1: Выбор услуги */}
-                {currentStep === 1 && validServices.length > 1 && (
+                {currentStep === 1 && !paymentStep && validServices.length > 1 && (
                     <div className="space-y-3">
                         <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {t('selectService')}
@@ -820,7 +867,7 @@ const BookingDialog = ({
                 )}
 
                 {/* Шаг 2: Выбор специалиста (если есть команда) */}
-                {currentStep === 2 && team.length > 0 && (
+                {currentStep === 2 && !paymentStep && team.length > 0 && (
                     <div className="space-y-3">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -894,7 +941,7 @@ const BookingDialog = ({
                 )}
 
                 {/* Шаг 3: Выбор даты/времени и форма */}
-                {currentStep === 3 && (
+                {currentStep === 3 && !paymentStep && (
                     <div className="space-y-4">
                         {/* Выбор даты */}
                         <div>
@@ -1329,6 +1376,30 @@ const BookingDialog = ({
                         </div>
                     </div>
                 )}
+                </>
+                )}
+
+                {/* Шаг оплаты */}
+                {paymentStep && !paymentSuccess && paymentClientSecret && (
+                    <div className="mt-4">
+                        <div className="rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/35 dark:border-amber-900/40 p-3 mb-4">
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                {t('paymentRequired')}
+                            </p>
+                        </div>
+                        <BookingPayment
+                            bookingId={createdBookingId}
+                            clientEmail={form.email || undefined}
+                            clientSecret={paymentClientSecret}
+                            amount={paymentAmount}
+                            currency={currency?.toLowerCase() || 'usd'}
+                            onSuccess={() => {
+                                setPaymentSuccess(true)
+                                setPaymentStep(false)
+                            }}
+                        />
+                    </div>
+                )}
 
                 {/* Ошибка */}
                 {error && (
@@ -1338,7 +1409,8 @@ const BookingDialog = ({
                 )}
                 </div>
 
-                {/* Кнопки навигации - зафиксированы снизу */}
+                {/* Кнопки навигации - зафиксированы снизу (скрыты при оплате) */}
+                {!paymentStep && !paymentSuccess && (
                 <div className="flex-shrink-0 p-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
                     {currentStep > 1 && (
                         <button
@@ -1403,6 +1475,19 @@ const BookingDialog = ({
                         </button>
                     )}
                 </div>
+                )}
+
+                {paymentSuccess && (
+                    <div className="flex-shrink-0 p-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-3 text-sm font-bold transition"
+                        >
+                            {t('close')}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     )

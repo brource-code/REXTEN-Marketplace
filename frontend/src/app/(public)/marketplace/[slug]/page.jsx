@@ -1814,12 +1814,12 @@ export default function MarketplaceProfilePage() {
                     setBookingError(null)
                     setAvailableSlotsData({})
                 }}
-                onSuccess={() => {
-                    setBookingSuccess(true)
-                    // Инвалидируем кэш бронирований клиента, чтобы они обновились в профиле
+                onSuccess={(opts) => {
                     queryClient.invalidateQueries({ queryKey: ['client-bookings'] })
                     queryClient.invalidateQueries({ queryKey: ['client-orders'] })
-                    // Уведомление показывается через модалку успеха, toast не нужен
+                    if (!opts?.hadOnlinePayment) {
+                        setBookingSuccess(true)
+                    }
                 }}
                 slug={slug}
                 profile={profile}

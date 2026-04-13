@@ -125,6 +125,7 @@ Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);
     Route::post('/preview-discount', [DiscountPreviewController::class, 'preview']);
     Route::get('/available-slots', [BookingController::class, 'getAvailableSlots']);
+    Route::post('/available-slots-batch', [BookingController::class, 'getAvailableSlotsBatch']);
     Route::post('/check-availability', [BookingController::class, 'checkAvailability']);
     Route::get('/{id}/payment-eligibility', [StripeController::class, 'getBookingPaymentEligibility']);
     Route::post('/{id}/pay', [StripeController::class, 'createClientBookingPayment']);
@@ -379,6 +380,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         // Stripe payment
         Route::post('/stripe/checkout-session', [StripeController::class, 'createCheckoutSession']);
         Route::get('/stripe/transactions', [StripeController::class, 'getTransactions']);
+        Route::get('/stripe/booking-payments', [StripeController::class, 'getBookingPayments']);
 
         // Stripe Connect (Express accounts for businesses)
         Route::post('/stripe/connect', [StripeConnectController::class, 'createAccount']);

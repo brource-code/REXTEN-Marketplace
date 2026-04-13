@@ -1289,6 +1289,7 @@
             "statusAll": "All statuses",
             "statusLabel": "Status",
             "openInSchedule": "Open in schedule",
+            "paidOnline": "Paid online",
             "scheduleCalendar": "Calendar",
             "empty": "No bookings match your filters.",
             "booking": "Booking",
@@ -1432,6 +1433,7 @@
         "schedule": {
             "title": "Schedule",
             "description": "Manage bookings and availability",
+            "paidOnlineShort": "Online",
             "newBooking": "New Booking",
             "stats": {
                 "revenue": "Revenue",
@@ -1514,7 +1516,13 @@
                     "titlePlaceholder": "Enter event title",
                     "hybridWhere": "Where will this visit take place?",
                     "hybridOnsite": "At our location",
-                    "hybridOffsite": "At the client's address"
+                    "hybridOffsite": "At the client's address",
+                    "onlinePaymentBadge": "Paid online",
+                    "paymentCaptured": "Payment captured",
+                    "capturePayment": "Capture payment",
+                    "captureSuccess": "Payment captured successfully",
+                    "captureError": "Failed to capture payment",
+                    "netAfterFee": "Total: {total}, platform fee: {fee}"
                 },
                 "durationPicker": {
                     "min15": "15 minutes",
@@ -1748,6 +1756,7 @@
                     "cancelled": "Cancelled",
                     "unknown": "Unknown"
                 },
+                "onlinePaymentBadge": "Paid online",
                 "orderStatuses": {
                     "paid": "Paid",
                     "completed": "Completed",
@@ -2485,6 +2494,17 @@
             "title": "Billing",
             "description": "View all transactions and payments",
             "noTransactions": "No transactions",
+            "noEarnings": "No earnings yet",
+            "noExpenses": "No platform expenses yet",
+            "earningsDescription": "Booking payment",
+            "feeNote": "of {total}, fee: {fee}",
+            "sections": {
+                "earnings": "Earnings",
+                "expenses": "Platform expenses",
+                "transactions": "transactions",
+                "youReceive": "You receive",
+                "platformFee": "Platform fee"
+            },
             "columns": {
                 "date": "Date",
                 "type": "Type",
@@ -2495,10 +2515,12 @@
             "types": {
                 "advertisement": "Advertisement",
                 "subscription": "Subscription",
+                "booking": "Booking payment",
                 "unknown": "Unknown"
             },
             "statuses": {
                 "succeeded": "Succeeded",
+                "authorized": "Authorized",
                 "pending": "Pending",
                 "failed": "Failed",
                 "canceled": "Canceled"
@@ -2953,6 +2975,7 @@
                 "processingOnboarding": "Processing onboarding...",
                 "onlinePaymentTitle": "Online payment for bookings",
                 "onlinePaymentDescription": "When enabled, clients pay online when booking (card authorization). Requires Stripe to be connected.",
+                "platformFeeNote": "The platform charges a {percent}% service fee on each online payment.",
                 "onlinePaymentEnabled": "Online payment for bookings enabled",
                 "onlinePaymentDisabled": "Online payment for bookings disabled",
                 "errorToggling": "Could not update online payment setting"
@@ -3330,12 +3353,12 @@
             "discount": "Discount",
             "toPay": "Total to pay",
             "payAtVenue": "Payment on site",
-            "paymentRequired": "Your booking will be confirmed after payment. The amount will be authorized (held) on your card.",
-            "paymentSuccess": "Payment authorized. Your booking is confirmed.",
+            "paymentRequired": "Pay with your card to confirm",
+            "successTitle": "Booking confirmed",
+            "successSubtitle": "Your payment went through and your booking is saved.",
+            "paymentSuccess": "You're all set — your booking is confirmed and paid.",
             "payment": {
-                "holdNotice": "The total will be authorized (held) on your card — not charged immediately.",
-                "holdNoticeDetail": "The business captures the payment after the service is completed, according to their policy.",
-                "paymentWindow": "You have 30 minutes to complete payment; after that the hold expires and the booking may be cancelled.",
+                "paymentNote": "Pay within 30 minutes to confirm your booking — nothing is taken from your card today; you pay after your visit.",
                 "unexpectedStatus": "Unexpected payment status. Please contact support if the problem persists.",
                 "processing": "Processing…",
                 "processingStatus": "Your payment is processing. This can take a few minutes — check your bookings or wait for confirmation.",

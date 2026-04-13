@@ -165,6 +165,7 @@ export interface RecentBooking {
   amount: number;
   status: 'new' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
   execution_type?: string;
+  payment_status?: string;
 }
 
 export async function getRecentBookings(limit = 5): Promise<RecentBooking[]> {
@@ -183,6 +184,7 @@ export async function getRecentBookings(limit = 5): Promise<RecentBooking[]> {
       amount: Number(row.amount) || 0,
       status: (row.status ?? 'new') as RecentBooking['status'],
       execution_type: row.execution_type,
+      payment_status: row.payment_status,
     }));
   } catch {
     return [];
@@ -1048,7 +1050,8 @@ export async function updateMarketplaceSettings(
 // ========== Настройки уведомлений ==========
 export interface BusinessNotificationSettings {
   email: boolean;
-  sms: boolean;
+  sms?: boolean;
+  telegram?: boolean;
   newBookings: boolean;
   cancellations: boolean;
   payments: boolean;

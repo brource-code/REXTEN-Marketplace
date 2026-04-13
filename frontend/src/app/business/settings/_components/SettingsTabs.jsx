@@ -35,9 +35,6 @@ const SettingsTabs = () => {
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
                     {t('description')}
                 </p>
-                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2">
-                    💡 {t('servicesHint')} <a href="/business/advertisements" className="text-blue-600 hover:underline">{t('advertisementsLink')}</a>
-                </p>
             </div>
 
             <Tabs defaultValue="profile">

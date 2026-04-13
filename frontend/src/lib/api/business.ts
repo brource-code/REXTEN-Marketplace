@@ -109,6 +109,8 @@ export interface RecentBooking {
     service: string
     amount: number
     status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+    payment_status?: string
+    execution_type?: 'onsite' | 'offsite'
 }
 
 export async function getBusinessStats(): Promise<BusinessStats> {
@@ -596,6 +598,8 @@ export interface MarketplaceSettings {
     seoTitle: string
     seoDescription: string
     metaKeywords: string
+    onlinePaymentEnabled?: boolean
+    stripeConnected?: boolean
 }
 
 // Profile
@@ -775,7 +779,8 @@ export async function updateMarketplaceSettings(data: Partial<MarketplaceSetting
 // Business Notifications Settings
 export interface BusinessNotificationSettings {
     email: boolean
-    sms: boolean
+    sms?: boolean
+    telegram?: boolean
     newBookings: boolean
     cancellations: boolean
     payments: boolean

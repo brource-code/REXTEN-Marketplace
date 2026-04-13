@@ -78,6 +78,14 @@ const PublicFooter = () => {
                                         {t('cookies')}
                                     </Link>
                                 </li>
+                                <li>
+                                    <Link
+                                        href="/marketplace-terms"
+                                        className="hover:text-gray-900 dark:hover:text-white transition"
+                                    >
+                                        {t('marketplaceTerms')}
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
                         <div className="min-w-0">

@@ -485,6 +485,7 @@ class ClientsController extends Controller
                 'price' => (float) ($booking->price ?? 0),
                 'total_price' => (float) ($booking->total_price ?? $booking->price ?? 0),
                 'status' => $booking->status,
+                'payment_status' => $booking->payment_status ?? 'unpaid',
                 'notes' => $booking->notes,
                 'client_notes' => $booking->client_notes,
                 'execution_type' => $booking->execution_type ?? 'onsite',

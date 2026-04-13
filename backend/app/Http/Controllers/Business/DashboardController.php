@@ -343,6 +343,8 @@ class DashboardController extends Controller
                     // Используем total_price вместо price, чтобы учесть дополнительные услуги
                     'amount' => (float) ($booking->total_price ?? $booking->price ?? 0),
                     'status' => $booking->status ?? 'new', // Используем 'new' как дефолт вместо 'pending'
+                    'payment_status' => $booking->payment_status ?? 'unpaid',
+                    'execution_type' => $booking->execution_type ?? 'onsite',
                 ];
             });
 

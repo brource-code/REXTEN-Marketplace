@@ -38,7 +38,7 @@ const marketingItems1 = [
 
 const marketingItems2 = [
     { id: 'ads', name: 'Ads', icon: TbBrandGoogle },
-    { id: 'sms', name: 'SMS', icon: TbMessageCircle },
+    { id: 'chat', name: 'Chat', icon: TbMessageCircle },
     { id: 'discounts', name: 'Discounts', icon: TbDiscount },
     { id: 'notifications', name: 'Notifications', icon: TbBell },
     { id: 'campaigns', name: 'Campaigns', icon: TbTarget },

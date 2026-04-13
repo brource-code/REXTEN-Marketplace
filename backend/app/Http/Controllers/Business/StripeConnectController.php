@@ -152,6 +152,7 @@ class StripeConnectController extends Controller
                 'stripe_onboarding_completed_at' => null,
                 'stripe_disabled_reason' => null,
                 'has_active_dispute' => $company->has_active_dispute ?? false,
+                'platform_fee_percent' => config('services.stripe.application_fee_percent', 10),
                 'requirements' => null,
             ]);
         }
@@ -183,6 +184,7 @@ class StripeConnectController extends Controller
                 'stripe_onboarding_completed_at' => $company->stripe_onboarding_completed_at,
                 'stripe_disabled_reason' => $disabledReason,
                 'has_active_dispute' => $company->has_active_dispute ?? false,
+                'platform_fee_percent' => config('services.stripe.application_fee_percent', 10),
                 'requirements' => [
                     'currently_due' => $account->requirements->currently_due ?? [],
                     'eventually_due' => $account->requirements->eventually_due ?? [],

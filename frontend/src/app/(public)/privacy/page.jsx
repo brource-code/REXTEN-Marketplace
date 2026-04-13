@@ -1,5 +1,5 @@
 import Container from '@/components/shared/Container'
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { formatDate } from '@/utils/dateTime'
 import { CLIENT_DEFAULT_TIMEZONE } from '@/constants/client-datetime.constant'
@@ -14,7 +14,6 @@ export async function generateMetadata() {
 
 export default function PrivacyPage() {
     const t = useTranslations('legal.privacy');
-    const locale = useLocale();
 
     return (
         <div className="min-h-screen min-h-[100dvh] bg-white dark:bg-gray-900 py-8 sm:py-12">
@@ -33,6 +32,7 @@ export default function PrivacyPage() {
                                 {t('section1.title')}
                             </h2>
                             <p>{t('section1.content')}</p>
+                            <p className="mt-4">{t('section1.content2')}</p>
                         </section>
 
                         <section>

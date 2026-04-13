@@ -32,13 +32,14 @@ class ScheduleController extends Controller
                 ->whereNotNull('booking_date')
                 ->with([
                     'service:id,name,service_type', 
-                    'user:id,email,role', // Добавляем role для проверки isClient() (name нет в users, берем из profile)
+                    'user:id,email,role',
                     'user.profile:user_id,phone,first_name,last_name,address,city,state,zip_code',
-                    'advertisement:id,team,company_id,type,is_active,status', // Загружаем объявление для получения команды
-                    'additionalServices', // Загружаем дополнительные услуги
-                    'location', // Загружаем адрес для выездных услуг
+                    'advertisement:id,team,company_id,type,is_active,status',
+                    'additionalServices',
+                    'location',
                     'discountTier:id,name',
                     'promoCode:id,code',
+                    'payment:id,booking_id,amount,application_fee,currency,status,capture_status',
                 ])
                 ->get();
 
@@ -243,6 +244,9 @@ class ScheduleController extends Controller
                         'notes' => $booking->notes,
                         'client_notes' => $booking->client_notes,
                         'advertisement_id' => $booking->advertisement_id,
+                        'payment_status' => $booking->payment_status ?? 'unpaid',
+                        'platform_fee' => $booking->payment ? round((float)$booking->payment->application_fee / 100, 2) : null,
+                        'net_amount' => $booking->payment ? round(((float)$booking->payment->amount - (float)$booking->payment->application_fee) / 100, 2) : null,
                         'execution_type' => $booking->execution_type ?? 'onsite',
                         'additional_services' => $booking->additionalServices ? $booking->additionalServices->map(function ($addService) {
                             return [
@@ -791,6 +795,15 @@ class ScheduleController extends Controller
                 $booking->status = $request->status;
                 
                 if ($request->status === 'completed' && $oldStatus !== 'completed') {
+                    if ($booking->payment_status === 'authorized') {
+                        $user = auth('api')->user();
+                        $captureResult = app(\App\Services\BookingService::class)
+                            ->captureAuthorizedPayment($booking, $user?->id, $user?->role);
+                        if ($captureResult['captured']) {
+                            $booking->refresh();
+                        }
+                    }
+
                     // Генерируем токен для отзыва, если у клиента нет клиентского аккаунта
                     // Проверяем, что у пользователя нет роли CLIENT ИЛИ это CRM клиент (email содержит @local.local)
                     $hasClientAccount = $booking->user_id && $booking->user && $booking->user->isClient() && strpos($booking->user->email, '@local.local') === false;

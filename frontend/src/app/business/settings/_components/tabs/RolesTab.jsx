@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
-import Badge from '@/components/ui/Badge'
 import Tag from '@/components/ui/Tag'
 import Tooltip from '@/components/ui/Tooltip'
 import Dialog from '@/components/ui/Dialog'
@@ -27,6 +26,34 @@ import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { usePermission } from '@/hooks/usePermission'
 
+const RolePermissionsChips = ({ role, getPermissionName, onShowMore, showRemainingAria }) => {
+    const perms = role.permissions || []
+    const restCount = Math.max(0, perms.length - 3)
+
+    return (
+        <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50">
+            {perms.slice(0, 3).map((p) => (
+                <Tag
+                    key={p}
+                    className="!text-xs !px-2 !py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                >
+                    {getPermissionName(p)}
+                </Tag>
+            ))}
+            {restCount > 0 && (
+                <button
+                    type="button"
+                    className="inline-flex items-center rounded-md border-0 !text-xs !px-2 !py-0.5 font-bold bg-gray-200 text-gray-700 transition hover:bg-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                    onClick={onShowMore}
+                    aria-label={showRemainingAria}
+                >
+                    +{restCount}
+                </button>
+            )}
+        </div>
+    )
+}
+
 const RolesTab = () => {
     const t = useTranslations('business.settings.roles')
     const tCommon = useTranslations('business.common')
@@ -34,6 +61,7 @@ const RolesTab = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingRole, setEditingRole] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
+    const [overflowRole, setOverflowRole] = useState(null)
     const canManageRoles = usePermission('manage_roles')
 
     // Функция для получения названия разрешения
@@ -127,7 +155,7 @@ const RolesTab = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {systemRoles.map((role) => (
                                 <Card key={role.id} className="p-4 sm:p-6">
-                                    <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
                                                 <TbShieldCheck className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -136,30 +164,26 @@ const RolesTab = () => {
                                                 <div className="font-semibold text-gray-900 dark:text-white">
                                                     {role.name}
                                                 </div>
-                                                <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400">
                                                     {role.slug}
                                                 </div>
                                             </div>
                                         </div>
-                                        <Tag className="bg-amber-200 dark:bg-amber-700 text-amber-900 dark:text-amber-100 shrink-0">
+                                        <Tag className="!text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 shrink-0">
                                             {t('systemRole')}
                                         </Tag>
                                     </div>
-                                    <div className="flex flex-wrap gap-1">
-                                        {role.permissions?.slice(0, 3).map((p) => (
-                                            <Badge 
-                                                key={p} 
-                                                className="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                                            >
-                                                {getPermissionName(p)}
-                                            </Badge>
-                                        ))}
-                                        {role.permissions?.length > 3 && (
-                                            <Badge className="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                                                +{role.permissions.length - 3}
-                                            </Badge>
-                                        )}
-                                    </div>
+                                    <RolePermissionsChips
+                                        role={role}
+                                        getPermissionName={getPermissionName}
+                                        onShowMore={() =>
+                                            setOverflowRole({
+                                                name: role.name,
+                                                slugs: (role.permissions || []).slice(3),
+                                            })
+                                        }
+                                        showRemainingAria={t('showRemainingPermissions')}
+                                    />
                                 </Card>
                             ))}
                         </div>
@@ -181,7 +205,7 @@ const RolesTab = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {customRoles.map((role) => (
                                 <Card key={role.id} className="p-4 sm:p-6">
-                                    <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
                                                 <TbShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -190,7 +214,7 @@ const RolesTab = () => {
                                                 <div className="font-semibold text-gray-900 dark:text-white">
                                                     {role.name}
                                                 </div>
-                                                <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400">
                                                     {role.slug}
                                                 </div>
                                             </div>
@@ -216,27 +240,53 @@ const RolesTab = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex flex-wrap gap-1">
-                                        {role.permissions?.slice(0, 3).map((p) => (
-                                            <Badge 
-                                                key={p} 
-                                                className="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                                            >
-                                                {getPermissionName(p)}
-                                            </Badge>
-                                        ))}
-                                        {role.permissions?.length > 3 && (
-                                            <Badge className="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                                                +{role.permissions.length - 3}
-                                            </Badge>
-                                        )}
-                                    </div>
+                                    <RolePermissionsChips
+                                        role={role}
+                                        getPermissionName={getPermissionName}
+                                        onShowMore={() =>
+                                            setOverflowRole({
+                                                name: role.name,
+                                                slugs: (role.permissions || []).slice(3),
+                                            })
+                                        }
+                                        showRemainingAria={t('showRemainingPermissions')}
+                                    />
                                 </Card>
                             ))}
                         </div>
                     )}
                 </div>
             </div>
+
+            <Dialog
+                isOpen={!!overflowRole}
+                onClose={() => setOverflowRole(null)}
+                width={400}
+            >
+                <div className="p-5 sm:p-6">
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 pr-8">
+                        {overflowRole?.name}
+                    </h4>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
+                        {t('overflowPermissionsDescription')}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-1.5 max-h-[min(50vh,280px)] overflow-y-auto booking-modal-scroll">
+                        {(overflowRole?.slugs || []).map((p) => (
+                            <Tag
+                                key={p}
+                                className="!text-xs !px-2 !py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                            >
+                                {getPermissionName(p)}
+                            </Tag>
+                        ))}
+                    </div>
+                    <div className="mt-6 flex justify-end">
+                        <Button variant="plain" onClick={() => setOverflowRole(null)}>
+                            {tCommon('cancel')}
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
 
             <RoleModal
                 isOpen={isModalOpen}

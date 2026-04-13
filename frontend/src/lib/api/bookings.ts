@@ -39,7 +39,10 @@ export interface BookingResponse {
         booking_date: string
         booking_time: string
         status: string
+        payment_status?: string
+        requires_payment?: boolean
         price: number
+        total_price?: number
     }
 }
 
@@ -67,6 +70,20 @@ export async function getAvailableSlots(params: {
     specialist_id?: number // Добавляем опциональный specialist_id для фильтрации бронирований
 }): Promise<AvailableSlot[]> {
     const response = await LaravelAxios.get('/bookings/available-slots', { params })
+    return response.data.data || response.data
+}
+
+/**
+ * Batch: получить доступные слоты для нескольких дат за один запрос
+ */
+export async function getAvailableSlotsBatch(params: {
+    company_id: number
+    service_id: number
+    dates: string[]
+    advertisement_id?: number
+    specialist_id?: number
+}): Promise<Record<string, AvailableSlot[]>> {
+    const response = await LaravelAxios.post('/bookings/available-slots-batch', params)
     return response.data.data || response.data
 }
 

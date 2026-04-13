@@ -141,6 +141,37 @@ export async function disconnectStripeAccount(): Promise<{ success: boolean; mes
     return response.data
 }
 
+// ========== Booking Payments (Billing) ==========
+
+export interface BookingPaymentTransaction {
+    id: number
+    type: 'booking'
+    booking_id: number
+    amount: number
+    currency: string
+    status: string
+    capture_status: string
+    client_name: string
+    service_name: string
+    description: string
+    created: string
+    created_timestamp: number
+    captured_at: string | null
+    booking_status: string
+    booking_date: string
+}
+
+export interface BookingPaymentsResponse {
+    payments: BookingPaymentTransaction[]
+}
+
+export async function getBookingPayments(limit?: number): Promise<BookingPaymentsResponse> {
+    const params: Record<string, number> = {}
+    if (limit) params.limit = limit
+    const response = await LaravelAxios.get('/business/stripe/booking-payments', { params })
+    return response.data
+}
+
 // ========== Booking Payments (Client - public) ==========
 
 export async function createClientBookingPayment(

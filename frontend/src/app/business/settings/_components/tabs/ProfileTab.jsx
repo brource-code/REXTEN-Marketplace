@@ -45,6 +45,7 @@ const ProfileTab = () => {
     const [avatar, setAvatar] = useState(null)
     const isInitialMount = useRef(true)
     const hasChanges = useRef(false)
+    const logoFileInputRef = useRef(null)
 
     const { data: profile, isLoading } = useQuery({
         queryKey: ['business-profile'],
@@ -189,31 +190,35 @@ const ProfileTab = () => {
                         {tOnboarding('restart')}
                     </Button>
                 </div>
-                    {/* Аватар */}
-                    <div className="flex items-center gap-4">
-                        <Avatar size={100} shape="circle" src={avatar} />
-                        <div>
-                            <label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleAvatarChange}
-                                    className="hidden"
-                                    disabled={uploadAvatarMutation.isPending}
-                                />
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    icon={<PiUpload />}
-                                    loading={uploadAvatarMutation.isPending}
-                                    onClick={() => document.querySelector('input[type="file"]')?.click()}
-                                >
-                                    {t('uploadPhoto')}
-                                </Button>
-                            </label>
-                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2">
-                                {t('recommendedSize')}
-                            </p>
+                    {/* Логотип бизнеса */}
+                    <div>
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">{t('logo')}</p>
+                        <div className="flex items-center gap-4">
+                            <Avatar size={100} shape="round" src={avatar} />
+                            <div>
+                                <label>
+                                    <input
+                                        ref={logoFileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleAvatarChange}
+                                        className="hidden"
+                                        disabled={uploadAvatarMutation.isPending}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        icon={<PiUpload />}
+                                        loading={uploadAvatarMutation.isPending}
+                                        onClick={() => logoFileInputRef.current?.click()}
+                                    >
+                                        {t('uploadLogo')}
+                                    </Button>
+                                </label>
+                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2">
+                                    {t('logoHint')}
+                                </p>
+                            </div>
                         </div>
                     </div>
 

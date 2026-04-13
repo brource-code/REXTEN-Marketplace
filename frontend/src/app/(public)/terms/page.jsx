@@ -1,5 +1,5 @@
 import Container from '@/components/shared/Container'
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { formatDate } from '@/utils/dateTime'
 import { CLIENT_DEFAULT_TIMEZONE } from '@/constants/client-datetime.constant'
@@ -14,7 +14,6 @@ export async function generateMetadata() {
 
 export default function TermsPage() {
     const t = useTranslations('legal.terms');
-    const locale = useLocale();
 
     return (
         <div className="min-h-screen min-h-[100dvh] bg-white dark:bg-gray-900 py-8 sm:py-12">
@@ -89,18 +88,25 @@ export default function TermsPage() {
                                 <li>{t('section4.list.item3')}</li>
                                 <li>{t('section4.list.item4')}</li>
                             </ul>
+                            <p className="mt-4">{t('section4.note')}</p>
                         </section>
 
                         <section>
                             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                 {t('section5.title')}
                             </h2>
-                            <p>{t('section5.content')}</p>
-                            <ul className="list-disc pl-6 space-y-2">
-                                <li>{t('section5.list.item1')}</li>
-                                <li>{t('section5.list.item2')}</li>
-                                <li>{t('section5.list.item3')}</li>
-                            </ul>
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
+                                {t('section5.subsection1.title')}
+                            </h3>
+                            <p>{t('section5.subsection1.content')}</p>
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
+                                {t('section5.subsection2.title')}
+                            </h3>
+                            <p>{t('section5.subsection2.content')}</p>
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
+                                {t('section5.subsection3.title')}
+                            </h3>
+                            <p>{t('section5.subsection3.content')}</p>
                         </section>
 
                         <section>
@@ -108,6 +114,7 @@ export default function TermsPage() {
                                 {t('section6.title')}
                             </h2>
                             <p>{t('section6.content')}</p>
+                            <p className="mt-4">{t('section6.note')}</p>
                         </section>
 
                         <section>
@@ -115,14 +122,14 @@ export default function TermsPage() {
                                 {t('section7.title')}
                             </h2>
                             <p>{t('section7.content')}</p>
+                            <p className="mt-4">{t('section7.note')}</p>
                         </section>
 
                         <section>
                             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                 {t('section8.title')}
                             </h2>
-                            <p dangerouslySetInnerHTML={{ __html: t.raw('section8.content') }} />
-                            <p className="mt-4">{t('section8.note')}</p>
+                            <p>{t('section8.content')}</p>
                         </section>
                     </div>
                 </div>

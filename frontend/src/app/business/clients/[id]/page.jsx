@@ -13,7 +13,7 @@ import Tabs from '@/components/ui/Tabs'
 import Tag from '@/components/ui/Tag'
 import Card from '@/components/ui/Card'
 import { NumericFormat } from 'react-number-format'
-import { PiPhone, PiEnvelope, PiCalendar, PiClock, PiNote, PiArrowLeft, PiUser, PiMapPin, PiStar, PiTrash, PiPencil, PiCamera } from 'react-icons/pi'
+import { PiPhone, PiEnvelope, PiCalendar, PiClock, PiNote, PiArrowLeft, PiArrowRight, PiUser, PiMapPin, PiStar, PiTrash, PiPencil, PiCamera } from 'react-icons/pi'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getClientDetails, addClientNote, deleteClient, uploadClientAvatar } from '@/lib/api/business'
 import Loading from '@/components/shared/Loading'
@@ -281,41 +281,42 @@ function ClientDetailsPageContent() {
         <Container>
             <AdaptiveCard>
                 <div className="flex flex-col gap-4">
-                    {/* Заголовок */}
-                    <div className="flex items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-4">
-                        <Button
-                            variant="plain"
-                            icon={<PiArrowLeft />}
-                            onClick={() => router.push('/business/clients')}
-                        >
-                            {t('detailsPage.back')}
-                        </Button>
-                        <div>
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('detailsPage.title')}</h4>
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                {t('detailsPage.subtitle')}
-                            </p>
-                        </div>
+                    {/* Заголовок: мобилка — один ряд-тулбар; sm+ — как раньше */}
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                            <button
+                                type="button"
+                                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 active:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100 dark:active:bg-gray-700"
+                                aria-label={t('detailsPage.back')}
+                                onClick={() => router.push('/business/clients')}
+                            >
+                                <PiArrowLeft className="text-xl" />
+                            </button>
+                            <h4 className="min-w-0 flex-1 truncate text-lg font-bold leading-snug text-gray-900 dark:text-gray-100 sm:text-xl">
+                                {client.name?.trim() || t('detailsPage.title')}
+                            </h4>
                         </div>
                         {canManageClients && (
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex shrink-0 items-center gap-1 sm:gap-2">
                                 <Button
                                     variant="plain"
                                     size="sm"
                                     icon={<PiPencil />}
+                                    title={t('detailsPage.edit')}
+                                    className="!h-10 min-w-10 !justify-center !rounded-xl !px-0 sm:!h-auto sm:!min-h-0 sm:!min-w-0 sm:!rounded-xl sm:!px-3"
                                     onClick={() => setIsEditModalOpen(true)}
                                 >
-                                    {t('detailsPage.edit')}
+                                    <span className="hidden sm:inline">{t('detailsPage.edit')}</span>
                                 </Button>
                                 <Button
                                     variant="plain"
                                     size="sm"
                                     icon={<PiTrash />}
-                                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                    title={t('detailsPage.delete')}
+                                    className="!h-10 min-w-10 !justify-center !rounded-xl !px-0 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 sm:!h-auto sm:!min-h-0 sm:!min-w-0 sm:!rounded-xl sm:!px-3"
                                     onClick={() => setIsDeleteDialogOpen(true)}
                                 >
-                                    {t('detailsPage.delete') || 'Удалить'}
+                                    <span className="hidden sm:inline">{t('detailsPage.delete')}</span>
                                 </Button>
                             </div>
                         )}
@@ -464,8 +465,7 @@ function ClientDetailsPageContent() {
                             </TabContent>
 
                             <TabContent value="bookings">
-                                <div className="space-y-4 min-w-0 max-w-full">
-                                    {/* Фильтры */}
+                                <div className="space-y-3">
                                     <BookingsFilter
                                         filters={filters}
                                         onFiltersChange={setFilters}
@@ -475,199 +475,154 @@ function ClientDetailsPageContent() {
                                     />
 
                                     {bookings.length === 0 ? (
-                                        <div className="text-center py-8 text-gray-500">
+                                        <div className="text-center py-8 text-sm font-bold text-gray-500 dark:text-gray-400">
                                             {t('detailsPage.bookings.noBookings')}
                                         </div>
                                     ) : (
-                                        bookings.map((booking) => {
-                                            const specialistName = booking.specialist?.name || null
-                                            const additionalServices = booking.additional_services || []
-                                            const basePrice = parseFloat(booking.price || 0)
-                                            const additionalTotal = additionalServices.reduce((sum, item) => {
-                                                const price = parseFloat(item.pivot?.price || item.price || 0)
-                                                const quantity = parseInt(item.pivot?.quantity || item.quantity || 1)
-                                                return sum + price * quantity
-                                            }, 0)
-                                            const totalPrice = parseFloat(booking.total_price || (basePrice + additionalTotal))
-                                            const bookingCurrency = booking.currency || 'USD'
+                                        <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                                            {bookings.map((booking) => {
+                                                const specialistName = booking.specialist?.name || null
+                                                const additionalServices = booking.additional_services || []
+                                                const basePrice = parseFloat(booking.price || 0)
+                                                const additionalTotal = additionalServices.reduce((sum, item) => {
+                                                    const price = parseFloat(item.pivot?.price || item.price || 0)
+                                                    const quantity = parseInt(item.pivot?.quantity || item.quantity || 1)
+                                                    return sum + price * quantity
+                                                }, 0)
+                                                const totalPrice = parseFloat(booking.total_price || (basePrice + additionalTotal))
+                                                const bookingCurrency = booking.currency || 'USD'
+                                                const hasDetails = (booking.execution_type === 'offsite' && booking.location) || 
+                                                    booking.notes || booking.client_notes || booking.review ||
+                                                    additionalServices.length > 0
 
-                                            return (
-                                                <Card key={booking.id} className="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 min-w-0 max-w-full">
-                                                    <div className="flex flex-col md:flex-row md:items-start gap-4 min-w-0">
-                                                        <div className="flex-1 space-y-3 min-w-0">
-                                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-                                                                <div className="min-w-0 flex-1">
-                                                                    <h4 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-1 break-words">
+                                                const openBookingInList = () => {
+                                                    router.push(`/business/bookings?bookingId=${booking.id}`)
+                                                }
+
+                                                return (
+                                                    <div
+                                                        key={booking.id}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        className="group cursor-pointer rounded-xl py-4 pl-1 pr-1 first:pt-0 last:pb-0 -mx-1 outline-none transition-colors hover:bg-gray-50/90 active:bg-gray-100/80 dark:hover:bg-gray-800/40 dark:active:bg-gray-800/60 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
+                                                        aria-label={`${booking.service?.name || t('detailsPage.bookings.serviceNotSpecified')} — ${t('detailsPage.bookings.goToBooking')}`}
+                                                        onClick={openBookingInList}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                                e.preventDefault()
+                                                                openBookingInList()
+                                                            }
+                                                        }}
+                                                    >
+                                                        {/* Основная строка */}
+                                                        <div className="flex items-start gap-3">
+                                                            {/* Цветовой индикатор статуса */}
+                                                            <div className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
+                                                                booking.status === 'completed' ? 'bg-emerald-500' :
+                                                                booking.status === 'confirmed' ? 'bg-orange-500' :
+                                                                booking.status === 'cancelled' ? 'bg-red-500' :
+                                                                'bg-blue-500'
+                                                            }`} />
+                                                            
+                                                            <div className="min-w-0 flex-1">
+                                                                {/* Название + цена */}
+                                                                <div className="flex items-start justify-between gap-3">
+                                                                    <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                                         {booking.service?.name || t('detailsPage.bookings.serviceNotSpecified')}
                                                                     </h4>
-                                                                    {(booking.execution_type || 'onsite') === 'offsite' && (
-                                                                        <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                                                            {t('detailsPage.bookings.executionTypeOffsite')}
-                                                                        </div>
-                                                                    )}
+                                                                    <div className="flex shrink-0 items-center gap-2">
+                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                                            {formatCurrency(totalPrice, bookingCurrency)}
+                                                                        </span>
+                                                                        <span
+                                                                            className="inline-flex h-7 w-7 items-center justify-center text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400"
+                                                                            aria-hidden
+                                                                        >
+                                                                            <PiArrowRight className="text-base" />
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
-                                                                <Tag className={`shrink-0 self-start ${statusColors[booking.status] || statusColors.pending}`}>
-                                                                    {statusLabels[booking.status] || booking.status || t('detailsModal.bookingStatuses.unknown')}
-                                                                </Tag>
-                                                            </div>
-                                                            
-                                                            <div className="flex flex-col gap-2 text-sm min-w-0 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
-                                                                <div className="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                                    <PiCalendar className="text-base text-gray-400 shrink-0" />
-                                                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+
+                                                                {/* Мета-информация */}
+                                                                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                                    <span>
                                                                         {booking.booking_date 
                                                                             ? formatDate(booking.booking_date, timezone, 'short')
                                                                             : t('detailsPage.bookings.dateNotSpecified')}
+                                                                        {booking.booking_time && ` · ${booking.booking_time}`}
                                                                     </span>
+                                                                    {specialistName && (
+                                                                        <>
+                                                                            <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                                            <span>{specialistName}</span>
+                                                                        </>
+                                                                    )}
+                                                                    <Tag className={`!text-xs !px-1.5 !py-0 ${statusColors[booking.status] || statusColors.pending}`}>
+                                                                        {statusLabels[booking.status] || booking.status}
+                                                                    </Tag>
+                                                                    {(booking.payment_status === 'authorized' || booking.payment_status === 'paid') && (
+                                                                        <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-2 !py-0 font-bold">
+                                                                            {t('detailsModal.onlinePaymentBadge')}
+                                                                        </Tag>
+                                                                    )}
                                                                 </div>
-                                                                {booking.booking_time && (
-                                                                    <div className="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                                        <PiClock className="text-base text-gray-400 shrink-0" />
-                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{booking.booking_time}</span>
-                                                                    </div>
-                                                                )}
-                                                                {specialistName && (
-                                                                    <div className="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                                        <PiUser className="text-base text-gray-400 shrink-0" />
-                                                                        <span>
-                                                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('detailsPage.bookings.specialist')}</span>{' '}
-                                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{specialistName}</span>
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                                {booking.created_at && (
-                                                                    <div className="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                                        <PiClock className="text-base text-gray-400 shrink-0" />
-                                                                        <span>
-                                                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('detailsPage.bookings.created')}</span>{' '}
-                                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                                                {formatDateTime(booking.created_at, null, timezone, 'short')}
-                                                                            </span>
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
 
-                                                            {/* Адрес для offsite бронирований */}
-                                                            {(booking.execution_type || 'onsite') === 'offsite' && booking.location && (
-                                                                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                                                                    <div className="text-sm">
-                                                                        <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">{t('detailsPage.bookings.address')}</div>
-                                                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                                            {booking.location.address_line1}<br />
-                                                                            {booking.location.city}, {booking.location.state} {booking.location.zip}
-                                                                        </div>
-                                                                        {booking.location.notes && (
-                                                                            <div className="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400 italic">
-                                                                                {booking.location.notes}
+                                                                {/* Дополнительные детали (компактно) */}
+                                                                {hasDetails && (
+                                                                    <div className="mt-2 space-y-1.5">
+                                                                        {/* Доп. услуги */}
+                                                                        {additionalServices.length > 0 && (
+                                                                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                                                <span className="font-bold">+{additionalServices.length}</span>{' '}
+                                                                                {additionalServices.length === 1 ? 'доп. услуга' : 'доп. услуг'}
                                                                             </div>
                                                                         )}
-                                                                    </div>
-                                                                </div>
-                                                            )}
 
-                                                            {/* Заметки */}
-                                                            {(booking.notes || booking.client_notes) && (
-                                                                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                                                                    {booking.client_notes && (
-                                                                        <div className="text-sm mb-2">
-                                                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">{t('detailsPage.bookings.clientNote')}</div>
-                                                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{booking.client_notes}</div>
-                                                                        </div>
-                                                                    )}
-                                                                    {booking.notes && (
-                                                                        <div className="text-sm">
-                                                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">{t('detailsPage.bookings.businessNote')}</div>
-                                                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{booking.notes}</div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )}
+                                                                        {/* Offsite адрес */}
+                                                                        {booking.execution_type === 'offsite' && booking.location && (
+                                                                            <div className="flex items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                                                                <PiMapPin className="mt-0.5 shrink-0" />
+                                                                                <span>{booking.location.address_line1}, {booking.location.city}</span>
+                                                                            </div>
+                                                                        )}
 
-                                                            {/* Отзыв */}
-                                                            {booking.review && (
-                                                                <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-                                                                    <div className="flex items-start gap-2">
-                                                                        <PiStar className="text-yellow-400 mt-1 shrink-0" size={20} />
-                                                                        <div className="flex-1">
-                                                                            <div className="flex items-center gap-2 mb-1">
-                                                                                <div className="flex items-center gap-1">
+                                                                        {/* Заметки (кратко) */}
+                                                                        {(booking.notes || booking.client_notes) && (
+                                                                            <div className="flex items-start gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                                                                <PiNote className="mt-0.5 shrink-0" />
+                                                                                <span className="line-clamp-1">
+                                                                                    {booking.client_notes || booking.notes}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Отзыв */}
+                                                                        {booking.review && (
+                                                                            <div className="flex items-center gap-1 text-xs">
+                                                                                <div className="flex items-center gap-0.5">
                                                                                     {[...Array(5)].map((_, i) => (
                                                                                         <PiStar
                                                                                             key={i}
-                                                                                            className={i < booking.review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-                                                                                            size={16}
+                                                                                            className={i < booking.review.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}
+                                                                                            size={12}
                                                                                         />
                                                                                     ))}
                                                                                 </div>
-                                                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                                                    {booking.review.rating}/5
-                                                                                </span>
+                                                                                {booking.review.comment && (
+                                                                                    <span className="ml-1 text-gray-500 dark:text-gray-400 line-clamp-1">
+                                                                                        "{booking.review.comment}"
+                                                                                    </span>
+                                                                                )}
                                                                             </div>
-                                                                            {booking.review.comment && (
-                                                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">
-                                                                                    "{booking.review.comment}"
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
+                                                                        )}
                                                                     </div>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Итого */}
-                                                            <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-                                                                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-3 space-y-2">
-                                                                    {/* Базовая стоимость услуги */}
-                                                                    {basePrice > 0 && (
-                                                                        <div className="flex justify-between items-start gap-3 text-sm min-w-0">
-                                                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400 min-w-0 break-words pr-2">
-                                                                                {t('detailsPage.bookings.basePrice')}
-                                                                            </span>
-                                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">
-                                                                                {formatCurrency(basePrice, bookingCurrency)}
-                                                                            </span>
-                                                                        </div>
-                                                                    )}
-                                                                    
-                                                                    {/* Дополнительные услуги */}
-                                                                    {additionalServices.length > 0 && (
-                                                                        <>
-                                                                            {additionalServices.map((item, index) => {
-                                                                                const service = item.additional_service || item
-                                                                                const price = parseFloat(item.pivot?.price || service.price || item.price || 0)
-                                                                                const quantity = parseInt(item.pivot?.quantity || item.quantity || 1)
-                                                                                const total = price * quantity
-
-                                                                                return (
-                                                                                    <div key={item.id || index} className="flex justify-between items-start gap-3 text-sm min-w-0">
-                                                                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 min-w-0 break-words pr-2">
-                                                                                            {service.name || item.name} × {quantity}
-                                                                                        </span>
-                                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">
-                                                                                            {formatCurrency(total, bookingCurrency)}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                )
-                                                                            })}
-                                                                        </>
-                                                                    )}
-
-                                                                    <ClientBookingDiscountRows booking={booking} currency={bookingCurrency} />
-                                                                    
-                                                                    {/* Итого общий */}
-                                                                    <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2 flex justify-between items-start gap-3 min-w-0">
-                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 min-w-0 break-words pr-2">{t('detailsPage.bookings.total')}</span>
-                                                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 shrink-0">
-                                                                            {formatCurrency(totalPrice, bookingCurrency)}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </Card>
-                                            )
-                                        })
+                                                )
+                                            })}
+                                        </div>
                                     )}
                                 </div>
                             </TabContent>

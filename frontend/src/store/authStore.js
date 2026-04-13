@@ -177,23 +177,23 @@ const useAuthStore = create(
                     }
                     const payload = JSON.parse(atob(parts[1]))
 
-                    // Проверяем срок действия (exp в секундах, Date.now() в миллисекундах)
-                    if (payload.exp && payload.exp * 1000 < Date.now()) {
-                        clearTokens()
-                        clearAuthPersistStorage()
-                        set({
-                            isAuthenticated: false,
-                            accessToken: null,
-                            refreshToken: null,
-                            userId: null,
-                            userRole: null,
-                        })
-                        return false
-                    }
-
                     const parsed = roleAndIdFromAccessToken(token)
                     role = parsed.role
                     userId = parsed.userId
+
+                    if (payload.exp && payload.exp * 1000 < Date.now()) {
+                        // Access token истёк, но refresh token (httpOnly cookie, 7 дней) может быть жив.
+                        // Не очищаем сессию — оставляем isAuthenticated: true с ролью из токена.
+                        // При следующем API-запросе сервер вернёт 401, LaravelAxios interceptor
+                        // попробует refresh; если не получится — interceptor сам сделает logout.
+                        set({
+                            isAuthenticated: true,
+                            accessToken: token,
+                            userRole: role,
+                            userId,
+                        })
+                        return true
+                    }
                 } catch (error) {
                     console.warn('Invalid token format:', error)
                     clearTokens()

@@ -7,10 +7,8 @@ import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { useRouter } from 'next/navigation'
-import { TbPencil, TbEye, TbPhone } from 'react-icons/tb'
+import { TbPencil, TbEye, TbPhone, TbChevronRight } from 'react-icons/tb'
 import { NumericFormat } from 'react-number-format'
-import Card from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
 import ClientEditModal from './ClientEditModal'
 import { formatDate } from '@/utils/dateTime'
 import useBusinessStore from '@/store/businessStore'
@@ -215,11 +213,8 @@ const ClientsTable = ({
         })
     }
 
-    // Мобильная версия - карточки
+    // Мобильная версия — простая строка-карточка
     const MobileCard = ({ client }) => {
-        const lastVisitDate = new Date(client.lastVisit)
-
-        // Получаем инициалы для аватара
         const getInitials = (name) => {
             if (!name) return 'U'
             const parts = name.trim().split(' ')
@@ -229,9 +224,12 @@ const ClientsTable = ({
             return name[0].toUpperCase()
         }
 
+        const spentValue =
+            client.totalSpent != null ? parseFloat(client.totalSpent) : 0
+
         return (
-            <Card
-                className="mb-4 cursor-pointer"
+            <div
+                className="flex cursor-pointer items-center gap-3 border-b border-gray-100 py-3 transition-colors active:bg-gray-50 dark:border-gray-800 dark:active:bg-gray-800/50"
                 role="button"
                 tabIndex={0}
                 onClick={() => handleViewDetails(client)}
@@ -242,83 +240,52 @@ const ClientsTable = ({
                     }
                 }}
             >
-                <div className="flex gap-4">
-                    <Avatar size={60} shape="circle" src={client.img || undefined}>
-                        {!client.img && getInitials(client.name)}
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">
-                                    {client.name}
-                                </h4>
-                                <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">{client.email}</p>
-                                {client.phone && (
-                                    <div className="text-xs font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1 mt-1">
-                                        <TbPhone className="text-xs" />
-                                        <span>{client.phone}</span>
-                                    </div>
-                                )}
-                            </div>
-                            <Tag className={statusColor[client.status] || statusColor.regular}>
-                                {getStatusLabel(client.status)}
-                            </Tag>
-                        </div>
+                <Avatar size={44} shape="circle" src={client.img || undefined}>
+                    {!client.img && getInitials(client.name)}
+                </Avatar>
 
-                        <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
-                            <div>
-                                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('columns.bookings')}</span>
-                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{client.totalBookings || 0}</div>
-                            </div>
-                            <div>
-                                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('columns.spent')}</span>
-                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                    <NumericFormat
-                                        displayType="text"
-                                        value={client.totalSpent !== null && client.totalSpent !== undefined ? parseFloat(client.totalSpent) : 0}
-                                        prefix={'$'}
-                                        thousandSeparator={true}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3">
-                            <span>{t('columns.lastVisit')}: </span>
-                            <span className="text-gray-900 dark:text-gray-100">{formatDate(client.lastVisit, timezone, 'short')}</span>
-                        </div>
-
-                        <div
-                            className="flex gap-2"
-                            onClick={(e) => e.stopPropagation()}
-                            onKeyDown={(e) => e.stopPropagation()}
-                        >
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                icon={<TbEye />}
-                                onClick={() => handleViewDetails(client)}
-                                className="flex-1"
-                            >
-                                {t('actions.details')}
-                            </Button>
-                            <Button
-                                variant="plain"
-                                size="sm"
-                                icon={<TbPencil />}
-                                onClick={() => handleEdit(client)}
-                            />
-                        </div>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                        <span className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                            {client.name}
+                        </span>
+                        <Tag className={`shrink-0 !text-xs !px-1.5 !py-0 ${statusColor[client.status] || statusColor.regular}`}>
+                            {getStatusLabel(client.status)}
+                        </Tag>
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-3 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <span>{client.totalBookings || 0} {t('columns.bookings').toLowerCase()}</span>
+                        <span>·</span>
+                        <NumericFormat
+                            displayType="text"
+                            value={Number.isNaN(spentValue) ? 0 : spentValue}
+                            prefix="$"
+                            thousandSeparator
+                        />
                     </div>
                 </div>
-            </Card>
+
+                <button
+                    type="button"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                    aria-label={t('actions.edit')}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        handleEdit(client)
+                    }}
+                >
+                    <TbPencil className="text-lg" />
+                </button>
+
+                <TbChevronRight className="shrink-0 text-lg text-gray-300 dark:text-gray-600" aria-hidden />
+            </div>
         )
     }
 
     return (
         <>
             {/* Мобильная версия - карточки */}
-            <div className="md:hidden space-y-4">
+            <div className="md:hidden">
                 {clientsList.length > 0 ? (
                     clientsList.map((client) => (
                         <MobileCard key={client.id} client={client} />

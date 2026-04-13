@@ -7,6 +7,7 @@ import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import Select from '@/components/ui/Select'
 import Card from '@/components/ui/Card'
+import Tag from '@/components/ui/Tag'
 import DatePicker from '@/components/ui/DatePicker'
 import { TbTrash, TbUser, TbPhone, TbMail, TbCalendar, TbClock, TbCurrencyDollar, TbNotes, TbCopy, TbStar, TbMapPin, TbTruck } from 'react-icons/tb'
 import dayjs from 'dayjs'
@@ -22,6 +23,7 @@ import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import { formatTime } from '@/utils/dateTime'
 import { resolveSlotServiceName, isGenericServiceName } from '@/utils/schedule/resolveSlotServiceName'
 import useBusinessStore from '@/store/businessStore'
+import { captureBookingPayment } from '@/lib/api/stripe'
 
 const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly = false }) => {
     const intlLocale = useLocale()
@@ -39,6 +41,7 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
     const [hybridExecutionType, setHybridExecutionType] = useState('onsite')
     const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
+    const [isCapturing, setIsCapturing] = useState(false)
     const [selectedAdditionalServices, setSelectedAdditionalServices] = useState([])
     
     useEffect(() => {
@@ -583,6 +586,50 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                     )
                                 })()}
 
+                                {/* Оплата онлайн — бейдж + кнопка capture */}
+                                {(slot.payment_status === 'authorized' || slot.payment_status === 'paid') && (
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+                                            <TbCurrencyDollar className="text-emerald-600 dark:text-emerald-400 text-lg" />
+                                        </div>
+                                        <div className="flex-1 min-w-0 flex flex-wrap items-center gap-2">
+                                            <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-sm !px-2.5 !py-0.5 font-bold">
+                                                {slot.payment_status === 'paid'
+                                                    ? t('labels.paymentCaptured', { defaultValue: 'Payment captured' })
+                                                    : t('labels.onlinePaymentBadge')}
+                                            </Tag>
+                                            {slot.payment_status === 'authorized' && (
+                                                <Button
+                                                    size="xs"
+                                                    variant="solid"
+                                                    loading={isCapturing}
+                                                    onClick={async () => {
+                                                        setIsCapturing(true)
+                                                        try {
+                                                            await captureBookingPayment(slot.id)
+                                                            toast.push(
+                                                                <Notification type="success" title={t('labels.captureSuccess', { defaultValue: 'Payment captured' })} />,
+                                                                { placement: 'top-end' }
+                                                            )
+                                                            queryClient.invalidateQueries({ queryKey: ['schedule'] })
+                                                            queryClient.invalidateQueries({ queryKey: ['booking-payments'] })
+                                                        } catch (e) {
+                                                            toast.push(
+                                                                <Notification type="danger" title={t('labels.captureError', { defaultValue: 'Capture failed' })} />,
+                                                                { placement: 'top-end' }
+                                                            )
+                                                        } finally {
+                                                            setIsCapturing(false)
+                                                        }
+                                                    }}
+                                                >
+                                                    {t('labels.capturePayment', { defaultValue: 'Capture payment' })}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Клиент */}
                                 {slot.client && (
                                     <div className="flex items-start gap-3">
@@ -711,13 +758,29 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                             <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 block">
                                                 {t('labels.price')}
                                             </label>
-                                            <div className="text-base font-bold text-gray-900 dark:text-gray-100">
-                                                {formatCurrency(slot.total_price || slot.price, currency)}
-                                            </div>
-                                            {slot.total_price && slot.total_price !== slot.price && (
-                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    {t('labels.basePriceNote', { price: formatCurrency(slot.price, currency) })}
-                                                </div>
+                                            {slot.net_amount != null && (slot.payment_status === 'authorized' || slot.payment_status === 'paid') ? (
+                                                <>
+                                                    <div className="text-base font-bold text-gray-900 dark:text-gray-100">
+                                                        {formatCurrency(slot.net_amount, currency)}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        {t('labels.netAfterFee', {
+                                                            total: formatCurrency(slot.total_price || slot.price, currency),
+                                                            fee: formatCurrency(slot.platform_fee, currency),
+                                                        })}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="text-base font-bold text-gray-900 dark:text-gray-100">
+                                                        {formatCurrency(slot.total_price || slot.price, currency)}
+                                                    </div>
+                                                    {slot.total_price && slot.total_price !== slot.price && (
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                            {t('labels.basePriceNote', { price: formatCurrency(slot.price, currency) })}
+                                                        </div>
+                                                    )}
+                                                </>
                                             )}
                                         </div>
                                     </div>

@@ -6,7 +6,8 @@ import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import Spinner from '@/components/ui/Spinner'
 import Switcher from '@/components/ui/Switcher'
-import { toast } from '@/components/ui/toast'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 import { PiCreditCard, PiCheckCircle, PiWarningCircle, PiArrowSquareOut, PiLinkBreak, PiArrowClockwise } from 'react-icons/pi'
 import {
     getStripeConnectStatus,
@@ -19,6 +20,7 @@ import { updateMarketplaceSettings, getMarketplaceSettings } from '@/lib/api/bus
 
 const PaymentsTab = () => {
     const t = useTranslations('business.settings.payments')
+    const tCommon = useTranslations('business.common')
     const queryClient = useQueryClient()
 
     const { data: status, isLoading, error } = useQuery({
@@ -41,15 +43,15 @@ const PaymentsTab = () => {
             await updateMarketplaceSettings({ onlinePaymentEnabled: checked })
             queryClient.invalidateQueries({ queryKey: ['marketplace-settings'] })
             toast.push(
-                <span className="text-green-500">
+                <Notification title={tCommon('success')} type="success">
                     {checked ? t('onlinePaymentEnabled') : t('onlinePaymentDisabled')}
-                </span>,
-                { type: 'success' }
+                </Notification>
             )
         } catch (err) {
             toast.push(
-                <span className="text-red-500">{err.response?.data?.message || t('errorToggling')}</span>,
-                { type: 'danger' }
+                <Notification title={tCommon('error')} type="danger">
+                    {err.response?.data?.message || t('errorToggling')}
+                </Notification>
             )
         } finally {
             setOnlinePaymentToggling(false)
@@ -65,8 +67,9 @@ const PaymentsTab = () => {
         },
         onError: (err) => {
             toast.push(
-                <span className="text-red-500">{err.response?.data?.message || t('errorConnecting')}</span>,
-                { type: 'danger' }
+                <Notification title={tCommon('error')} type="danger">
+                    {err.response?.data?.message || t('errorConnecting')}
+                </Notification>
             )
         },
     })
@@ -80,8 +83,9 @@ const PaymentsTab = () => {
         },
         onError: (err) => {
             toast.push(
-                <span className="text-red-500">{err.response?.data?.message || t('errorRefreshing')}</span>,
-                { type: 'danger' }
+                <Notification title={tCommon('error')} type="danger">
+                    {err.response?.data?.message || t('errorRefreshing')}
+                </Notification>
             )
         },
     })
@@ -95,8 +99,9 @@ const PaymentsTab = () => {
         },
         onError: (err) => {
             toast.push(
-                <span className="text-red-500">{err.response?.data?.message || t('errorDashboard')}</span>,
-                { type: 'danger' }
+                <Notification title={tCommon('error')} type="danger">
+                    {err.response?.data?.message || t('errorDashboard')}
+                </Notification>
             )
         },
     })
@@ -105,12 +110,17 @@ const PaymentsTab = () => {
         mutationFn: disconnectStripeAccount,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['stripe-connect-status'] })
-            toast.push(<span className="text-green-500">{t('disconnected')}</span>, { type: 'success' })
+            toast.push(
+                <Notification title={tCommon('success')} type="success">
+                    {t('disconnected')}
+                </Notification>
+            )
         },
         onError: (err) => {
             toast.push(
-                <span className="text-red-500">{err.response?.data?.message || t('errorDisconnecting')}</span>,
-                { type: 'danger' }
+                <Notification title={tCommon('error')} type="danger">
+                    {err.response?.data?.message || t('errorDisconnecting')}
+                </Notification>
             )
         },
     })
@@ -363,6 +373,11 @@ const PaymentsTab = () => {
                                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
                                     {t('onlinePaymentDescription')}
                                 </p>
+                                {status?.platform_fee_percent != null && (
+                                    <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1">
+                                        {t('platformFeeNote', { percent: status.platform_fee_percent })}
+                                    </p>
+                                )}
                             </div>
                             <Switcher
                                 checked={marketplaceSettings?.onlinePaymentEnabled ?? false}

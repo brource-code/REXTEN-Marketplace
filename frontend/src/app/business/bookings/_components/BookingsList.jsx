@@ -302,9 +302,16 @@ export default function BookingsList() {
                                                 </span>
                                             </Td>
                                             <Td>
-                                                <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
-                                                    {getStatusLabel(st)}
-                                                </Tag>
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
+                                                        {getStatusLabel(st)}
+                                                    </Tag>
+                                                    {(slot.payment_status === 'authorized' || slot.payment_status === 'paid') && (
+                                                        <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
+                                                            {t('paidOnline')}
+                                                        </Tag>
+                                                    )}
+                                                </div>
                                             </Td>
                                             <Td>
                                                 <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
@@ -360,9 +367,16 @@ export default function BookingsList() {
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                             #{slot.id}
                                         </span>
-                                        <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
-                                            {getStatusLabel(st)}
-                                        </Tag>
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
+                                                {getStatusLabel(st)}
+                                            </Tag>
+                                            {(slot.payment_status === 'authorized' || slot.payment_status === 'paid') && (
+                                                <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
+                                                    {t('paidOnline')}
+                                                </Tag>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">
                                         {formatDate(slot.start, timezone, 'short')} · {formatTime(slot.start, timezone)}

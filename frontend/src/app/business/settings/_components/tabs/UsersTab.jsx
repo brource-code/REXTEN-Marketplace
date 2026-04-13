@@ -12,8 +12,8 @@ import Dialog from '@/components/ui/Dialog'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import Select from '@/components/ui/Select'
-import { PiUserPlus } from 'react-icons/pi'
-import { TbTrash, TbMail, TbCrown, TbUser } from 'react-icons/tb'
+import { PiUserPlus, PiCopy, PiCheck } from 'react-icons/pi'
+import { TbTrash, TbMail, TbCrown } from 'react-icons/tb'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     getCompanyUsers,
@@ -207,6 +207,8 @@ const InviteModal = ({ isOpen, onClose, roles }) => {
         last_name: '',
         role_id: null,
     })
+    const [createdUser, setCreatedUser] = useState(null)
+    const [copied, setCopied] = useState(false)
 
     const assignableRoles = roles.filter((r) => !r.is_system || r.slug === 'manager')
 
@@ -218,6 +220,8 @@ const InviteModal = ({ isOpen, onClose, roles }) => {
                 last_name: '',
                 role_id: null,
             })
+            setCreatedUser(null)
+            setCopied(false)
         }
     }, [isOpen])
 
@@ -225,17 +229,19 @@ const InviteModal = ({ isOpen, onClose, roles }) => {
         mutationFn: (data) => inviteCompanyUser(data),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['business-company-users'] })
-            onClose()
-            toast.push(
-                <Notification title={tCommon('success')} type="success">
-                    {t('inviteSuccess')}
-                    {data.temporary_password && (
-                        <span className="block mt-1 text-xs">
-                            {t('tempPassword')}: <strong>{data.temporary_password}</strong>
-                        </span>
-                    )}
-                </Notification>,
-            )
+            if (data.temporary_password) {
+                setCreatedUser({
+                    email: data.member?.email || formData.email,
+                    password: data.temporary_password,
+                })
+            } else {
+                onClose()
+                toast.push(
+                    <Notification title={tCommon('success')} type="success">
+                        {t('inviteSuccess')}
+                    </Notification>,
+                )
+            }
         },
         onError: (err) => {
             toast.push(
@@ -255,6 +261,90 @@ const InviteModal = ({ isOpen, onClose, roles }) => {
             first_name: formData.first_name || undefined,
             last_name: formData.last_name || undefined,
         })
+    }
+
+    const handleCopyPassword = async () => {
+        if (!createdUser?.password) return
+        try {
+            await navigator.clipboard.writeText(createdUser.password)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        } catch {
+            toast.push(
+                <Notification title={tCommon('error')} type="danger">
+                    {t('copyError')}
+                </Notification>,
+            )
+        }
+    }
+
+    const handleCloseSuccess = () => {
+        setCreatedUser(null)
+        onClose()
+    }
+
+    if (createdUser) {
+        return (
+            <Dialog isOpen={isOpen} onClose={handleCloseSuccess} width={440}>
+                <div className="p-6">
+                    <div className="flex flex-col items-center text-center mb-6">
+                        <div className="h-14 w-14 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
+                            <PiCheck className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                            {t('userCreatedTitle')}
+                        </h4>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
+                            {t('userCreatedDescription')}
+                        </p>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                {t('email')}
+                            </div>
+                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                {createdUser.email}
+                            </div>
+                        </div>
+
+                        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                            <div className="text-xs font-bold text-amber-700 dark:text-amber-300 mb-1">
+                                {t('tempPassword')}
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                                <code className="text-sm font-mono font-bold text-amber-900 dark:text-amber-100 select-all">
+                                    {createdUser.password}
+                                </code>
+                                <button
+                                    type="button"
+                                    className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                                        copied
+                                            ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                            : 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-800/50 dark:text-amber-300 dark:hover:bg-amber-800'
+                                    }`}
+                                    onClick={handleCopyPassword}
+                                    title={t('copyPassword')}
+                                >
+                                    {copied ? <PiCheck className="text-lg" /> : <PiCopy className="text-lg" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 text-center">
+                            {t('passwordHint')}
+                        </p>
+                    </div>
+
+                    <div className="mt-6">
+                        <Button variant="solid" className="w-full" onClick={handleCloseSuccess}>
+                            {tCommon('done')}
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
+        )
     }
 
     return (

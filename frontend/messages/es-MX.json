@@ -1289,6 +1289,7 @@
             "statusAll": "Todos los estados",
             "statusLabel": "Estado",
             "openInSchedule": "Abrir en agenda",
+            "paidOnline": "Pagado en línea",
             "scheduleCalendar": "Calendario",
             "empty": "No hay reservas que coincidan con los filtros.",
             "booking": "Reserva",
@@ -1432,6 +1433,7 @@
         "schedule": {
             "title": "Agenda",
             "description": "Administra reservas y disponibilidad",
+            "paidOnlineShort": "En línea",
             "newBooking": "Nueva reserva",
             "stats": {
                 "revenue": "Ingresos",
@@ -1514,7 +1516,13 @@
                     "titlePlaceholder": "Ingresa el título del evento",
                     "hybridWhere": "¿Dónde será la visita?",
                     "hybridOnsite": "En nuestro local",
-                    "hybridOffsite": "En domicilio del cliente"
+                    "hybridOffsite": "En domicilio del cliente",
+                    "onlinePaymentBadge": "Pagado en línea",
+                    "paymentCaptured": "Pago capturado",
+                    "capturePayment": "Capturar pago",
+                    "captureSuccess": "Pago capturado exitosamente",
+                    "captureError": "Error al capturar el pago",
+                    "netAfterFee": "Total: {total}, comisión de plataforma: {fee}"
                 },
                 "durationPicker": {
                     "min15": "15 minutos",
@@ -1748,6 +1756,7 @@
                     "cancelled": "Cancelada",
                     "unknown": "Desconocido"
                 },
+                "onlinePaymentBadge": "Pagado en línea",
                 "orderStatuses": {
                     "paid": "Pagado",
                     "completed": "Completado",
@@ -2495,10 +2504,12 @@
             "types": {
                 "advertisement": "Anuncio",
                 "subscription": "Suscripción",
+                "booking": "Pago de reserva",
                 "unknown": "Desconocido"
             },
             "statuses": {
                 "succeeded": "Exitoso",
+                "authorized": "Autorizado",
                 "pending": "Pendiente",
                 "failed": "Error",
                 "canceled": "Cancelado"
@@ -2518,6 +2529,17 @@
             "pagination": {
                 "prev": "Anterior",
                 "next": "Siguiente"
+            },
+            "noEarnings": "Aún no hay ingresos",
+            "noExpenses": "Aún no hay gastos de plataforma",
+            "earningsDescription": "Pago de reserva",
+            "feeNote": "de {total}, comisión: {fee}",
+            "sections": {
+                "earnings": "Ingresos",
+                "expenses": "Gastos de plataforma",
+                "transactions": "transacciones",
+                "youReceive": "Usted recibe",
+                "platformFee": "Comisión"
             }
         },
         "knowledge": {
@@ -2953,6 +2975,7 @@
                 "processingOnboarding": "Procesando registro...",
                 "onlinePaymentTitle": "Pago en línea al reservar",
                 "onlinePaymentDescription": "Si está activado, los clientes pagan en línea al reservar (autorización de tarjeta). Requiere Stripe conectado.",
+                "platformFeeNote": "La plataforma cobra una comisión del {percent}% en cada pago en línea.",
                 "onlinePaymentEnabled": "Pago en línea al reservar activado",
                 "onlinePaymentDisabled": "Pago en línea al reservar desactivado",
                 "errorToggling": "No se pudo actualizar el ajuste de pago en línea"
@@ -3330,12 +3353,12 @@
             "discount": "Descuento",
             "toPay": "Total a pagar",
             "payAtVenue": "Pago en el lugar",
-            "paymentRequired": "Tu reserva se confirmará después del pago. El monto se autorizará (retendrá) en tu tarjeta.",
-            "paymentSuccess": "Pago autorizado. Tu reserva está confirmada.",
+            "paymentRequired": "Paga con tarjeta para confirmar",
+            "successTitle": "Reserva confirmada",
+            "successSubtitle": "El pago se registró y tu reserva quedó guardada.",
+            "paymentSuccess": "Listo — tu reserva está confirmada y pagada.",
             "payment": {
-                "holdNotice": "El total se autorizará (retendrá) en tu tarjeta; no se cobra de inmediato.",
-                "holdNoticeDetail": "El negocio capturará el pago después de completar el servicio, según su política.",
-                "paymentWindow": "Tienes 30 minutos para pagar; después la retención vence y la reserva puede cancelarse.",
+                "paymentNote": "Tienes 30 minutos para pagar y confirmar la reserva; hoy no se cobra en la tarjeta, pagas después de tu cita.",
                 "unexpectedStatus": "Estado de pago inesperado. Contacta soporte si el problema continúa.",
                 "processing": "Procesando…",
                 "processingStatus": "Tu pago se está procesando. Puede tardar unos minutos: revisa tus reservas o espera la confirmación.",
