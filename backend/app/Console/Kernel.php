@@ -25,6 +25,12 @@ class Kernel extends ConsoleKernel
 
         // Подписки: даунгрейд по scheduled_plan и переход на free после окончания периода
         $schedule->command('subscription:finalize-expired')->hourly();
+
+        // Stripe: expire uncaptured payment holds
+        $schedule->command('stripe:expire-holds')->hourly();
+
+        // Cancel bookings with pending_payment older than 30 minutes
+        $schedule->command('booking:cancel-unpaid')->everyMinute();
     }
 
     protected function commands(): void

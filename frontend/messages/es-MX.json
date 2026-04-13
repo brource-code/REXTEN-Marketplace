@@ -385,6 +385,8 @@
     },
     "accountSettings": {
         "title": "Configuración",
+        "pageTitle": "Configuración de la cuenta",
+        "pageDescription": "Administra tu perfil, contraseña y preferencias de seguridad.",
         "navigation": "Navegación",
         "profile": "Perfil",
         "security": "Seguridad",
@@ -945,8 +947,6 @@
                 "browser": "Recibe notificaciones directamente en el navegador",
                 "email": "Notificaciones por correo",
                 "emailDescription": "Recibe notificaciones en tu correo",
-                "sms": "Notificaciones por SMS",
-                "smsDescription": "Recibe notificaciones por mensaje de texto",
                 "telegram": "Notificaciones por Telegram",
                 "telegramDescription": "Recibe notificaciones en el bot de Telegram"
             },
@@ -1481,6 +1481,8 @@
                 "timeOverlapDescription": "Revisa la agenda antes de guardar. Puede que necesites otro horario.",
                 "labels": {
                     "service": "Servicio",
+                    "serviceLoading": "Cargando servicio…",
+                    "serviceFallback": "Sin especificar",
                     "client": "Cliente",
                     "specialist": "Especialista",
                     "executionType": "Tipo de realización",
@@ -1790,7 +1792,8 @@
                     "clientNote": "Nota del cliente:",
                     "businessNote": "Nota del negocio:",
                     "basePrice": "Precio base del servicio",
-                    "total": "Total:"
+                    "total": "Total:",
+                    "goToBooking": "Ir a la reserva"
                 },
                 "notes": {
                     "addNote": "Agregar nota",
@@ -2611,10 +2614,8 @@
         "settings": {
             "title": "Configuración",
             "description": "Configuración del negocio",
-            "servicesHint": "Aquí puedes crear plantillas de servicio y usarlas al crear anuncios en la sección",
-            "advertisementsLink": "Anuncios",
             "tabs": {
-                "profile": "Perfil",
+                "profile": "Negocio",
                 "team": "Equipo",
                 "services": "Servicios",
                 "users": "Usuarios",
@@ -2645,6 +2646,11 @@
                 "inviteSuccess": "Usuario invitado",
                 "removeSuccess": "Usuario eliminado",
                 "tempPassword": "Contraseña temporal",
+                "copyPassword": "Copiar contraseña",
+                "copyError": "Error al copiar",
+                "userCreatedTitle": "Usuario creado",
+                "userCreatedDescription": "Comparte estas credenciales con el nuevo usuario",
+                "passwordHint": "El usuario debe cambiar esta contraseña después del primer inicio de sesión",
                 "inviteHint": "Si el usuario ya tiene cuenta, se agregará a la empresa. Si no, se creará una cuenta nueva con contraseña temporal que debes compartir.",
                 "removeConfirm": {
                     "title": "¿Quitar usuario?",
@@ -2662,6 +2668,8 @@
                 "slug": "Código",
                 "slugPlaceholder": "???????",
                 "permissions": "Permisos",
+                "overflowPermissionsDescription": "Otros permisos",
+                "showRemainingPermissions": "Ver permisos restantes",
                 "systemRole": "Sistema",
                 "systemRoles": "Roles del sistema",
                 "customRoles": "Roles personalizados",
@@ -2680,7 +2688,9 @@
                     "view_reports": "Ver reportes",
                     "manage_settings": "Gestionar configuración",
                     "manage_users": "Gestionar usuarios",
-                    "manage_roles": "Gestionar roles"
+                    "manage_roles": "Gestionar roles",
+                    "view_routes": "Ver rutas",
+                    "manage_routes": "Gestionar rutas"
                 },
                 "deleteConfirm": {
                     "title": "¿Eliminar rol?",
@@ -2700,7 +2710,9 @@
                 "whatsapp": "WhatsApp",
                 "website": "Sitio web",
                 "address": "Dirección",
-                "logo": "Logo",
+                "logo": "Logo del negocio",
+                "uploadLogo": "Subir logo",
+                "logoHint": "Logo del negocio, tamaño recomendado 400×400 px",
                 "uploadPhoto": "Subir foto",
                 "recommendedSize": "Tamaño recomendado: 400×400 px",
                 "enterName": "Ingresa el nombre",
@@ -2713,8 +2725,8 @@
                 "save": "Guardar",
                 "success": "Perfil actualizado correctamente",
                 "error": "No se pudo actualizar el perfil",
-                "avatarSuccess": "Avatar subido correctamente",
-                "avatarError": "No se pudo subir el avatar",
+                "avatarSuccess": "Logo subido correctamente",
+                "avatarError": "No se pudo subir el logo",
                 "phonePlaceholder": "+1 (555) 123-4567",
                 "emailPlaceholder": "correo@ejemplo.com",
                 "telegramPlaceholder": "@usuario o usuario",
@@ -2889,9 +2901,9 @@
             },
             "notifications": {
                 "title": "Notificaciones",
-                "description": "Configuración de notificaciones por correo y SMS",
+                "description": "Configuración de notificaciones por correo, Telegram y eventos",
                 "emailNotifications": "Notificaciones por correo",
-                "smsNotifications": "Notificaciones por SMS",
+                "telegramNotifications": "Notificaciones de Telegram",
                 "newBookingsNotifications": "Notificaciones de reservas nuevas",
                 "cancellationsNotifications": "Notificaciones de cancelaciones",
                 "paymentsNotifications": "Notificaciones de pagos",
@@ -2904,9 +2916,46 @@
             "payments": {
                 "title": "Pagos",
                 "description": "Conexión a Stripe y configuración de pagos",
-                "settingsHere": "Aquí irá la configuración de pagos",
-                "stripeManagement": "Conexión a Stripe y configuración de pagos",
-                "connectStripe": "Conectar Stripe"
+                "connectStripe": "Conectar Stripe",
+                "notConnected": "Cuenta de Stripe no conectada",
+                "connectDescription": "Conecta tu cuenta de Stripe para aceptar pagos de clientes",
+                "statusPending": "Registro de Stripe en progreso",
+                "statusRestricted": "Cuenta de Stripe restringida",
+                "statusActive": "Cuenta de Stripe activa",
+                "statusDisabled": "Cuenta de Stripe deshabilitada",
+                "completeOnboarding": "Completa el proceso de registro para comenzar a aceptar pagos",
+                "requirementsDue": "Información requerida",
+                "andMore": "y {count} más",
+                "continueSetup": "Continuar configuración",
+                "accountConnected": "Tu cuenta de Stripe está conectada y lista para aceptar pagos",
+                "payoutsEnabled": "Pagos habilitados",
+                "chargesEnabled": "Cobros habilitados",
+                "yes": "Sí",
+                "no": "No",
+                "activeDispute": "Tienes una disputa activa. Los nuevos pagos están temporalmente bloqueados.",
+                "openDashboard": "Abrir panel de Stripe",
+                "disconnect": "Desconectar",
+                "confirmDisconnect": "¿Estás seguro de que quieres desconectar tu cuenta de Stripe? Ya no podrás aceptar pagos.",
+                "disconnected": "Cuenta de Stripe desconectada exitosamente",
+                "errorConnecting": "Error al conectar cuenta de Stripe",
+                "errorRefreshing": "Error al actualizar enlace de registro",
+                "errorDashboard": "Error al abrir panel de Stripe",
+                "errorDisconnecting": "Error al desconectar cuenta de Stripe",
+                "errorLoading": "Error al cargar configuración de pagos",
+                "contactSupport": "Por favor contacta a soporte",
+                "stripeOnboarding": "Registro de Stripe",
+                "checkingStatus": "Verificando estado de la cuenta...",
+                "errorCheckingStatus": "Error al verificar estado de la cuenta",
+                "redirectingToSettings": "Redirigiendo a configuración...",
+                "onboardingComplete": "¡Registro completado!",
+                "onboardingIncomplete": "Registro incompleto",
+                "additionalInfoRequired": "Se requiere información adicional",
+                "processingOnboarding": "Procesando registro...",
+                "onlinePaymentTitle": "Pago en línea al reservar",
+                "onlinePaymentDescription": "Si está activado, los clientes pagan en línea al reservar (autorización de tarjeta). Requiere Stripe conectado.",
+                "onlinePaymentEnabled": "Pago en línea al reservar activado",
+                "onlinePaymentDisabled": "Pago en línea al reservar desactivado",
+                "errorToggling": "No se pudo actualizar el ajuste de pago en línea"
             },
             "marketplace": {
                 "title": "Marketplace",
@@ -3061,7 +3110,8 @@
             "edit": "Editar",
             "delete": "Eliminar",
             "cancel": "Cancelar",
-            "save": "Guardar"
+            "save": "Guardar",
+            "done": "Listo"
         },
         "salarySettings": {
             "title": "Configuración de pagos",
@@ -3189,6 +3239,7 @@
             "terms": "Términos",
             "privacy": "Privacidad",
             "cookies": "Cookies",
+            "marketplaceTerms": "Términos del mercado",
             "rights": "Todos los derechos reservados",
             "howItWorks": "Cómo funciona",
             "forBusiness": "Para negocios",
@@ -3278,6 +3329,20 @@
             "subtotal": "Subtotal",
             "discount": "Descuento",
             "toPay": "Total a pagar",
+            "payAtVenue": "Pago en el lugar",
+            "paymentRequired": "Tu reserva se confirmará después del pago. El monto se autorizará (retendrá) en tu tarjeta.",
+            "paymentSuccess": "Pago autorizado. Tu reserva está confirmada.",
+            "payment": {
+                "holdNotice": "El total se autorizará (retendrá) en tu tarjeta; no se cobra de inmediato.",
+                "holdNoticeDetail": "El negocio capturará el pago después de completar el servicio, según su política.",
+                "paymentWindow": "Tienes 30 minutos para pagar; después la retención vence y la reserva puede cancelarse.",
+                "unexpectedStatus": "Estado de pago inesperado. Contacta soporte si el problema continúa.",
+                "processing": "Procesando…",
+                "processingStatus": "Tu pago se está procesando. Puede tardar unos minutos: revisa tus reservas o espera la confirmación.",
+                "payButton": "Pagar ahora",
+                "retryPay": "Intentar de nuevo",
+                "bookingExpired": "Ya no se puede pagar esta reserva. Crea una nueva reserva."
+            },
             "errors": {
                 "error": "Error",
                 "serviceIdNotFound": "No se pudo determinar el ID del servicio",
@@ -3291,7 +3356,8 @@
                 "validationError": "Error de validación de datos",
                 "cannotCreateBooking": "No se pudo crear la reserva. Intenta más tarde.",
                 "criticalError": "Error grave al crear la reserva. Revisa la consola (F12) para detalles.",
-                "cannotLoadServices": "No se pudieron cargar los servicios para reservar."
+                "cannotLoadServices": "No se pudieron cargar los servicios para reservar.",
+                "paymentInitFailed": "No se pudo iniciar el pago. Inténtalo de nuevo o contacta soporte."
             }
         },
         "serviceCard": {
@@ -3449,7 +3515,8 @@
             "lastUpdate": "Última actualización",
             "section1": {
                 "title": "1. Introducción",
-                "content": "REXTEN Marketplace se toma en serio tu privacidad. Este aviso describe qué datos recopilamos, cómo los usamos y cómo los protegemos de conformidad con la ley de EE. UU., incluida la California Consumer Privacy Act (CCPA) y otras normas aplicables."
+                "content": "REXTEN Marketplace se toma en serio tu privacidad. Este aviso describe qué datos recopilamos, cómo los usamos y cómo los protegemos de conformidad con la ley de EE. UU., incluida la California Consumer Privacy Act (CCPA) y otras normas aplicables.",
+                "content2": "REXTEN Marketplace opera únicamente la plataforma. No somos el vendedor ni el prestador de los servicios que reservas; los negocios y profesionales independientes listados en la plataforma son responsables de esos servicios y de su cumplimiento legal y fiscal."
             },
             "section2": {
                 "title": "2. Qué datos recopilamos",
@@ -3582,8 +3649,8 @@
             "lastUpdate": "Última actualización",
             "section1": {
                 "title": "1. Disposiciones generales",
-                "content1": "Bienvenido a REXTEN Marketplace, un mercado de servicios que conecta clientes y proveedores en EE. UU. Al usar el servicio aceptas estos Términos del servicio, regidos por la ley de Estados Unidos.",
-                "content2": "REXTEN Marketplace permite buscar, reservar y recibir diversos servicios de negocios y profesionales registrados. Estos términos aplican a todos los usuarios, residentes de cualquier estado de EE. UU., incluida California."
+                "content": "Bienvenido a REXTEN Marketplace: una plataforma en línea operada por REXTEN que conecta clientes con negocios y profesionales independientes. REXTEN Marketplace no es vendedor, contratista, empleador ni prestador directo de los servicios publicados; esos servicios los ofrecen terceros que usan la plataforma. Al usar el servicio aceptas estos Términos, regidos por la ley de EE. UU.",
+                "content2": "Proveemos software, descubrimiento, herramientas de reserva, comunicación y tecnología relacionada. La calidad, seguridad, legalidad, licencias, seguros e implicaciones fiscales de cualquier servicio reservado son exclusivamente entre tú y el negocio o profesional correspondiente. Estos términos aplican a todos los usuarios, incluidos residentes de todos los estados de EE. UU., incluida California."
             },
             "section2": {
                 "title": "2. Registro y uso de la cuenta",
@@ -3614,7 +3681,7 @@
                 },
                 "subsection2": {
                     "title": "3.2. Reserva",
-                    "content": "Al reservar aceptas las condiciones del proveedor. La reserva genera obligaciones entre tú y el proveedor. La plataforma solo facilita la búsqueda y la reserva como intermediario."
+                    "content": "Al reservar entras en una relación contractual con el negocio o profesional que ofrece ese servicio. REXTEN Marketplace no es parte de ese contrato. Podemos mostrar precios y procesar pagos solo como facilitador técnico y de pagos donde esté habilitado; la obligación de prestar el servicio sigue siendo del proveedor."
                 },
                 "subsection3": {
                     "title": "3.3. Cancelación",
@@ -3636,7 +3703,7 @@
                 "title": "5. Responsabilidad de las partes",
                 "subsection1": {
                     "title": "5.1. Responsabilidad de la plataforma",
-                    "content": "REXTEN Marketplace ofrece un espacio de interacción entre clientes y proveedores. No somos responsables de la calidad de los servicios, las acciones de los proveedores ni los resultados del uso de los servicios."
+                    "content": "REXTEN Marketplace es intermediario y proveedor de tecnología. No prestamos los servicios mostrados en la plataforma y no somos responsables de su calidad, plazos, legalidad o resultado, ni de los actos u omisiones de proveedores o clientes, salvo donde la ley obligatoria disponga lo contrario."
                 },
                 "subsection2": {
                     "title": "5.2. Responsabilidad del usuario",
@@ -3644,22 +3711,64 @@
                 },
                 "subsection3": {
                     "title": "5.3. Responsabilidad del proveedor",
-                    "content": "El proveedor es responsable de la calidad del servicio, el cumplimiento de acuerdos y las obligaciones con el cliente."
-                },
-                "section6": {
-                    "title": "6. Propiedad intelectual",
-                    "content": "Todo el material de la plataforma (diseño, textos, imágenes, logotipos, software) es propiedad de REXTEN Marketplace o se usa con licencia de los titulares.",
-                    "note": "Queda prohibido usar el material sin autorización por escrito, salvo lo permitido por la ley."
-                },
-                "section7": {
-                    "title": "7. Modificación de los términos",
-                    "content": "Podemos modificar estos Términos en cualquier momento. Te avisaremos de cambios importantes por la plataforma o por correo.",
-                    "note": "El uso continuado de la plataforma tras los cambios implica la aceptación de los nuevos términos."
-                },
-                "section8": {
-                    "title": "8. Contacto",
-                    "content": "Para preguntas sobre estos Términos, contáctanos por el formulario de la plataforma o por correo."
+                    "content": "El proveedor es plenamente responsable de la calidad del servicio, el cumplimiento de acuerdos y obligaciones con el cliente, incluidos permisos, impuestos y estándares profesionales aplicables a su actividad."
                 }
+            },
+            "section6": {
+                "title": "6. Propiedad intelectual",
+                "content": "Todo el material de la plataforma (diseño, textos, imágenes, logotipos, software) es propiedad de REXTEN Marketplace o se usa con licencia de los titulares.",
+                "note": "Queda prohibido usar el material sin autorización por escrito, salvo lo permitido por la ley."
+            },
+            "section7": {
+                "title": "7. Modificación de los términos",
+                "content": "Podemos modificar estos Términos en cualquier momento. Te avisaremos de cambios importantes por la plataforma o por correo.",
+                "note": "El uso continuado de la plataforma tras los cambios implica la aceptación de los nuevos términos."
+            },
+            "section8": {
+                "title": "8. Contacto",
+                "content": "Para preguntas sobre estos Términos, contáctanos por el formulario de la plataforma o por correo."
+            }
+        },
+        "marketplaceTerms": {
+            "title": "Términos del mercado",
+            "lastUpdate": "Última actualización",
+            "intro": "Importante: REXTEN Marketplace es un mercado y una plataforma de software. No somos el proveedor de los servicios que reservas ni tu contraparte en la prestación de esos servicios.",
+            "section1": {
+                "title": "1. Papel de REXTEN Marketplace",
+                "content": "REXTEN Marketplace permite que negocios y profesionales publiquen servicios y que los clientes los descubran y reserven. La plataforma también puede ofrecer herramientas de agenda, mensajería y (cuando exista) procesamiento de pagos.",
+                "list": {
+                    "item1": "No realizamos nosotros los servicios reservados ni controlamos el día a día del proveedor.",
+                    "item2": "Listados, precios, descripciones y disponibilidad los proporcionan proveedores independientes; ellos son responsables de su exactitud y legalidad.",
+                    "item3": "Nada en estos documentos crea agencia, sociedad, empleo o empresa conjunta entre REXTEN y un proveedor o cliente, salvo acuerdo escrito aparte."
+                }
+            },
+            "section2": {
+                "title": "2. Con quién contratas",
+                "content": "Al comprar o reservar un servicio, tu acuerdo sobre ese servicio es con el negocio o profesional listado (el \"Proveedor\"), según sus términos y la ley aplicable. El papel de REXTEN se limita a operar la plataforma y, si aplica, facilitar comunicación o flujos de pago como describe el producto."
+            },
+            "section3": {
+                "title": "3. Impuestos, facturación e informes",
+                "content": "Los proveedores son negocios o profesionales independientes. Son los únicos responsables de determinar y enterar impuestos, cargas sociales y tasas aplicables a su actividad en su jurisdicción, y de emitir facturas o comprobantes al cliente cuando la ley lo exija, salvo que la ley obligatoria asigne otra obligación.",
+                "list": {
+                    "item1": "REXTEN no sustituye a tu contador ni asesor fiscal y no determina cómo debe clasificarse tu operación a efectos fiscales.",
+                    "item2": "Las comisiones de REXTEN (suscripción, comisión, procesamiento) corresponden al uso de la plataforma o servicios de pago y son distintas del precio del servicio subyacente.",
+                    "item3": "Si necesitas documentación para autoridades, solicítala al Proveedor; podemos mostrar registros de transacciones disponibles en tu cuenta si el producto lo permite."
+                }
+            },
+            "section4": {
+                "title": "4. Pagos",
+                "content": "Cuando los pagos pasan por proveedores integrados (por ejemplo tarjeta), los fondos pueden enrutarse según las reglas de ese socio y la configuración de pagos del Proveedor. REXTEN no es el vendedor del servicio subyacente; cualquier comisión de plataforma es por el mercado y la tecnología, salvo que se indique claramente distinto al pagar."
+            },
+            "section5": {
+                "title": "5. Disputas y consumo",
+                "content": "Reclamos por calidad, reembolsos del servicio o inasistencias deben dirigirse primero al Proveedor según su política. La plataforma puede ofrecer herramientas de comunicación o resolución como conveniencia, pero no está obligada a mediar ni garantiza un resultado."
+            },
+            "section6": {
+                "title": "6. Documentos relacionados",
+                "content": "Estos Términos del mercado complementan (y no reemplazan) los Términos del servicio y el Aviso de privacidad. Si hay conflicto, prevalece el documento más específico para el tema.",
+                "relatedPrefix": "Consulta también:",
+                "relatedTerms": "Términos del servicio",
+                "relatedPrivacy": "Aviso de privacidad"
             }
         }
     },
@@ -4812,7 +4921,7 @@
                 "features": {
                     "booking": "Página de reservas personal",
                     "appointments": "Hasta 100 reservas/mes",
-                    "reminders": "Recordatorios a clientes (SMS/Email)",
+                    "reminders": "Recordatorios a clientes (correo)",
                     "analytics": "Análisis básico",
                     "payments": "Pagos en línea"
                 },
@@ -4941,7 +5050,8 @@
             "links": {
                 "terms": "Términos",
                 "privacy": "Privacidad",
-                "cookies": "Cookies"
+                "cookies": "Cookies",
+                "marketplaceTerms": "Términos del mercado"
             },
             "copyright": "Copyright © {year} REXTEN. Todos los derechos reservados."
         }

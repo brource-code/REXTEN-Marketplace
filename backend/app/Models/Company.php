@@ -55,10 +55,20 @@ class Company extends Model
         'loyalty_booking_count_rule',
         'notification_email_enabled',
         'notification_sms_enabled',
+        'notification_telegram_enabled',
         'notification_new_bookings',
         'notification_cancellations',
         'notification_payments',
         'notification_reviews',
+        // Stripe Connect
+        'stripe_account_id',
+        'stripe_account_status',
+        'stripe_payouts_enabled',
+        'stripe_charges_enabled',
+        'stripe_onboarding_completed_at',
+        'stripe_disabled_reason',
+        'has_active_dispute',
+        'online_payment_enabled',
     ];
 
     /**
@@ -81,10 +91,17 @@ class Company extends Model
         'schedule' => 'array',
         'notification_email_enabled' => 'boolean',
         'notification_sms_enabled' => 'boolean',
+        'notification_telegram_enabled' => 'boolean',
         'notification_new_bookings' => 'boolean',
         'notification_cancellations' => 'boolean',
         'notification_payments' => 'boolean',
         'notification_reviews' => 'boolean',
+        // Stripe Connect
+        'stripe_payouts_enabled' => 'boolean',
+        'stripe_charges_enabled' => 'boolean',
+        'stripe_onboarding_completed_at' => 'datetime',
+        'has_active_dispute' => 'boolean',
+        'online_payment_enabled' => 'boolean',
     ];
 
     /**
@@ -197,6 +214,27 @@ class Company extends Model
     public function promoCodes()
     {
         return $this->hasMany(PromoCode::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Check if Stripe Connect account is fully connected and can accept charges.
+     */
+    public function isStripeConnected(): bool
+    {
+        return $this->stripe_account_id !== null && $this->stripe_charges_enabled === true;
+    }
+
+    /**
+     * Check if company can accept payments (connected + no active disputes).
+     */
+    public function canAcceptPayments(): bool
+    {
+        return $this->isStripeConnected() && $this->has_active_dispute !== true;
     }
 
     /**

@@ -947,8 +947,6 @@
                 "browser": "Receive notifications directly in your browser",
                 "email": "Email notifications",
                 "emailDescription": "Receive notifications to your email",
-                "sms": "SMS notifications",
-                "smsDescription": "Receive notifications as SMS messages",
                 "telegram": "Telegram notifications",
                 "telegramDescription": "Receive notifications in Telegram bot"
             },
@@ -1794,7 +1792,8 @@
                     "clientNote": "Client note:",
                     "businessNote": "Business note:",
                     "basePrice": "Base service price",
-                    "total": "Total:"
+                    "total": "Total:",
+                    "goToBooking": "Go to booking"
                 },
                 "notes": {
                     "addNote": "Add note",
@@ -2615,10 +2614,8 @@
         "settings": {
             "title": "Settings",
             "description": "Business settings",
-            "servicesHint": "Service templates can be created here and used when creating advertisements in the section",
-            "advertisementsLink": "Advertisements",
             "tabs": {
-                "profile": "Profile",
+                "profile": "Business",
                 "team": "Team",
                 "services": "Services",
                 "users": "Users",
@@ -2649,6 +2646,11 @@
                 "inviteSuccess": "User invited",
                 "removeSuccess": "User removed",
                 "tempPassword": "Temporary password",
+                "copyPassword": "Copy password",
+                "copyError": "Failed to copy",
+                "userCreatedTitle": "User Created",
+                "userCreatedDescription": "Share these credentials with the new user",
+                "passwordHint": "The user should change this password after first login",
                 "inviteHint": "If the user already has an account, they will be added to the company. If not, a new account will be created with a temporary password that you need to share with them.",
                 "removeConfirm": {
                     "title": "Remove User?",
@@ -2666,6 +2668,8 @@
                 "slug": "Slug",
                 "slugPlaceholder": "role_slug",
                 "permissions": "Permissions",
+                "overflowPermissionsDescription": "Other permissions",
+                "showRemainingPermissions": "Show remaining permissions",
                 "systemRole": "System",
                 "systemRoles": "System roles",
                 "customRoles": "Custom roles",
@@ -2684,7 +2688,9 @@
                     "view_reports": "View Reports",
                     "manage_settings": "Manage Settings",
                     "manage_users": "Manage Users",
-                    "manage_roles": "Manage Roles"
+                    "manage_roles": "Manage Roles",
+                    "view_routes": "View Routes",
+                    "manage_routes": "Manage Routes"
                 },
                 "deleteConfirm": {
                     "title": "Delete Role?",
@@ -2704,7 +2710,9 @@
                 "whatsapp": "WhatsApp",
                 "website": "Website",
                 "address": "Address",
-                "logo": "Logo",
+                "logo": "Business Logo",
+                "uploadLogo": "Upload Logo",
+                "logoHint": "Business logo, 400x400px recommended",
                 "uploadPhoto": "Upload Photo",
                 "recommendedSize": "Recommended size: 400x400px",
                 "enterName": "Enter name",
@@ -2717,8 +2725,8 @@
                 "save": "Save",
                 "success": "Profile successfully updated",
                 "error": "Failed to update profile",
-                "avatarSuccess": "Avatar uploaded successfully",
-                "avatarError": "Failed to upload avatar",
+                "avatarSuccess": "Logo uploaded successfully",
+                "avatarError": "Failed to upload logo",
                 "phonePlaceholder": "+1 (555) 123-4567",
                 "emailPlaceholder": "email@example.com",
                 "telegramPlaceholder": "@username or username",
@@ -2893,9 +2901,9 @@
             },
             "notifications": {
                 "title": "Notifications",
-                "description": "Email and SMS notification settings",
+                "description": "Email, Telegram, and event notification settings",
                 "emailNotifications": "Email notifications",
-                "smsNotifications": "SMS notifications",
+                "telegramNotifications": "Telegram notifications",
                 "newBookingsNotifications": "New booking notifications",
                 "cancellationsNotifications": "Cancellation notifications",
                 "paymentsNotifications": "Payment notifications",
@@ -2908,9 +2916,46 @@
             "payments": {
                 "title": "Payments",
                 "description": "Connect Stripe and payment settings",
-                "settingsHere": "Payment settings will be here",
-                "stripeManagement": "Connect Stripe and manage payments",
-                "connectStripe": "Connect Stripe"
+                "connectStripe": "Connect Stripe",
+                "notConnected": "Stripe account not connected",
+                "connectDescription": "Connect your Stripe account to accept payments from clients",
+                "statusPending": "Stripe onboarding in progress",
+                "statusRestricted": "Stripe account restricted",
+                "statusActive": "Stripe account active",
+                "statusDisabled": "Stripe account disabled",
+                "completeOnboarding": "Complete the onboarding process to start accepting payments",
+                "requirementsDue": "Required information",
+                "andMore": "and {count} more",
+                "continueSetup": "Continue Setup",
+                "accountConnected": "Your Stripe account is connected and ready to accept payments",
+                "payoutsEnabled": "Payouts Enabled",
+                "chargesEnabled": "Charges Enabled",
+                "yes": "Yes",
+                "no": "No",
+                "activeDispute": "You have an active dispute. New payments are temporarily blocked.",
+                "openDashboard": "Open Stripe Dashboard",
+                "disconnect": "Disconnect",
+                "confirmDisconnect": "Are you sure you want to disconnect your Stripe account? You will no longer be able to accept payments.",
+                "disconnected": "Stripe account disconnected successfully",
+                "errorConnecting": "Failed to connect Stripe account",
+                "errorRefreshing": "Failed to refresh onboarding link",
+                "errorDashboard": "Failed to open Stripe dashboard",
+                "errorDisconnecting": "Failed to disconnect Stripe account",
+                "errorLoading": "Failed to load payment settings",
+                "contactSupport": "Please contact support for assistance",
+                "stripeOnboarding": "Stripe Onboarding",
+                "checkingStatus": "Checking account status...",
+                "errorCheckingStatus": "Error checking account status",
+                "redirectingToSettings": "Redirecting to settings...",
+                "onboardingComplete": "Onboarding complete!",
+                "onboardingIncomplete": "Onboarding incomplete",
+                "additionalInfoRequired": "Additional information is required",
+                "processingOnboarding": "Processing onboarding...",
+                "onlinePaymentTitle": "Online payment for bookings",
+                "onlinePaymentDescription": "When enabled, clients pay online when booking (card authorization). Requires Stripe to be connected.",
+                "onlinePaymentEnabled": "Online payment for bookings enabled",
+                "onlinePaymentDisabled": "Online payment for bookings disabled",
+                "errorToggling": "Could not update online payment setting"
             },
             "marketplace": {
                 "title": "Marketplace",
@@ -3065,7 +3110,8 @@
             "edit": "Edit",
             "delete": "Delete",
             "cancel": "Cancel",
-            "save": "Save"
+            "save": "Save",
+            "done": "Done"
         },
         "salarySettings": {
             "title": "Payment Settings",
@@ -3193,6 +3239,7 @@
             "terms": "Terms",
             "privacy": "Privacy",
             "cookies": "Cookies",
+            "marketplaceTerms": "Marketplace terms",
             "rights": "All rights reserved",
             "howItWorks": "How it works",
             "forBusiness": "For Business",
@@ -3282,6 +3329,20 @@
             "subtotal": "Subtotal",
             "discount": "Discount",
             "toPay": "Total to pay",
+            "payAtVenue": "Payment on site",
+            "paymentRequired": "Your booking will be confirmed after payment. The amount will be authorized (held) on your card.",
+            "paymentSuccess": "Payment authorized. Your booking is confirmed.",
+            "payment": {
+                "holdNotice": "The total will be authorized (held) on your card — not charged immediately.",
+                "holdNoticeDetail": "The business captures the payment after the service is completed, according to their policy.",
+                "paymentWindow": "You have 30 minutes to complete payment; after that the hold expires and the booking may be cancelled.",
+                "unexpectedStatus": "Unexpected payment status. Please contact support if the problem persists.",
+                "processing": "Processing…",
+                "processingStatus": "Your payment is processing. This can take a few minutes — check your bookings or wait for confirmation.",
+                "payButton": "Pay now",
+                "retryPay": "Try again",
+                "bookingExpired": "This booking can no longer be paid. Please create a new booking."
+            },
             "errors": {
                 "error": "Error",
                 "serviceIdNotFound": "Failed to determine service ID",
@@ -3295,7 +3356,8 @@
                 "validationError": "Data validation error",
                 "cannotCreateBooking": "Failed to create booking. Please try again later.",
                 "criticalError": "Critical error while creating booking. Check console (F12) for details.",
-                "cannotLoadServices": "Failed to load services for booking."
+                "cannotLoadServices": "Failed to load services for booking.",
+                "paymentInitFailed": "Could not start payment. Please try again or contact support."
             }
         },
         "serviceCard": {
@@ -3453,7 +3515,8 @@
             "lastUpdate": "Last Updated",
             "section1": {
                 "title": "1. Introduction",
-                "content": "REXTEN Marketplace takes your privacy seriously. This privacy policy describes what data we collect, how we use it, and how we protect it in accordance with US law, including the California Consumer Privacy Act (CCPA) and other applicable data protection laws."
+                "content": "REXTEN Marketplace takes your privacy seriously. This privacy policy describes what data we collect, how we use it, and how we protect it in accordance with US law, including the California Consumer Privacy Act (CCPA) and other applicable data protection laws.",
+                "content2": "REXTEN Marketplace operates the platform only. We are not the seller or performer of services you book; independent businesses and professionals listed on the platform are responsible for those services and for their own legal and tax compliance."
             },
             "section2": {
                 "title": "2. What Data We Collect",
@@ -3586,8 +3649,8 @@
             "lastUpdate": "Last Updated",
             "section1": {
                 "title": "1. General Provisions",
-                "content1": "Welcome to the REXTEN Marketplace platform — a service marketplace connecting clients and service providers in the US. By using our service, you agree to these Terms of Service, governed by US law.",
-                "content2": "The REXTEN Marketplace platform provides the ability to search, book, and receive various services from businesses and professionals registered on the platform. These terms apply to all platform users, including residents of all US states, including California."
+                "content": "Welcome to REXTEN Marketplace — an online platform operated by REXTEN that connects clients with independent businesses and professionals. REXTEN Marketplace is not a seller, contractor, employer, or direct provider of the services listed; those services are offered by third parties who use the platform. By using our service, you agree to these Terms of Service, governed by US law.",
+                "content2": "We provide software, discovery, booking tools, communications features, and related technology only. The quality, safety, legality, licensing, insurance, and tax treatment of any service you book are solely between you and the relevant business or professional. These terms apply to all platform users, including residents of all US states, including California."
             },
             "section2": {
                 "title": "2. Account Registration and Usage",
@@ -3618,7 +3681,7 @@
                 },
                 "subsection2": {
                     "title": "3.2. Booking",
-                    "content": "When booking a service, you agree to the terms specified by the service provider. Booking creates obligations between you and the service provider. The platform acts only as an intermediary facilitating search and booking."
+                    "content": "When you book a service, you enter into a contractual relationship with the business or professional offering that service. REXTEN Marketplace is not a party to that contract. We may display prices and process payments only as a technical and payment facilitator where enabled; the underlying obligation to perform the service remains with the provider."
                 },
                 "subsection3": {
                     "title": "3.3. Booking Cancellation",
@@ -3640,7 +3703,7 @@
                 "title": "5. Liability of Parties",
                 "subsection1": {
                     "title": "5.1. Platform Liability",
-                    "content": "REXTEN Marketplace provides a platform for interaction between clients and service providers. The platform is not responsible for the quality of services provided, actions of service providers, or results of service usage."
+                    "content": "REXTEN Marketplace is an intermediary and technology provider. We do not provide the underlying services shown on the platform and are not responsible for the quality, timeliness, legality, or outcome of those services, nor for the acts or omissions of service providers or clients, except where mandatory law requires otherwise."
                 },
                 "subsection2": {
                     "title": "5.2. User Liability",
@@ -3648,22 +3711,64 @@
                 },
                 "subsection3": {
                     "title": "5.3. Service Provider Liability",
-                    "content": "The service provider is fully responsible for the quality of services provided, compliance with agreements, and fulfillment of obligations to the client."
-                },
-                "section6": {
-                    "title": "6. Intellectual Property",
-                    "content": "All platform materials, including design, text, images, logos, and software, are intellectual property of REXTEN Marketplace or used with permission of rights holders.",
-                    "note": "Use of platform materials without written permission is prohibited, except as provided by law."
-                },
-                "section7": {
-                    "title": "7. Modification of Terms",
-                    "content": "We reserve the right to modify these Terms of Service at any time. We will notify users of significant changes via the platform or email.",
-                    "note": "Continued use of the platform after changes constitutes your acceptance of the new terms."
-                },
-                "section8": {
-                    "title": "8. Contact Information",
-                    "content": "For questions related to Terms of Service, you can contact us via the feedback form on the platform or by email."
+                    "content": "The service provider is fully responsible for the quality of services provided, compliance with agreements, and fulfillment of obligations to the client, including permits, taxes, and professional standards applicable to their activity."
                 }
+            },
+            "section6": {
+                "title": "6. Intellectual Property",
+                "content": "All platform materials, including design, text, images, logos, and software, are intellectual property of REXTEN Marketplace or used with permission of rights holders.",
+                "note": "Use of platform materials without written permission is prohibited, except as provided by law."
+            },
+            "section7": {
+                "title": "7. Modification of Terms",
+                "content": "We reserve the right to modify these Terms of Service at any time. We will notify users of significant changes via the platform or email.",
+                "note": "Continued use of the platform after changes constitutes your acceptance of the new terms."
+            },
+            "section8": {
+                "title": "8. Contact Information",
+                "content": "For questions related to Terms of Service, you can contact us via the feedback form on the platform or by email."
+            }
+        },
+        "marketplaceTerms": {
+            "title": "Marketplace Terms",
+            "lastUpdate": "Last Updated",
+            "intro": "Important: REXTEN Marketplace is a marketplace and software platform. We are not the supplier of the services you book, and we are not your counterparty for the performance of those services.",
+            "section1": {
+                "title": "1. Role of REXTEN Marketplace",
+                "content": "REXTEN Marketplace enables businesses and professionals to present services and for clients to discover and book them. The platform may also provide tools for scheduling, messaging, and (where available) payment processing.",
+                "list": {
+                    "item1": "We do not perform the booked services ourselves and do not control how a provider runs their business day to day.",
+                    "item2": "Listings, prices, descriptions, and availability are provided by independent providers; they are responsible for their accuracy and lawfulness.",
+                    "item3": "Nothing in these documents creates an agency, partnership, employment, or joint venture between REXTEN and any provider or client, unless expressly stated in a separate written agreement."
+                }
+            },
+            "section2": {
+                "title": "2. Who you contract with",
+                "content": "When you purchase or book a service, your agreement for that service is with the listed business or professional (the \"Provider\"), subject to their terms and applicable law. REXTEN's role is limited to operating the platform and, where applicable, facilitating communication or payment flows as described in the product."
+            },
+            "section3": {
+                "title": "3. Taxes, invoicing, and reporting",
+                "content": "Providers are independent businesses or self-employed professionals. They are solely responsible for determining and remitting any taxes, social contributions, and fees applicable to their activity in their jurisdiction, and for issuing any required invoices or receipts to clients, unless mandatory law assigns a different obligation.",
+                "list": {
+                    "item1": "REXTEN does not replace your accountant or tax advisor and does not determine how your transaction should be classified for tax purposes.",
+                    "item2": "Fees charged by REXTEN (subscriptions, commissions, or processing) relate to the use of the platform or payment services and are separate from the price of the underlying service.",
+                    "item3": "If you need documentation for authorities, request it from the Provider; we may provide transactional records available in your account where the product supports it."
+                }
+            },
+            "section4": {
+                "title": "4. Payments",
+                "content": "Where payments are processed through integrated providers (for example card payments), funds may be routed according to the rules of that payment partner and the Provider's payout settings. REXTEN is not the seller of the underlying service; any platform fee is for marketplace and technology use unless otherwise clearly stated at checkout."
+            },
+            "section5": {
+                "title": "5. Disputes and consumer matters",
+                "content": "Complaints about service quality, refunds for the service itself, or no-shows should first be directed to the Provider in line with their policy. The platform may offer communication or dispute tools as a convenience but is not obliged to mediate and does not guarantee a particular outcome."
+            },
+            "section6": {
+                "title": "6. Related documents",
+                "content": "These Marketplace Terms supplement (and do not replace) our Terms of Service and Privacy Policy. If there is a conflict, the document that is more specific to marketplace operations applies to that topic.",
+                "relatedPrefix": "See also:",
+                "relatedTerms": "Terms of Service",
+                "relatedPrivacy": "Privacy Policy"
             }
         }
     },
@@ -4816,7 +4921,7 @@
                 "features": {
                     "booking": "Personal booking page",
                     "appointments": "Up to 100 bookings/month",
-                    "reminders": "Client reminders (SMS/Email)",
+                    "reminders": "Client reminders (email)",
                     "analytics": "Basic analytics",
                     "payments": "Online payments"
                 },
@@ -4945,7 +5050,8 @@
             "links": {
                 "terms": "Terms",
                 "privacy": "Privacy",
-                "cookies": "Cookies"
+                "cookies": "Cookies",
+                "marketplaceTerms": "Marketplace terms"
             },
             "copyright": "Copyright © {year} REXTEN. All rights reserved."
         }

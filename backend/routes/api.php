@@ -55,6 +55,7 @@ use App\Http\Controllers\Public\ReviewController;
 use App\Http\Controllers\FamilyBudgetController;
 use App\Http\Controllers\FamilyBudget\FamilyBudgetApiController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\Business\StripeConnectController;
 use App\Http\Controllers\Business\SubscriptionController;
 use App\Http\Controllers\Business\SearchController as BusinessSearchController;
 use App\Http\Controllers\Business\RouteController;
@@ -125,6 +126,8 @@ Route::prefix('bookings')->group(function () {
     Route::post('/preview-discount', [DiscountPreviewController::class, 'preview']);
     Route::get('/available-slots', [BookingController::class, 'getAvailableSlots']);
     Route::post('/check-availability', [BookingController::class, 'checkAvailability']);
+    Route::get('/{id}/payment-eligibility', [StripeController::class, 'getBookingPaymentEligibility']);
+    Route::post('/{id}/pay', [StripeController::class, 'createClientBookingPayment']);
 });
 
 // Public platform settings (for logo customization)
@@ -161,7 +164,8 @@ Route::prefix('family-budget')->middleware(['jwt.auth'])->group(function () {
     Route::delete('/clear', [FamilyBudgetApiController::class, 'clearAll']);
 });
 
-// Stripe webhook (public, no auth - Stripe sends directly)
+// Stripe webhooks (public, no auth - Stripe sends directly)
+// Один endpoint для всех событий (включая Connect)
 Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 
 // Sentry → Telegram webhook (public, no auth - Sentry sends directly)
@@ -375,6 +379,18 @@ Route::middleware(['jwt.auth'])->group(function () {
         // Stripe payment
         Route::post('/stripe/checkout-session', [StripeController::class, 'createCheckoutSession']);
         Route::get('/stripe/transactions', [StripeController::class, 'getTransactions']);
+
+        // Stripe Connect (Express accounts for businesses)
+        Route::post('/stripe/connect', [StripeConnectController::class, 'createAccount']);
+        Route::get('/stripe/connect/refresh', [StripeConnectController::class, 'refreshAccountLink']);
+        Route::get('/stripe/connect/status', [StripeConnectController::class, 'getAccountStatus']);
+        Route::post('/stripe/connect/dashboard', [StripeConnectController::class, 'getDashboardLink']);
+        Route::post('/stripe/connect/disconnect', [StripeConnectController::class, 'disconnect']);
+
+        // Booking payments (hold -> capture flow)
+        Route::post('/bookings/{id}/pay', [StripeController::class, 'createBookingPayment']);
+        Route::post('/bookings/{id}/capture', [StripeController::class, 'captureBookingPayment']);
+        Route::post('/bookings/{id}/refund', [StripeController::class, 'refundBookingPayment']);
 
         // Subscriptions
         Route::get('/subscription/plans', [SubscriptionController::class, 'plans']);

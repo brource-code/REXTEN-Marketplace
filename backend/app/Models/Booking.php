@@ -67,6 +67,8 @@ class Booking extends Model
         'discount_source',
         'discount_tier_id',
         'promo_code_id',
+        'stripe_payment_intent_id',
+        'payment_status',
         'priority',
         'cached_lat',
         'cached_lng',
@@ -187,6 +189,11 @@ class Booking extends Model
     public function promoCode()
     {
         return $this->belongsTo(PromoCode::class, 'promo_code_id');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
     }
 
     /**

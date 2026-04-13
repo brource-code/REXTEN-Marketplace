@@ -28,6 +28,9 @@ return [
         'secret' => env('STRIPE_SECRET_KEY'),
         'publishable' => env('STRIPE_PUBLISHABLE_KEY'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'application_fee_percent' => (int) env('STRIPE_APPLICATION_FEE_PERCENT', 10),
+        'default_currency' => env('STRIPE_DEFAULT_CURRENCY', 'usd'),
+        'hold_expiration_hours' => (int) env('STRIPE_HOLD_EXPIRATION_HOURS', 168),
     ],
 
     'telegram' => [
