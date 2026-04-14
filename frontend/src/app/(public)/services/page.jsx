@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { Suspense, useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Container from '@/components/shared/Container'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -9,13 +10,13 @@ import classNames from '@/utils/classNames'
 import { motion } from 'framer-motion'
 import TextGenerateEffect from '@/app/(public-pages)/landing/components/TextGenerateEffect'
 import HeroMasterCards from '@/app/(public)/services/_components/HeroMasterCards'
-import { getCategories, getStates, getFilteredServices, getFeaturedServices } from '@/lib/api/marketplace'
+import { getCategories, getStates, getFilteredServices, getFeaturedServices, trackAdImpression, trackAdClick } from '@/lib/api/marketplace'
 import { useCurrentUser } from '@/hooks/api/useAuth'
 import { useUserStore } from '@/store'
 import { useLocation } from '@/hooks/useLocation'
 import { StateSelect, CitySelect, LocationDisplay } from '@/components/location'
 import Select from '@/components/ui/Select'
-import { tagDictionary } from '@/mocks/tags'
+import { tagKeys, getTagLabel } from '@/mocks/tags'
 import ServiceCard from '@/components/marketplace/ServiceCard'
 import Skeleton from '@/components/ui/Skeleton'
 import { normalizeImageUrl } from '@/utils/imageUtils'
@@ -27,6 +28,7 @@ import {
     PiX,
     PiMapPinFill,
     PiCheckCircle,
+    PiSortAscending,
 } from 'react-icons/pi'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -45,9 +47,9 @@ const getRatingOptions = (t) => [
     { id: 4.8, label: t('ratingOptions.rating48') },
 ]
 
-const quickTags = Object.entries(tagDictionary).map(([id, label]) => ({
+const getQuickTags = (t) => tagKeys.map((id) => ({
     id,
-    label,
+    label: getTagLabel(id, t),
 }))
 
 /** Акцентные слова в hero-заголовке (мультиязычность, без привязки к одной локали) */
@@ -76,20 +78,6 @@ const getHeroTitleWordClass = ({ word }) => {
     return 'text-gray-900 dark:text-white'
 }
 
-// Функция для получения бейджей из тегов
-const getBadges = (tags, t) => {
-    const badges = []
-    if (tags.includes('premium')) {
-        badges.push({ label: 'Premium', color: 'bg-yellow-500' })
-    }
-    if (tags.includes('mobile')) {
-        badges.push({ label: t('quickFilters.mobile'), color: 'bg-black/70' })
-    }
-    if (tags.includes('russian-speaking')) {
-        badges.push({ label: 'RU', color: 'bg-black/70' })
-    }
-    return badges
-}
 
 // Skeleton для карточек услуг
 const ServiceCardSkeleton = () => {
@@ -347,7 +335,7 @@ const FiltersContent = ({
                         {t('features')}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                        {quickTags.map((tag) => (
+                        {getQuickTags(t).map((tag) => (
                             <button
                                 key={tag.id}
                                 onClick={() => toggleTag(tag.id)}
@@ -510,35 +498,56 @@ const FiltersSection = ({
 }
 
 
-export default function ServicesPage() {
+// Debounce хук
+function useDebounce(value, delay) {
+    const [debounced, setDebounced] = useState(value)
+    useEffect(() => {
+        const timer = setTimeout(() => setDebounced(value), delay)
+        return () => clearTimeout(timer)
+    }, [value, delay])
+    return debounced
+}
+
+export default function ServicesPageWrapper() {
+    return (
+        <Suspense>
+            <ServicesPage />
+        </Suspense>
+    )
+}
+
+function ServicesPage() {
     const t = useTranslations('public.services')
     const locale = useLocale()
-    const [search, setSearch] = useState('')
-    const [category, setCategory] = useState('all')
-    const [heroCategory, setHeroCategory] = useState(null)
-    const [priceFilter, setPriceFilter] = useState('all')
-    const [ratingFilter, setRatingFilter] = useState(null)
-    const [selectedTags, setSelectedTags] = useState([])
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+
+    // --- Инициализация из URL query params ---
+    const [search, setSearch] = useState(searchParams.get('q') || '')
+    const [category, setCategory] = useState(searchParams.get('category') || 'all')
+    const [heroCategory, setHeroCategory] = useState(searchParams.get('category') || null)
+    const [priceFilter, setPriceFilter] = useState(searchParams.get('price') || 'all')
+    const [ratingFilter, setRatingFilter] = useState(searchParams.get('rating') ? Number(searchParams.get('rating')) : null)
+    const [selectedTags, setSelectedTags] = useState(() => {
+        const t = searchParams.get('tags')
+        return t ? t.split(',').filter(Boolean) : []
+    })
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'default')
     const [isFiltersOpen, setIsFiltersOpen] = useState(false)
     const [visibleServicesCount, setVisibleServicesCount] = useState(16)
     
-    // Используем единый источник истины для локации
     const location = useLocation()
     const { state, city, setState, setCity, getStateName, reset: resetLocation, availableStates = [] } = location
     
-    // Получаем данные пользователя для применения настроек по умолчанию
-    // Не блокируем загрузку страницы, если пользователь не авторизован
-    const { data: user, refetch: refetchUser } = useCurrentUser() // Загружается только если авторизован, не блокирует страницу
+    const { data: user, refetch: refetchUser } = useCurrentUser()
     const { user: userStore } = useUserStore()
     const displayUser = user || userStore
-    
-    // Локация теперь управляется через LocationProvider - нет необходимости в локальной синхронизации
     
     // Быстрые фильтры
     const [quickFilters, setQuickFilters] = useState({
         rating45: false,
         availableSlots: false,
-        mobile: false,
         openNow: false,
     })
     
@@ -552,22 +561,44 @@ export default function ServicesPage() {
     const listingsRef = useRef(null)
     const sidebarContainerRef = useRef(null)
     const layoutSectionRef = useRef(null)
+
+    // Debounce поиска (400ms)
+    const debouncedSearch = useDebounce(search, 400)
+
+    // --- Синхронизация фильтров → URL ---
+    const syncUrlRef = useRef(false)
+    useEffect(() => {
+        if (!syncUrlRef.current) {
+            syncUrlRef.current = true
+            return
+        }
+        const params = new URLSearchParams()
+        if (debouncedSearch) params.set('q', debouncedSearch)
+        if (category && category !== 'all') params.set('category', category)
+        if (priceFilter && priceFilter !== 'all') params.set('price', priceFilter)
+        if (ratingFilter) params.set('rating', String(ratingFilter))
+        if (selectedTags.length > 0) params.set('tags', selectedTags.join(','))
+        if (sortBy && sortBy !== 'default') params.set('sort', sortBy)
+        const qs = params.toString()
+        const newUrl = qs ? `${pathname}?${qs}` : pathname
+        router.replace(newUrl, { scroll: false })
+    }, [debouncedSearch, category, priceFilter, ratingFilter, selectedTags, sortBy])
     
     // Загрузка данных
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true)
             try {
-                // Применяем фильтры
                 const filters = {}
                 
-                // Используем единый источник истины из LocationProvider
                 if (state && state !== '' && state !== 'all') {
                     filters.state = state
                 }
-                
                 if (city && city !== '' && city !== 'all') {
                     filters.city = city
+                }
+                if (sortBy && sortBy !== 'default') {
+                    filters.sort_by = sortBy
                 }
                 
                 const [categoriesData, statesData, servicesData, featuredData] = await Promise.all([
@@ -587,7 +618,7 @@ export default function ServicesPage() {
             }
         }
         loadData()
-    }, [state, city]) // Загружаем только при изменении локации из единого источника истины
+    }, [state, city, sortBy])
 
     const handleSetCategory = (next) => {
         setCategory(next)
@@ -697,11 +728,12 @@ export default function ServicesPage() {
         
         return formattedListings.filter((listing) => {
             const matchesSearch =
-                listing.name.toLowerCase().includes(search.toLowerCase()) ||
+                !debouncedSearch ||
+                listing.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
                 listing.category
                     .toLowerCase()
-                    .includes(search.toLowerCase()) ||
-                listing.city.toLowerCase().includes(search.toLowerCase())
+                    .includes(debouncedSearch.toLowerCase()) ||
+                listing.city.toLowerCase().includes(debouncedSearch.toLowerCase())
 
             const matchesCategory =
                 category === 'all' || String(listing.group) === String(category)
@@ -768,13 +800,11 @@ export default function ServicesPage() {
 
             const matchesTags =
                 selectedTags.length === 0 ||
-                selectedTags.every((tag) => listing.tags.includes(tag))
+                selectedTags.every((tag) => (listing.tags || []).includes(tag))
 
-            // Быстрые фильтры
             const matchesQuickFilters = 
-                (!quickFilters.mobile || listing.tags.includes('mobile')) &&
-                (!quickFilters.availableSlots || true) // Пока нет данных о слотах
-                // (!quickFilters.openNow || true) // Пока нет данных о времени работы
+                (!quickFilters.availableSlots || (listing.allowBooking !== false && listing.hasSchedule)) &&
+                (!quickFilters.openNow || listing.isOpenNow)
 
             return (
                 matchesSearch &&
@@ -789,7 +819,7 @@ export default function ServicesPage() {
         })
     }, [
         formattedListings,
-        search,
+        debouncedSearch,
         category,
         state,
         city,
@@ -840,14 +870,13 @@ export default function ServicesPage() {
         setPriceFilter('all')
         setRatingFilter(null)
         setSelectedTags([])
+        setSortBy('default')
         setQuickFilters({
             rating45: false,
             availableSlots: false,
-            mobile: false,
             openNow: false,
         })
         
-        // Сброс локации через LocationProvider
         resetLocation()
     }
     
@@ -1105,6 +1134,7 @@ export default function ServicesPage() {
                                                         <ServiceCard 
                                                             service={listing} 
                                                             variant="featured"
+                                                            showBadges
                                                         />
                                                     </div>
                                                 ))}
@@ -1116,6 +1146,7 @@ export default function ServicesPage() {
                                                     key={listing.id} 
                                                     service={listing} 
                                                     variant="featured"
+                                                    showBadges
                                                 />
                                             ))}
                                         </div>
@@ -1157,17 +1188,6 @@ export default function ServicesPage() {
                                             <span className="sm:hidden">{t('quickFilters.availableSlotsShort')}</span>
                                         </button>
                                         <button
-                                            onClick={() => setQuickFilters(prev => ({ ...prev, mobile: !prev.mobile }))}
-                                            className={classNames(
-                                                'px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs md:text-sm font-medium transition whitespace-nowrap',
-                                                quickFilters.mobile
-                                                    ? 'bg-blue-600 text-white shadow-sm'
-                                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                            )}
-                                        >
-                                            {t('quickFilters.mobile')}
-                                        </button>
-                                        <button
                                             onClick={() => setQuickFilters(prev => ({ ...prev, openNow: !prev.openNow }))}
                                             className={classNames(
                                                 'px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs md:text-sm font-medium transition whitespace-nowrap',
@@ -1184,6 +1204,25 @@ export default function ServicesPage() {
                                         <p>
                                             {t('foundOffers', { count: filteredListings.length })}
                                         </p>
+                                        <div className="flex items-center gap-1.5">
+                                            <PiSortAscending className="text-sm" />
+                                            <Select
+                                                instanceId="sort-select"
+                                                isSearchable={false}
+                                                isClearable={false}
+                                                className="text-xs w-[160px]"
+                                                value={{ value: sortBy, label: t(`sortOptions.${sortBy}`, { defaultValue: t('sortOptions.default') }) }}
+                                                options={[
+                                                    { value: 'default', label: t('sortOptions.default') },
+                                                    { value: 'rating', label: t('sortOptions.rating') },
+                                                    { value: 'price_asc', label: t('sortOptions.price_asc') },
+                                                    { value: 'price_desc', label: t('sortOptions.price_desc') },
+                                                    { value: 'newest', label: t('sortOptions.newest') },
+                                                    { value: 'reviews', label: t('sortOptions.reviews') },
+                                                ]}
+                                                onChange={(opt) => setSortBy(opt?.value || 'default')}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1217,7 +1256,7 @@ export default function ServicesPage() {
                                     ) : (
                                         <>
                                             {visibleListings.map((listing) => (
-                                                <ServiceCard key={listing.id} service={listing} variant="compact" />
+                                                <ServiceCard key={listing.id} service={listing} variant="compact" showBadges />
                                             ))}
                                             {filteredListings.length > visibleServicesCount && (
                                                 <div className="mt-6 text-center">
@@ -1266,7 +1305,7 @@ export default function ServicesPage() {
                                         <>
                                             {/* Реальные карточки */}
                                             {visibleListings.map((listing) => (
-                                                <ServiceCard key={listing.id} service={listing} />
+                                                <ServiceCard key={listing.id} service={listing} showBadges />
                                             ))}
                                             
                                             {/* Плейсхолдеры для фиксированной высоты сетки */}

@@ -26,7 +26,7 @@ class MarketplaceController extends Controller
     {
         // ВАЖНО: В каталоге маркетплейса показываем ТОЛЬКО объявления
         // Услуги показываются внутри каждого объявления через getServiceProfile()
-        // Поэтому НЕ загружаем услуги из таблицы services
+        // Пhttps://rexten.live/img/landing/features/mobile.pngоэтому НЕ загружаем услуги из таблицы services
 
         // Получаем одобренные обычные объявления (type = 'regular') и рекламные объявления (type = 'advertisement')
         $regularAdsQuery = Advertisement::whereIn('type', ['regular', 'advertisement'])
@@ -125,10 +125,27 @@ class MarketplaceController extends Controller
             }
         }
 
-        $regularAdvertisements = $regularAdsQuery
-            ->orderBy('priority', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Серверная фильтрация по рейтингу (ratingMin) — применяется после вычисления рейтинга
+        $ratingMin = $request->has('ratingMin') ? (float) $request->get('ratingMin') : null;
+
+        // Серверная фильтрация по тегам
+        $tagsFilter = $request->has('tags') ? (array) $request->get('tags') : [];
+
+        // Сортировка
+        $sortBy = $request->get('sort_by', 'default'); // default | rating | price_asc | price_desc | newest | reviews
+        if ($sortBy === 'default') {
+            $regularAdsQuery->orderBy('priority', 'desc')->orderBy('created_at', 'desc');
+        } elseif ($sortBy === 'newest') {
+            $regularAdsQuery->orderBy('created_at', 'desc');
+        } elseif ($sortBy === 'price_asc') {
+            $regularAdsQuery->orderByRaw('COALESCE(price_from, 999999) ASC');
+        } elseif ($sortBy === 'price_desc') {
+            $regularAdsQuery->orderByRaw('COALESCE(price_from, 0) DESC');
+        } else {
+            $regularAdsQuery->orderBy('priority', 'desc')->orderBy('created_at', 'desc');
+        }
+
+        $regularAdvertisements = $regularAdsQuery->get();
 
         // ВАЖНО: В каталоге маркетплейса показываем ТОЛЬКО объявления, услуги внутри объявлений
         // Поэтому НЕ преобразуем услуги в формат для frontend
@@ -183,11 +200,10 @@ class MarketplaceController extends Controller
                 $category = ServiceCategory::where('slug', $ad->category_slug)->first();
                 if ($category) {
                     $categoryName = $category->name;
-                    $categoryId = $category->id; // Оставляем как число для совместимости
+                    $categoryId = $category->id;
                 }
             }
             
-            // Если не нашли по slug, пытаемся определить из первой услуги
             if ($categoryName === 'Услуга' && !empty($ad->services) && is_array($ad->services)) {
                 $firstService = $ad->services[0];
                 if (isset($firstService['category'])) {
@@ -195,18 +211,12 @@ class MarketplaceController extends Controller
                 }
             }
             
-            // Если все еще "Услуга", используем категорию компании
             if ($categoryName === 'Услуга' && $company && $company->category) {
                 $categoryName = $company->category;
             }
 
-            // Получаем ID первой услуги из объявления для избранного
-            // ВАЖНО: services в объявлении - это виртуальные услуги с индексами, а не реальные ID
-            // Поэтому мы НЕ можем использовать их ID для избранного
-            // Вместо этого проверяем, есть ли у компании реальные услуги из таблицы services
             $serviceId = null;
             if ($company) {
-                // Ищем первую активную услугу компании из таблицы services
                 $realService = Service::where('company_id', $company->id)
                     ->where('is_active', true)
                     ->first();
@@ -214,17 +224,102 @@ class MarketplaceController extends Controller
                     $serviceId = $realService->id;
                 }
             }
-            
-            // Если не нашли реальную услугу, не устанавливаем service_id
-            // Это означает, что объявление нельзя добавить в избранное как услугу
+
+            // --- Новые поля для быстрых фильтров ---
+            $allowBooking = (bool) ($company->allow_booking ?? true);
+
+            $hasSchedule = false;
+            if ($ad->schedule && is_array($ad->schedule)) {
+                foreach ($ad->schedule as $key => $daySchedule) {
+                    if (is_array($daySchedule) && !empty($daySchedule['enabled'])) {
+                        $hasSchedule = true;
+                        break;
+                    }
+                }
+            }
+
+            $isOpenNow = false;
+            if ($hasSchedule && $ad->schedule && is_array($ad->schedule)) {
+                $tz = $company->timezone ?? 'America/Los_Angeles';
+                try {
+                    $now = \Carbon\Carbon::now($tz);
+                    $currentMinutes = $now->hour * 60 + $now->minute;
+                    $dayOfWeek = strtolower($now->format('l'));
+
+                    // Проверяем текущий день
+                    $daySchedule = $ad->schedule[$dayOfWeek] ?? null;
+                    if ($daySchedule && is_array($daySchedule) && !empty($daySchedule['enabled']) && isset($daySchedule['from'], $daySchedule['to'])) {
+                        $fromParts = explode(':', $daySchedule['from']);
+                        $toParts = explode(':', $daySchedule['to']);
+                        if (count($fromParts) === 2 && count($toParts) === 2) {
+                            $fromMin = (int)$fromParts[0] * 60 + (int)$fromParts[1];
+                            $toMin = (int)$toParts[0] * 60 + (int)$toParts[1];
+
+                            if ($toMin > $fromMin) {
+                                // Обычная смена (09:00→18:00)
+                                $isOpenNow = $currentMinutes >= $fromMin && $currentMinutes < $toMin;
+                            } else {
+                                // Ночная смена (22:00→02:00): открыто от from до полуночи
+                                $isOpenNow = $currentMinutes >= $fromMin;
+                            }
+                        }
+                    }
+
+                    // Если ещё не нашли — проверяем вчерашнюю ночную смену, которая перешла через полночь
+                    if (!$isOpenNow) {
+                        $yesterday = strtolower($now->copy()->subDay()->format('l'));
+                        $ySchedule = $ad->schedule[$yesterday] ?? null;
+                        if ($ySchedule && is_array($ySchedule) && !empty($ySchedule['enabled']) && isset($ySchedule['from'], $ySchedule['to'])) {
+                            $yFrom = explode(':', $ySchedule['from']);
+                            $yTo = explode(':', $ySchedule['to']);
+                            if (count($yFrom) === 2 && count($yTo) === 2) {
+                                $yFromMin = (int)$yFrom[0] * 60 + (int)$yFrom[1];
+                                $yToMin = (int)$yTo[0] * 60 + (int)$yTo[1];
+                                // Ночная смена вчера (to < from): открыто до to сегодня
+                                if ($yToMin < $yFromMin && $currentMinutes < $yToMin) {
+                                    $isOpenNow = true;
+                                }
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // invalid timezone — ignore
+                }
+            }
+
+            // Вычисляемые теги на основе реальных данных
+            $tags = [];
+            if ($ad->type === 'advertisement') {
+                $tags[] = 'premium';
+            }
+            if ($allowBooking) {
+                $tags[] = 'online-booking';
+            }
+            if ($isOpenNow) {
+                $tags[] = 'open-now';
+            }
+            if ($reviewsCount > 0) {
+                $tags[] = 'has-reviews';
+            }
+            $hasPortfolio = !empty($ad->portfolio) && is_array($ad->portfolio) && count($ad->portfolio) > 0;
+            if ($hasPortfolio) {
+                $tags[] = 'has-portfolio';
+            }
+            if (!empty($company) && $company->online_payment_enabled) {
+                $tags[] = 'online-payment';
+            }
+            $descText = ($ad->description ?? '') . ' ' . ($ad->title ?? '');
+            if (preg_match('/[\x{0400}-\x{04FF}]/u', $descText)) {
+                $tags[] = 'russian-speaking';
+            }
 
             return [
-                'id' => 'ad_' . (string) $ad->id, // Префикс чтобы не конфликтовать с услугами
-                'service_id' => $serviceId, // ID услуги для избранного
+                'id' => 'ad_' . (string) $ad->id,
+                'service_id' => $serviceId,
                 'name' => $ad->title,
                 'description' => $ad->description ?? '',
                 'category' => $categoryName,
-                'group' => $categoryId ? (int) $categoryId : ($ad->type === 'advertisement' ? 'advertisement' : 'regular_ad'), // Используем ID категории если нашли (как число)
+                'group' => $categoryId ? (int) $categoryId : ($ad->type === 'advertisement' ? 'advertisement' : 'regular_ad'),
                 'imageUrl' => $this->normalizeAdvertisementImageUrl($ad->image ?? null) ?? '/img/others/placeholder.jpg',
                 'path' => $path,
                 'priceLabel' => $priceLabel,
@@ -232,18 +327,43 @@ class MarketplaceController extends Controller
                 'rating' => $rating,
                 'reviews' => $reviewsCount,
                 'reviewsCount' => $reviewsCount,
-                'tags' => [],
-                'isFeatured' => $ad->type === 'advertisement', // Рекламные объявления помечаем как featured
+                'tags' => $tags,
+                'isFeatured' => $ad->type === 'advertisement',
                 'city' => $ad->city ?? $company->city ?? '',
                 'state' => $ad->state ?? $company->state ?? '',
+                'allowBooking' => $allowBooking,
+                'hasSchedule' => $hasSchedule,
+                'isOpenNow' => $isOpenNow,
             ];
         });
 
-        // ВАЖНО: В каталоге маркетплейса показываем ТОЛЬКО объявления
-        // Услуги показываются внутри каждого объявления
-        // $formatted = $formattedServices->concat($formattedAdvertisements);
+        // Серверная фильтрация по рейтингу (после map, чтобы рейтинг уже вычислен)
+        if ($ratingMin !== null && $ratingMin > 0) {
+            $formattedAdvertisements = $formattedAdvertisements->filter(function ($item) use ($ratingMin) {
+                return $item['rating'] >= $ratingMin;
+            });
+        }
 
-        return response()->json($formattedAdvertisements);
+        // Серверная фильтрация по тегам
+        if (!empty($tagsFilter)) {
+            $formattedAdvertisements = $formattedAdvertisements->filter(function ($item) use ($tagsFilter) {
+                foreach ($tagsFilter as $tag) {
+                    if (!in_array($tag, $item['tags'])) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        // Пост-сортировка по рейтингу / отзывам (требуют вычисленные поля)
+        if ($sortBy === 'rating') {
+            $formattedAdvertisements = $formattedAdvertisements->sortByDesc('rating');
+        } elseif ($sortBy === 'reviews') {
+            $formattedAdvertisements = $formattedAdvertisements->sortByDesc('reviewsCount');
+        }
+
+        return response()->json($formattedAdvertisements->values());
     }
 
     /**
@@ -341,7 +461,12 @@ class MarketplaceController extends Controller
             'rating' => $rating,
             'reviewsCount' => $reviewsCount,
             'reviews' => $reviewsCount,
-            'tags' => [], // TODO: Добавить теги если будут
+            'tags' => array_values(array_filter([
+                $reviewsCount > 0 ? 'has-reviews' : null,
+                ($company->allow_booking ?? true) ? 'online-booking' : null,
+                ($company->online_payment_enabled ?? false) ? 'online-payment' : null,
+                preg_match('/[\x{0400}-\x{04FF}]/u', ($service->name ?? '') . ' ' . ($service->description ?? '')) ? 'russian-speaking' : null,
+            ])),
             'isFeatured' => false,
             'city' => $company->city ?? '',
             'state' => $company->state ?? '',
@@ -481,7 +606,13 @@ class MarketplaceController extends Controller
                 'rating' => 5.0,
                 'reviewsCount' => 0,
                 'reviews' => 0,
-                'tags' => [],
+                'tags' => array_values(array_filter([
+                    $advertisement->type === 'advertisement' ? 'premium' : null,
+                    ($company->allow_booking ?? true) ? 'online-booking' : null,
+                    ($company->online_payment_enabled ?? false) ? 'online-payment' : null,
+                    preg_match('/[\x{0400}-\x{04FF}]/u', ($advertisement->title ?? '') . ' ' . ($advertisement->description ?? '')) ? 'russian-speaking' : null,
+                    !empty($advertisement->portfolio) && is_array($advertisement->portfolio) && count($advertisement->portfolio) > 0 ? 'has-portfolio' : null,
+                ])),
                 'isFeatured' => false,
                 'city' => $advertisement->city ?? $company->city ?? '',
                 'state' => $advertisement->state ?? $company->state ?? '',
@@ -1114,7 +1245,12 @@ class MarketplaceController extends Controller
             'rating' => $rating,
             'reviewsCount' => $allReviews->count(),
             'reviews' => $allReviews->count(),
-            'tags' => [],
+            'tags' => array_values(array_filter([
+                $allReviews->count() > 0 ? 'has-reviews' : null,
+                ($company->allow_booking ?? true) ? 'online-booking' : null,
+                ($company->online_payment_enabled ?? false) ? 'online-payment' : null,
+                preg_match('/[\x{0400}-\x{04FF}]/u', ($service->name ?? '') . ' ' . ($service->description ?? '')) ? 'russian-speaking' : null,
+            ])),
             'isFeatured' => false,
             'city' => $company->city ?? '',
             'state' => $company->state ?? '',
@@ -1254,6 +1390,9 @@ class MarketplaceController extends Controller
             'reviews' => $reviewsFormatted,
             'team' => $team,
             'portfolio' => $portfolio,
+            'allowBooking' => (bool) ($company->allow_booking ?? true),
+            'showReviews' => (bool) ($company->show_reviews ?? true),
+            'showPortfolio' => (bool) ($company->show_portfolio ?? true),
         ]);
     }
 

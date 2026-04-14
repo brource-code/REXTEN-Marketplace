@@ -9,7 +9,7 @@ import ServiceCard from '@/components/marketplace/ServiceCard'
 import { getAvailableSlots } from '@/lib/api/bookings'
 import { useQuery } from '@tanstack/react-query'
 import { getFavoriteServices, getFavoriteBusinesses, getFavoriteAdvertisements, addToFavorites, removeFromFavorites } from '@/lib/api/client'
-import { tagDictionary } from '@/mocks/tags'
+import { getTagLabel } from '@/mocks/tags'
 import Image from 'next/image'
 import NotFound404 from '@/assets/svg/NotFound404'
 import ImageGallery from '@/components/shared/ImageGallery'
@@ -48,20 +48,6 @@ const getTabs = (t) => [
     { id: 'team', label: t('tabs.team'), icon: PiUsersDuotone },
 ]
 
-// Функция для получения бейджей из тегов
-const getBadges = (tags, t) => {
-    const badges = []
-    if (tags.includes('premium')) {
-        badges.push({ label: 'Premium', color: 'bg-yellow-500' })
-    }
-    if (tags.includes('mobile')) {
-        badges.push({ label: t('badges.mobile'), color: 'bg-black/70' })
-    }
-    if (tags.includes('russian-speaking')) {
-        badges.push({ label: 'RU', color: 'bg-black/70' })
-    }
-    return badges
-}
 
 
 // Функция для получения инициалов из имени
@@ -823,7 +809,6 @@ export default function MarketplaceProfilePage() {
     
     const businessImageUrl = getImageUrl(business?.imageUrl)
     const categoryInfo = categories.find((cat) => cat.id === business.group)
-    const badges = getBadges(business.tags || [], t)
     const servicesListRaw = profile.servicesList || []
     
     // Логируем сырые данные перед фильтрацией
@@ -900,6 +885,10 @@ export default function MarketplaceProfilePage() {
         ? (reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / reviews.length).toFixed(1)
         : (business.rating || 0).toFixed(1)
 
+    const showOnlineBookingBadge = profile?.allowBooking !== false
+    const showRuPill = (business.tags || []).includes('russian-speaking')
+    const showListingPills = showOnlineBookingBadge || showRuPill
+
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
             <Container className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -914,37 +903,49 @@ export default function MarketplaceProfilePage() {
                     </Link>
                 </div>
 
-                {/* Мобильная версия - фото сверху */}
+                {/* Мобильная версия - фото сверху; под фото: локация, затем плашки (онлайн + RU), без плашек на фото */}
                 <div className="block lg:hidden mb-6">
-                    <div className="relative min-h-56 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        {businessImageUrl ? (
-                            <Image
-                                src={normalizeImageUrl(businessImageUrl) || FALLBACK_IMAGE}
-                                alt={business.name}
-                                fill
-                                quality={90}
-                                className="object-contain"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                            />
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
-                                <span className="text-gray-400 dark:text-gray-600">{t('noImage')}</span>
+                    <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 overflow-hidden shadow-sm">
+                        <div className="relative min-h-56 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                            {businessImageUrl ? (
+                                <Image
+                                    src={normalizeImageUrl(businessImageUrl) || FALLBACK_IMAGE}
+                                    alt={business.name}
+                                    fill
+                                    quality={90}
+                                    className="object-contain"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                />
+                            ) : (
+                                <div className="w-full min-h-56 flex items-center justify-center bg-gray-200 dark:bg-gray-800">
+                                    <span className="text-gray-400 dark:text-gray-600">{t('noImage')}</span>
+                                </div>
+                            )}
+                        </div>
+                        {(business.location || showListingPills) && (
+                            <div className="px-3 py-2.5 border-t border-gray-100 dark:border-white/10 space-y-2">
+                                {business.location && (
+                                    <div className="flex items-center gap-1.5 text-sm font-bold text-gray-900 dark:text-gray-100">
+                                        <PiMapPinDuotone className="text-base shrink-0 text-gray-500 dark:text-gray-400" />
+                                        <span>{business.location}</span>
+                                    </div>
+                                )}
+                                {showListingPills && (
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {showOnlineBookingBadge && (
+                                            <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-emerald-600">
+                                                {tServices('tagOnlineBooking')}
+                                            </span>
+                                        )}
+                                        {showRuPill && (
+                                            <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-black/70">
+                                                RU
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         )}
-                        {/* Бейджи поверх фото */}
-                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                            {badges.map((badge, idx) => (
-                                <span
-                                    key={idx}
-                                    className={classNames(
-                                        'text-white text-[11px] px-2 py-1 rounded-full',
-                                        badge.color
-                                    )}
-                                >
-                                    {badge.label}
-                                </span>
-                            ))}
-                        </div>
                     </div>
                 </div>
 
@@ -952,22 +953,48 @@ export default function MarketplaceProfilePage() {
                 <div className="mb-6 lg:mb-8">
                     <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                         {/* Фото/аватар бизнеса (мобильная версия уже показана выше) */}
-                        <div className="hidden lg:block lg:flex-shrink-0">
-                            <div className="relative w-72 h-72 rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        {businessImageUrl ? (
-                            <Image
-                                src={normalizeImageUrl(businessImageUrl) || FALLBACK_IMAGE}
-                                alt={business.name}
-                                fill
-                                quality={90}
-                                className="object-contain"
-                                sizes="288px"
-                            />
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
-                                <span className="text-gray-400 dark:text-gray-600">{t('noImage')}</span>
-                            </div>
-                        )}
+                        <div className="hidden lg:block lg:flex-shrink-0 w-72">
+                            <div className="rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900">
+                                <div className="relative w-72 h-72 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                    {businessImageUrl ? (
+                                        <Image
+                                            src={normalizeImageUrl(businessImageUrl) || FALLBACK_IMAGE}
+                                            alt={business.name}
+                                            fill
+                                            quality={90}
+                                            className="object-contain"
+                                            sizes="288px"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                                            <span className="text-gray-400 dark:text-gray-600">{t('noImage')}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                {(business.location || showListingPills) && (
+                                    <div className="px-3 py-2.5 border-t border-gray-100 dark:border-white/10 space-y-2">
+                                        {business.location && (
+                                            <div className="flex items-center gap-1.5 text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                <PiMapPinDuotone className="text-base shrink-0 text-gray-500 dark:text-gray-400" />
+                                                <span>{business.location}</span>
+                                            </div>
+                                        )}
+                                        {showListingPills && (
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {showOnlineBookingBadge && (
+                                                    <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-emerald-600">
+                                                        {tServices('tagOnlineBooking')}
+                                                    </span>
+                                                )}
+                                                {showRuPill && (
+                                                    <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-black/70">
+                                                        RU
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         
@@ -1053,7 +1080,7 @@ export default function MarketplaceProfilePage() {
 
                             {/* CTA-кнопки */}
                             <div className="flex flex-col sm:flex-row gap-3">
-                                {(profile?.allowBooking ?? true) && (
+                                {showOnlineBookingBadge && (
                                     <button 
                                         onClick={() => {
                                             setBookingSelectedDate(0)
@@ -1096,6 +1123,25 @@ export default function MarketplaceProfilePage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Особенности — компактно под шапкой только на мобиле (на десктопе — в сайдбаре под ценой) */}
+                {Array.isArray(business.tags) && business.tags.length > 0 && (
+                    <div className="lg:hidden mb-4 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 p-3 shadow-sm">
+                        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                            {t('features')}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                            {business.tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-bold text-gray-900 dark:text-gray-100"
+                                >
+                                    {getTagLabel(tag, tServices)}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Основной контент - двухколоночный layout на десктопе */}
                 <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
@@ -1314,19 +1360,19 @@ export default function MarketplaceProfilePage() {
                                 )}
                             </div>
 
-                            {/* Основные теги/категории */}
-                            {business.tags && business.tags.length > 0 && (
-                                <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm p-4">
-                                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                            {/* Особенности — компактный подблок под ценой/локацией */}
+                            {Array.isArray(business.tags) && business.tags.length > 0 && (
+                                <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm p-3">
+                                    <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
                                         {t('features')}
-                                    </h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {business.tags.slice(0, 6).map((tag) => (
+                                    </p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {business.tags.map((tag) => (
                                             <span
                                                 key={tag}
-                                                className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs text-gray-700 dark:text-gray-300"
+                                                className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-bold text-gray-900 dark:text-gray-100"
                                             >
-                                                {tagDictionary[tag] || tag}
+                                                {getTagLabel(tag, tServices)}
                                             </span>
                                         ))}
                                     </div>
@@ -1782,11 +1828,11 @@ export default function MarketplaceProfilePage() {
                                 onClick={() => {
                                     setServiceDetailModalOpen(false)
                                 }}
-                                className={`${(profile?.allowBooking ?? true) ? 'flex-1' : 'w-full'} px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition font-medium`}
+                                className={`${showOnlineBookingBadge ? 'flex-1' : 'w-full'} px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition font-medium`}
                             >
                                 {t('close')}
                             </button>
-                            {(profile?.allowBooking ?? true) && (
+                            {showOnlineBookingBadge && (
                                 <button
                                     onClick={() => {
                                         setBookingSelectedService(selectedServiceDetail.id)
@@ -1813,6 +1859,7 @@ export default function MarketplaceProfilePage() {
                     setBookingSelectedMaster(null)
                     setBookingError(null)
                     setAvailableSlotsData({})
+                    setBookingSelectedService(null)
                 }}
                 onSuccess={(opts) => {
                     queryClient.invalidateQueries({ queryKey: ['client-bookings'] })
@@ -1829,6 +1876,7 @@ export default function MarketplaceProfilePage() {
                 companyId={profile?.service?.company_id ? parseInt(profile.service.company_id) : null}
                 advertisementId={profile?.service?.advertisement_id ? parseInt(profile.service.advertisement_id) : 
                     (profile?.service?.id?.startsWith('ad_') ? parseInt(profile.service.id.replace('ad_', '')) : null)}
+                preselectedServiceId={bookingSelectedService}
             />
             
 

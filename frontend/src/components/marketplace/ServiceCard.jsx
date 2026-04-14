@@ -6,7 +6,7 @@ import Card from '@/components/ui/Card'
 import { PiStarFill, PiHeart, PiHeartFill, PiMapPinFill } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
 import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
-import { tagDictionary } from '@/mocks/tags'
+import { getCatalogListingBadges, getTagLabel } from '@/mocks/tags'
 import { getFavoriteServices, getFavoriteAdvertisements, addToFavorites, removeFromFavorites } from '@/lib/api/client'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -24,9 +24,10 @@ import { CLIENT } from '@/constants/roles.constant'
 const ServiceCard = ({ 
     service, 
     variant = 'default', // 'default' | 'compact' | 'featured' | 'catalog'
-    showBadges = true,
+    /** Две плашки под локацией (онлайн-запись + RU) — по умолчанию выключены */
+    showBadges = false,
     showRating = true,
-    showTags = true,
+    showTags = false,
     className = '',
 }) => {
     const queryClient = useQueryClient()
@@ -302,26 +303,44 @@ const ServiceCard = ({
         }
     }
     
-    const badges = getBadges(service.tags || [], t)
+    const tagsForListingPills = (() => {
+        const raw = [...(service.tags || [])]
+        if (service.allowBooking === true && !raw.includes('online-booking')) {
+            raw.push('online-booking')
+        }
+        if (service.allowBooking === false) {
+            return raw.filter((x) => x !== 'online-booking')
+        }
+        return raw
+    })()
+    const listingPills = showBadges ? getCatalogListingBadges(tagsForListingPills, tServices) : []
     const isExternalLink = service.path && (service.path.startsWith('http://') || service.path.startsWith('https://'))
     const isAdvertisement = service?.id && String(service.id).startsWith('ad_')
     
-    // Ref для предотвращения повторного трекинга показов
     const hasTrackedImpression = useRef(false)
+    const cardRef = useRef(null)
     
-    // Трекинг показов для featured рекламных объявлений
     useEffect(() => {
-        if (isAdvertisement && variant === 'featured' && !hasTrackedImpression.current) {
-            const adId = parseInt(String(service.id).replace('ad_', ''))
-            if (adId && !isNaN(adId)) {
-                hasTrackedImpression.current = true
-                fetch(`${getLaravelApiUrl()}/advertisements/${adId}/impression`, {
-                    method: 'POST',
-                    credentials: 'include',
-                }).catch(() => {}) // Игнорируем ошибки трекинга
-            }
-        }
-    }, [isAdvertisement, variant, service.id])
+        if (!isAdvertisement || hasTrackedImpression.current || !cardRef.current) return
+        const adId = parseInt(String(service.id).replace('ad_', ''))
+        if (!adId || isNaN(adId)) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !hasTrackedImpression.current) {
+                    hasTrackedImpression.current = true
+                    fetch(`${getLaravelApiUrl()}/advertisements/${adId}/impression`, {
+                        method: 'POST',
+                        credentials: 'include',
+                    }).catch(() => {})
+                    observer.disconnect()
+                }
+            },
+            { threshold: 0.5 }
+        )
+        observer.observe(cardRef.current)
+        return () => observer.disconnect()
+    }, [isAdvertisement, service.id])
     
     // Обработчик клика для отслеживания кликов по рекламным объявлениям
     const handleClick = async (e) => {
@@ -360,6 +379,7 @@ const ServiceCard = ({
     // Мобильная версия (горизонтальная карточка)
     if (variant === 'compact') {
         return (
+            <div ref={cardRef}>
             <LinkComponent
                 {...linkProps}
                 className={classNames(
@@ -392,22 +412,6 @@ const ServiceCard = ({
                     <div className="image-placeholder-fallback absolute inset-0 w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800" style={{ display: 'none' }}>
                         <span className="text-gray-400 text-xs">{t('noPhoto')}</span>
                     </div>
-                    {/* Бейджи поверх фото */}
-                    {showBadges && badges.length > 0 && (
-                        <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
-                            {badges.slice(0, 2).map((badge, idx) => (
-                                <span
-                                    key={idx}
-                                    className={classNames(
-                                        'text-white text-[10px] px-1.5 py-0.5 rounded-full',
-                                        badge.color
-                                    )}
-                                >
-                                    {badge.label}
-                                </span>
-                            ))}
-                        </div>
-                    )}
                 </div>
 
                 {/* Текстовый блок справа */}
@@ -437,7 +441,7 @@ const ServiceCard = ({
                                     key={tag}
                                     className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] text-gray-600 dark:text-gray-300"
                                 >
-                                    {tagDictionary[tag] || tag}
+                                    {getTagLabel(tag, tServices)}
                                 </span>
                             ))}
                         </div>
@@ -449,6 +453,22 @@ const ServiceCard = ({
                             <PiMapPinFill className="text-[10px]" />
                             {service.city && service.state ? `${service.city}, ${service.state}` : service.city || service.state}
                         </p>
+                    )}
+
+                    {showBadges && listingPills.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                            {listingPills.map((pill, idx) => (
+                                <span
+                                    key={idx}
+                                    className={classNames(
+                                        'text-white text-[10px] px-1.5 py-0.5 rounded-full font-semibold',
+                                        pill.color,
+                                    )}
+                                >
+                                    {pill.label}
+                                </span>
+                            ))}
+                        </div>
                     )}
                     
                     {/* Рейтинг и цена */}
@@ -497,6 +517,7 @@ const ServiceCard = ({
                     </div>
                 </div>
             </LinkComponent>
+            </div>
         )
     }
 
@@ -513,6 +534,7 @@ const ServiceCard = ({
     )
 
     return (
+        <div ref={cardRef} className="h-full">
         <LinkComponent
             {...linkProps}
             className={cardClasses}
@@ -545,28 +567,6 @@ const ServiceCard = ({
                 <div className="image-placeholder-fallback absolute inset-0 w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800" style={{ display: 'none' }}>
                     <span className="text-gray-400 text-sm">Нет фото</span>
                 </div>
-                
-                {/* Бейджи поверх фото */}
-                {showBadges && (
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                        {variant === 'featured' && (
-                            <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-                                {t('featured')}
-                            </span>
-                        )}
-                        {badges.map((badge, idx) => (
-                            <span
-                                key={idx}
-                                className={classNames(
-                                    'text-white text-[11px] px-2 py-1 rounded-full',
-                                    badge.color
-                                )}
-                            >
-                                {badge.label}
-                            </span>
-                        ))}
-                    </div>
-                )}
                 
                 {/* Рейтинг и отзывы (справа сверху) */}
                 {showRating && service.rating !== undefined && (
@@ -656,7 +656,7 @@ const ServiceCard = ({
                                 key={tag}
                                 className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300"
                             >
-                                {tagDictionary[tag] || tag}
+                                {getTagLabel(tag, tServices)}
                             </span>
                         ))}
                     </div>
@@ -670,6 +670,22 @@ const ServiceCard = ({
                     </p>
                 )}
 
+                {showBadges && listingPills.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                        {listingPills.map((pill, idx) => (
+                            <span
+                                key={idx}
+                                className={classNames(
+                                    'text-white text-[11px] px-2 py-1 rounded-full font-semibold',
+                                    pill.color,
+                                )}
+                            >
+                                {pill.label}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
                 {/* Цена */}
                 {service.priceLabel && (
                     <div className="mt-auto pt-2">
@@ -680,22 +696,8 @@ const ServiceCard = ({
                 )}
             </div>
         </LinkComponent>
+        </div>
     )
-}
-
-// Функция для получения бейджей из тегов
-function getBadges(tags, t = null) {
-    const badges = []
-    if (tags.includes('premium')) {
-        badges.push({ label: 'Premium', color: 'bg-yellow-500' })
-    }
-    if (tags.includes('mobile')) {
-        badges.push({ label: t ? t('mobile') : 'Выездной', color: 'bg-black/70' })
-    }
-    if (tags.includes('russian-speaking')) {
-        badges.push({ label: 'RU', color: 'bg-black/70' })
-    }
-    return badges
 }
 
 export default ServiceCard
