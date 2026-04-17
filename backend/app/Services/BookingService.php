@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Booking;
 use App\Models\Service;
+use App\Models\TeamMember;
 use App\Models\Company;
 use App\Services\ActivityService;
 use App\Services\Routing\GeocodingService;
@@ -11,8 +12,13 @@ use Carbon\Carbon;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use App\Support\MarketplaceClient;
 use App\Support\NotificationLocale;
+use App\Services\ClientNotificationMailer;
 use Stripe\PaymentIntent;
+use Stripe\Refund;
+use Stripe\Stripe;
 
 class BookingService
 {
@@ -21,6 +27,19 @@ class BookingService
      */
     public function isSlotAvailable($companyId, $serviceId, $date, $time, $durationMinutes = 60, $excludeBookingId = null, $serviceData = null, $specialistId = null)
     {
+        if ($serviceId) {
+            $svc = Service::where('id', $serviceId)->where('company_id', $companyId)->first();
+            if (!$svc || !$svc->is_active) {
+                return false;
+            }
+        }
+        if ($specialistId !== null && $specialistId !== '') {
+            $tm = TeamMember::where('id', $specialistId)->where('company_id', $companyId)->first();
+            if (!$tm || !$tm->is_active) {
+                return false;
+            }
+        }
+
         $timezone = Company::timezoneById((int) $companyId);
 
         // Нормализуем формат даты (может быть datetime или только дата)
@@ -177,9 +196,9 @@ class BookingService
     {
         $service = $serviceData;
         if (!$service) {
-            $service = Service::find($serviceId);
+            $service = Service::where('id', $serviceId)->where('company_id', $companyId)->first();
         }
-        if (!$service) {
+        if (!$service || !$service->is_active) {
             return [];
         }
 
@@ -355,6 +374,39 @@ class BookingService
     }
 
     /**
+     * Услуга и специалист должны быть активны (в т.ч. после даунгрейда подписки).
+     */
+    private function assertActiveBookingEntities(int $companyId, ?int $serviceId, ?int $specialistId): void
+    {
+        if ($serviceId) {
+            $svc = Service::where('id', $serviceId)->where('company_id', $companyId)->first();
+            if (!$svc) {
+                throw ValidationException::withMessages([
+                    'service_id' => ['Услуга не найдена для этой компании.'],
+                ]);
+            }
+            if (!$svc->is_active) {
+                throw ValidationException::withMessages([
+                    'service_id' => ['Услуга недоступна для записи (деактивирована).'],
+                ]);
+            }
+        }
+        if ($specialistId) {
+            $tm = TeamMember::where('id', $specialistId)->where('company_id', $companyId)->first();
+            if (!$tm) {
+                throw ValidationException::withMessages([
+                    'specialist_id' => ['Специалист не найден для этой компании.'],
+                ]);
+            }
+            if (!$tm->is_active) {
+                throw ValidationException::withMessages([
+                    'specialist_id' => ['Специалист недоступен для записи (деактивирован).'],
+                ]);
+            }
+        }
+    }
+
+    /**
      * Batch: get available slots for multiple dates at once.
      * Returns ['2025-04-12' => [...slots], '2025-04-13' => [...slots], ...]
      */
@@ -362,9 +414,11 @@ class BookingService
     {
         $service = $serviceData;
         if (!$service) {
-            $service = Service::find($serviceId);
+            $service = Service::where('id', $serviceId)->where('company_id', $companyId)->first();
         }
-        if (!$service) return [];
+        if (!$service || !$service->is_active) {
+            return [];
+        }
 
         $company = Company::find($companyId);
         if (!$company) return [];
@@ -502,6 +556,14 @@ class BookingService
                 }
             }
         }
+
+        $this->assertActiveBookingEntities(
+            (int) $data['company_id'],
+            $isCustomEvent ? null : (int) $data['service_id'],
+            isset($data['specialist_id']) && $data['specialist_id'] !== '' && $data['specialist_id'] !== null
+                ? (int) $data['specialist_id']
+                : null
+        );
         
         $durationMinutes = $data['duration_minutes'] ?? 60;
         
@@ -563,10 +625,20 @@ class BookingService
             $bookingDateString .= ' 00:00:00';
         }
         
+        $resolvedClientUserId = $data['user_id'] ?? null;
+        if ($resolvedClientUserId !== null && $resolvedClientUserId !== ''
+            && ! MarketplaceClient::isClientUserId((int) $resolvedClientUserId)) {
+            Log::warning('BookingService: createBooking — user_id is not role CLIENT, storing as guest (CRM fields only)', [
+                'rejected_user_id' => $resolvedClientUserId,
+                'company_id' => $data['company_id'] ?? null,
+            ]);
+            $resolvedClientUserId = null;
+        }
+
         try {
             $booking = Booking::create([
                 'company_id' => $data['company_id'],
-                'user_id' => $data['user_id'] ?? null,
+                'user_id' => $resolvedClientUserId,
                 'service_id' => $data['service_id'] ?? null, // Может быть null для произвольных событий
                 'title' => $data['title'] ?? null, // Название для кастомных событий
                 'advertisement_id' => $data['advertisement_id'] ?? null, // Сохраняем ID объявления для правильного отображения
@@ -932,6 +1004,205 @@ class BookingService
     }
 
     /**
+     * Email + in-app клиенту: онлайн-оплата авторизована (холд).
+     */
+    public function notifyClientAboutAuthorizedPayment(Booking $booking): void
+    {
+        if (! $booking->user_id || ! MarketplaceClient::isClientUserId((int) $booking->user_id)) {
+            return;
+        }
+
+        $locale = NotificationLocale::forClientRecipient($booking->user_id);
+        $serviceName = $this->resolveBookingServiceName($booking);
+
+        $paymentRow = Payment::where('booking_id', $booking->id)->first();
+        if ($paymentRow && (int) $paymentRow->amount > 0) {
+            $amountDollars = ((float) $paymentRow->amount) / 100.0;
+        } else {
+            $amountDollars = (float) ($booking->total_price ?? $booking->price ?? 0);
+        }
+        $amount = number_format($amountDollars, 2, '.', '');
+
+        $translations = [
+            'en' => ['title' => 'Payment confirmed', 'message' => "Your bank confirmed the payment for «{$serviceName}»: \${$amount}. For now, the amount is only reserved on your card. The business will charge it after the visit is completed."],
+            'ru' => ['title' => 'Оплата подтверждена', 'message' => "Банк подтвердил оплату для «{$serviceName}»: \${$amount}. Сейчас сумма только зарезервирована на карте. Исполнитель спишет её после завершения визита."],
+            'es-mx' => ['title' => 'Pago confirmado', 'message' => "Tu banco confirmó el pago de «{$serviceName}» por \${$amount}. Por ahora, el importe solo quedó reservado en tu tarjeta. El negocio lo cobrará después de completar la cita."],
+            'hy-am' => ['title' => 'Վճարումը հաստատված է', 'message' => "Բանկը հաստատել է «{$serviceName}»-ի վճարումը՝ \${$amount}։ Այս պահին գումարը միայն պահված է քարտի վրա։ Այն կգանձվի այցի ավարտից հետո։"],
+            'uk-ua' => ['title' => 'Оплату підтверджено', 'message' => "Банк підтвердив оплату за «{$serviceName}»: \${$amount}. Зараз сума лише зарезервована на картці. Бізнес спише її після завершення візиту."],
+        ];
+
+        $t = $translations[$locale] ?? $translations['en'];
+
+        try {
+            \App\Models\Notification::create([
+                'user_id' => $booking->user_id,
+                'type' => 'booking_payment',
+                'title' => $t['title'],
+                'message' => $t['message'],
+                'link' => '/booking',
+                'read' => false,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('BookingService: client payment notification (in-app) failed', [
+                'booking_id' => $booking->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        ClientNotificationMailer::bookingStatusIfEnabled(
+            (int) $booking->user_id,
+            $t['title'],
+            $t['message'],
+            '/booking'
+        );
+    }
+
+    /**
+     * Email клиенту: возврат или снятие холда (в т.ч. частичное удержание по политике отмены).
+     *
+     * @param  float|null  $retainedDollars  Удержано у бизнеса; если задано и > 0 — текст про частичный исход.
+     */
+    public function notifyClientAboutRefundOrRelease(
+        Booking $booking,
+        bool $moneyReturned,
+        float $toClientDollars,
+        ?float $retainedDollars = null
+    ): void {
+        if (! $booking->user_id || ! MarketplaceClient::isClientUserId((int) $booking->user_id)) {
+            return;
+        }
+
+        $locale = NotificationLocale::forClientRecipient($booking->user_id);
+        $serviceName = $this->resolveBookingServiceName($booking);
+        $tc = number_format($toClientDollars, 2, '.', '');
+        $tr = $retainedDollars !== null ? number_format($retainedDollars, 2, '.', '') : null;
+
+        $partial = $retainedDollars !== null && (float) $retainedDollars > 0.009;
+
+        if ($partial) {
+            $translations = [
+                'en' => ['title' => 'Cancellation and payment', 'message' => "For «{$serviceName}»: \${$tc} is returned to your card; \${$tr} is charged according to the cancellation policy."],
+                'ru' => ['title' => 'Отмена и оплата', 'message' => "По «{$serviceName}»: на карту возвращается \${$tc}; по правилам отмены удерживается \${$tr}."],
+                'es-mx' => ['title' => 'Cancelación y pago', 'message' => "Para «{$serviceName}»: se devuelven \${$tc} a tu tarjeta; según la política de cancelación se cobran \${$tr}."],
+                'hy-am' => ['title' => 'Չեղարկում և վճարում', 'message' => "«{$serviceName}»-ի համար․ քարտ են վերադարձվում \${$tc}․ չեղարկման կանոններով գանձվում է \${$tr}։"],
+                'uk-ua' => ['title' => 'Скасування та оплата', 'message' => "Для «{$serviceName}»: на картку повертається \${$tc}; згідно з правилами скасування утримується \${$tr}."],
+            ];
+        } elseif ($moneyReturned && $toClientDollars > 0.009) {
+            $translations = [
+                'en' => ['title' => 'Refund on the way', 'message' => "We sent a refund of \${$tc} for «{$serviceName}» to your card. Banks usually show it within a few business days."],
+                'ru' => ['title' => 'Возврат отправлен', 'message' => "Возврат \${$tc} за «{$serviceName}» отправлен на карту. Обычно банк отображает его в течение нескольких рабочих дней."],
+                'es-mx' => ['title' => 'Reembolso enviado', 'message' => "Enviamos un reembolso de \${$tc} por «{$serviceName}» a tu tarjeta. El banco suele mostrarlo en unos días hábiles."],
+                'hy-am' => ['title' => 'Վերադարձը ուղարկված է', 'message' => "«{$serviceName}»-ի համար \${$tc} վերադարձը ուղարկվել է քարտ։ Բանկը սովորաբար ցուցադրում է այն մի քանի աշխատանքային օրվա ընթացքում։"],
+                'uk-ua' => ['title' => 'Повернення надіслано', 'message' => "Повернення \${$tc} за «{$serviceName}» надіслано на картку. Зазвичай банк відображає його протягом кількох робочих днів."],
+            ];
+        } elseif (! $moneyReturned && ! $partial) {
+            $translations = [
+                'en' => ['title' => 'Payment will not be charged', 'message' => "The reserved amount for «{$serviceName}» was released from your card. No charge was made."],
+                'ru' => ['title' => 'Оплата не будет списана', 'message' => "Зарезервированная сумма за «{$serviceName}» разблокирована на карте. Списания не было."],
+                'es-mx' => ['title' => 'No se realizará el cobro', 'message' => "El importe reservado para «{$serviceName}» se liberó de tu tarjeta. No se realizó ningún cargo."],
+                'hy-am' => ['title' => 'Վճարում չի գանձվի', 'message' => "«{$serviceName}»-ի համար պահված գումարը հանվել է քարտից։ Գանձում չի կատարվել։"],
+                'uk-ua' => ['title' => 'Оплату не буде списано', 'message' => "Зарезервовану суму за «{$serviceName}» розблоковано на картці. Списання не було."],
+            ];
+        } else {
+            return;
+        }
+
+        $t = $translations[$locale] ?? $translations['en'];
+
+        ClientNotificationMailer::bookingStatusIfEnabled(
+            (int) $booking->user_id,
+            $t['title'],
+            $t['message'],
+            '/booking'
+        );
+    }
+
+    /**
+     * Доля суммы, возвращаемая клиенту при отмене (1.0 = полностью). Только смысл при $applyCancellationPolicy === true.
+     */
+    public function clientRefundFractionForCancellation(Booking $booking, bool $applyCancellationPolicy): float
+    {
+        if (! $applyCancellationPolicy) {
+            return 1.0;
+        }
+
+        $booking->loadMissing('company');
+        $company = $booking->company;
+        if (! $company) {
+            return 1.0;
+        }
+
+        $freeHours = (int) ($company->cancellation_free_hours ?? 12);
+        $freeHours = max(1, $freeHours);
+        $lateFeePercent = (int) ($company->cancellation_late_fee_percent ?? 50);
+        $lateFeePercent = max(0, min(100, $lateFeePercent));
+
+        $start = $booking->getTimeWindow()['start'];
+        $now = Carbon::now($start->timezone);
+        if ($start->lte($now)) {
+            $hoursUntil = 0.0;
+        } else {
+            $hoursUntil = $now->floatDiffInHours($start);
+        }
+
+        if ($hoursUntil >= $freeHours) {
+            return 1.0;
+        }
+
+        return max(0.0, min(1.0, (100 - $lateFeePercent) / 100.0));
+    }
+
+    /**
+     * Email клиенту: бронь отменена из-за неоплаты (cron).
+     */
+    public function notifyClientAboutUnpaidBookingExpired(Booking $booking): void
+    {
+        if (! $booking->user_id || ! MarketplaceClient::isClientUserId((int) $booking->user_id)) {
+            return;
+        }
+
+        $locale = NotificationLocale::forClientRecipient($booking->user_id);
+        $serviceName = $this->resolveBookingServiceName($booking);
+
+        $translations = [
+            'en' => ['title' => 'Booking cancelled', 'message' => "We cancelled your booking for «{$serviceName}» because the payment was not completed in time. You can book the service again anytime."],
+            'ru' => ['title' => 'Бронирование отменено', 'message' => "Бронирование «{$serviceName}» отменено, потому что оплата не была завершена вовремя. Вы можете записаться снова в любое время."],
+            'es-mx' => ['title' => 'Reserva cancelada', 'message' => "Cancelamos tu reserva para «{$serviceName}» porque el pago no se completó a tiempo. Puedes reservar de nuevo cuando quieras."],
+            'hy-am' => ['title' => 'Ամրագրումը չեղարկված է', 'message' => "«{$serviceName}» ամրագրումը չեղարկվել է, քանի որ վճարումը ժամանակին չի ավարտվել։ Կարող եք կրկին ամրագրել ցանկացած ժամանակ։"],
+            'uk-ua' => ['title' => 'Бронювання скасовано', 'message' => "Бронювання «{$serviceName}» скасовано, тому що оплату не було завершено вчасно. Ви можете знову забронювати послугу будь-коли."],
+        ];
+
+        $t = $translations[$locale] ?? $translations['en'];
+
+        ClientNotificationMailer::bookingStatusIfEnabled(
+            (int) $booking->user_id,
+            $t['title'],
+            $t['message'],
+            '/booking'
+        );
+    }
+
+    private function resolveBookingServiceName(Booking $booking): string
+    {
+        $serviceName = 'Service';
+        if ($booking->advertisement_id) {
+            $advertisement = \App\Models\Advertisement::find($booking->advertisement_id);
+            if ($advertisement) {
+                $services = is_array($advertisement->services) ? $advertisement->services : (json_decode($advertisement->services, true) ?? []);
+                $serviceData = collect($services)->first(fn ($s) => isset($s['id']) && (string) ($s['id'] ?? '') === (string) $booking->service_id);
+                if ($serviceData && isset($serviceData['name'])) {
+                    $serviceName = $serviceData['name'];
+                }
+            }
+        }
+        if ($serviceName === 'Service' && $booking->service) {
+            $serviceName = $booking->service->name;
+        }
+
+        return $serviceName;
+    }
+
+    /**
      * Отправить уведомление владельцу бизнеса о новом отзыве.
      */
     public function notifyOwnerAboutNewReview(\App\Models\Review $review): void
@@ -1017,6 +1288,8 @@ class BookingService
      */
     public function captureAuthorizedPayment(Booking $booking, ?int $userId = null, ?string $userRole = null): array
     {
+        Stripe::setApiKey(config('services.stripe.secret'));
+
         if ($booking->payment_status !== 'authorized') {
             return ['captured' => false, 'error' => 'not_authorized'];
         }
@@ -1077,6 +1350,272 @@ class BookingService
                 'error' => $e->getMessage(),
             ]);
             return ['captured' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Refund or cancel an authorized payment when booking is cancelled.
+     * При $applyCancellationPolicy учитываются поля компании: окно бесплатной отмены и процент удержания.
+     *
+     * @return array{
+     *   refunded: bool,
+     *   action?: string,
+     *   error?: string,
+     *   client_refund_fraction?: float,
+     *   to_client_cents?: int,
+     *   retained_cents?: int
+     * }
+     */
+    public function refundOrCancelPayment(
+        Booking $booking,
+        ?int $userId = null,
+        ?string $userRole = null,
+        ?string $reason = null,
+        bool $applyCancellationPolicy = false
+    ): array {
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $payment = Payment::where('booking_id', $booking->id)->first();
+        if (! $payment) {
+            return ['refunded' => false, 'error' => 'no_payment'];
+        }
+
+        if (! $payment->stripe_payment_intent_id) {
+            return ['refunded' => false, 'error' => 'no_payment_intent'];
+        }
+
+        $fraction = $this->clientRefundFractionForCancellation($booking, $applyCancellationPolicy);
+        $totalCents = (int) $payment->amount;
+        $clientCents = min($totalCents, max(0, (int) round($totalCents * $fraction)));
+        $keepCents = $totalCents - $clientCents;
+
+        $canCancel = in_array($payment->status, [
+            Payment::STATUS_PENDING,
+            Payment::STATUS_REQUIRES_CAPTURE,
+            Payment::STATUS_AUTHORIZED,
+        ], true) && $payment->capture_status === Payment::CAPTURE_PENDING;
+
+        $canRefund = $payment->status === Payment::STATUS_SUCCEEDED
+            && $payment->canBeRefunded();
+
+        if (! $canCancel && ! $canRefund) {
+            return ['refunded' => false, 'error' => "status_{$payment->status}"];
+        }
+
+        $initiatedBy = match ($userRole) {
+            'SUPERADMIN' => Payment::INITIATED_BY_PLATFORM,
+            'CLIENT' => Payment::INITIATED_BY_CLIENT,
+            'BUSINESS_OWNER' => Payment::INITIATED_BY_BUSINESS,
+            default => Payment::INITIATED_BY_SYSTEM,
+        };
+
+        try {
+            $pi = PaymentIntent::retrieve($payment->stripe_payment_intent_id);
+
+            if ($canCancel && in_array($pi->status, ['requires_capture', 'requires_payment_method', 'requires_confirmation', 'requires_action'], true)) {
+                if ($keepCents <= 0) {
+                    $pi->cancel();
+
+                    $payment->addAuditTrail('cancel_hold', $userId, $userRole ?? 'system', [
+                        'trigger' => 'booking_cancelled',
+                        'reason' => $reason,
+                        'client_refund_fraction' => $fraction,
+                    ]);
+
+                    $payment->update([
+                        'status' => Payment::STATUS_CANCELLED,
+                        'capture_status' => Payment::CAPTURE_CANCELLED,
+                    ]);
+
+                    $booking->update(['payment_status' => 'cancelled']);
+
+                    Log::info('BookingService: Hold cancelled on booking cancellation', [
+                        'booking_id' => $booking->id,
+                        'payment_id' => $payment->id,
+                    ]);
+
+                    $booking->refresh();
+                    $this->notifyClientAboutRefundOrRelease($booking, false, 0.0, null);
+
+                    return [
+                        'refunded' => true,
+                        'action' => 'cancelled',
+                        'client_refund_fraction' => $fraction,
+                        'to_client_cents' => $totalCents,
+                        'retained_cents' => 0,
+                    ];
+                }
+
+                if ($clientCents <= 0) {
+                    $capturedPi = $pi->capture();
+
+                    $payment->addAuditTrail('capture_cancellation_fee', $userId, $userRole ?? 'system', [
+                        'trigger' => 'booking_cancelled',
+                        'reason' => $reason,
+                        'amount_captured_cents' => $totalCents,
+                        'client_refund_fraction' => $fraction,
+                    ]);
+
+                    $payment->update([
+                        'status' => Payment::STATUS_SUCCEEDED,
+                        'capture_status' => Payment::CAPTURE_CAPTURED,
+                        'captured_at' => now(),
+                        'stripe_charge_id' => $capturedPi->latest_charge ?? null,
+                    ]);
+
+                    $booking->update(['payment_status' => 'paid']);
+
+                    $booking->refresh();
+                    $this->notifyClientAboutRefundOrRelease(
+                        $booking,
+                        false,
+                        0.0,
+                        round($totalCents / 100, 2)
+                    );
+
+                    return [
+                        'refunded' => true,
+                        'action' => 'captured_full',
+                        'client_refund_fraction' => $fraction,
+                        'to_client_cents' => 0,
+                        'retained_cents' => $totalCents,
+                    ];
+                }
+
+                $capturedPi = $pi->capture(['amount_to_capture' => $keepCents]);
+
+                $payment->addAuditTrail('partial_capture_cancellation', $userId, $userRole ?? 'system', [
+                    'trigger' => 'booking_cancelled',
+                    'reason' => $reason,
+                    'captured_cents' => $keepCents,
+                    'released_to_client_cents' => $clientCents,
+                    'client_refund_fraction' => $fraction,
+                ]);
+
+                $payment->update([
+                    'status' => Payment::STATUS_SUCCEEDED,
+                    'capture_status' => Payment::CAPTURE_CAPTURED,
+                    'captured_at' => now(),
+                    'stripe_charge_id' => $capturedPi->latest_charge ?? null,
+                ]);
+
+                $booking->update(['payment_status' => 'paid']);
+
+                $booking->refresh();
+                $this->notifyClientAboutRefundOrRelease(
+                    $booking,
+                    false,
+                    round($clientCents / 100, 2),
+                    round($keepCents / 100, 2)
+                );
+
+                return [
+                    'refunded' => true,
+                    'action' => 'partial_capture',
+                    'client_refund_fraction' => $fraction,
+                    'to_client_cents' => $clientCents,
+                    'retained_cents' => $keepCents,
+                ];
+            }
+
+            if ($canRefund || $pi->status === 'succeeded') {
+                $maxRefundable = $payment->getRefundableAmount();
+                $refundCents = (int) min($maxRefundable, max(0, round($totalCents * $fraction)));
+
+                if ($refundCents <= 0) {
+                    $payment->addAuditTrail('no_refund_retained', $userId, $userRole ?? 'system', [
+                        'trigger' => 'booking_cancelled',
+                        'reason' => $reason,
+                        'client_refund_fraction' => $fraction,
+                    ]);
+
+                    $booking->update(['payment_status' => 'paid']);
+
+                    $booking->refresh();
+                    $this->notifyClientAboutRefundOrRelease(
+                        $booking,
+                        false,
+                        0.0,
+                        round($totalCents / 100, 2)
+                    );
+
+                    return [
+                        'refunded' => true,
+                        'action' => 'retained_no_refund',
+                        'client_refund_fraction' => $fraction,
+                        'to_client_cents' => 0,
+                        'retained_cents' => $totalCents,
+                    ];
+                }
+
+                $refundParams = [
+                    'payment_intent' => $payment->stripe_payment_intent_id,
+                    'refund_application_fee' => true,
+                    'reverse_transfer' => true,
+                ];
+                if ($refundCents < $totalCents) {
+                    $refundParams['amount'] = $refundCents;
+                }
+
+                $refund = Refund::create($refundParams);
+
+                $newRefunded = (int) ($payment->refunded_amount + $refund->amount);
+                $isFullRefund = $newRefunded >= $totalCents;
+
+                $payment->addAuditTrail('refund', $userId, $userRole ?? 'system', [
+                    'amount' => $refund->amount,
+                    'trigger' => 'booking_cancelled',
+                    'reason' => $reason,
+                    'refund_id' => $refund->id,
+                    'client_refund_fraction' => $fraction,
+                ]);
+
+                $payment->update([
+                    'status' => $isFullRefund ? Payment::STATUS_REFUNDED : Payment::STATUS_PARTIALLY_REFUNDED,
+                    'refunded_amount' => $newRefunded,
+                    'refund_reason' => $reason ?? 'Booking cancelled',
+                    'refund_initiated_by' => $initiatedBy,
+                ]);
+
+                $booking->update(['payment_status' => $isFullRefund ? 'refunded' : 'partially_refunded']);
+
+                Log::info('BookingService: Payment refunded on booking cancellation', [
+                    'booking_id' => $booking->id,
+                    'payment_id' => $payment->id,
+                    'refund_id' => $refund->id,
+                    'amount' => $refund->amount,
+                ]);
+
+                $booking->refresh();
+
+                $toClient = round(((float) $refund->amount) / 100, 2);
+                $retainedAfterCents = $totalCents - $newRefunded;
+                $retainedDollars = round($retainedAfterCents / 100, 2);
+
+                if ($isFullRefund) {
+                    $this->notifyClientAboutRefundOrRelease($booking, true, $toClient, null);
+                } else {
+                    $this->notifyClientAboutRefundOrRelease($booking, true, $toClient, max(0.0, $retainedDollars));
+                }
+
+                return [
+                    'refunded' => true,
+                    'action' => $isFullRefund ? 'refunded' : 'partially_refunded',
+                    'client_refund_fraction' => $fraction,
+                    'to_client_cents' => (int) $refund->amount,
+                    'retained_cents' => (int) $payment->amount - $newRefunded,
+                ];
+            }
+
+            return ['refunded' => false, 'error' => "unexpected_pi_status_{$pi->status}"];
+        } catch (\Exception $e) {
+            Log::error('BookingService: Auto-refund/cancel failed', [
+                'booking_id' => $booking->id,
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['refunded' => false, 'error' => $e->getMessage()];
         }
     }
 }

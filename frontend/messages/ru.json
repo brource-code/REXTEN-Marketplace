@@ -711,6 +711,10 @@
                 "openNow": "Открыто сейчас",
                 "openNowShort": "Открыто"
             },
+            "tagOnlineBooking": "Онлайн-бронирование",
+            "tagOnlinePayment": "Онлайн-оплата",
+            "tagRussianSpeaking": "Говорит по-русски",
+            "tagHasPortfolio": "Есть портфолио",
             "foundOffers": "Найдено {count} предложений",
             "showMore": "Показать еще ({remaining} осталось)",
             "priceRanges": {

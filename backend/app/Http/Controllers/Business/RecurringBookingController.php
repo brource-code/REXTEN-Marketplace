@@ -7,6 +7,7 @@ use App\Models\RecurringBookingChain;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 class RecurringBookingController extends Controller
@@ -118,7 +119,7 @@ class RecurringBookingController extends Controller
 
             $validated = $request->validate([
                 'service_id' => 'nullable|integer|exists:services,id',
-                'user_id' => 'nullable|exists:users,id',
+                'user_id' => ['nullable', Rule::exists('users', 'id')->where(fn ($q) => $q->where('role', 'CLIENT'))],
                 'specialist_id' => 'nullable|exists:team_members,id',
                 'advertisement_id' => 'nullable|exists:advertisements,id',
                 'frequency' => 'required|string|max:50',

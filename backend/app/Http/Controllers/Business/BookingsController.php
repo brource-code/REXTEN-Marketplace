@@ -9,8 +9,10 @@ use App\Models\Booking;
 use App\Models\Notification;
 use App\Services\ActivityService;
 use App\Services\BookingService;
+use App\Support\MarketplaceClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class BookingsController extends Controller
 {
@@ -217,7 +219,7 @@ class BookingsController extends Controller
 
         $validator = Validator::make($request->all(), [
             'service_id' => 'required|exists:services,id',
-            'user_id' => 'nullable|exists:users,id',
+            'user_id' => ['nullable', Rule::exists('users', 'id')->where(fn ($q) => $q->where('role', 'CLIENT'))],
             'booking_date' => 'required|date',
             'booking_time' => 'required|date_format:H:i',
             'duration_minutes' => 'nullable|integer|min:15',
@@ -276,6 +278,12 @@ class BookingsController extends Controller
                 'data' => $booking->load(['service', 'user.profile', 'specialist']),
             ], 201);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -302,7 +310,6 @@ class BookingsController extends Controller
 
         $validator = Validator::make($request->all(), [
             'service_id' => 'sometimes|exists:services,id',
-            'user_id' => 'nullable|exists:users,id',
             'booking_date' => 'sometimes|date',
             'booking_time' => 'sometimes|date_format:H:i',
             'duration_minutes' => 'nullable|integer|min:15',
@@ -354,9 +361,9 @@ class BookingsController extends Controller
                 $booking->cancellation_reason = $request->cancellation_reason ?? 'Отменено администратором';
             }
 
+            // user_id не обновляем массово: иначе при PATCH можно подменить клиента и увести чужие клиентские уведомления в inbox владельца.
             $booking->update($request->only([
                 'service_id',
-                'user_id',
                 'booking_date',
                 'booking_time',
                 'duration_minutes',
@@ -369,10 +376,19 @@ class BookingsController extends Controller
                 'cancellation_reason',
             ]));
             
-            // Если статус меняется на completed, генерируем токен для незарегистрированных клиентов
+            // Если статус меняется на completed — авто-capture и генерация токена
             if ($request->has('status') && $request->status === 'completed' && $oldStatus !== 'completed') {
+                // Auto-capture authorized payment
+                if ($booking->payment_status === 'authorized') {
+                    $user = auth('api')->user();
+                    $captureResult = app(\App\Services\BookingService::class)
+                        ->captureAuthorizedPayment($booking, $user?->id, $user?->role);
+                    if ($captureResult['captured']) {
+                        $booking->refresh();
+                    }
+                }
+
                 // Генерируем токен для отзыва, если клиент незарегистрирован
-                // Проверяем, что user_id пустой (null или 0) и токен еще не сгенерирован
                 if (empty($booking->user_id) && empty($booking->review_token)) {
                     $booking->generateReviewToken();
                     
@@ -389,6 +405,20 @@ class BookingsController extends Controller
                         'user_id' => $booking->user_id,
                         'has_review_token' => !empty($booking->review_token),
                     ]);
+                }
+            }
+
+            // Если статус меняется на cancelled — авто-refund или отмена hold
+            if ($request->has('status') && $request->status === 'cancelled' && $oldStatus !== 'cancelled') {
+                $booking->cancelled_at = now();
+                $booking->cancellation_reason = $request->cancellation_reason ?? 'Отменено бизнесом';
+                $booking->save();
+
+                if (in_array($booking->payment_status, ['authorized', 'paid'])) {
+                    $user = auth('api')->user();
+                    app(\App\Services\BookingService::class)
+                        ->refundOrCancelPayment($booking, $user?->id, $user?->role, $booking->cancellation_reason);
+                    $booking->refresh();
                 }
             }
             
@@ -478,31 +508,40 @@ class BookingsController extends Controller
             return;
         }
 
-        Notification::create([
-            'user_id' => $booking->user_id,
-            'company_id' => $booking->company_id,
-            'type' => 'booking',
-            'title' => $payload['title'],
-            'message' => $payload['message'],
-            'link' => $payload['link'],
-            'read' => false,
-        ]);
+        if (MarketplaceClient::isClientUserId((int) $booking->user_id)) {
+            Notification::create([
+                'user_id' => $booking->user_id,
+                'company_id' => $booking->company_id,
+                'type' => 'booking',
+                'title' => $payload['title'],
+                'message' => $payload['message'],
+                'link' => $payload['link'],
+                'read' => false,
+            ]);
 
-        ClientNotificationMailer::bookingStatusIfEnabled(
-            $booking->user_id,
-            $payload['title'],
-            $payload['message'],
-            $payload['link']
-        );
+            ClientNotificationMailer::bookingStatusIfEnabled(
+                $booking->user_id,
+                $payload['title'],
+                $payload['message'],
+                $payload['link']
+            );
+        } else {
+            \Log::warning('BookingsController: skip client booking status in-app/email — user_id is not a CLIENT', [
+                'booking_id' => $booking->id,
+                'user_id' => $booking->user_id,
+                'new_status' => $newStatus,
+            ]);
+        }
 
         $this->bookingService->notifyOwnerAboutBookingStatusChange($booking, $newStatus);
 
-        \Log::info('BookingsController: Notification sent to client', [
+        \Log::info('BookingsController: client booking status flow finished', [
             'booking_id' => $booking->id,
             'user_id' => $booking->user_id,
             'old_status' => $oldStatus,
             'new_status' => $newStatus,
             'title' => $payload['title'],
+            'delivered_to_client_portal' => MarketplaceClient::isClientUserId((int) $booking->user_id),
         ]);
     }
 }

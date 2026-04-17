@@ -9,8 +9,10 @@ use App\Services\BusinessOwnerMailer;
 use App\Services\BusinessOwnerNotificationPreferences;
 use App\Services\ClientBookingNotificationTexts;
 use App\Services\ClientNotificationMailer;
+use App\Support\MarketplaceClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class ScheduleController extends Controller
 {
@@ -325,7 +327,7 @@ class ScheduleController extends Controller
             $validated = $request->validate([
                 'service_id' => 'nullable|integer|exists:services,id',
                 'title' => 'nullable|string|max:255', // Название для кастомных событий
-                'user_id' => 'nullable|exists:users,id',
+                'user_id' => ['nullable', Rule::exists('users', 'id')->where(fn ($q) => $q->where('role', 'CLIENT'))],
                 'booking_date' => 'required|date',
                 'booking_time' => 'required|date_format:H:i',
                 'duration_minutes' => 'nullable|integer|min:15',
@@ -362,7 +364,27 @@ class ScheduleController extends Controller
             // Получаем данные услуги для проверки расписания и цены (только если service_id указан)
             $service = null;
             if (!empty($validated['service_id'])) {
-                $service = \App\Models\Service::find($validated['service_id']);
+                $service = \App\Models\Service::where('id', $validated['service_id'])
+                    ->where('company_id', $companyId)
+                    ->first();
+                if ($service && !$service->is_active) {
+                    return response()->json([
+                        'message' => 'Услуга недоступна для записи (деактивирована).',
+                        'error' => 'service_inactive',
+                    ], 422);
+                }
+            }
+
+            if (!empty($validated['specialist_id'])) {
+                $tm = \App\Models\TeamMember::where('id', $validated['specialist_id'])
+                    ->where('company_id', $companyId)
+                    ->first();
+                if (!$tm || !$tm->is_active) {
+                    return response()->json([
+                        'message' => 'Специалист недоступен для записи (деактивирован).',
+                        'error' => 'specialist_inactive',
+                    ], 422);
+                }
             }
             
             // Проверяем доступность слота (только для событий с услугой)
@@ -470,14 +492,20 @@ class ScheduleController extends Controller
                     ->whereNull('deleted_at')
                     ->first();
                 
-                if ($existingUser) {
-                    // Если пользователь найден, связываем бронирование с ним
-                    // Это позволит ему видеть бронирование в личном кабинете
+                if ($existingUser && MarketplaceClient::isClientUserId((int) $existingUser->id)) {
+                    // Только аккаунт с ролью CLIENT — иначе при совпадении email с владельцем бизнеса
+                    // бронь ошибочно привязывалась к owner_id и клиентские уведомления попадали в inbox бизнеса.
                     $userId = $existingUser->id;
-                    
-                    \Log::info('ScheduleController: Found existing user by email', [
+
+                    \Log::info('ScheduleController: Found existing CLIENT user by email', [
                         'email' => $validated['client_email'],
                         'user_id' => $userId,
+                    ]);
+                } elseif ($existingUser) {
+                    \Log::info('ScheduleController: Skip linking booking to user — email matches non-CLIENT account', [
+                        'email' => $validated['client_email'],
+                        'resolved_user_id' => $existingUser->id,
+                        'role' => $existingUser->role,
                     ]);
                 }
             }
@@ -686,6 +714,11 @@ class ScheduleController extends Controller
                 'eventColor' => $this->getStatusColor($booking->status),
                 'status' => $booking->status,
             ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Error creating schedule slot: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
@@ -831,10 +864,18 @@ class ScheduleController extends Controller
                     }
                 }
                 
-                // Если статус меняется на cancelled, устанавливаем дату отмены
+                // Если статус меняется на cancelled — дата отмены и авто-refund
                 if ($request->status === 'cancelled' && $oldStatus !== 'cancelled') {
                     $booking->cancelled_at = now();
                     $booking->cancellation_reason = $request->cancellation_reason ?? 'Отменено администратором';
+                    $booking->save();
+
+                    if (in_array($booking->payment_status, ['authorized', 'paid'])) {
+                        $user = auth('api')->user();
+                        app(\App\Services\BookingService::class)
+                            ->refundOrCancelPayment($booking, $user?->id, $user?->role, $booking->cancellation_reason);
+                        $booking->refresh();
+                    }
                 }
             }
 
@@ -917,7 +958,18 @@ class ScheduleController extends Controller
             $inputAll = $request->all();
             if (array_key_exists('specialist_id', $inputAll)) {
                 $sid = $inputAll['specialist_id'];
-                $booking->specialist_id = ($sid !== null && $sid !== '') ? (int) $sid : null;
+                if ($sid !== null && $sid !== '') {
+                    $tm = \App\Models\TeamMember::where('id', $sid)->where('company_id', $companyId)->first();
+                    if (!$tm || !$tm->is_active) {
+                        return response()->json([
+                            'message' => 'Специалист недоступен для записи (деактивирован).',
+                            'error' => 'specialist_inactive',
+                        ], 422);
+                    }
+                    $booking->specialist_id = (int) $tm->id;
+                } else {
+                    $booking->specialist_id = null;
+                }
             }
 
             // Смена услуги / объявления (мобилка и API; проверяем принадлежность компании)
@@ -925,6 +977,12 @@ class ScheduleController extends Controller
                 $newServiceId = $inputAll['service_id'];
                 if ($newServiceId !== null && $newServiceId !== '') {
                     $svc = \App\Models\Service::where('id', $newServiceId)->where('company_id', $companyId)->first();
+                    if ($svc && !$svc->is_active) {
+                        return response()->json([
+                            'message' => 'Услуга недоступна для записи (деактивирована).',
+                            'error' => 'service_inactive',
+                        ], 422);
+                    }
                     if ($svc) {
                         $booking->service_id = (int) $svc->id;
                     }
@@ -1221,30 +1279,38 @@ class ScheduleController extends Controller
         }
 
         try {
-            Notification::create([
-                'user_id' => $booking->user_id,
-                'company_id' => $booking->company_id,
-                'type' => 'booking',
-                'title' => $payload['title'],
-                'message' => $payload['message'],
-                'link' => $payload['link'],
-                'read' => false,
-            ]);
+            if (MarketplaceClient::isClientUserId((int) $booking->user_id)) {
+                Notification::create([
+                    'user_id' => $booking->user_id,
+                    'company_id' => $booking->company_id,
+                    'type' => 'booking',
+                    'title' => $payload['title'],
+                    'message' => $payload['message'],
+                    'link' => $payload['link'],
+                    'read' => false,
+                ]);
 
-            ClientNotificationMailer::bookingStatusIfEnabled(
-                $booking->user_id,
-                $payload['title'],
-                $payload['message'],
-                $payload['link']
-            );
+                ClientNotificationMailer::bookingStatusIfEnabled(
+                    $booking->user_id,
+                    $payload['title'],
+                    $payload['message'],
+                    $payload['link']
+                );
 
-            Log::info('ScheduleController: Notification sent', [
-                'booking_id' => $booking->id,
-                'user_id' => $booking->user_id,
-                'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'title' => $payload['title'],
-            ]);
+                Log::info('ScheduleController: Notification sent', [
+                    'booking_id' => $booking->id,
+                    'user_id' => $booking->user_id,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'title' => $payload['title'],
+                ]);
+            } else {
+                Log::warning('ScheduleController: skip client booking status in-app/email — user_id is not a CLIENT', [
+                    'booking_id' => $booking->id,
+                    'user_id' => $booking->user_id,
+                    'new_status' => $newStatus,
+                ]);
+            }
         } catch (\Exception $e) {
             Log::error('ScheduleController: Failed to send notification', [
                 'booking_id' => $booking->id,

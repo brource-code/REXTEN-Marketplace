@@ -696,6 +696,10 @@
                 "openNow": "Abierto ahora",
                 "openNowShort": "Abierto"
             },
+            "tagOnlineBooking": "Reserva en línea",
+            "tagOnlinePayment": "Pago en línea",
+            "tagRussianSpeaking": "Habla ruso",
+            "tagHasPortfolio": "Con portafolio",
             "foundOffers": "Se encontraron {count} ofertas",
             "showMore": "Ver más ({remaining} restantes)",
             "priceRanges": {

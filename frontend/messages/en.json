@@ -696,6 +696,10 @@
                 "openNow": "Open now",
                 "openNowShort": "Open"
             },
+            "tagOnlineBooking": "Online booking",
+            "tagOnlinePayment": "Online payment",
+            "tagRussianSpeaking": "Russian speaking",
+            "tagHasPortfolio": "Has portfolio",
             "foundOffers": "Found {count} offers",
             "showMore": "Show more ({remaining} remaining)",
             "priceRanges": {
