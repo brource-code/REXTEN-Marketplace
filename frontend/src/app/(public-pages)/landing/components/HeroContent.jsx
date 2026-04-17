@@ -3,10 +3,11 @@ import Button from '@/components/ui/Button'
 import Dropdown from '@/components/ui/Dropdown'
 import { motion } from 'framer-motion'
 import TextGenerateEffect from './TextGenerateEffect'
-import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
+import { MODE_DARK } from '@/constants/theme.constant'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
+import { getLandingHeroImageSrc } from '../utils/landingHeroImages'
 import {
     TbSparkles,
     TbHome,
@@ -42,6 +43,9 @@ const HeroContent = ({ mode }) => {
     const t = useTranslations('landing.hero')
     const tIndustries = useTranslations('landing.industries')
     const heroTitle = t('title', { defaultValue: HERO_TITLE_DEFAULT_EN })
+
+    const heroSrcLight = getLandingHeroImageSrc(locale, false)
+    const heroSrcDark = getLandingHeroImageSrc(locale, true)
 
     const handleDemoClick = (industryId) => {
         router.push('/services')
@@ -115,26 +119,18 @@ const HeroContent = ({ mode }) => {
                         </Dropdown>
                     </motion.div>
                 </div>
-                <div className="p-2 lg:p-4 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-2xl lg:rounded-[32px] mt-10 md:mt-20 relative">
-                    <div className="bg-white dark:bg-black dark:border-gray-700 border border-gray-200 rounded-[24px]">
-                        {mode === MODE_LIGHT && (
-                            <Image
-                                className="rounded-2xl lg:rounded-[24px]"
-                                src="/img/landing/hero/hero.webp"
-                                width={1920}
-                                height={1040}
-                                alt="REXTEN homepage"
-                            />
-                        )}
-                        {mode === MODE_DARK && (
-                            <Image
-                                className="rounded-2xl lg:rounded-[24px]"
-                                src="/img/landing/hero/hero-dark.webp"
-                                width={1920}
-                                height={1040}
-                                alt="REXTEN homepage"
-                            />
-                        )}
+                <div className="p-2 lg:p-4 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-2xl lg:rounded-[32px] mt-10 md:mt-20 relative w-full max-w-full min-w-0">
+                    <div className="w-full max-w-full min-w-0 bg-white dark:bg-black dark:border-gray-700 border border-gray-200 rounded-[24px] overflow-hidden leading-none">
+                        <Image
+                            key={`${locale}-${mode}-hero`}
+                            src={mode === MODE_DARK ? heroSrcDark : heroSrcLight}
+                            width={1928}
+                            height={1201}
+                            alt="REXTEN"
+                            className="block h-auto w-full max-w-full rounded-2xl lg:rounded-[24px]"
+                            sizes="(max-width: 1280px) 100vw, min(1200px, 90vw)"
+                            priority
+                        />
                     </div>
                 </div>
             </div>

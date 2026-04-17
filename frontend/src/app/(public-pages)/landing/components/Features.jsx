@@ -25,7 +25,10 @@ import {
     TbTarget,
     TbChartDots,
 } from 'react-icons/tb'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
+import {
+    getLandingLayoutsSrc,
+} from '@/app/(public-pages)/landing/utils/landingHeroImages'
 
 const marketingItems1 = [
     { id: 'analytics', name: 'Analytics', icon: TbChartBar },
@@ -81,6 +84,7 @@ const Card = ({
 const Features = ({ mode, onModeChange, schema, setSchema }) => {
     const cardStyles = getCardBgStyles(mode)
     const t = useTranslations('landing.features')
+    const locale = useLocale()
 
     const renderMarketingIcon = (item) => {
         const Icon = item.icon
@@ -98,9 +102,9 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
             content: (
                 <Image
                     className="rounded-xl"
-                    src="/img/landing/layouts/collapsible.webp"
-                    width={420}
-                    height={240}
+                    src={getLandingLayoutsSrc(locale, 'collapsible.png')}
+                    width={600}
+                    height={340}
                     alt="schedule"
                 />
             ),
@@ -111,9 +115,9 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
             content: (
                 <Image
                     className="rounded-xl"
-                    src="/img/landing/layouts/stacked.webp"
-                    width={420}
-                    height={240}
+                    src={getLandingLayoutsSrc(locale, 'stacked.png')}
+                    width={600}
+                    height={340}
                     alt="shifts"
                 />
             ),
@@ -124,9 +128,9 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
             content: (
                 <Image
                     className="rounded-xl"
-                    src="/img/landing/layouts/topbar.webp"
-                    width={420}
-                    height={240}
+                    src={getLandingLayoutsSrc(locale, 'topbar.png')}
+                    width={600}
+                    height={340}
                     alt="breaks"
                 />
             ),
@@ -137,9 +141,9 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
             content: (
                 <Image
                     className="rounded-xl"
-                    src="/img/landing/layouts/frameless.webp"
-                    width={420}
-                    height={240}
+                    src={getLandingLayoutsSrc(locale, 'frameless.png')}
+                    width={600}
+                    height={340}
                     alt="vacations"
                 />
             ),
@@ -150,9 +154,9 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
             content: (
                 <Image
                     className="rounded-xl"
-                    src="/img/landing/layouts/overlay.webp"
-                    width={420}
-                    height={240}
+                    src={getLandingLayoutsSrc(locale, 'overlay.png')}
+                    width={600}
+                    height={340}
                     alt="load"
                 />
             ),
@@ -270,7 +274,10 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                             {mode === 'light' && (
                                                 <Image
                                                     className="rounded-lg"
-                                                    src="/img/landing/layouts/documentation.png"
+                                                    src={getLandingLayoutsSrc(
+                                                        locale,
+                                                        'documentation.png',
+                                                    )}
                                                     width={630}
                                                     height={562}
                                                     alt="REXTEN CRM"
@@ -279,7 +286,10 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                             {mode === 'dark' && (
                                                 <Image
                                                     className="rounded-lg"
-                                                    src="/img/landing/layouts/documentation-dark.png"
+                                                    src={getLandingLayoutsSrc(
+                                                        locale,
+                                                        'documentation-dark.png',
+                                                    )}
                                                     width={630}
                                                     height={562}
                                                     alt="REXTEN CRM"
@@ -314,7 +324,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                     className="rounded-2xl bg-white dark:bg-gray-900 p-4 overflow-hidden relative"
                                     style={cardStyles}
                                 >
-                                    <div className="min-h-[270px] flex items-center justify-center w-full">
+                                    <div style={{ minHeight: 220 }} className="md:!min-h-[320px] flex items-center justify-center w-full">
                                         <CardStack
                                             className="absolute -bottom-6"
                                             items={CARDS}

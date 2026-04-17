@@ -31,7 +31,7 @@ const Landing = () => {
             <div className="relative">
                 <div
                     style={{
-                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='50' height='50' fill='none' stroke='${mode === MODE_LIGHT ? 'rgb(0 0 0 / 0.04)' : 'rgb(255 255 255 / 0.04)'}'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3e%3ccircle fill='${mode === MODE_LIGHT ? 'rgb(0 0 0 / 0.2)' : 'rgb(255 255 255 / 0.2)'}' cx='10' cy='10' r='1.6257413380501518'/%3e%3c/svg%3e")`,
                     }}
                     className="absolute inset-0 [mask-image:linear-gradient(to_bottom,white_5%,transparent_70%)] pointer-events-none select-none"
                 ></div>

@@ -1,4 +1,8 @@
+'use client'
+
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
+import { getLandingTechSrc } from '@/app/(public-pages)/landing/utils/landingHeroImages'
 import Container from './LandingContainer'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -55,6 +59,7 @@ const stackList = [
 
 const TechStack = () => {
     const [hoveredIndex, setHoveredIndex] = useState(null)
+    const locale = useLocale()
 
     return (
         <div id="demos" className="relative z-20 py-10 md:py-40">
@@ -117,7 +122,7 @@ const TechStack = () => {
                                     <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-600 group-hover:border-primary">
                                         <img
                                             className="max-h-8"
-                                            src={`/img/landing/tech/${stack.id}.png`}
+                                            src={getLandingTechSrc(locale, stack.id)}
                                             alt={stack.title}
                                         />
                                     </div>
