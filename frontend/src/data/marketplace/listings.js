@@ -332,16 +332,6 @@ export const marketplaceListings = [
     },
 ]
 
-export const tagDictionary = {
-    'russian-speaking': 'Русскоязычная команда',
-    subscription: 'Подписка',
-    mobile: 'Выездной формат',
-    premium: 'Premium сервис',
-    medical: 'Мед лицензия',
-    fleet: 'Для парков авто',
-    online: 'Онлайн формат',
-    kids: 'Дети/семья',
-}
 
 
 

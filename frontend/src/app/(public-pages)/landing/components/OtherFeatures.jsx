@@ -1,10 +1,106 @@
 'use client'
 import Container from './LandingContainer'
 import { TbCircleCheck } from 'react-icons/tb'
+import { PiArrowUpRight, PiShieldCheckFill } from 'react-icons/pi'
 import { motion } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import { useLocale, useTranslations } from 'next-intl'
 import { getLandingFeaturesSrc } from '@/app/(public-pages)/landing/utils/landingHeroImages'
+import classNames from '@/utils/classNames'
+import useTheme from '@/utils/hooks/useTheme'
+import { MODE_LIGHT } from '@/constants/theme.constant'
+
+const getCardBgStyles = (mode = 'light') => ({
+    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3e%3ccircle fill='${mode === 'light' ? 'rgb(0 0 0 / 0.2)' : 'rgb(255 255 255 / 0.2)'}' id='pattern-circle' cx='10' cy='10' r='1.6257413380501518'%3e%3c/circle%3e%3c/svg%3e")`,
+})
+
+const PaymentVisual = ({ cardStyles, t }) => {
+    const methods = [
+        { label: t('integrations.paymentVisual.cardLabel'), accent: true },
+        { label: 'Apple Pay', accent: false },
+        { label: 'Google Pay', accent: false },
+    ]
+
+    return (
+        <div
+            className="w-full max-w-[420px] rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/60 p-4 md:p-5 shadow-sm"
+            style={cardStyles}
+        >
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex flex-wrap items-center gap-1.5">
+                    {methods.map((m) => (
+                        <span
+                            key={m.label}
+                            className={classNames(
+                                'px-2.5 py-1 rounded-full text-[11px] font-bold border',
+                                m.accent
+                                    ? 'bg-primary text-white border-primary shadow-sm shadow-primary/30'
+                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700',
+                            )}
+                        >
+                            {m.label}
+                        </span>
+                    ))}
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-2.5 py-1 text-[10px] font-bold text-gray-700 dark:text-gray-200">
+                    <PiShieldCheckFill className="text-emerald-500" />
+                    Stripe
+                </span>
+            </div>
+
+            <div className="mt-5 md:mt-6 text-center">
+                <div className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 dark:text-gray-400">
+                    {t('integrations.paymentVisual.amountCaption')}
+                </div>
+                <div className="mt-1 flex items-baseline justify-center">
+                    <span className="text-2xl md:text-3xl font-bold text-gray-500 dark:text-gray-400 leading-none">
+                        $
+                    </span>
+                    <span className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 leading-none">
+                        120
+                    </span>
+                    <span className="ml-1 text-xl md:text-2xl font-bold text-gray-500 dark:text-gray-400 leading-none">
+                        .00
+                    </span>
+                </div>
+            </div>
+
+            <div className="my-5 border-t border-dashed border-gray-300 dark:border-gray-600" />
+
+            <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-3 rounded-xl bg-primary/10 px-3 py-2.5 border border-primary/20">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+                            <PiArrowUpRight className="text-base" />
+                        </span>
+                        <span className="text-[12px] md:text-sm font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                            {t('integrations.paymentVisual.toBusiness')}
+                        </span>
+                    </div>
+                    <span className="text-sm md:text-base font-bold text-primary whitespace-nowrap">
+                        $108.00
+                    </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 px-3 py-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <span className="h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-500 shrink-0" />
+                        <span className="text-[12px] md:text-sm font-bold text-gray-500 dark:text-gray-400 leading-tight">
+                            {t('integrations.paymentVisual.platformFee')}
+                        </span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        $12.00
+                    </span>
+                </div>
+            </div>
+
+            <div className="mt-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2.5 text-[11px] md:text-xs font-bold text-gray-600 dark:text-gray-300 leading-snug">
+                {t('integrations.paymentVisual.footer')}
+            </div>
+        </div>
+    )
+}
 
 const RegionMap = dynamic(() => import('@/components/shared/RegionMap'), {
     ssr: false,
@@ -56,6 +152,8 @@ const PointList = ({ children }) => {
 const OtherFeatures = () => {
     const t = useTranslations('landing.otherFeatures')
     const locale = useLocale()
+    const mode = useTheme((state) => state.mode)
+    const cardStyles = getCardBgStyles(mode === MODE_LIGHT ? 'light' : 'dark')
 
     return (
         <div id="otherFeatures" className="relative z-20 py-10 md:py-20">
@@ -103,7 +201,12 @@ const OtherFeatures = () => {
                             <div className="relative flex justify-center">
                                 <motion.div
                                     className="p-2 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-[32px] max-w-[300px] lg:absolute lg:top-[-50px]"
-                                    whileHover={{ y: -20 }}
+                                    animate={{ y: [0, -14, 0] }}
+                                    transition={{
+                                        duration: 5,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                    }}
                                 >
                                     <div className="absolute inset-x-0 bottom-0 h-20 w-full bg-gradient-to-b from-transparent via-gray-100 to-gray-100 dark:via-zinc-800/70 dark:to-gray-800 scale-[1.1] pointer-events-none" />
                                     <div className="bg-white dark:bg-black dark:border-gray-700 border border-gray-200 rounded-[24px] overflow-hidden max-h-[450px]">
@@ -141,17 +244,20 @@ const OtherFeatures = () => {
                                         marker={(Marker) => (
                                             <>
                                                 {data.map(
-                                                    ({
-                                                        name,
-                                                        coordinates,
-                                                        id,
-                                                    }) => (
+                                                    (
+                                                        {
+                                                            name,
+                                                            coordinates,
+                                                            id,
+                                                        },
+                                                        markerIndex,
+                                                    ) => (
                                                         <Marker
                                                             key={name}
                                                             coordinates={
                                                                 coordinates
                                                             }
-                                                            className="cursor-pointer group"
+                                                            className="cursor-default group"
                                                         >
                                                             <motion.image
                                                                 className="shadow-lg"
@@ -161,8 +267,20 @@ const OtherFeatures = () => {
                                                                 }
                                                                 height="80"
                                                                 width="80"
-                                                                whileHover={{
-                                                                    scale: 1.1,
+                                                                animate={{
+                                                                    scale: [
+                                                                        1,
+                                                                        1.1,
+                                                                        1,
+                                                                    ],
+                                                                }}
+                                                                transition={{
+                                                                    duration: 2.8,
+                                                                    repeat: Infinity,
+                                                                    ease: 'easeInOut',
+                                                                    delay:
+                                                                        markerIndex *
+                                                                        0.45,
                                                                 }}
                                                             />
                                                         </Marker>
@@ -213,23 +331,21 @@ const OtherFeatures = () => {
                                     <PointList>{t('integrations.points.export')}</PointList>
                                 </div>
                             </div>
-                            <div className="relative flex justify-center">
+                            <div className="relative flex justify-center items-center">
                                 <motion.div
-                                    whileHover={{ y: -20 }}
-                                    className="relative flex justify-center w-full"
+                                    animate={{ y: [0, -14, 0] }}
+                                    transition={{
+                                        duration: 5,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                        delay: 0.6,
+                                    }}
+                                    className="flex w-full justify-center"
                                 >
-                                    <div className="p-4 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-[32px] max-w-[550px] lg:absolute ">
-                                        <div className="absolute inset-x-0 bottom-0 h-20 w-full bg-gradient-to-b from-transparent via-gray-100 to-gray-100 dark:via-zinc-800/50 dark:to-gray-800 scale-[1.1] pointer-events-none" />
-                                        <div className="bg-white dark:border-gray-700 border border-gray-200 rounded-[24px] overflow-hidden p-2">
-                                            <img
-                                                src={getLandingFeaturesSrc(
-                                                    locale,
-                                                    'rtl.png',
-                                                )}
-                                                alt="App screenshot"
-                                            />
-                                        </div>
-                                    </div>
+                                    <PaymentVisual
+                                        cardStyles={cardStyles}
+                                        t={t}
+                                    />
                                 </motion.div>
                             </div>
                         </div>

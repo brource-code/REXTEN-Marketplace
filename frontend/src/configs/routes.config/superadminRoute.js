@@ -58,6 +58,10 @@ const superadminRoute = {
         authority: [SUPERADMIN],
         dynamicRoute: true,
     },
+    '/superadmin/warehouse': {
+        key: 'superadmin.warehouse',
+        authority: [SUPERADMIN],
+    },
     '/superadmin/knowledge': {
         key: 'superadmin.knowledge',
         authority: [SUPERADMIN],

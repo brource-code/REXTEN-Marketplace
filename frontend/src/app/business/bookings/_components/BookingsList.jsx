@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import dayjs from 'dayjs'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getScheduleSlots, getBusinessServices } from '@/lib/api/business'
 import { useTranslations } from 'next-intl'
 import { usePermission } from '@/hooks/usePermission'
@@ -23,6 +23,7 @@ import useBusinessStore from '@/store/businessStore'
 import { resolveSlotServiceName } from '@/utils/schedule/resolveSlotServiceName'
 import { getScheduleSlotMonetaryTotal } from '@/utils/schedule/slotMonetaryTotal'
 import Loading from '@/components/shared/Loading'
+import OffsiteExecutionBadge from '@/components/shared/OffsiteExecutionBadge'
 
 const { Tr, Td, TBody, THead, Th } = Table
 
@@ -42,6 +43,7 @@ export default function BookingsList() {
     const searchParams = useSearchParams()
     const urlBookingId = searchParams.get('bookingId')
     const t = useTranslations('business.bookings')
+    const tCommon = useTranslations('business.common')
     const tSchedule = useTranslations('business.schedule.statuses')
     const tScheduleRoot = useTranslations('business.schedule')
     const { settings } = useBusinessStore()
@@ -53,6 +55,7 @@ export default function BookingsList() {
     const [pageIndex, setPageIndex] = useState(1)
     const [pageSize, setPageSize] = useState(10)
 
+    const queryClient = useQueryClient()
     const { data: slots = [], isLoading, refetch: refetchSlots } = useQuery({
         queryKey: ['business-schedule-slots'],
         queryFn: getScheduleSlots,
@@ -297,20 +300,47 @@ export default function BookingsList() {
                                                 </span>
                                             </Td>
                                             <Td>
-                                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                    {serviceLabel}
-                                                </span>
+                                                <div className="flex flex-col items-start gap-1.5 max-w-[20rem]">
+                                                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                                        {serviceLabel}
+                                                    </span>
+                                                    {(slot.execution_type || 'onsite') === 'offsite' && (
+                                                        <OffsiteExecutionBadge label={tCommon('offsite')} />
+                                                    )}
+                                                </div>
                                             </Td>
                                             <Td>
-                                                <div className="flex flex-wrap items-center gap-1.5">
-                                                    <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
-                                                        {getStatusLabel(st)}
-                                                    </Tag>
-                                                    {(slot.payment_status === 'authorized' || slot.payment_status === 'paid') && (
-                                                        <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
-                                                            {t('paidOnline')}
+                                                <div className="flex flex-col gap-1 items-start max-w-[16rem]">
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
+                                                            {getStatusLabel(st)}
                                                         </Tag>
-                                                    )}
+                                                        {(slot.payment_status === 'authorized' ||
+                                                            slot.payment_status === 'paid') && (
+                                                            <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
+                                                                {t('paidOnline')}
+                                                            </Tag>
+                                                        )}
+                                                    </div>
+                                                    {(slot.payment_status === 'authorized' ||
+                                                        slot.payment_status === 'paid') &&
+                                                        slot.platform_fee != null &&
+                                                        slot.net_amount != null && (
+                                                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                                {t('feeLine', {
+                                                                    fee: new Intl.NumberFormat('en-US', {
+                                                                        style: 'currency',
+                                                                        currency,
+                                                                        minimumFractionDigits: 2,
+                                                                    }).format(slot.platform_fee),
+                                                                    net: new Intl.NumberFormat('en-US', {
+                                                                        style: 'currency',
+                                                                        currency,
+                                                                        minimumFractionDigits: 2,
+                                                                    }).format(slot.net_amount),
+                                                                })}
+                                                            </span>
+                                                        )}
                                                 </div>
                                             </Td>
                                             <Td>
@@ -367,22 +397,51 @@ export default function BookingsList() {
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                             #{slot.id}
                                         </span>
-                                        <div className="flex flex-wrap items-center gap-1.5">
-                                            <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
-                                                {getStatusLabel(st)}
-                                            </Tag>
-                                            {(slot.payment_status === 'authorized' || slot.payment_status === 'paid') && (
-                                                <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
-                                                    {t('paidOnline')}
+                                        <div className="flex flex-col items-end gap-1 max-w-[12rem]">
+                                            <div className="flex flex-wrap items-center justify-end gap-1.5">
+                                                <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
+                                                    {getStatusLabel(st)}
                                                 </Tag>
-                                            )}
+                                                {(slot.payment_status === 'authorized' ||
+                                                    slot.payment_status === 'paid') && (
+                                                    <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
+                                                        {t('paidOnline')}
+                                                    </Tag>
+                                                )}
+                                            </div>
+                                            {(slot.payment_status === 'authorized' ||
+                                                slot.payment_status === 'paid') &&
+                                                slot.platform_fee != null &&
+                                                slot.net_amount != null && (
+                                                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 text-right">
+                                                        {t('feeLine', {
+                                                            fee: new Intl.NumberFormat('en-US', {
+                                                                style: 'currency',
+                                                                currency,
+                                                                minimumFractionDigits: 2,
+                                                            }).format(slot.platform_fee),
+                                                            net: new Intl.NumberFormat('en-US', {
+                                                                style: 'currency',
+                                                                currency,
+                                                                minimumFractionDigits: 2,
+                                                            }).format(slot.net_amount),
+                                                        })}
+                                                    </span>
+                                                )}
                                         </div>
                                     </div>
                                     <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">
                                         {formatDate(slot.start, timezone, 'short')} · {formatTime(slot.start, timezone)}
                                     </div>
                                     <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">{clientName}</div>
-                                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{serviceLabel}</div>
+                                    <div className="mb-2 flex flex-col items-start gap-1.5">
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                            {serviceLabel}
+                                        </span>
+                                        {(slot.execution_type || 'onsite') === 'offsite' && (
+                                            <OffsiteExecutionBadge label={tCommon('offsite')} />
+                                        )}
+                                    </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{amountLabel}</span>
                                         <Button
@@ -429,6 +488,16 @@ export default function BookingsList() {
                 onSave={canManageSchedule ? handleSubmit : null}
                 onDelete={canManageSchedule && selectedSlot?.id ? () => handleDelete(selectedSlot.id) : null}
                 readOnly={!canManageSchedule}
+                onPaymentUpdated={async () => {
+                    const result = await refetchSlots()
+                    const list = result.data ?? queryClient.getQueryData(['business-schedule-slots']) ?? []
+                    const id = selectedSlot?.id
+                    if (!id) return
+                    const upd = list.find((s) => String(s.id) === String(id))
+                    if (upd) {
+                        setSelectedSlot({ ...upd, type: 'EDIT' })
+                    }
+                }}
             />
             <ConfirmDialog
                 isOpen={isDeleteDialogOpen}

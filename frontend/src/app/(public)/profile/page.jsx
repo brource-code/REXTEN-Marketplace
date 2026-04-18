@@ -66,71 +66,103 @@ import { useTranslations } from 'next-intl'
 
 const { TabNav, TabList, TabContent } = Tabs
 
-// Компонент профиля
+// Компонент профиля — двухколоночный layout с мини-картами статистики
 const ProfileHeader = ({ user, bookingsCount, favoritesCount }) => {
     const t = useTranslations('public.profile')
     const avatarUrl = user?.avatar || user?.image
     const fullName = user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
 
     return (
-        <Card className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                <Avatar
-                    src={avatarUrl}
-                    alt={fullName || 'User'}
-                    size={80}
-                    shape="circle"
-                    className="border-4 border-gray-200 dark:border-gray-700 sm:w-[100px] sm:h-[100px]"
-                    icon={<PiUser />}
-                />
-                <div className="flex-1 min-w-0">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 truncate">
-                        {fullName || t('user')}
-                    </h1>
-                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 truncate">
-                        {user?.email}
-                    </p>
-                    {/* Локация */}
-                    {user?.city && user?.state ? (
-                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3">
-                            <PiMapPinFill className="flex-shrink-0" />
-                            <span className="truncate">{user.city}, {user.state}</span>
-                        </div>
-                    ) : (
-                        <div className="mb-3">
-                            <Link href="/profile/settings" className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline">
+        <div className="flex flex-col gap-4">
+            {/* Основная карточка профиля */}
+            <Card>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    {/* Аватар */}
+                    <Avatar
+                        src={avatarUrl}
+                        alt={fullName || 'User'}
+                        size={72}
+                        shape="circle"
+                        icon={<PiUser />}
+                    />
+                    
+                    {/* Информация */}
+                    <div className="flex-1 min-w-0">
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
+                            {fullName || t('user')}
+                        </h4>
+                        {user?.email && (
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+                                {user.email}
+                            </p>
+                        )}
+                        {user?.city && user?.state ? (
+                            <div className="flex items-center gap-1.5 mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                <PiMapPinFill size={14} className="shrink-0" />
+                                <span className="truncate">{user.city}, {user.state}</span>
+                            </div>
+                        ) : (
+                            <Link
+                                href="/profile/settings"
+                                className="inline-flex items-center gap-1.5 mt-1.5 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                                <PiMapPinFill size={14} />
                                 {t('setLocation')}
                             </Link>
-                        </div>
-                    )}
-                    
-                    {/* Мини-статистика */}
-                    <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-4">
-                        <div className="px-2 sm:px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-center sm:text-left">
-                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-0.5">{t('bookings')}</p>
-                            <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 dark:text-white">{bookingsCount || 0}</p>
-                        </div>
-                        <div className="px-2 sm:px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-center sm:text-left">
-                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-0.5">{t('favorites')}</p>
-                            <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 dark:text-white">{favoritesCount || 0}</p>
-                        </div>
+                        )}
+                    </div>
+
+                    {/* Кнопки действий */}
+                    <div className="flex gap-2 shrink-0">
+                        <Link href="/booking">
+                            <Button variant="outline" size="sm" icon={<PiCalendar />}>
+                                <span className="hidden sm:inline">{t('bookings')}</span>
+                                <span className="sm:hidden">{t('bookingsShort')}</span>
+                            </Button>
+                        </Link>
+                        <Link href="/profile/settings">
+                            <Button variant="outline" size="sm" icon={<TbSettings />}>
+                                {t('settings')}
+                            </Button>
+                        </Link>
                     </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <Link href="/booking" className="w-full sm:w-auto">
-                        <Button variant="outline" icon={<PiCalendar />} className="w-full sm:w-auto">
-                            <span className="hidden sm:inline">{t('bookings')}</span>
-                            <span className="sm:hidden">{t('bookingsShort')}</span>
-                        </Button>
-                    </Link>
-                    <Link href="/profile/settings" className="w-full sm:w-auto">
-                        <Button variant="outline" icon={<TbSettings />} className="w-full sm:w-auto">
-                            {t('settings')}
-                        </Button>
-                    </Link>
-                </div>
+            </Card>
+
+            {/* Статистика — мини-карточки как в BusinessStats */}
+            <div className="grid grid-cols-2 gap-3">
+                <Card>
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                {t('bookings')}
+                            </div>
+                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {bookingsCount || 0}
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-center w-11 h-11 rounded-lg shrink-0 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                            <PiCalendar className="text-2xl" />
+                        </div>
+                    </div>
+                </Card>
+                <Card>
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                {t('favorites')}
+                            </div>
+                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                {favoritesCount || 0}
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-center w-11 h-11 rounded-lg shrink-0 bg-pink-100 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400">
+                            <PiHeart className="text-2xl" />
+                        </div>
+                    </div>
+                </Card>
             </div>
-        </Card>
+        </div>
     )
 }
 
@@ -271,44 +303,51 @@ const BookingsTab = () => {
                                                 </>
                                             )}
 
-                                            {Number(booking.discount_amount) > 0 && (
-                                                <>
-                                                    <div className="flex justify-between items-center text-sm">
-                                                        <span className="text-gray-700 dark:text-gray-300">
-                                                            {t('subtotalBeforeDiscount')}
-                                                        </span>
-                                                        <span className="font-semibold text-gray-900 dark:text-white">
-                                                            {formatCurrency(
-                                                                Number(booking.discount_amount) +
-                                                                    Number(booking.total_price ?? totalPrice),
-                                                                booking.currency || 'USD',
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between items-center text-sm">
-                                                        <span className="text-gray-700 dark:text-gray-300">
-                                                            {booking.discount_source === 'promo_code' &&
-                                                            booking.promo_code
-                                                                ? t('discountDetailPromo', {
-                                                                      code: booking.promo_code,
-                                                                  })
-                                                                : booking.discount_source === 'loyalty_tier' &&
-                                                                    booking.discount_tier_name
-                                                                  ? t('discountDetailLoyalty', {
-                                                                        tier: booking.discount_tier_name,
-                                                                    })
-                                                                  : t('discount')}
-                                                        </span>
-                                                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                                                            −
-                                                            {formatCurrency(
-                                                                Number(booking.discount_amount),
-                                                                booking.currency || 'USD',
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                </>
-                                            )}
+                                            {Number(booking.discount_amount) > 0 && (() => {
+                                                const subtotalBeforeDiscount =
+                                                    Number(booking.discount_amount) + Number(booking.total_price ?? totalPrice)
+                                                const hasAdditionalServices = additionalServices.length > 0
+                                                const subtotalDiffersFromBase =
+                                                    Math.abs(subtotalBeforeDiscount - basePrice) > 0.01
+                                                const showSubtotal = hasAdditionalServices || subtotalDiffersFromBase
+
+                                                return (
+                                                    <>
+                                                        {showSubtotal && (
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-gray-700 dark:text-gray-300">
+                                                                    {t('subtotalBeforeDiscount')}
+                                                                </span>
+                                                                <span className="font-semibold text-gray-900 dark:text-white">
+                                                                    {formatCurrency(subtotalBeforeDiscount, booking.currency || 'USD')}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-gray-700 dark:text-gray-300">
+                                                                {booking.discount_source === 'promo_code' &&
+                                                                booking.promo_code
+                                                                    ? t('discountDetailPromo', {
+                                                                          code: booking.promo_code,
+                                                                      })
+                                                                    : booking.discount_source === 'loyalty_tier' &&
+                                                                        booking.discount_tier_name
+                                                                      ? t('discountDetailLoyalty', {
+                                                                            tier: booking.discount_tier_name,
+                                                                        })
+                                                                      : t('discount')}
+                                                            </span>
+                                                            <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                                                                −
+                                                                {formatCurrency(
+                                                                    Number(booking.discount_amount),
+                                                                    booking.currency || 'USD',
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                    </>
+                                                )
+                                            })()}
                                             
                                             {/* Итого общий */}
                                             <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2 flex justify-between items-center">
@@ -1454,6 +1493,11 @@ export default function ClientProfilePage() {
         queryFn: getFavoriteServices,
     })
     
+    const { data: favoriteAdvertisements = [] } = useQuery({
+        queryKey: ['client-favorite-advertisements'],
+        queryFn: getFavoriteAdvertisements,
+    })
+    
     const { data: favoriteBusinesses = [] } = useQuery({
         queryKey: ['client-favorite-businesses'],
         queryFn: getFavoriteBusinesses,
@@ -1466,7 +1510,10 @@ export default function ClientProfilePage() {
     })
     
     const upcomingBookingsCount = upcomingBookingsForBadge?.length || 0
-    const favoritesCount = (favoriteServices?.length || 0) + (favoriteBusinesses?.length || 0)
+    const favoritesCount =
+        (favoriteServices?.length || 0) +
+        (favoriteAdvertisements?.length || 0) +
+        (favoriteBusinesses?.length || 0)
     const pendingReviewsCount = pendingReviewsForBadge?.length || 0
 
     if (userLoading) {

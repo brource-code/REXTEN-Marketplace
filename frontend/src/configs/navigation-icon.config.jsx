@@ -223,6 +223,7 @@ const navigationIcon = {
     subscription: <PiCrownDuotone />,
     routes: <PiMapTrifoldDuotone />,
     activityLog: <PiClockCounterClockwiseDuotone />,
+    inventory: <PiPackageDuotone />,
 }
 
 export default navigationIcon

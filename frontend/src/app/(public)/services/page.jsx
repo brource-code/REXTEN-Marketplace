@@ -1040,16 +1040,17 @@ function ServicesPage() {
                                             type="button"
                                             onClick={() => handleSetCategory('all')}
                                             className={classNames(
-                                                'inline-flex size-10 shrink-0 items-center justify-center p-0 m-0 rounded-full aspect-square',
-                                                'border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/90',
-                                                'text-gray-700 dark:text-gray-200 shadow-md ring-1 ring-black/5 dark:ring-white/10',
-                                                'hover:border-red-400 hover:bg-red-50 hover:text-red-600 hover:shadow-lg dark:hover:border-red-600 dark:hover:bg-red-950/50 dark:hover:text-red-400',
-                                                'transition-all self-center',
+                                                'inline-flex h-10 w-10 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-full',
+                                                'border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800',
+                                                'text-gray-500 dark:text-gray-400 shadow-sm',
+                                                'hover:border-blue-300 dark:hover:border-blue-600',
+                                                'hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-100',
+                                                'transition-colors self-center',
                                             )}
                                             title={t('heroClearCategory')}
                                             aria-label={t('heroClearCategory')}
                                         >
-                                            <PiX className="text-lg shrink-0" />
+                                            <PiX className="text-[15px] md:text-base shrink-0" />
                                         </button>
                                     )}
                                 </div>

@@ -12,7 +12,7 @@ export interface StripeCheckoutSession {
 
 export interface StripeTransaction {
     id: string
-    type: 'advertisement' | 'subscription' | 'unknown'
+    type: 'advertisement' | 'subscription' | 'unknown' | 'refund'
     amount: number
     currency: string
     status: string
@@ -253,6 +253,7 @@ export interface SubscriptionData {
     current_period_start: string | null
     current_period_end: string | null
     canceled_at: string | null
+    cancel_at_period_end?: boolean
     cancellation_scheduled?: boolean
     scheduled_plan?: string | null
     grace_period_ends_at?: string | null

@@ -38,6 +38,7 @@ const statusColors = {
 
 export default function ClientBookingPage() {
     const t = useTranslations('client.booking')
+    const tPay = useTranslations('client.booking.paymentStatus')
     const tCommon = useTranslations('common')
     const [showUpcoming, setShowUpcoming] = useState(true)
     const [showCalendar, setShowCalendar] = useState(false)
@@ -286,15 +287,32 @@ export default function ClientBookingPage() {
                                                             {booking.businessName}
                                                         </p>
                                                     </div>
-                                                    <span
-                                                        className={classNames(
-                                                            'text-xs font-medium px-2.5 py-1 rounded-full',
-                                                            statusColors[booking.status],
-                                                            'ml-2 shrink-0'
-                                                        )}
-                                                    >
-                                                        {statusLabels[booking.status]}
-                                                    </span>
+                                                    <div className="flex flex-wrap items-center justify-end gap-2 ml-2 shrink-0">
+                                                        <span
+                                                            className={classNames(
+                                                                'text-xs font-bold px-2.5 py-1 rounded-full',
+                                                                statusColors[booking.status],
+                                                            )}
+                                                        >
+                                                            {statusLabels[booking.status]}
+                                                        </span>
+                                                        {booking.payment_status &&
+                                                            booking.payment_status !== 'unpaid' && (
+                                                                <span
+                                                                    className={classNames(
+                                                                        'text-xs font-bold px-2.5 py-1 rounded-full',
+                                                                        booking.payment_status === 'pending_payment'
+                                                                            ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'
+                                                                            : booking.payment_status === 'authorized' ||
+                                                                                    booking.payment_status === 'paid'
+                                                                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+                                                                    )}
+                                                                >
+                                                                    {tPay(booking.payment_status)}
+                                                                </span>
+                                                            )}
+                                                    </div>
                                                 </div>
                                                 
                                                 <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">

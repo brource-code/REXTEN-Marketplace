@@ -1,9 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import Input from '@/components/ui/Input'
 import Spinner from '@/components/ui/Spinner'
 import Switcher from '@/components/ui/Switcher'
 import toast from '@/components/ui/toast'
@@ -36,6 +37,42 @@ const PaymentsTab = () => {
     })
 
     const [onlinePaymentToggling, setOnlinePaymentToggling] = useState(false)
+    const [cancellationFreeHours, setCancellationFreeHours] = useState(12)
+    const [cancellationLateFeePercent, setCancellationLateFeePercent] = useState(50)
+    const [savingCancellationPolicy, setSavingCancellationPolicy] = useState(false)
+
+    useEffect(() => {
+        if (marketplaceSettings?.cancellationFreeHours != null) {
+            setCancellationFreeHours(marketplaceSettings.cancellationFreeHours)
+        }
+        if (marketplaceSettings?.cancellationLateFeePercent != null) {
+            setCancellationLateFeePercent(marketplaceSettings.cancellationLateFeePercent)
+        }
+    }, [marketplaceSettings])
+
+    const saveCancellationPolicy = async () => {
+        setSavingCancellationPolicy(true)
+        try {
+            await updateMarketplaceSettings({
+                cancellationFreeHours,
+                cancellationLateFeePercent,
+            })
+            queryClient.invalidateQueries({ queryKey: ['marketplace-settings'] })
+            toast.push(
+                <Notification title={tCommon('success')} type="success">
+                    {t('cancellationPolicySaved')}
+                </Notification>
+            )
+        } catch (err) {
+            toast.push(
+                <Notification title={tCommon('error')} type="danger">
+                    {err.response?.data?.message || t('cancellationPolicySaveError')}
+                </Notification>
+            )
+        } finally {
+            setSavingCancellationPolicy(false)
+        }
+    }
 
     const toggleOnlinePayment = async (checked) => {
         setOnlinePaymentToggling(true)
@@ -386,6 +423,63 @@ const PaymentsTab = () => {
                                 isLoading={onlinePaymentToggling}
                             />
                         </div>
+                    </div>
+                </Card>
+            )}
+
+            {isConnected && (
+                <Card>
+                    <div className="py-4 space-y-4">
+                        <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                {t('cancellationPolicyTitle')}
+                            </p>
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                {t('cancellationPolicyDescription')}
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                    {t('cancellationFreeHoursLabel')}
+                                </p>
+                                <Input
+                                    type="number"
+                                    min={1}
+                                    max={168}
+                                    value={String(cancellationFreeHours)}
+                                    onChange={(e) =>
+                                        setCancellationFreeHours(
+                                            Math.min(168, Math.max(1, parseInt(e.target.value, 10) || 1))
+                                        )
+                                    }
+                                />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                    {t('cancellationLateFeePercentLabel')}
+                                </p>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    max={100}
+                                    value={String(cancellationLateFeePercent)}
+                                    onChange={(e) =>
+                                        setCancellationLateFeePercent(
+                                            Math.min(100, Math.max(0, parseInt(e.target.value, 10) || 0))
+                                        )
+                                    }
+                                />
+                            </div>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="solid"
+                            loading={savingCancellationPolicy}
+                            onClick={saveCancellationPolicy}
+                        >
+                            {t('saveCancellationPolicy')}
+                        </Button>
                     </div>
                 </Card>
             )}

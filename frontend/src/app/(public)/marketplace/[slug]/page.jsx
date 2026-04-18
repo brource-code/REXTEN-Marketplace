@@ -886,8 +886,6 @@ export default function MarketplaceProfilePage() {
         : (business.rating || 0).toFixed(1)
 
     const showOnlineBookingBadge = profile?.allowBooking !== false
-    const showRuPill = (business.tags || []).includes('russian-speaking')
-    const showListingPills = showOnlineBookingBadge || showRuPill
 
     return (
         <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
@@ -903,7 +901,7 @@ export default function MarketplaceProfilePage() {
                     </Link>
                 </div>
 
-                {/* Мобильная версия - фото сверху; под фото: локация, затем плашки (онлайн + RU), без плашек на фото */}
+                {/* Мобильная версия — только фото; локация и теги в шапке и в блоке «Особенности» */}
                 <div className="block lg:hidden mb-6">
                     <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 overflow-hidden shadow-sm">
                         <div className="relative min-h-56 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -922,30 +920,6 @@ export default function MarketplaceProfilePage() {
                                 </div>
                             )}
                         </div>
-                        {(business.location || showListingPills) && (
-                            <div className="px-3 py-2.5 border-t border-gray-100 dark:border-white/10 space-y-2">
-                                {business.location && (
-                                    <div className="flex items-center gap-1.5 text-sm font-bold text-gray-900 dark:text-gray-100">
-                                        <PiMapPinDuotone className="text-base shrink-0 text-gray-500 dark:text-gray-400" />
-                                        <span>{business.location}</span>
-                                    </div>
-                                )}
-                                {showListingPills && (
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {showOnlineBookingBadge && (
-                                            <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-emerald-600">
-                                                {tServices('tagOnlineBooking')}
-                                            </span>
-                                        )}
-                                        {showRuPill && (
-                                            <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-black/70">
-                                                RU
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -971,30 +945,6 @@ export default function MarketplaceProfilePage() {
                                         </div>
                                     )}
                                 </div>
-                                {(business.location || showListingPills) && (
-                                    <div className="px-3 py-2.5 border-t border-gray-100 dark:border-white/10 space-y-2">
-                                        {business.location && (
-                                            <div className="flex items-center gap-1.5 text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                <PiMapPinDuotone className="text-base shrink-0 text-gray-500 dark:text-gray-400" />
-                                                <span>{business.location}</span>
-                                            </div>
-                                        )}
-                                        {showListingPills && (
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {showOnlineBookingBadge && (
-                                                    <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-emerald-600">
-                                                        {tServices('tagOnlineBooking')}
-                                                    </span>
-                                                )}
-                                                {showRuPill && (
-                                                    <span className="text-white text-[11px] px-2 py-1 rounded-full font-semibold bg-black/70">
-                                                        RU
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                         </div>
                         

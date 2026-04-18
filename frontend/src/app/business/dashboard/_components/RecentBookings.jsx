@@ -15,6 +15,7 @@ import { PiCalendar, PiUser, PiClock } from 'react-icons/pi'
 import { useQuery } from '@tanstack/react-query'
 import { getRecentBookings } from '@/lib/api/business'
 import Loading from '@/components/shared/Loading'
+import OffsiteExecutionBadge from '@/components/shared/OffsiteExecutionBadge'
 import { useTranslations } from 'next-intl'
 import { formatDate, formatTime } from '@/utils/dateTime'
 import useBusinessStore from '@/store/businessStore'
@@ -100,12 +101,14 @@ const RecentBookings = () => {
                     const row = props.row.original
                     const executionType = row.execution_type || 'onsite'
                     return (
-                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                            {row.service}
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                {row.service}
+                            </span>
                             {executionType === 'offsite' && (
-                                <span className="ml-2 text-xs text-gray-500">🚗 {tCommon('offsite')}</span>
+                                <OffsiteExecutionBadge label={tCommon('offsite')} />
                             )}
-                        </span>
+                        </div>
                     )
                 },
             },
@@ -318,12 +321,14 @@ const RecentBookings = () => {
 
                                         <div className="text-sm">
                                             <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('mobile.service')}: </span>
-                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400 truncate">
-                                                {booking.service}
+                                            <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400 truncate">
+                                                    {booking.service}
+                                                </span>
                                                 {(booking.execution_type || 'onsite') === 'offsite' && (
-                                                    <span className="ml-2 text-xs text-gray-500">🚗 {tCommon('offsite')}</span>
+                                                    <OffsiteExecutionBadge label={tCommon('offsite')} />
                                                 )}
-                                            </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

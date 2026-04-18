@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Button from '@/components/ui/Button'
@@ -25,6 +25,7 @@ import {
     getSubscriptionOverLimit,
     resolveSubscriptionLimits,
 } from '@/lib/api/stripe'
+import { getSubscriptionServerMessage } from '@/utils/subscriptionServerMessage'
 import {
     PiCheck,
     PiCrown,
@@ -104,6 +105,8 @@ function SubscriptionFallback() {
 function SubscriptionContent() {
     const t = useTranslations('business.subscription')
     const tCommon = useTranslations('business.common')
+    const tServer = useTranslations('business.subscription.serverMessages')
+    const locale = useLocale()
     const router = useRouter()
     const queryClient = useQueryClient()
     const { settings } = useBusinessStore()
@@ -111,6 +114,26 @@ function SubscriptionContent() {
     const usShortDate = useCallback(
         (iso) => formatDate(iso, subscriptionDisplayTz, 'short'),
         [subscriptionDisplayTz],
+    )
+
+    // Локализованное форматирование цены подписки.
+    // Дробная часть прячется для целых сумм (например $19, а не $19.00).
+    const formatMoney = useCallback(
+        (amount, currency = 'USD') => {
+            const value = Number(amount) || 0
+            const cur = (currency || 'USD').toUpperCase()
+            try {
+                return new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: cur,
+                    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+                    maximumFractionDigits: 2,
+                }).format(value)
+            } catch {
+                return `${value} ${cur}`
+            }
+        },
+        [locale],
     )
 
     const { data: publicPlatform } = usePlatformPublicRuntime()
@@ -123,6 +146,8 @@ function SubscriptionContent() {
     const [expandedFaq, setExpandedFaq] = useState(null)
     const [downgradeDialogOpen, setDowngradeDialogOpen] = useState(false)
     const [pendingDowngradePlan, setPendingDowngradePlan] = useState(null)
+    const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false)
+    const [pendingUpgradePlan, setPendingUpgradePlan] = useState(null)
     const [selectedDeactivate, setSelectedDeactivate] = useState({
         team_member_ids: [],
         company_user_ids: [],
@@ -169,10 +194,9 @@ function SubscriptionContent() {
             }
         },
         onError: (error) => {
-            const msg = error.response?.data?.message || error.message || ''
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
-                    {msg}
+                    {getSubscriptionServerMessage(error.response?.data, tServer, error.message)}
                 </Notification>
             )
         },
@@ -198,7 +222,7 @@ function SubscriptionContent() {
         onError: (error) => {
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
-                    {error.response?.data?.message || error.message}
+                    {getSubscriptionServerMessage(error.response?.data, tServer, error.message)}
                 </Notification>
             )
         },
@@ -218,7 +242,7 @@ function SubscriptionContent() {
         onError: (error) => {
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
-                    {error.response?.data?.message || error.message}
+                    {getSubscriptionServerMessage(error.response?.data, tServer, error.message)}
                 </Notification>
             )
         },
@@ -228,6 +252,8 @@ function SubscriptionContent() {
         mutationFn: ({ plan, interval }) => changeSubscriptionPlan(plan, interval),
         onSuccess: (data, variables) => {
             if (data.checkout_url) {
+                setUpgradeDialogOpen(false)
+                setPendingUpgradePlan(null)
                 if (data.session_id) {
                     localStorage.setItem('sub_checkout_session_id', data.session_id)
                     localStorage.setItem('sub_checkout_timestamp', Date.now().toString())
@@ -244,16 +270,35 @@ function SubscriptionContent() {
                 queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
                 toast.push(
                     <Notification title={tCommon('success')} type="success">
-                        {data.message || t('downgrade.scheduledSuccess')}
+                        {getSubscriptionServerMessage(data, tServer, t('downgrade.scheduledSuccess'))}
+                    </Notification>
+                )
+                return
+            }
+            if (data.action === 'upgraded') {
+                setUpgradeDialogOpen(false)
+                setPendingUpgradePlan(null)
+                queryClient.invalidateQueries({ queryKey: ['current-subscription'] })
+                queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
+                queryClient.invalidateQueries({ queryKey: ['subscription-over-limit'] })
+                toast.push(
+                    <Notification title={tCommon('success')} type="success">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                {getSubscriptionServerMessage(data, tServer, t('upgradeDialog.defaultSuccess'))}
+                            </span>
+                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                {t('upgradeDialog.successNote')}
+                            </span>
+                        </div>
                     </Notification>
                 )
             }
         },
         onError: (error) => {
-            const msg = error.response?.data?.message || error.message || ''
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
-                    {msg}
+                    {getSubscriptionServerMessage(error.response?.data, tServer, error.message)}
                 </Notification>
             )
         },
@@ -273,7 +318,7 @@ function SubscriptionContent() {
         onError: (error) => {
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
-                    {error.response?.data?.message || error.message}
+                    {getSubscriptionServerMessage(error.response?.data, tServer, error.message)}
                 </Notification>
             )
         },
@@ -284,6 +329,8 @@ function SubscriptionContent() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
             queryClient.invalidateQueries({ queryKey: ['subscription-over-limit'] })
+            queryClient.invalidateQueries({ queryKey: ['business-services'] })
+            queryClient.invalidateQueries({ queryKey: ['business-team'] })
             setSelectedDeactivate({
                 team_member_ids: [],
                 company_user_ids: [],
@@ -299,7 +346,7 @@ function SubscriptionContent() {
         onError: (error) => {
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
-                    {error.response?.data?.message || error.message}
+                    {getSubscriptionServerMessage(error.response?.data, tServer, error.message)}
                 </Notification>
             )
         },
@@ -387,7 +434,8 @@ function SubscriptionContent() {
         const curOrder = getSortOrder(activeSub.plan)
         const tgtOrder = plan.sort_order ?? 0
         if (tgtOrder > curOrder) {
-            changePlanMutation.mutate({ plan: plan.id, interval: billingInterval })
+            setPendingUpgradePlan(plan)
+            setUpgradeDialogOpen(true)
         } else if (tgtOrder < curOrder) {
             setPendingDowngradePlan(plan)
             setDowngradeDialogOpen(true)
@@ -429,8 +477,8 @@ function SubscriptionContent() {
         { key: 'max_services', label: t('features.services'), icon: PiWrench },
         { key: 'max_advertisements', label: t('features.advertisements'), icon: PiMegaphone },
         { key: 'analytics', label: t('features.analytics'), icon: PiChartLineUp },
-        { key: 'priority_support', label: t('features.prioritySupport'), icon: PiHeadset },
-        { key: 'api_access', label: t('features.apiAccess'), icon: PiCode },
+        { key: 'priority_support', label: t('features.prioritySupport'), icon: PiHeadset, comingSoon: true },
+        { key: 'api_access', label: t('features.apiAccess'), icon: PiCode, comingSoon: true },
     ], [t])
 
     const faqItems = useMemo(() => [
@@ -525,7 +573,7 @@ function SubscriptionContent() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                                ${activeSub.price}/{activeSub.interval === 'year' ? t('yr') : t('mo')}
+                                                {formatMoney(activeSub.price, activeSub.currency)}/{activeSub.interval === 'year' ? t('yr') : t('mo')}
                                             </span>
                                             {!activeSub.is_free &&
                                                 (activeSub.cancellation_scheduled ||
@@ -562,6 +610,32 @@ function SubscriptionContent() {
                                                         onClick={() => setCancelDialogOpen(true)}
                                                     >
                                                         {t('cancel')}
+                                                    </Button>
+                                                )}
+                                            {activeSub.is_free &&
+                                                activeSub.previous_plan &&
+                                                activeSub.previous_plan !== activeSub.plan && (
+                                                    <Button
+                                                        variant="solid"
+                                                        size="xs"
+                                                        loading={checkoutMutation.isPending}
+                                                        onClick={() =>
+                                                            checkoutMutation.mutate({
+                                                                plan: activeSub.previous_plan,
+                                                                interval:
+                                                                    activeSub.interval || 'month',
+                                                            })
+                                                        }
+                                                    >
+                                                        {t('restorePreviousPlan', {
+                                                            plan: t(
+                                                                `plans.${activeSub.previous_plan}.name`,
+                                                                {
+                                                                    defaultValue:
+                                                                        activeSub.previous_plan,
+                                                                },
+                                                            ),
+                                                        })}
                                                     </Button>
                                                 )}
                                         </div>
@@ -637,24 +711,30 @@ function SubscriptionContent() {
                                         <span className="hidden sm:inline text-gray-300 dark:text-gray-600">
                                             ·
                                         </span>
-                                        <span className="text-gray-500 dark:text-gray-400">
+                                        <span className="text-gray-500 dark:text-gray-400 inline-flex items-center gap-1 flex-wrap">
                                             {t('features.apiAccess')}{' '}
                                             <span className="text-gray-900 dark:text-gray-100">
                                                 {usageData.api_access.allowed
                                                     ? t('usage.included')
                                                     : t('usage.notIncluded')}
                                             </span>
+                                            <Tag className="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300 text-[10px] uppercase tracking-wide">
+                                                {t('comingSoon')}
+                                            </Tag>
                                         </span>
                                         <span className="hidden sm:inline text-gray-300 dark:text-gray-600">
                                             ·
                                         </span>
-                                        <span className="text-gray-500 dark:text-gray-400">
+                                        <span className="text-gray-500 dark:text-gray-400 inline-flex items-center gap-1 flex-wrap">
                                             {t('features.prioritySupport')}{' '}
                                             <span className="text-gray-900 dark:text-gray-100">
                                                 {usageData.priority_support.allowed
                                                     ? t('usage.included')
                                                     : t('usage.notIncluded')}
                                             </span>
+                                            <Tag className="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300 text-[10px] uppercase tracking-wide">
+                                                {t('comingSoon')}
+                                            </Tag>
                                         </span>
                                     </div>
                                 </div>
@@ -850,7 +930,7 @@ function SubscriptionContent() {
                                                 </div>
                                             </div>
                                             <div className="flex items-baseline gap-1 mb-2">
-                                                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">${price}</span>
+                                                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatMoney(price, plan.currency)}</span>
                                                 <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
                                                     /{billingInterval === 'year' ? t('yr') : t('mo')}
                                                 </span>
@@ -942,9 +1022,14 @@ function SubscriptionContent() {
                                         return (
                                             <tr key={row.key} className={idx < featureRows.length - 1 ? 'border-b border-gray-100 dark:border-gray-800' : ''}>
                                                 <td className="py-3 pr-4">
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 flex-wrap">
                                                         <RowIcon className="text-gray-400 flex-shrink-0" size={16} />
                                                         <span className="font-bold text-gray-700 dark:text-gray-300">{row.label}</span>
+                                                        {row.comingSoon && (
+                                                            <Tag className="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300 text-[10px] uppercase tracking-wide">
+                                                                {t('comingSoon')}
+                                                            </Tag>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 {plans?.map((plan) => {
@@ -1035,6 +1120,62 @@ function SubscriptionContent() {
                     </div>
                 </AdaptiveCard>
             </div>
+
+            <Dialog
+                isOpen={upgradeDialogOpen}
+                onClose={() => {
+                    setUpgradeDialogOpen(false)
+                    setPendingUpgradePlan(null)
+                }}
+                width={480}
+            >
+                <div className="p-6">
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                        {t('upgradeDialog.title')}
+                    </h4>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3">
+                        {t('upgradeDialog.intro')}
+                    </p>
+                    {activeSub && pendingUpgradePlan && (
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
+                            {t('upgradeDialog.fromTo', {
+                                from: t(`plans.${activeSub.plan}.name`),
+                                to: t(`plans.${pendingUpgradePlan.id}.name`),
+                            })}
+                        </p>
+                    )}
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-4">
+                        {t('upgradeDialog.note')}
+                    </p>
+                    <div className="flex gap-3 mt-2">
+                        <Button
+                            variant="plain"
+                            className="flex-1"
+                            onClick={() => {
+                                setUpgradeDialogOpen(false)
+                                setPendingUpgradePlan(null)
+                            }}
+                        >
+                            {t('upgradeDialog.cancel')}
+                        </Button>
+                        <Button
+                            variant="solid"
+                            className="flex-1"
+                            loading={changePlanMutation.isPending}
+                            onClick={() => {
+                                if (pendingUpgradePlan) {
+                                    changePlanMutation.mutate({
+                                        plan: pendingUpgradePlan.id,
+                                        interval: billingInterval,
+                                    })
+                                }
+                            }}
+                        >
+                            {t('upgradeDialog.confirm')}
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
 
             <Dialog
                 isOpen={downgradeDialogOpen}

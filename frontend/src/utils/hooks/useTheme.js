@@ -1,9 +1,10 @@
 'use client'
 import { useContext, useMemo, useCallback } from 'react'
 import ThemeContext from '@/components/template/Theme/ThemeContext'
-import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
+import { MODE_DARK, MODE_LIGHT, THEME_MANUAL_OVERRIDE_SESSION_KEY } from '@/constants/theme.constant'
 import presetThemeSchemaConfig from '@/configs/preset-theme-schema.config'
 import applyTheme from '@/utils/applyThemeSchema'
+import { syncDocumentThemeMode } from '@/utils/syncDocumentThemeMode'
 
 const useTheme = (selector) => {
     const context = useContext(ThemeContext)
@@ -28,64 +29,25 @@ const useTheme = (selector) => {
     }, [context.setTheme])
 
     const setMode = useCallback((mode) => {
+        try {
+            if (typeof window !== 'undefined') {
+                sessionStorage.setItem(THEME_MANUAL_OVERRIDE_SESSION_KEY, '1')
+            }
+        } catch {
+            // ignore
+        }
+
         context.setTheme((prevTheme) => {
-            // Проверяем, изменился ли режим, чтобы избежать лишних обновлений
             if (prevTheme.mode === mode) {
                 return prevTheme
             }
-            
-            // Откладываем все DOM операции на следующий кадр анимации, чтобы не блокировать UI
-            // Используем двойной requestAnimationFrame для гарантии, что DOM готов
+
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    const root = window.document.documentElement
-                    const isEnabled = mode === MODE_DARK
-                    
-                    // Батчим все DOM операции вместе
-                    root.classList.remove(isEnabled ? MODE_LIGHT : MODE_DARK)
-                    root.classList.add(isEnabled ? MODE_DARK : MODE_LIGHT)
-                    root.style.colorScheme = isEnabled ? 'dark' : 'light'
-                    root.style.setProperty('supported-color-schemes', isEnabled ? 'dark' : 'light')
-                    root.setAttribute('data-theme', isEnabled ? 'dark' : 'light')
-                    
-                    // Обновляем meta теги асинхронно
-                    setTimeout(() => {
-                        // Обновляем theme-color
-                        const themeColor = isEnabled ? '#111827' : '#ffffff'
-                        let metaThemeColor = document.querySelector('meta[name="theme-color"]')
-                        if (metaThemeColor) {
-                            metaThemeColor.content = themeColor
-                        } else {
-                            metaThemeColor = document.createElement('meta')
-                            metaThemeColor.name = 'theme-color'
-                            metaThemeColor.content = themeColor
-                            document.head.appendChild(metaThemeColor)
-                        }
-                        
-                        // Обновляем apple-mobile-web-app-status-bar-style для Safari
-                        const statusBarStyle = isEnabled ? 'black-translucent' : 'default'
-                        let appleStatusBar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')
-                        if (appleStatusBar) {
-                            appleStatusBar.remove()
-                        }
-                        appleStatusBar = document.createElement('meta')
-                        appleStatusBar.name = 'apple-mobile-web-app-status-bar-style'
-                        appleStatusBar.content = statusBarStyle
-                        document.head.insertBefore(appleStatusBar, document.head.firstChild)
-                        
-                        // Для Safari - принудительное обновление через изменение viewport
-                        const viewport = document.querySelector('meta[name="viewport"]')
-                        if (viewport && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                            const content = viewport.getAttribute('content')
-                            viewport.setAttribute('content', content + ' ')
-                            setTimeout(() => {
-                                viewport.setAttribute('content', content.trim())
-                            }, 0)
-                        }
-                    }, 0)
+                    syncDocumentThemeMode(mode)
                 })
             })
-            
+
             return { ...prevTheme, mode }
         })
     }, [context.setTheme])

@@ -33,12 +33,14 @@ function PaymentForm({ bookingId, clientEmail, onSuccess, onError, amount, curre
     const t = useTranslations('components.bookingDialog.payment')
     const [processing, setProcessing] = useState(false)
     const [error, setError] = useState(null)
+    const [processingInfo, setProcessingInfo] = useState(null)
 
     const runPaymentAttempt = async () => {
         if (!stripe || !elements) return
 
         setProcessing(true)
         setError(null)
+        setProcessingInfo(null)
 
         try {
             const elig = await getBookingPaymentEligibility(bookingId, clientEmail)
@@ -57,8 +59,15 @@ function PaymentForm({ bookingId, clientEmail, onSuccess, onError, amount, curre
                 return
             }
 
+            const basePath = typeof window !== 'undefined' ? process.env.NEXT_PUBLIC_BASE_PATH || '' : ''
+            const returnUrl =
+                typeof window !== 'undefined'
+                    ? `${window.location.origin}${basePath}/payment-status?booking_id=${encodeURIComponent(String(bookingId))}`
+                    : ''
+
             const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
                 elements,
+                confirmParams: returnUrl ? { return_url: returnUrl } : undefined,
                 redirect: 'if_required',
             })
 
@@ -71,7 +80,7 @@ function PaymentForm({ bookingId, clientEmail, onSuccess, onError, amount, curre
 
             if (paymentIntent?.status === 'processing') {
                 const msg = t('processingStatus')
-                setError(msg)
+                setProcessingInfo(msg)
                 setProcessing(false)
                 if (onError) onError(msg)
                 return
@@ -114,6 +123,12 @@ function PaymentForm({ bookingId, clientEmail, onSuccess, onError, amount, curre
             <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/90 p-3 -mx-0">
                 <PaymentElement options={{ layout: 'tabs' }} />
             </div>
+
+            {processingInfo && (
+                <div className="rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/30 p-3">
+                    <p className="text-sm font-bold text-amber-800 dark:text-amber-200">{processingInfo}</p>
+                </div>
+            )}
 
             {error && (
                 <div className="rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 p-3 space-y-2">

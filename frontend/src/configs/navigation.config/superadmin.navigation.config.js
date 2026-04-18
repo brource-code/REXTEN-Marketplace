@@ -129,6 +129,15 @@ const superadminNavigationConfig = [
                 subMenu: [],
             },
             {
+                key: 'superadmin.warehouse',
+                path: '/superadmin/warehouse',
+                title: 'Склад',
+                translateKey: 'nav.superadmin.warehouse',
+                icon: 'inventory',
+                type: NAV_ITEM_TYPE_ITEM,
+                subMenu: [],
+            },
+            {
                 key: 'superadmin.nav.divider.knowledge',
                 type: NAV_ITEM_TYPE_DIVIDER,
                 subMenu: [],

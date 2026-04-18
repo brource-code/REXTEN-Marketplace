@@ -89,7 +89,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
     const renderMarketingIcon = (item) => {
         const Icon = item.icon
         return (
-            <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 h-16 w-16 flex items-center justify-center rounded-2xl transition-colors">
+            <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 h-16 w-16 flex items-center justify-center rounded-2xl transition-colors">
                 <Icon className="text-primary text-3xl" />
             </div>
         )
@@ -263,7 +263,12 @@ const Features = ({ mode, onModeChange, schema, setSchema }) => {
                                     style={cardStyles}
                                 >
                                     <motion.div
-                                        whileHover={{ scale: 1.05 }}
+                                        animate={{ scale: [1, 1.05, 1] }}
+                                        transition={{
+                                            duration: 4,
+                                            repeat: Infinity,
+                                            ease: 'easeInOut',
+                                        }}
                                         style={{
                                             transformOrigin:
                                                 'bottom right 10px',

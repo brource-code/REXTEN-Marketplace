@@ -1,5 +1,11 @@
 'use client'
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import {
+    useState,
+    useRef,
+    useEffect,
+    useCallback,
+    useMemo,
+} from 'react'
 import { usePathname } from 'next/navigation'
 import classNames from '@/utils/classNames'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
@@ -17,6 +23,15 @@ import { PiMagnifyingGlassDuotone } from 'react-icons/pi'
 import Link from 'next/link'
 import Highlighter from 'react-highlight-words'
 import { useTranslations } from 'next-intl'
+import businessNavigationConfig from '@/configs/navigation.config/business.navigation.config'
+import superadminNavigationConfig from '@/configs/navigation.config/superadmin.navigation.config'
+import { BUSINESS_OWNER } from '@/constants/roles.constant'
+import useBusinessStore from '@/store/businessStore'
+import {
+    flattenQuickSearchNavItems,
+    matchNavItemsForQuickSearch,
+    quickSearchNavPermissionAllowed,
+} from '@/utils/quickSearchNav'
 
 /** Абстрактные примеры запросов (имя, US-телефон, email/компания) — см. бэкенд Business/Admin SearchController. */
 const SearchHint = ({ mode, tQuick, onTryExample }) => {
@@ -131,6 +146,51 @@ const ListItem = (props) => {
 const _Search = ({ className }) => {
     const pathname = usePathname() || ''
     const tQuick = useTranslations('quickSearch')
+    const tNavNs = useTranslations('nav')
+    /** Как translateNavLabel: ключи в конфиге заданы как nav.business.* */
+    const tNav = useCallback(
+        (key, opts) => {
+            if (!key || typeof key !== 'string') {
+                return typeof opts?.defaultValue === 'string'
+                    ? opts.defaultValue
+                    : ''
+            }
+            const subKey = key.startsWith('nav.') ? key.slice(4) : key
+            return tNavNs(subKey, opts)
+        },
+        [tNavNs],
+    )
+
+    const isOwner = useBusinessStore((s) => s.isOwner)
+    const permissions = useBusinessStore((s) => s.permissions)
+
+    const businessFlatNav = useMemo(
+        () =>
+            flattenQuickSearchNavItems(
+                (businessNavigationConfig[0]?.subMenu || []).map((item) => ({
+                    ...item,
+                    authority: [BUSINESS_OWNER],
+                })),
+            ),
+        [],
+    )
+
+    const superadminFlatNav = useMemo(
+        () =>
+            flattenQuickSearchNavItems(
+                superadminNavigationConfig[0]?.subMenu || [],
+            ),
+        [],
+    )
+
+    const canAccessBusinessNav = useCallback(
+        (permission) =>
+            quickSearchNavPermissionAllowed(permission, {
+                isOwner,
+                permissions,
+            }),
+        [isOwner, permissions],
+    )
 
     const [searchDialogOpen, setSearchDialogOpen] = useState(false)
     const [query, setQuery] = useState('')
@@ -155,8 +215,16 @@ const _Search = ({ className }) => {
             const rows = []
             const order =
                 searchMode === 'admin'
-                    ? ['companies', 'users', 'advertisements', 'categories', 'reviews']
+                    ? [
+                          'pages',
+                          'companies',
+                          'users',
+                          'advertisements',
+                          'categories',
+                          'reviews',
+                      ]
                     : [
+                          'pages',
                           'clients',
                           'bookings',
                           'routes',
@@ -212,6 +280,21 @@ const _Search = ({ className }) => {
                 return
             }
 
+            const navPageItems =
+                searchMode === 'business'
+                    ? matchNavItemsForQuickSearch(
+                          trimmed,
+                          businessFlatNav,
+                          tNav,
+                          canAccessBusinessNav,
+                      )
+                    : matchNavItemsForQuickSearch(
+                          trimmed,
+                          superadminFlatNav,
+                          tNav,
+                          () => true,
+                      )
+
             setLoading(true)
             try {
                 const respond =
@@ -219,17 +302,37 @@ const _Search = ({ className }) => {
                         ? await apiGetAdminQuickSearch({ query: trimmed })
                         : await apiGetBusinessQuickSearch({ query: trimmed })
 
-                const { rows, hasAny } = mergeApiSections(respond?.sections)
+                const combinedSections = [
+                    ...(navPageItems.length
+                        ? [{ key: 'pages', items: navPageItems }]
+                        : []),
+                    ...(respond?.sections || []),
+                ]
+
+                const { rows, hasAny } = mergeApiSections(combinedSections)
                 setSearchResult(rows)
                 setNoResult(!hasAny)
             } catch {
-                setSearchResult([])
-                setNoResult(true)
+                const { rows, hasAny } = mergeApiSections(
+                    navPageItems.length
+                        ? [{ key: 'pages', items: navPageItems }]
+                        : [],
+                )
+                setSearchResult(rows)
+                setNoResult(!hasAny)
             } finally {
                 setLoading(false)
             }
         },
-        [canSearchEntities, mergeApiSections, searchMode],
+        [
+            businessFlatNav,
+            canAccessBusinessNav,
+            canSearchEntities,
+            mergeApiSections,
+            searchMode,
+            superadminFlatNav,
+            tNav,
+        ],
     )
 
     const debouncedFetch = useMemo(

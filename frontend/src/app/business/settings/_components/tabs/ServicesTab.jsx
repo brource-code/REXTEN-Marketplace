@@ -50,8 +50,8 @@ const ServicesTab = () => {
     const [selectedServiceForAdditional, setSelectedServiceForAdditional] = useState(null)
 
     const { data: services = [], isLoading } = useQuery({
-        queryKey: ['business-services'],
-        queryFn: getBusinessServices,
+        queryKey: ['business-services', 'full'],
+        queryFn: () => getBusinessServices({ includeInactive: true }),
     })
 
     const createServiceMutation = useMutation({

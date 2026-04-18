@@ -5,7 +5,7 @@ import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import { NumericFormat } from 'react-number-format'
 import { TbX } from 'react-icons/tb'
-import { PiCalendar, PiClock, PiMapPin, PiCreditCard } from 'react-icons/pi'
+import { PiCalendar, PiClock, PiCreditCard } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
 import { useTranslations } from 'next-intl'
 import { formatDate, formatDateTime } from '@/utils/dateTime'
@@ -21,9 +21,10 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
     const t = useTranslations('components.orderDetailsModal')
     const tCommon = useTranslations('common')
     const tStatus = useTranslations('common.status')
-    
+    const tz = order?.timezone || 'America/Los_Angeles'
+
     if (!order) return null
-    
+
     const statusLabels = {
         pending: tStatus('pending'),
         confirmed: tStatus('confirmed'),
@@ -31,24 +32,17 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
         cancelled: tStatus('cancelled'),
     }
 
-    // Mock данные для истории платежей
-    const paymentHistory = [
-        {
-            id: 1,
-            date: order.createdAt,
-            amount: order.price,
-            method: 'Карта',
-            status: 'completed',
-            transactionId: 'TXN-123456',
-        },
-    ]
+    const paymentStatusKey = order.payment_status || ''
+    const paymentStatusLabel = paymentStatusKey
+        ? t(`paymentStatus.${paymentStatusKey}`, { defaultValue: paymentStatusKey })
+        : null
 
     return (
         <Dialog isOpen={isOpen} onClose={onClose}>
             <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <Card>
                     <div className="flex items-center justify-between mb-6">
-                        <h3>{t('title')}</h3>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h3>
                         <Button
                             variant="plain"
                             size="sm"
@@ -58,14 +52,13 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                     </div>
 
                     <div className="space-y-6">
-                        {/* Основная информация */}
                         <div>
                             <div className="flex items-start justify-between mb-4">
                                 <div>
-                                    <h4 className="text-xl font-semibold mb-2">
+                                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                                         {order.serviceName}
                                     </h4>
-                                    <p className="text-gray-500">{order.businessName}</p>
+                                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{order.businessName}</p>
                                 </div>
                                 <Badge
                                     className={classNames(
@@ -81,24 +74,24 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                 <div className="flex items-center gap-2">
                                     <PiCalendar className="text-gray-400" />
                                     <div>
-                                        <div className="text-xs text-gray-500">{tCommon('labels.date')}</div>
-                                        <div className="font-semibold">
-                                            {formatDate(order.date, 'America/Los_Angeles', 'short')}
+                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{tCommon('labels.date')}</div>
+                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                            {formatDate(order.date, tz, 'short')}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <PiClock className="text-gray-400" />
                                     <div>
-                                        <div className="text-xs text-gray-500">{tCommon('labels.time')}</div>
-                                        <div className="font-semibold">{order.time}</div>
+                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{tCommon('labels.time')}</div>
+                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{order.time}</div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <PiCreditCard className="text-gray-400" />
                                     <div>
-                                        <div className="text-xs text-gray-500">{t('amount')}</div>
-                                        <div className="font-semibold">
+                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('amount')}</div>
+                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                             <NumericFormat
                                                 displayType="text"
                                                 value={order.price}
@@ -109,50 +102,55 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-gray-500">{t('orderNumber')}</div>
-                                    <div className="font-semibold">#{order.bookingId}</div>
+                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('orderNumber')}</div>
+                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100">#{order.bookingId}</div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* История платежей */}
                         <div>
-                            <h4 className="mb-4">{t('paymentHistory')}</h4>
-                            <div className="space-y-3">
-                                {paymentHistory.map((payment) => (
-                                    <Card key={payment.id} className="p-4">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <div className="font-semibold mb-1">
-                                                    <NumericFormat
-                                                        displayType="text"
-                                                        value={payment.amount}
-                                                        prefix={'$'}
-                                                        thousandSeparator={true}
-                                                    />
-                                                </div>
-                                                <div className="text-sm text-gray-500">
-                                                    {payment.method} • {payment.transactionId}
-                                                </div>
-                                                <div className="text-xs text-gray-400 mt-1">
-                                                    {formatDateTime(payment.date, null, 'America/Los_Angeles', 'short')}
-                                                </div>
+                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('paymentHistory')}</h4>
+                            <Card className="p-4">
+                                {paymentStatusLabel || order.paid_at || order.payment_method ? (
+                                    <div className="space-y-3">
+                                        {paymentStatusLabel && (
+                                            <div className="flex justify-between gap-4">
+                                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('paymentStatusLabel')}</span>
+                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{paymentStatusLabel}</span>
                                             </div>
-                                            <Badge
-                                                className={
-                                                    payment.status === 'completed'
-                                                        ? 'bg-emerald-500'
-                                                        : 'bg-gray-500'
-                                                }
-                                            >
-                                                {payment.status === 'completed'
-                                                    ? t('paid')
-                                                    : payment.status}
-                                            </Badge>
+                                        )}
+                                        {order.payment_method && (
+                                            <div className="flex justify-between gap-4">
+                                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('paymentMethodLabel')}</span>
+                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                    {order.payment_method === 'card' ? t('paymentMethodCard') : order.payment_method}
+                                                </span>
+                                            </div>
+                                        )}
+                                        {order.paid_at && (
+                                            <div className="flex justify-between gap-4">
+                                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('paidAtLabel')}</span>
+                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                    {formatDateTime(order.paid_at, null, tz, 'short')}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('amount')}</span>
+                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                <NumericFormat
+                                                    displayType="text"
+                                                    value={order.price}
+                                                    prefix={'$'}
+                                                    thousandSeparator={true}
+                                                />
+                                            </span>
                                         </div>
-                                    </Card>
-                                ))}
-                            </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('noPaymentDetails')}</p>
+                                )}
+                            </Card>
                         </div>
                     </div>
                 </Card>
@@ -162,4 +160,3 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
 }
 
 export default OrderDetailsModal
-

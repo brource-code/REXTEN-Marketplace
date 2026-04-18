@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import classNames from '@/utils/classNames'
 import { motion } from 'framer-motion'
 import { Link } from 'react-scroll'
@@ -10,12 +10,18 @@ const NavList = ({ tabs: propTabs, tabClassName, onTabClick }) => {
     const [active, setActive] = useState(propTabs[0])
     const [show, setShow] = useState(false)
 
+    useEffect(() => {
+        setActive((prev) => {
+            const match = propTabs.find((t) => t.value === prev?.value)
+            return match || propTabs[0]
+        })
+    }, [propTabs])
+
     const moveSelectedTabToTop = (idx) => {
         setShow(true)
         const newTabs = [...propTabs]
         const selectedTab = newTabs.splice(idx, 1)
         newTabs.unshift(selectedTab[0])
-
         setActive(newTabs[0])
     }
 

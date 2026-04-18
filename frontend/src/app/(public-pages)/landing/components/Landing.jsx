@@ -5,6 +5,7 @@ import NavigationBar from './NavigationBar'
 import Features from './Features'
 import Industries from './Industries'
 import Demos from './Demos'
+import BusinessPageSpotlight from './BusinessPageSpotlight'
 import Pricing from './Pricing'
 import OtherFeatures from './OtherFeatures'
 import FAQ from './FAQ'
@@ -41,10 +42,11 @@ const Landing = () => {
                 mode={mode}
                 schema={schema}
                 setSchema={setSchema}
-                onModeChange={(value) => setMode(value ? 'dark' : 'light')}
+                onModeChange={(value) => setMode(value ? MODE_DARK : MODE_LIGHT)}
             />
             <Industries />
             <Demos />
+            <BusinessPageSpotlight />
             <Pricing />
             <OtherFeatures />
             <FAQ />

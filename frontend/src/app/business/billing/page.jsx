@@ -3,6 +3,7 @@
 import { useState, useMemo, Suspense } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import DataTable from '@/components/shared/DataTable'
@@ -14,24 +15,29 @@ import { getStripeTransactions, getBookingPayments } from '@/lib/api/stripe'
 import Loading from '@/components/shared/Loading'
 import { formatDateLocalized } from '@/utils/dateTime'
 import Select from '@/components/ui/Select'
-import { PiCreditCard, PiMegaphone, PiCalendarCheck, PiHandCoins, PiArrowDown, PiArrowUp } from 'react-icons/pi'
+import {
+    PiCreditCard,
+    PiMegaphone,
+    PiCalendarCheck,
+    PiHandCoins,
+    PiArrowDown,
+    PiArrowUp,
+    PiFileCsv,
+    PiFileXls,
+    PiArrowCounterClockwise,
+} from 'react-icons/pi'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import PermissionGuard from '@/components/shared/PermissionGuard'
 import useBusinessStore from '@/store/businessStore'
-
-function getBillingTransactionDescription(transaction, tBilling, tSub) {
-    if (transaction.type === 'subscription' && transaction.plan) {
-        const planName = tSub(`plans.${transaction.plan}.name`, {
-            defaultValue: transaction.plan,
-        })
-        const periodLabel =
-            transaction.interval === 'year'
-                ? tBilling('periodLabelYear')
-                : tBilling('periodLabelMonth')
-        return tBilling('subscriptionPayment', { planName, periodLabel })
-    }
-    return transaction.description
-}
+import { billingStatusUiKey, getBillingTransactionDescription } from '@/utils/businessBillingHelpers'
+import {
+    buildBusinessBillingAoa,
+    downloadBillingCsv,
+    downloadBillingXlsx,
+    billingExportFilename,
+} from '@/utils/businessBillingExport'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 
 const statusColors = {
     succeeded: 'bg-emerald-200 dark:bg-emerald-700 text-emerald-900 dark:text-emerald-100',
@@ -78,6 +84,7 @@ function BillingPageContent() {
     
     const [activeSection, setActiveSection] = useState('earnings')
     const [statusFilter, setStatusFilter] = useState('all')
+    const [exportingExcel, setExportingExcel] = useState(false)
 
     const { data: stripeData, isLoading: stripeLoading } = useQuery({
         queryKey: ['stripe-transactions'],
@@ -136,7 +143,13 @@ function BillingPageContent() {
     const expensesTotal = useMemo(() => {
         return expensesTransactions
             .filter(tx => tx.status === 'succeeded')
-            .reduce((sum, tx) => sum + (tx.amount || 0), 0)
+            .reduce((sum, tx) => {
+                const a = Number(tx.amount) || 0
+                if (tx.type === 'refund') {
+                    return sum - a
+                }
+                return sum + a
+            }, 0)
     }, [expensesTransactions])
 
     const statusOptions = useMemo(() => {
@@ -190,6 +203,17 @@ function BillingPageContent() {
                         <div className="text-xs font-bold text-gray-500 dark:text-gray-400">
                             {tx.service_name} — {tx.client_name}
                         </div>
+                        {tx.booking_id != null && (
+                            <div className="mt-1">
+                                <Link
+                                    href={`/business/bookings?bookingId=${tx.booking_id}`}
+                                    className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                                    aria-label={t('bookingRefAria', { id: tx.booking_id })}
+                                >
+                                    {t('bookingRef', { id: tx.booking_id })}
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 )
             },
@@ -224,9 +248,10 @@ function BillingPageContent() {
             cell: (props) => {
                 const tx = props.row.original
                 const displayStatus = tx.capture_status === 'captured' ? 'succeeded' : tx.status
+                const statusKey = billingStatusUiKey(displayStatus)
                 return (
-                    <Tag className={statusColors[displayStatus] || statusColors.pending}>
-                        {t(`statuses.${displayStatus}`, { defaultValue: displayStatus })}
+                    <Tag className={statusColors[statusKey] || statusColors.pending}>
+                        {t(`statuses.${statusKey}`, { defaultValue: displayStatus })}
                     </Tag>
                 )
             },
@@ -251,12 +276,15 @@ function BillingPageContent() {
             accessorKey: 'type',
             cell: (props) => {
                 const tx = props.row.original
-                const icon = tx.type === 'advertisement'
-                    ? <PiMegaphone className="text-blue-500" size={16} />
-                    : <PiCreditCard className="text-emerald-500" size={16} />
-                const color = tx.type === 'advertisement'
-                    ? 'bg-blue-200 dark:bg-blue-700 text-blue-900 dark:text-blue-100'
-                    : 'bg-emerald-200 dark:bg-emerald-700 text-emerald-900 dark:text-emerald-100'
+                let icon = <PiCreditCard className="text-emerald-500" size={16} />
+                let color = 'bg-emerald-200 dark:bg-emerald-700 text-emerald-900 dark:text-emerald-100'
+                if (tx.type === 'advertisement') {
+                    icon = <PiMegaphone className="text-blue-500" size={16} />
+                    color = 'bg-blue-200 dark:bg-blue-700 text-blue-900 dark:text-blue-100'
+                } else if (tx.type === 'refund') {
+                    icon = <PiArrowCounterClockwise className="text-violet-500" size={16} />
+                    color = 'bg-violet-200 dark:bg-violet-800 text-violet-900 dark:text-violet-100'
+                }
                 return (
                     <div className="flex items-center gap-2">
                         {icon}
@@ -281,9 +309,17 @@ function BillingPageContent() {
             accessorKey: 'amount',
             cell: (props) => {
                 const tx = props.row.original
+                const isRefund = tx.type === 'refund'
                 return (
-                    <span className="text-sm font-bold text-red-500 dark:text-red-400">
-                        -{formatAmount(tx.amount, tx.currency)}
+                    <span
+                        className={
+                            isRefund
+                                ? 'text-sm font-bold text-emerald-600 dark:text-emerald-400'
+                                : 'text-sm font-bold text-red-500 dark:text-red-400'
+                        }
+                    >
+                        {isRefund ? '+' : '-'}
+                        {formatAmount(tx.amount, tx.currency)}
                     </span>
                 )
             },
@@ -291,11 +327,15 @@ function BillingPageContent() {
         {
             header: t('columns.status'),
             accessorKey: 'status',
-            cell: (props) => (
-                <Tag className={statusColors[props.row.original.status] || statusColors.pending}>
-                    {t(`statuses.${props.row.original.status}`, { defaultValue: props.row.original.status })}
-                </Tag>
-            ),
+            cell: (props) => {
+                const raw = props.row.original.status
+                const statusKey = billingStatusUiKey(raw)
+                return (
+                    <Tag className={statusColors[statusKey] || statusColors.pending}>
+                        {t(`statuses.${statusKey}`, { defaultValue: raw })}
+                    </Tag>
+                )
+            },
         },
     ]
 
@@ -315,10 +355,47 @@ function BillingPageContent() {
         onAppendQueryParams({ pageIndex: '1' })
     }
 
+    const runExport = (format) => {
+        if (filteredTransactions.length === 0) {
+            toast.push(<Notification title={t('export.toastEmpty')} type="warning" />)
+            return
+        }
+        try {
+            const aoa = buildBusinessBillingAoa(
+                activeSection,
+                filteredTransactions,
+                t,
+                tSub,
+                billingTxTimezone,
+                locale,
+            )
+            if (format === 'csv') {
+                downloadBillingCsv(billingExportFilename(activeSection, 'csv'), aoa)
+            } else {
+                setExportingExcel(true)
+                const sheet =
+                    activeSection === 'earnings' ? t('export.sheetEarnings') : t('export.sheetExpenses')
+                downloadBillingXlsx(billingExportFilename(activeSection, 'xlsx'), sheet, aoa)
+                    .then(() => {
+                        toast.push(<Notification title={t('export.toastOk')} type="success" />)
+                    })
+                    .catch(() => {
+                        toast.push(<Notification title={t('export.toastErr')} type="danger" />)
+                    })
+                    .finally(() => setExportingExcel(false))
+                return
+            }
+            toast.push(<Notification title={t('export.toastOk')} type="success" />)
+        } catch {
+            toast.push(<Notification title={t('export.toastErr')} type="danger" />)
+        }
+    }
+
     const EarningsMobileCard = ({ transaction }) => {
         const tx = transaction
         const netAmount = tx.net_amount != null ? tx.net_amount : tx.amount
         const displayStatus = tx.capture_status === 'captured' ? 'succeeded' : tx.status
+        const statusKey = billingStatusUiKey(displayStatus)
 
         return (
             <Card>
@@ -333,10 +410,21 @@ function BillingPageContent() {
                                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
                                     {formatDateLocalized(tx.created, billingTxTimezone, locale)}
                                 </div>
+                                {tx.booking_id != null && (
+                                    <div className="mt-1">
+                                        <Link
+                                            href={`/business/bookings?bookingId=${tx.booking_id}`}
+                                            className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                                            aria-label={t('bookingRefAria', { id: tx.booking_id })}
+                                        >
+                                            {t('bookingRef', { id: tx.booking_id })}
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <Tag className={statusColors[displayStatus] || statusColors.pending}>
-                            {t(`statuses.${displayStatus}`, { defaultValue: displayStatus })}
+                        <Tag className={statusColors[statusKey] || statusColors.pending}>
+                            {t(`statuses.${statusKey}`, { defaultValue: displayStatus })}
                         </Tag>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
@@ -366,9 +454,14 @@ function BillingPageContent() {
 
     const ExpensesMobileCard = ({ transaction }) => {
         const tx = transaction
-        const typeIcon = tx.type === 'advertisement'
-            ? <PiMegaphone className="text-blue-500" size={20} />
-            : <PiCreditCard className="text-emerald-500" size={20} />
+        const expenseStatusKey = billingStatusUiKey(tx.status)
+        const isRefund = tx.type === 'refund'
+        let typeIcon = <PiCreditCard className="text-emerald-500" size={20} />
+        if (tx.type === 'advertisement') {
+            typeIcon = <PiMegaphone className="text-blue-500" size={20} />
+        } else if (isRefund) {
+            typeIcon = <PiArrowCounterClockwise className="text-violet-500" size={20} />
+        }
 
         return (
             <Card>
@@ -385,13 +478,20 @@ function BillingPageContent() {
                                 </div>
                             </div>
                         </div>
-                        <Tag className={statusColors[tx.status] || statusColors.pending}>
-                            {t(`statuses.${tx.status}`, { defaultValue: tx.status })}
+                        <Tag className={statusColors[expenseStatusKey] || statusColors.pending}>
+                            {t(`statuses.${expenseStatusKey}`, { defaultValue: tx.status })}
                         </Tag>
                     </div>
                     <div className="flex items-center justify-end pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <div className="text-sm font-bold text-red-500 dark:text-red-400">
-                            -{formatAmount(tx.amount, tx.currency)}
+                        <div
+                            className={
+                                isRefund
+                                    ? 'text-sm font-bold text-emerald-600 dark:text-emerald-400'
+                                    : 'text-sm font-bold text-red-500 dark:text-red-400'
+                            }
+                        >
+                            {isRefund ? '+' : '-'}
+                            {formatAmount(tx.amount, tx.currency)}
                         </div>
                     </div>
                 </div>
@@ -461,9 +561,9 @@ function BillingPageContent() {
                         </div>
                     </div>
 
-                    {/* Filters */}
-                    <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <div className="flex-1">
+                    {/* Filters + export */}
+                    <div className="flex flex-col lg:flex-row gap-4 pt-2 border-t border-gray-200 dark:border-gray-700 lg:items-end">
+                        <div className="flex-1 min-w-0">
                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 block">
                                 {t('filters.status')}
                             </label>
@@ -477,6 +577,29 @@ function BillingPageContent() {
                                 isSearchable={false}
                                 isDisabled={isLoading}
                             />
+                        </div>
+                        <div className="flex flex-wrap gap-2 shrink-0">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                icon={<PiFileCsv className="text-lg" />}
+                                disabled={isLoading}
+                                onClick={() => runExport('csv')}
+                            >
+                                {t('export.csv')}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                icon={<PiFileXls className="text-lg" />}
+                                disabled={isLoading || exportingExcel}
+                                loading={exportingExcel}
+                                onClick={() => runExport('excel')}
+                            >
+                                {t('export.excel')}
+                            </Button>
                         </div>
                     </div>
 

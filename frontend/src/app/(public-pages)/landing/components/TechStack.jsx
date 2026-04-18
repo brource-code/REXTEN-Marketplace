@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocale } from 'next-intl'
 import { getLandingTechSrc } from '@/app/(public-pages)/landing/utils/landingHeroImages'
 import Container from './LandingContainer'
 import { motion, AnimatePresence } from 'framer-motion'
+import classNames from '@/utils/classNames'
 
 const stackList = [
     {
@@ -57,9 +58,18 @@ const stackList = [
     },
 ]
 
+const AUTO_HIGHLIGHT_MS = 2800
+
 const TechStack = () => {
-    const [hoveredIndex, setHoveredIndex] = useState(null)
+    const [hoveredIndex, setHoveredIndex] = useState(0)
     const locale = useLocale()
+
+    useEffect(() => {
+        const id = setInterval(() => {
+            setHoveredIndex((prev) => (prev + 1) % stackList.length)
+        }, AUTO_HIGHLIGHT_MS)
+        return () => clearInterval(id)
+    }, [])
 
     return (
         <div id="demos" className="relative z-20 py-10 md:py-40">
@@ -95,7 +105,6 @@ const TechStack = () => {
                             viewport={{ once: true }}
                             className="relative p-4"
                             onMouseEnter={() => setHoveredIndex(index)}
-                            onMouseLeave={() => setHoveredIndex(null)}
                         >
                             <AnimatePresence>
                                 {hoveredIndex === index && (
@@ -119,7 +128,14 @@ const TechStack = () => {
                             </AnimatePresence>
                             <div className="p-4 rounded-2xl z-10 relative bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 h-full group">
                                 <div className="flex flex-col">
-                                    <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-600 group-hover:border-primary">
+                                    <div
+                                        className={classNames(
+                                            'w-16 h-16 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-600 border-2 transition-colors',
+                                            hoveredIndex === index
+                                                ? 'border-primary'
+                                                : 'border-transparent',
+                                        )}
+                                    >
                                         <img
                                             className="max-h-8"
                                             src={getLandingTechSrc(locale, stack.id)}

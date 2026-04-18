@@ -1,11 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import classNames from '@/utils/classNames'
 import { motion } from 'framer-motion'
 
 const MOBILE = { width: 280, height: 180 }
 const DESKTOP = { width: 460, height: 280 }
 
-const CardStack = ({ items, offset, scaleFactor, className }) => {
+const AUTO_ROTATE_MS = 4000
+
+const CardStack = ({
+    items,
+    offset,
+    scaleFactor,
+    className,
+    /** Лендинг «Умное расписание»: смена макетов по кругу без клика */
+    autoRotate = true,
+}) => {
     const CARD_OFFSET = offset || 10
     const SCALE_FACTOR = scaleFactor || 0.06
     const [cards, setCards] = useState(items)
@@ -17,6 +26,18 @@ const CardStack = ({ items, offset, scaleFactor, className }) => {
             return newArray
         })
     }
+
+    useEffect(() => {
+        if (!autoRotate) return
+        const id = setInterval(() => {
+            setCards((prevCards) => {
+                const newArray = [...prevCards]
+                newArray.unshift(newArray.pop())
+                return newArray
+            })
+        }, AUTO_ROTATE_MS)
+        return () => clearInterval(id)
+    }, [autoRotate])
 
     return (
         <div

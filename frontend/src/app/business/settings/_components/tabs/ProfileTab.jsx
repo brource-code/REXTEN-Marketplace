@@ -36,6 +36,8 @@ const ProfileTab = () => {
         whatsapp: '',
         website: '',
         timezone: 'America/Los_Angeles',
+        /** пустая строка = автоцель на бэкенде */
+        dashboard_monthly_bookings_goal: '',
     })
 
     const timezoneOptions = useMemo(
@@ -53,9 +55,21 @@ const ProfileTab = () => {
     })
 
     const updateProfileMutation = useMutation({
-        mutationFn: updateBusinessProfile,
+        mutationFn: (data) => {
+            const payload = { ...data }
+            const raw = payload.dashboard_monthly_bookings_goal
+            if (raw === '' || raw === null || raw === undefined) {
+                payload.dashboard_monthly_bookings_goal = null
+            } else {
+                const n = parseInt(String(raw).trim(), 10)
+                payload.dashboard_monthly_bookings_goal =
+                    Number.isFinite(n) && n >= 1 ? n : null
+            }
+            return updateBusinessProfile(payload)
+        },
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['business-profile'] })
+            queryClient.invalidateQueries({ queryKey: ['business-stats'] })
             hasChanges.current = false
             if (data?.timezone) {
                 updateBusinessSettings({ timezone: data.timezone })
@@ -103,6 +117,10 @@ const ProfileTab = () => {
                 whatsapp: profile.whatsapp || '',
                 website: profile.website || '',
                 timezone: profile.timezone || 'America/Los_Angeles',
+                dashboard_monthly_bookings_goal:
+                    profile.dashboard_monthly_bookings_goal != null
+                        ? String(profile.dashboard_monthly_bookings_goal)
+                        : '',
             })
             setAvatar(profile.avatar)
             isInitialMount.current = true
@@ -152,6 +170,10 @@ const ProfileTab = () => {
                 whatsapp: profile.whatsapp || '',
                 website: profile.website || '',
                 timezone: profile.timezone || 'America/Los_Angeles',
+                dashboard_monthly_bookings_goal:
+                    profile.dashboard_monthly_bookings_goal != null
+                        ? String(profile.dashboard_monthly_bookings_goal)
+                        : '',
             })
             setAvatar(profile.avatar)
         }
@@ -308,6 +330,25 @@ const ProfileTab = () => {
                         />
                         <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">{t('timezoneHint')}</p>
                     </FormItem>
+
+                    <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">{t('dashboardSection')}</p>
+                        <FormItem label={t('monthlyBookingsGoal')}>
+                            <Input
+                                type="text"
+                                inputMode="numeric"
+                                value={formData.dashboard_monthly_bookings_goal}
+                                onChange={(e) => {
+                                    const v = e.target.value.replace(/\D/g, '')
+                                    handleChange('dashboard_monthly_bookings_goal', v)
+                                }}
+                                placeholder={t('monthlyBookingsGoalPlaceholder')}
+                            />
+                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                {t('monthlyBookingsGoalHint')}
+                            </p>
+                        </FormItem>
+                    </div>
 
                     {/* Ссылка на публичный профиль */}
                     <div className="border-t pt-4">

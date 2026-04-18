@@ -30,6 +30,24 @@ export interface SuperadminBillingStructure {
     total: number
 }
 
+/** Снимок из Stripe API (суперадмин биллинг). */
+export interface StripeConnectApiSnapshot {
+    payment_intent?: Record<string, unknown>
+    last_payment_error?: { code?: string; message?: string; type?: string } | null
+    charge?: Record<string, unknown> | null
+    balance_transaction?: Record<string, unknown> | null
+    /** Код ситуации (не всегда текст ошибки Stripe API). */
+    error_code?: string
+    error?: string
+}
+
+export interface StripeCheckoutSessionApiSnapshot {
+    checkout_session?: Record<string, unknown>
+    payment_intent_details?: StripeConnectApiSnapshot | null
+    error_code?: string
+    error?: string
+}
+
 export interface SuperadminBillingTransaction {
     id: string
     type: string
@@ -42,6 +60,7 @@ export interface SuperadminBillingTransaction {
     company_name: string | null
     advertisement_id: number | null
     package_id: string | null
+    stripe?: StripeCheckoutSessionApiSnapshot
 }
 
 export interface SuperadminBillingTransactionsResponse {
@@ -102,11 +121,23 @@ export async function getSuperadminBillingRevenueStructure(): Promise<Superadmin
     return data
 }
 
+export async function getBillingTransactionStripeSnapshot(sessionId: string): Promise<{
+    session_id: string
+    stripe: StripeCheckoutSessionApiSnapshot | null
+}> {
+    const { data } = await LaravelAxios.get('/admin/billing/transactions/stripe', {
+        params: { session_id: sessionId },
+    })
+    return data
+}
+
 export async function getSuperadminBillingTransactions(params: {
     page?: number
     pageSize?: number
     type?: string
     company_id?: string | number
+    /** Подтянуть Checkout Session + PaymentIntent из Stripe (медленнее). */
+    include_stripe?: boolean
 }): Promise<SuperadminBillingTransactionsResponse> {
     const { data } = await LaravelAxios.get('/admin/billing/transactions', { params })
     return data
@@ -154,4 +185,125 @@ export async function downloadSuperadminBillingExport(from: string, to: string):
     a.click()
     document.body.removeChild(a)
     window.URL.revokeObjectURL(url)
+}
+
+// Stripe Connect Billing
+
+export interface ConnectOverview {
+    total_companies: number
+    connected_companies: number
+    active_companies: number
+    pending_companies: number
+    restricted_companies: number
+    disabled_companies: number
+    dispute_companies: number
+    payments_this_month: number
+    payments_last_month: number
+    revenue_this_month: number
+    revenue_last_month: number
+    revenue_growth_pct: number | null
+    fees_this_month: number
+    pending_captures: number
+    pending_captures_amount: number
+    refunded_this_month: number
+    disputed_this_month: number
+}
+
+export interface ConnectAccount {
+    id: number
+    name: string
+    stripe_account_id: string
+    stripe_account_status: string
+    stripe_payouts_enabled: boolean
+    stripe_charges_enabled: boolean
+    stripe_onboarding_completed_at: string | null
+    stripe_disabled_reason: string | null
+    has_active_dispute: boolean
+    payment_count: number
+    total_amount: number
+    total_fees: number
+}
+
+export interface ConnectAccountsResponse {
+    data: ConnectAccount[]
+    total: number
+    page: number
+    pageSize: number
+}
+
+export interface ConnectPayment {
+    id: number
+    stripe_payment_intent_id: string
+    stripe_charge_id: string | null
+    /** Connected account (acct_…) для ссылок в Dashboard */
+    stripe_account_id: string | null
+    company_id: number
+    company_name: string | null
+    booking_id: number | null
+    user_id: number | null
+    user_name: string | null
+    amount: number
+    application_fee: number
+    currency: string
+    status: string
+    capture_status: string
+    refunded_amount: number
+    refund_reason: string | null
+    refund_initiated_by: string | null
+    disputed_at: string | null
+    captured_at: string | null
+    created_at: string
+    /** Живые данные из Stripe (PaymentIntent, Charge, BalanceTransaction). */
+    stripe?: StripeConnectApiSnapshot
+}
+
+export interface ConnectPaymentsResponse {
+    data: ConnectPayment[]
+    total: number
+    page: number
+    pageSize: number
+}
+
+export interface ConnectRevenueChart {
+    date: string[]
+    series: Array<{ name: string; data: number[] }>
+}
+
+export async function getConnectOverview(): Promise<ConnectOverview> {
+    const { data } = await LaravelAxios.get('/admin/billing/connect/overview')
+    return data
+}
+
+export async function getConnectAccounts(params: {
+    page?: number
+    pageSize?: number
+    status?: string
+    search?: string
+}): Promise<ConnectAccountsResponse> {
+    const { data } = await LaravelAxios.get('/admin/billing/connect/accounts', { params })
+    return data
+}
+
+export async function getConnectPayments(params: {
+    page?: number
+    pageSize?: number
+    status?: string
+    company_id?: number
+    /** По умолчанию false — данные Stripe подгружаются по клику в модалке. */
+    include_stripe?: boolean
+}): Promise<ConnectPaymentsResponse> {
+    const { data } = await LaravelAxios.get('/admin/billing/connect/payments', { params })
+    return data
+}
+
+export async function getConnectPaymentStripeSnapshot(
+    paymentId: number,
+): Promise<{ payment_id: number; stripe: StripeConnectApiSnapshot | null }> {
+    const { data } = await LaravelAxios.get(`/admin/billing/connect/payments/${paymentId}/stripe`)
+    return data
+}
+
+export async function getConnectRevenueChart(days: 7 | 14 | 30 | 90 = 14): Promise<ConnectRevenueChart> {
+    const { data } = await LaravelAxios.get('/admin/billing/connect/revenue-chart', { params: { days } })
+    return data
 }

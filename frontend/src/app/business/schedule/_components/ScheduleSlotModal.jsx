@@ -9,7 +9,7 @@ import Select from '@/components/ui/Select'
 import Card from '@/components/ui/Card'
 import Tag from '@/components/ui/Tag'
 import DatePicker from '@/components/ui/DatePicker'
-import { TbTrash, TbUser, TbPhone, TbMail, TbCalendar, TbClock, TbCurrencyDollar, TbNotes, TbCopy, TbStar, TbMapPin, TbTruck } from 'react-icons/tb'
+import { TbTrash, TbUser, TbPhone, TbMail, TbCalendar, TbClock, TbCurrencyDollar, TbNotes, TbCopy, TbStar, TbMapPin, TbTruck, TbChevronDown } from 'react-icons/tb'
 import dayjs from 'dayjs'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getBusinessServices, getBusinessClients, createClient, getTeamMembers, getScheduleSettings } from '@/lib/api/business'
@@ -23,9 +23,21 @@ import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import { formatTime } from '@/utils/dateTime'
 import { resolveSlotServiceName, isGenericServiceName } from '@/utils/schedule/resolveSlotServiceName'
 import useBusinessStore from '@/store/businessStore'
-import { captureBookingPayment } from '@/lib/api/stripe'
+import { captureBookingPayment, refundBookingPayment } from '@/lib/api/stripe'
 
-const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly = false }) => {
+/**
+ * Строка «до скидки» дублирует базовую стоимость, если нет доп. услуг — не показываем.
+ */
+function shouldShowSubtotalBeforeDiscount(slot) {
+    if (Number(slot?.discount_amount) <= 0) return false
+    const hasAdditionalServices = Array.isArray(slot?.additional_services) && slot.additional_services.length > 0
+    const subtotalBeforeDiscount =
+        Number(slot.discount_amount) + Number(slot.total_price ?? slot.price ?? 0)
+    const basePriceNum = Number(slot.price || 0)
+    return hasAdditionalServices || Math.abs(subtotalBeforeDiscount - basePriceNum) > 0.01
+}
+
+const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly = false, onPaymentUpdated }) => {
     const intlLocale = useLocale()
     const t = useTranslations('business.schedule.modal')
     const tDuration = useTranslations('business.schedule.modal.durationPicker')
@@ -42,11 +54,35 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
     const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [isCapturing, setIsCapturing] = useState(false)
+    const [refundDialogOpen, setRefundDialogOpen] = useState(false)
+    const [refundReason, setRefundReason] = useState('')
+    const [refundAmountStr, setRefundAmountStr] = useState('')
+    const [isRefunding, setIsRefunding] = useState(false)
+    const [paymentMenuOpen, setPaymentMenuOpen] = useState(false)
+    const paymentMenuRef = useRef(null)
     const [selectedAdditionalServices, setSelectedAdditionalServices] = useState([])
     
     useEffect(() => {
         setMounted(true)
     }, [])
+
+    useEffect(() => {
+        if (!isOpen) {
+            setPaymentMenuOpen(false)
+            setRefundDialogOpen(false)
+        }
+    }, [isOpen])
+
+    useEffect(() => {
+        if (!paymentMenuOpen) return undefined
+        const onDocMouseDown = (e) => {
+            if (paymentMenuRef.current && !paymentMenuRef.current.contains(e.target)) {
+                setPaymentMenuOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', onDocMouseDown)
+        return () => document.removeEventListener('mousedown', onDocMouseDown)
+    }, [paymentMenuOpen])
     const [formData, setFormData] = useState({
         service_id: null,
         booking_date: '',
@@ -298,6 +334,96 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                 price: parseFloat(s.price) || undefined,
             })),
         }, slot?.type || 'NEW')
+    }
+
+    const handlePaymentRefresh = async () => {
+        await queryClient.invalidateQueries({ queryKey: ['business-schedule-slots'] })
+        await queryClient.invalidateQueries({ queryKey: ['booking-payments'] })
+        if (onPaymentUpdated) {
+            await onPaymentUpdated()
+        }
+    }
+
+    const runCapture = async () => {
+        if (!slot?.id) return
+        setPaymentMenuOpen(false)
+        setIsCapturing(true)
+        try {
+            await captureBookingPayment(slot.id)
+            toast.push(
+                <Notification type="success" title={t('labels.captureSuccess', { defaultValue: 'Payment captured' })} />,
+                { placement: 'top-end' },
+            )
+            await handlePaymentRefresh()
+        } catch (e) {
+            const msg = e?.response?.data?.message || e?.message
+            toast.push(
+                <Notification type="danger" title={t('labels.captureError', { defaultValue: 'Capture failed' })}>
+                    {msg ? String(msg) : null}
+                </Notification>,
+                { placement: 'top-end' },
+            )
+        } finally {
+            setIsCapturing(false)
+        }
+    }
+
+    const openRefundDialog = () => {
+        setPaymentMenuOpen(false)
+        setRefundReason('')
+        setRefundAmountStr('')
+        setRefundDialogOpen(true)
+    }
+
+    const submitRefund = async () => {
+        if (!slot?.id) return
+        const reason = refundReason.trim()
+        if (!reason) {
+            toast.push(
+                <Notification type="danger" title={tCommon('error')}>
+                    {t('refundDialog.reasonRequired')}
+                </Notification>,
+                { placement: 'top-end' },
+            )
+            return
+        }
+        const payload = { reason }
+        const amountTrimmed = String(refundAmountStr || '').trim()
+        if (amountTrimmed) {
+            const n = parseFloat(amountTrimmed.replace(',', '.'))
+            if (Number.isNaN(n) || n <= 0) {
+                toast.push(
+                    <Notification type="danger" title={tCommon('error')}>
+                        {t('refundDialog.amountInvalid')}
+                    </Notification>,
+                    { placement: 'top-end' },
+                )
+                return
+            }
+            payload.amount = n
+        }
+        setIsRefunding(true)
+        try {
+            await refundBookingPayment(slot.id, payload)
+            toast.push(
+                <Notification type="success" title={tCommon('success')}>
+                    {t('labels.refundSuccess')}
+                </Notification>,
+                { placement: 'top-end' },
+            )
+            setRefundDialogOpen(false)
+            await handlePaymentRefresh()
+        } catch (e) {
+            const msg = e?.response?.data?.message || e?.message || t('labels.refundError')
+            toast.push(
+                <Notification type="danger" title={tCommon('error')}>
+                    {String(msg)}
+                </Notification>,
+                { placement: 'top-end' },
+            )
+        } finally {
+            setIsRefunding(false)
+        }
     }
 
     const statusOptions = [
@@ -586,45 +712,95 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                                     )
                                 })()}
 
-                                {/* Оплата онлайн — бейдж + кнопка capture */}
-                                {(slot.payment_status === 'authorized' || slot.payment_status === 'paid') && (
+                                {/* Оплата онлайн — локальное меню (не FloatingPortal, иначе z-index под модалкой) */}
+                                {['authorized', 'paid', 'refunded', 'cancelled'].includes(slot.payment_status) && (
                                     <div className="flex items-center gap-3">
-                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
-                                            <TbCurrencyDollar className="text-emerald-600 dark:text-emerald-400 text-lg" />
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center">
+                                            <TbCurrencyDollar className="text-slate-600 dark:text-slate-300 text-lg" />
                                         </div>
                                         <div className="flex-1 min-w-0 flex flex-wrap items-center gap-2">
-                                            <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-sm !px-2.5 !py-0.5 font-bold">
-                                                {slot.payment_status === 'paid'
-                                                    ? t('labels.paymentCaptured', { defaultValue: 'Payment captured' })
-                                                    : t('labels.onlinePaymentBadge')}
+                                            <Tag
+                                                className={
+                                                    slot.payment_status === 'refunded' || slot.payment_status === 'cancelled'
+                                                        ? 'bg-slate-200 text-slate-900 dark:bg-slate-600/80 dark:text-slate-100 !text-sm !px-2.5 !py-0.5 font-bold'
+                                                        : 'bg-slate-100 text-slate-800 dark:bg-slate-800/80 dark:text-slate-200 !text-sm !px-2.5 !py-0.5 font-bold'
+                                                }
+                                            >
+                                                {slot.payment_status === 'cancelled'
+                                                    ? t('labels.paymentCancelled')
+                                                    : slot.payment_status === 'refunded'
+                                                      ? t('labels.paymentRefunded')
+                                                      : slot.payment_status === 'paid'
+                                                        ? t('labels.paymentCaptured', { defaultValue: 'Payment captured' })
+                                                        : t('labels.cardReservedNotCharged')}
                                             </Tag>
-                                            {slot.payment_status === 'authorized' && (
-                                                <Button
-                                                    size="xs"
-                                                    variant="solid"
-                                                    loading={isCapturing}
-                                                    onClick={async () => {
-                                                        setIsCapturing(true)
-                                                        try {
-                                                            await captureBookingPayment(slot.id)
-                                                            toast.push(
-                                                                <Notification type="success" title={t('labels.captureSuccess', { defaultValue: 'Payment captured' })} />,
-                                                                { placement: 'top-end' }
-                                                            )
-                                                            queryClient.invalidateQueries({ queryKey: ['schedule'] })
-                                                            queryClient.invalidateQueries({ queryKey: ['booking-payments'] })
-                                                        } catch (e) {
-                                                            toast.push(
-                                                                <Notification type="danger" title={t('labels.captureError', { defaultValue: 'Capture failed' })} />,
-                                                                { placement: 'top-end' }
-                                                            )
-                                                        } finally {
-                                                            setIsCapturing(false)
-                                                        }
-                                                    }}
-                                                >
-                                                    {t('labels.capturePayment', { defaultValue: 'Capture payment' })}
-                                                </Button>
+                                            {slot.payment_status === 'authorized' && !readOnly && (
+                                                <div className="relative inline-block" ref={paymentMenuRef}>
+                                                    <button
+                                                        type="button"
+                                                        disabled={isCapturing || isRefunding}
+                                                        onClick={() => setPaymentMenuOpen((o) => !o)}
+                                                        className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-60 disabled:pointer-events-none"
+                                                    >
+                                                        {t('labels.paymentActions', { defaultValue: 'Actions' })}
+                                                        <TbChevronDown className="w-4 h-4" />
+                                                    </button>
+                                                    {paymentMenuOpen && (
+                                                        <div
+                                                            className="absolute left-0 top-full z-[80] mt-1 min-w-[220px] rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg py-1"
+                                                            role="menu"
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                className="w-full text-left px-3 py-2 text-sm font-bold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                onClick={() => runCapture()}
+                                                            >
+                                                                {t('labels.capturePayment', { defaultValue: 'Capture payment' })}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="w-full text-left px-3 py-2 text-sm font-bold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                onClick={() => openRefundDialog()}
+                                                            >
+                                                                {t('labels.refundPayment', { defaultValue: 'Refund' })}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {slot.payment_status === 'paid' && !readOnly && (
+                                                <div className="relative inline-block" ref={paymentMenuRef}>
+                                                    <button
+                                                        type="button"
+                                                        disabled={isCapturing || isRefunding}
+                                                        onClick={() => setPaymentMenuOpen((o) => !o)}
+                                                        className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-60 disabled:pointer-events-none"
+                                                    >
+                                                        {t('labels.paymentActions', { defaultValue: 'Actions' })}
+                                                        <TbChevronDown className="w-4 h-4" />
+                                                    </button>
+                                                    {paymentMenuOpen && (
+                                                        <div
+                                                            className="absolute left-0 top-full z-[80] mt-1 min-w-[220px] rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg py-1"
+                                                            role="menu"
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                className="w-full text-left px-3 py-2 text-sm font-bold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                onClick={() => openRefundDialog()}
+                                                            >
+                                                                {t('labels.refundFull', { defaultValue: 'Full refund' })}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className="w-full text-left px-3 py-2 text-sm font-bold text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                onClick={() => openRefundDialog()}
+                                                            >
+                                                                {t('labels.refundPartial', { defaultValue: 'Partial refund' })}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -830,18 +1006,20 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
 
                                                 {Number(slot.discount_amount) > 0 && (
                                                     <>
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                                {t('labels.subtotal')}
-                                                            </span>
-                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                                {formatCurrency(
-                                                                    Number(slot.discount_amount) +
-                                                                        Number(slot.total_price || slot.price || 0),
-                                                                    currency,
-                                                                )}
-                                                            </span>
-                                                        </div>
+                                                        {shouldShowSubtotalBeforeDiscount(slot) && (
+                                                            <div className="flex justify-between items-center text-sm">
+                                                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                                                    {t('labels.subtotal')}
+                                                                </span>
+                                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                                    {formatCurrency(
+                                                                        Number(slot.discount_amount) +
+                                                                            Number(slot.total_price || slot.price || 0),
+                                                                        currency,
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                         <div className="flex justify-between items-center text-sm">
                                                             <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
                                                                 {slot.discount_source === 'promo_code' && slot.promo_code
@@ -1379,6 +1557,106 @@ const ScheduleSlotModal = ({ isOpen, onClose, slot, onSave, onDelete, readOnly =
                 </div>
             </div>
         </Dialog>
+
+        {mounted &&
+            typeof document !== 'undefined' &&
+            createPortal(
+                <Dialog
+                    isOpen={refundDialogOpen}
+                    onClose={() => {
+                        if (!isRefunding) setRefundDialogOpen(false)
+                    }}
+                    width={480}
+                    style={{
+                        overlay: { zIndex: 10100 },
+                        content: { zIndex: 10101 },
+                    }}
+                >
+                    <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('refundDialog.title')}</h4>
+                    </div>
+                    <div className="px-6 py-4 space-y-4">
+                        {/* Варианты суммы возврата */}
+                        {(() => {
+                            const totalAmount = Number(slot.total_price || slot.price || 0)
+                            const halfAmount = Math.round(totalAmount * 50) / 100
+                            const quarterAmount = Math.round(totalAmount * 25) / 100
+                            
+                            return (
+                                <FormItem label={t('refundDialog.amountLabel')}>
+                                    <div className="flex flex-wrap gap-2 mb-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setRefundAmountStr('')}
+                                            className={`px-3 py-1.5 rounded-md text-sm font-bold border transition-colors ${
+                                                refundAmountStr === ''
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            }`}
+                                        >
+                                            {t('refundDialog.fullRefund')} ({formatCurrency(totalAmount, currency)})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setRefundAmountStr(String(halfAmount))}
+                                            className={`px-3 py-1.5 rounded-md text-sm font-bold border transition-colors ${
+                                                refundAmountStr === String(halfAmount)
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            }`}
+                                        >
+                                            50% ({formatCurrency(halfAmount, currency)})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setRefundAmountStr(String(quarterAmount))}
+                                            className={`px-3 py-1.5 rounded-md text-sm font-bold border transition-colors ${
+                                                refundAmountStr === String(quarterAmount)
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            }`}
+                                        >
+                                            25% ({formatCurrency(quarterAmount, currency)})
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('refundDialog.customAmount')}:</span>
+                                        <Input
+                                            value={refundAmountStr}
+                                            onChange={(e) => setRefundAmountStr(e.target.value)}
+                                            placeholder={t('refundDialog.amountPlaceholder', { currency })}
+                                            size="sm"
+                                            className="w-32"
+                                        />
+                                    </div>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2">
+                                        {t('refundDialog.amountHintFullNew')}
+                                    </p>
+                                </FormItem>
+                            )
+                        })()}
+                        
+                        <FormItem label={t('refundDialog.reasonLabel')}>
+                            <Input
+                                textArea
+                                rows={2}
+                                value={refundReason}
+                                onChange={(e) => setRefundReason(e.target.value)}
+                                placeholder={t('refundDialog.reasonPlaceholder')}
+                            />
+                        </FormItem>
+                    </div>
+                    <div className="px-6 pb-6 flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <Button type="button" variant="plain" disabled={isRefunding} onClick={() => setRefundDialogOpen(false)}>
+                            {t('buttons.cancel')}
+                        </Button>
+                        <Button type="button" variant="default" loading={isRefunding} onClick={submitRefund}>
+                            {t('refundDialog.submit')}
+                        </Button>
+                    </div>
+                </Dialog>,
+                document.body,
+            )}
         
         {/* Модалка создания клиента — рендерим через Portal в document.body */}
         {mounted && typeof document !== 'undefined' && createPortal(

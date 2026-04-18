@@ -7,6 +7,7 @@ import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import BusinessOverview from './_components/BusinessOverview'
 import RecentBookings from './_components/RecentBookings'
 import QuickActions from './_components/QuickActions'
+import DashboardInsightsColumn from './_components/DashboardInsightsColumn'
 import BusinessStats from './_components/BusinessStats'
 import { useQuery } from '@tanstack/react-query'
 import { getBusinessStats } from '@/lib/api/business'
@@ -80,7 +81,12 @@ function DashboardPageContent() {
                     <BusinessStats stats={stats} />
 
                     {overviewData && (
-                        <BusinessOverview data={overviewData} />
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+                            <div className="min-w-0 flex-1">
+                                <BusinessOverview data={overviewData} />
+                            </div>
+                            <DashboardInsightsColumn stats={stats ?? {}} />
+                        </div>
                     )}
 
                     <div className="flex flex-col lg:flex-row gap-4">

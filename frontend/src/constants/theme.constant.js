@@ -3,6 +3,9 @@ export const DIR_LTR = 'ltr'
 export const MODE_LIGHT = 'light'
 export const MODE_DARK = 'dark'
 
+/** sessionStorage: '1' — пользователь выбрал тему вручную; не перезаписывать по prefers-color-scheme */
+export const THEME_MANUAL_OVERRIDE_SESSION_KEY = 'themeManualOverride'
+
 export const SIDE_NAV_WIDTH = 290
 export const SIDE_NAV_COLLAPSED_WIDTH = 80
 export const SPLITTED_SIDE_NAV_MINI_WIDTH = 80

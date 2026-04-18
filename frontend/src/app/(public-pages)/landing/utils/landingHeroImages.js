@@ -58,3 +58,15 @@ export function getLandingTechSrc(locale, stackId) {
     const prefix = getLandingPublicBasePath()
     return `${prefix}/img/landing/tech/${seg}/${stackId}.png`
 }
+
+/**
+ * Превью публичной страницы компании (лендинг): `public/img/marketplace/<локаль>/company-page-preview-{light|dark}.png`.
+ * @param {string} locale — из useLocale() (en, ru, es-MX, …)
+ * @param {boolean} isDark — тёмная тема
+ */
+export function getCompanyPagePreviewSrc(locale, isDark) {
+    const seg = resolveLandingHeroLocale(locale)
+    const file = isDark ? 'company-page-preview-dark.png' : 'company-page-preview-light.png'
+    const prefix = getLandingPublicBasePath()
+    return `${prefix}/img/marketplace/${seg}/${file}`
+}

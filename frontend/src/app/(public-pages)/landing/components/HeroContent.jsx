@@ -28,7 +28,7 @@ const demoIndustries = [
 ]
 
 const HERO_TITLE_DEFAULT_EN =
-    'Manage and scale your service business with REXTEN'
+    'Marketplace for clients, workspace for your team — REXTEN'
 
 /** Слово «REXTEN» или «REXTEN-…» (напр. армян. REXTEN-ով) */
 function isRextenHeroWord(word) {

@@ -10,8 +10,11 @@ import {
 import { PiCookie, PiX } from 'react-icons/pi'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 
 export default function CookieConsentModal() {
+    const t = useTranslations('cookieConsent')
+    const tCommon = useTranslations('common.buttons')
     const [isOpen, setIsOpen] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
 
@@ -84,15 +87,15 @@ export default function CookieConsentModal() {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                                    Мы используем cookies
+                                    {t('title')}
                                 </h4>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                                    Мы используем cookies для улучшения работы сайта.{' '}
+                                    {t('description')}
                                     <Link 
                                         href="/cookies" 
                                         className="text-blue-600 dark:text-blue-400 hover:underline"
                                     >
-                                        Подробнее
+                                        {t('readMore')}
                                     </Link>
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-2">
@@ -102,7 +105,7 @@ export default function CookieConsentModal() {
                                         onClick={handleAcceptNecessary}
                                         className="text-xs"
                                     >
-                                        Отклонить
+                                        {t('decline')}
                                     </Button>
                                     <Button
                                         variant="solid"
@@ -110,14 +113,14 @@ export default function CookieConsentModal() {
                                         onClick={handleAcceptAll}
                                         className="text-xs bg-blue-600 hover:bg-blue-700"
                                     >
-                                        Принять все
+                                        {t('acceptAll')}
                                     </Button>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                                aria-label="Закрыть"
+                                aria-label={tCommon('close')}
                             >
                                 <PiX className="text-sm" />
                             </button>

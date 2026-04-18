@@ -10,6 +10,7 @@ import classNames from '@/utils/classNames'
 import { COLOR_1, COLOR_2, COLOR_4 } from '@/constants/chart.constant'
 import { NumericFormat } from 'react-number-format'
 import { PiCalendarCheck, PiCurrencyDollar, PiUsers, PiClock } from 'react-icons/pi'
+import { TbProgressBolt, TbCopyCheck, TbArrowDownToArc } from 'react-icons/tb'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { getChartData } from '@/lib/api/business'
@@ -53,7 +54,7 @@ const StatisticCard = memo((props) => {
         label,
         icon,
         growShrink,
-        iconClass,
+        cardClass,
         active,
         compareFrom,
         onClick,
@@ -68,15 +69,16 @@ const StatisticCard = memo((props) => {
     return (
         <button
             className={classNames(
-                'p-4 rounded-2xl cursor-pointer ltr:text-left rtl:text-right transition duration-150 outline-hidden',
-                active && 'bg-white dark:bg-gray-900 shadow-md',
+                'p-4 rounded-2xl cursor-pointer ltr:text-left rtl:text-right transition duration-150 outline-hidden flex flex-col justify-center',
+                cardClass,
+                active && 'ring-2 ring-gray-900 dark:ring-gray-100 shadow-md',
             )}
             onClick={handleClick}
         >
             <div className="flex md:flex-col-reverse gap-2 2xl:flex-row justify-between relative">
                 <div>
-                    <div className="mb-4 text-sm font-bold text-gray-500 dark:text-gray-400">{title}</div>
-                    <h3 className="mb-1 text-gray-900 dark:text-gray-100">{value}</h3>
+                    <div className="mb-4 text-gray-900 font-bold">{title}</div>
+                    <h3 className="mb-1 text-gray-900">{value}</h3>
                     {footnote ? (
                         <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 leading-snug">
                             {footnote}
@@ -95,12 +97,7 @@ const StatisticCard = memo((props) => {
                         </div>
                     ) : null}
                 </div>
-                <div
-                    className={classNames(
-                        'flex items-center justify-center min-h-12 min-w-12 max-h-12 max-w-12 text-gray-900 rounded-full text-2xl',
-                        iconClass,
-                    )}
-                >
+                <div className="flex items-center justify-center min-h-12 min-w-12 max-h-12 max-w-12 bg-gray-900 text-white rounded-full text-2xl">
                     {icon}
                 </div>
             </div>
@@ -373,7 +370,7 @@ const BusinessOverview = ({ data }) => {
             <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2">
                 {periodCardsRangeLine}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-2xl p-3 bg-gray-100 dark:bg-gray-700 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-2xl mt-4">
                 <StatisticCard
                     title={t('stats.revenue')}
                     value={revenueValue}
@@ -382,8 +379,8 @@ const BusinessOverview = ({ data }) => {
                     showPeriodComparison={shouldShowPeriodComparison(
                         data?.revenue?.[selectedPeriod]?.growShrink,
                     )}
-                    iconClass="bg-emerald-200 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                    icon={<PiCurrencyDollar />}
+                    cardClass="bg-sky-100 dark:bg-opacity-75"
+                    icon={<TbProgressBolt />}
                     label="revenue"
                     active={selectedCategory === 'revenue'}
                     compareFrom={t('stats.comparedToPrevious')}
@@ -396,8 +393,8 @@ const BusinessOverview = ({ data }) => {
                     showPeriodComparison={shouldShowPeriodComparison(
                         data?.bookings?.[selectedPeriod]?.growShrink,
                     )}
-                    iconClass="bg-blue-200 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                    icon={<PiCalendarCheck />}
+                    cardClass="bg-emerald-100 dark:bg-opacity-75"
+                    icon={<TbCopyCheck />}
                     label="bookings"
                     active={selectedCategory === 'bookings'}
                     compareFrom={t('stats.comparedToPrevious')}
@@ -410,8 +407,8 @@ const BusinessOverview = ({ data }) => {
                     showPeriodComparison={shouldShowPeriodComparison(
                         data?.clients?.[selectedPeriod]?.growShrink,
                     )}
-                    iconClass="bg-purple-200 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400"
-                    icon={<PiUsers />}
+                    cardClass="bg-purple-100 dark:bg-opacity-75"
+                    icon={<TbArrowDownToArc />}
                     label="clients"
                     active={selectedCategory === 'clients'}
                     compareFrom={t('stats.comparedToPrevious')}

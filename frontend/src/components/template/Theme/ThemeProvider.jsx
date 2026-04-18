@@ -7,6 +7,12 @@ import appConfig from '@/configs/app.config'
 import applyTheme from '@/utils/applyThemeSchema'
 import presetThemeSchemaConfig from '@/configs/preset-theme-schema.config'
 import { setTheme as setThemeCookies } from '@/server/actions/theme'
+import {
+    MODE_DARK,
+    MODE_LIGHT,
+    THEME_MANUAL_OVERRIDE_SESSION_KEY,
+} from '@/constants/theme.constant'
+import { syncDocumentThemeMode } from '@/utils/syncDocumentThemeMode'
 
 const ThemeProvider = ({ children, theme, locale }) => {
     const [themeState, setThemeState] = useState(theme)
@@ -106,6 +112,47 @@ const ThemeProvider = ({ children, theme, locale }) => {
             return nextTheme
         })
     }, [isInitialMount])
+
+    /** Глобально: тема по prefers-color-scheme, пока пользователь не переключил вручную (setMode → sessionStorage). */
+    useEffect(() => {
+        if (typeof window === 'undefined' || isInitialMount) {
+            return undefined
+        }
+        try {
+            if (sessionStorage.getItem(THEME_MANUAL_OVERRIDE_SESSION_KEY) === '1') {
+                return undefined
+            }
+        } catch {
+            // ignore
+        }
+
+        const mql = window.matchMedia('(prefers-color-scheme: dark)')
+        const applySystemMode = () => {
+            try {
+                if (sessionStorage.getItem(THEME_MANUAL_OVERRIDE_SESSION_KEY) === '1') {
+                    return
+                }
+            } catch {
+                // ignore
+            }
+            const mode = mql.matches ? MODE_DARK : MODE_LIGHT
+            handleSetTheme((prevTheme) => {
+                if (prevTheme.mode === mode) {
+                    return prevTheme
+                }
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        syncDocumentThemeMode(mode)
+                    })
+                })
+                return { ...prevTheme, mode }
+            })
+        }
+
+        applySystemMode()
+        mql.addEventListener('change', applySystemMode)
+        return () => mql.removeEventListener('change', applySystemMode)
+    }, [isInitialMount, handleSetTheme])
 
     const contextValue = useMemo(
         () => ({

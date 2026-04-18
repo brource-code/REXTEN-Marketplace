@@ -42,6 +42,9 @@ export interface ClientOrder {
     status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
     price: number
     createdAt: string
+    payment_status?: string | null
+    payment_method?: string | null
+    paid_at?: string | null
 }
 
 export interface ClientBooking {
@@ -53,7 +56,7 @@ export interface ClientBooking {
     timezone?: string
     date: string
     time: string
-    status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+    status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'new'
     price: number
     specialist?: string
     notes?: string
@@ -71,6 +74,12 @@ export interface ClientBooking {
     total_price?: number // Общая стоимость с дополнительными услугами
     discount_amount?: number
     discount_source?: string | null
+    promo_code?: string | null
+    discount_tier_name?: string | null
+    payment_status?: string | null
+    payment_amount?: number | null
+    refunded_amount?: number | null
+    payment_method?: string | null
 }
 
 // API функции

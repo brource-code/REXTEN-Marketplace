@@ -452,6 +452,16 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 onSave={canManageSchedule ? handleSubmit : null}
                 onDelete={canManageSchedule && selectedSlot?.id ? () => handleDelete(selectedSlot.id) : null}
                 readOnly={!canManageSchedule}
+                onPaymentUpdated={async () => {
+                    const result = await refetchSlots()
+                    const list = result.data ?? queryClient.getQueryData(['business-schedule-slots']) ?? []
+                    const id = selectedSlot?.id
+                    if (!id) return
+                    const upd = list.find((s) => String(s.id) === String(id))
+                    if (upd) {
+                        setSelectedSlot({ ...upd, type: 'EDIT' })
+                    }
+                }}
             />
             <ConfirmDialog
                 isOpen={isDeleteDialogOpen}

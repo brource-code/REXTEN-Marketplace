@@ -33,9 +33,9 @@ const BookingDialog = ({
     availableDates = [],
     companyId,
     advertisementId,
+    preselectedServiceId = null,
 }) => {
     const [profile, setProfile] = useState(initialProfile)
-    // Получаем валюту из профиля или используем USD по умолчанию
     const currency = profile?.service?.currency || 'USD'
     const [selectedDate, setSelectedDate] = useState(0)
     const [selectedTime, setSelectedTime] = useState(null)
@@ -329,27 +329,26 @@ const BookingDialog = ({
         }
     }, [isOpen])
 
-    // Автовыбор первой услуги, если есть
-    // И определение начального шага: если одна услуга и нет команды - сразу шаг 3, если есть команда - шаг 2
     useEffect(() => {
         const validServices = Array.isArray(services) ? services.filter(s => s && typeof s === 'object' && s.id !== undefined) : []
         if (isOpen && validServices.length > 0 && !selectedService) {
-            setSelectedService(validServices[0].id)
-            // Если только одна услуга, определяем начальный шаг
-            if (validServices.length === 1) {
-                // Если есть команда - начинаем с шага 2 (выбор специалиста)
-                // Если нет команды - начинаем с шага 3 (дата/время)
+            const preselected = preselectedServiceId
+                ? validServices.find(s => String(s.id) === String(preselectedServiceId))
+                : null
+            const chosen = preselected || validServices[0]
+            setSelectedService(chosen.id)
+
+            if (preselected || validServices.length === 1) {
                 if (team.length > 0) {
                     setCurrentStep(2)
                 } else {
                     setCurrentStep(3)
                 }
             } else {
-                // Если несколько услуг - начинаем с шага 1
                 setCurrentStep(1)
             }
         }
-    }, [isOpen, services, selectedService, team.length])
+    }, [isOpen, services, selectedService, team.length, preselectedServiceId])
 
     const handleClose = () => {
         if (paymentSuccess && onSuccess) {
@@ -721,6 +720,71 @@ const BookingDialog = ({
     // Используем только слоты из API, которые уже проверены на доступность
     const availableSlots = availableSlotsData[selectedDate] || []
 
+    // Модалка успешного бронирования с оплатой — стандартный стиль
+    if (paymentSuccess) {
+        const successModalContent = (
+            <div 
+                className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4"
+                style={{ 
+                    minHeight: '100vh',
+                    minHeight: '-webkit-fill-available',
+                    height: '100dvh',
+                    paddingTop: 'max(1rem, env(safe-area-inset-top))',
+                    paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+                }}
+                onClick={handleClose}
+            >
+                <div 
+                    className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm p-6 text-center relative transform transition-all duration-200 scale-100 opacity-100"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Иконка успеха */}
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                        <svg 
+                            className="h-8 w-8 text-blue-600 dark:text-blue-400" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                d="M5 13l4 4L19 7" 
+                            />
+                        </svg>
+                    </div>
+
+                    {/* Заголовок */}
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        {t('successTitle')}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                        {t('successSubtitle')}
+                    </p>
+
+                    {/* Информация об успешной оплате */}
+                    <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-3">
+                        {t('paymentSuccess')}
+                    </p>
+
+                    {/* Кнопка закрытия */}
+                    <button
+                        className="mt-6 w-full rounded-full bg-blue-600 hover:bg-blue-700 py-3 text-white font-semibold transition"
+                        onClick={handleClose}
+                    >
+                        {t('great')}
+                    </button>
+                </div>
+            </div>
+        )
+
+        if (typeof window !== 'undefined') {
+            return createPortal(successModalContent, document.body)
+        }
+        return null
+    }
+
     const modalContent = (
         <div 
             className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4"
@@ -751,69 +815,42 @@ const BookingDialog = ({
                     </button>
 
                     {/* Заголовок */}
-                    {paymentSuccess ? (
-                        <>
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white pr-8 mb-1">
-                                {t('successTitle')}
-                            </h2>
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-0">
-                                {t('successSubtitle')}
-                            </p>
-                        </>
-                    ) : (
-                        <>
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white pr-8 mb-1">
-                                {t('title')}
-                            </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                {t('description')}
-                            </p>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white pr-8 mb-1">
+                        {t('title')}
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        {t('description')}
+                    </p>
 
-                            {/* Шаги прогресса */}
-                            <div className="flex items-center gap-2">
-                                {[1, 2, 3].map((step) => (
-                                    <div key={step} className="flex-1 flex items-center">
-                                        <div
-                                            className={classNames(
-                                                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition',
-                                                currentStep >= step
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
-                                            )}
-                                        >
-                                            {step}
-                                        </div>
-                                        {step < 3 && (
-                                            <div
-                                                className={classNames(
-                                                    'flex-1 h-0.5 mx-2 transition',
-                                                    currentStep > step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700',
-                                                )}
-                                            />
+                    {/* Шаги прогресса */}
+                    <div className="flex items-center gap-2">
+                        {[1, 2, 3].map((step) => (
+                            <div key={step} className="flex-1 flex items-center">
+                                <div
+                                    className={classNames(
+                                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition',
+                                        currentStep >= step
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                                    )}
+                                >
+                                    {step}
+                                </div>
+                                {step < 3 && (
+                                    <div
+                                        className={classNames(
+                                            'flex-1 h-0.5 mx-2 transition',
+                                            currentStep > step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700',
                                         )}
-                                    </div>
-                                ))}
+                                    />
+                                )}
                             </div>
-                        </>
-                    )}
+                        ))}
+                    </div>
                 </div>
 
                 {/* Скроллируемый контент */}
                 <div className="flex-1 overflow-y-auto booking-modal-scroll px-6 pb-4">
-                {paymentSuccess && (
-                    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
-                        <div className="flex gap-3 items-start">
-                            <PiCheckCircle
-                                className="w-6 h-6 shrink-0 text-gray-500 dark:text-gray-400 mt-0.5"
-                                aria-hidden
-                            />
-                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('paymentSuccess')}</p>
-                        </div>
-                    </div>
-                )}
-
-                {!paymentSuccess && (
-                <>
                 {/* Шаг 1: Выбор услуги */}
                 {currentStep === 1 && !paymentStep && validServices.length > 1 && (
                     <div className="space-y-3">
@@ -1376,17 +1413,24 @@ const BookingDialog = ({
                         </div>
                     </div>
                 )}
-                </>
-                )}
 
                 {/* Шаг оплаты */}
-                {paymentStep && !paymentSuccess && paymentClientSecret && (
+                {paymentStep && paymentClientSecret && (
                     <div className="mt-4">
                         <div className="rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/35 dark:border-amber-900/40 p-3 mb-4">
                             <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                 {t('paymentRequired')}
                             </p>
                         </div>
+                        {profile?.service?.cancellationFreeHours != null &&
+                            profile?.service?.cancellationLateFeePercent != null && (
+                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3">
+                                    {t('cancellationPolicyNote', {
+                                        hours: profile.service.cancellationFreeHours,
+                                        percent: profile.service.cancellationLateFeePercent,
+                                    })}
+                                </p>
+                            )}
                         <BookingPayment
                             bookingId={createdBookingId}
                             clientEmail={form.email || undefined}
@@ -1410,7 +1454,7 @@ const BookingDialog = ({
                 </div>
 
                 {/* Кнопки навигации - зафиксированы снизу (скрыты при оплате) */}
-                {!paymentStep && !paymentSuccess && (
+                {!paymentStep && (
                 <div className="flex-shrink-0 p-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
                     {currentStep > 1 && (
                         <button
@@ -1475,18 +1519,6 @@ const BookingDialog = ({
                         </button>
                     )}
                 </div>
-                )}
-
-                {paymentSuccess && (
-                    <div className="flex-shrink-0 p-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <button
-                            type="button"
-                            onClick={handleClose}
-                            className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-3 text-sm font-bold transition"
-                        >
-                            {t('close')}
-                        </button>
-                    </div>
                 )}
             </div>
         </div>

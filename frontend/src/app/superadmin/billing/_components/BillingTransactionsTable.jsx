@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import { useQuery } from '@tanstack/react-query'
 import { getSuperadminBillingTransactions } from '@/lib/api/superadmin-billing'
+import StripePaymentDetailModal from './StripePaymentDetailModal'
 import Loading from '@/components/shared/Loading'
 import { formatDate } from '@/utils/dateTime'
 import { PiMegaphone, PiCreditCard, PiBuildings, PiCalendarCheck } from 'react-icons/pi'
@@ -23,9 +24,11 @@ const typeColors = {
 
 export default function BillingTransactionsTable() {
     const t = useTranslations('superadmin.billing.transactions')
+    const tModal = useTranslations('superadmin.billing.stripeModal')
     const [typeFilter, setTypeFilter] = useState('all')
     const [pageIndex, setPageIndex] = useState(1)
     const [pageSize, setPageSize] = useState(10)
+    const [stripeModalRow, setStripeModalRow] = useState(null)
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['superadmin-billing-transactions', typeFilter, pageIndex, pageSize],
@@ -34,6 +37,7 @@ export default function BillingTransactionsTable() {
                 page: pageIndex,
                 pageSize,
                 type: typeFilter === 'all' ? undefined : typeFilter,
+                include_stripe: false,
             }),
         staleTime: 60_000,
     })
@@ -47,6 +51,22 @@ export default function BillingTransactionsTable() {
         ],
         [t],
     )
+
+    const modalSummary = useMemo(() => {
+        if (!stripeModalRow) return null
+        const formatted = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: stripeModalRow.currency || 'USD',
+        }).format(stripeModalRow.amount)
+        return [
+            formatDate(stripeModalRow.created, 'America/Los_Angeles', 'numeric'),
+            stripeModalRow.company_name || '—',
+            stripeModalRow.description,
+            formatted,
+        ]
+            .filter(Boolean)
+            .join(' · ')
+    }, [stripeModalRow])
 
     const columns = useMemo(
         () => [
@@ -128,8 +148,26 @@ export default function BillingTransactionsTable() {
                     )
                 },
             },
+            {
+                header: t('columns.actions'),
+                accessorKey: 'id',
+                cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="whitespace-nowrap"
+                            onClick={() => setStripeModalRow(row)}
+                        >
+                            {tModal('openButton')}
+                        </Button>
+                    )
+                },
+            },
         ],
-        [t],
+        [t, tModal],
     )
 
     const rows = data?.data ?? []
@@ -144,7 +182,7 @@ export default function BillingTransactionsTable() {
             <Card>
                 <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-start gap-2">
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-2 min-w-0">
                             {row.description}
                         </span>
                         <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
@@ -157,15 +195,24 @@ export default function BillingTransactionsTable() {
                     {row.company_id && row.company_name && (
                         <Link
                             href={`/superadmin/companies/${row.company_id}`}
-                            className="flex items-center gap-1 text-sm font-bold text-blue-600 dark:text-blue-400"
+                            className="flex items-center gap-1 text-sm font-bold text-blue-600 dark:text-blue-400 min-w-0"
                         >
-                            <PiBuildings size={14} />
-                            {row.company_name}
+                            <PiBuildings size={14} className="shrink-0" />
+                            <span className="truncate">{row.company_name}</span>
                         </Link>
                     )}
                     <Tag className={typeColors[row.type] || typeColors.unknown}>
                         {t(`types.${row.type}`, { defaultValue: row.type })}
                     </Tag>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-1"
+                        onClick={() => setStripeModalRow(row)}
+                    >
+                        {tModal('openButton')}
+                    </Button>
                 </div>
             </Card>
         )
@@ -197,9 +244,18 @@ export default function BillingTransactionsTable() {
 
     return (
         <AdaptiveCard>
+            <StripePaymentDetailModal
+                isOpen={Boolean(stripeModalRow)}
+                onClose={() => setStripeModalRow(null)}
+                variant={stripeModalRow ? 'platform' : null}
+                paymentId={null}
+                checkoutSessionId={stripeModalRow?.id ?? null}
+                stripeConnectAccountId={null}
+                summary={modalSummary}
+            />
             <div className="flex flex-col gap-4 mb-4">
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
-                <div className="max-w-xs">
+                <div className="max-w-xs w-full">
                     <label className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 block">
                         {t('filters.type')}
                     </label>

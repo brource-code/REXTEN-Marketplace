@@ -60,6 +60,34 @@ export interface DashboardPeriodMetric {
     growShrink: number
 }
 
+function parseBookingsGoalPeriod(raw: unknown): BookingsGoalPeriod {
+    if (raw != null && typeof raw === 'object' && 'current' in raw) {
+        const o = raw as { current?: unknown; target?: unknown; percent?: unknown }
+        return {
+            current: Number(o.current) || 0,
+            target: Number(o.target) || 0,
+            percent: Number(o.percent) || 0,
+        }
+    }
+    return { current: 0, target: 0, percent: 0 }
+}
+
+function parseTopServiceRows(raw: unknown): TopServiceRow[] {
+    if (!Array.isArray(raw)) {
+        return []
+    }
+    return raw.map((row) => {
+        const o = row as Record<string, unknown>
+        return {
+            serviceId: Number(o.serviceId) || 0,
+            name: typeof o.name === 'string' ? o.name : '',
+            image: o.image == null || o.image === '' ? null : String(o.image),
+            count: Number(o.count) || 0,
+            growShrink: Number(o.growShrink) || 0,
+        }
+    })
+}
+
 function parseDashboardPeriodMetric(raw: unknown): DashboardPeriodMetric {
     if (raw != null && typeof raw === 'object' && 'value' in raw) {
         const o = raw as { value?: unknown; growShrink?: unknown }
@@ -70,6 +98,20 @@ function parseDashboardPeriodMetric(raw: unknown): DashboardPeriodMetric {
     }
     const n = Number(raw)
     return { value: Number.isFinite(n) ? n : 0, growShrink: 0 }
+}
+
+export interface BookingsGoalPeriod {
+    current: number
+    target: number
+    percent: number
+}
+
+export interface TopServiceRow {
+    serviceId: number
+    name: string
+    image: string | null
+    count: number
+    growShrink: number
 }
 
 export interface BusinessStats {
@@ -98,6 +140,16 @@ export interface BusinessStats {
         thisWeek: DashboardPeriodMetric
         thisMonth: DashboardPeriodMetric
         thisYear: DashboardPeriodMetric
+    }
+    bookingsGoal?: {
+        thisWeek: BookingsGoalPeriod
+        thisMonth: BookingsGoalPeriod
+        thisYear: BookingsGoalPeriod
+    }
+    topServices?: {
+        thisWeek: TopServiceRow[]
+        thisMonth: TopServiceRow[]
+        thisYear: TopServiceRow[]
     }
 }
 
@@ -154,11 +206,23 @@ export async function getBusinessStats(): Promise<BusinessStats> {
                 thisMonth: parseDashboardPeriodMetric(data.clients?.thisMonth),
                 thisYear: parseDashboardPeriodMetric(data.clients?.thisYear),
             },
+            bookingsGoal: {
+                thisWeek: parseBookingsGoalPeriod(data.bookingsGoal?.thisWeek),
+                thisMonth: parseBookingsGoalPeriod(data.bookingsGoal?.thisMonth),
+                thisYear: parseBookingsGoalPeriod(data.bookingsGoal?.thisYear),
+            },
+            topServices: {
+                thisWeek: parseTopServiceRows(data.topServices?.thisWeek),
+                thisMonth: parseTopServiceRows(data.topServices?.thisMonth),
+                thisYear: parseTopServiceRows(data.topServices?.thisYear),
+            },
         }
     } catch (error: any) {
         // Если ошибка, возвращаем дефолтные значения вместо падения
         logClientApiError('Failed to fetch business stats', error)
         const z = (): DashboardPeriodMetric => ({ value: 0, growShrink: 0 })
+
+        const g = (): BookingsGoalPeriod => ({ current: 0, target: 0, percent: 0 })
 
         return {
             totalBookings: 0,
@@ -171,6 +235,8 @@ export async function getBusinessStats(): Promise<BusinessStats> {
             revenue: { thisWeek: z(), thisMonth: z(), thisYear: z() },
             bookings: { thisWeek: z(), thisMonth: z(), thisYear: z() },
             clients: { thisWeek: z(), thisMonth: z(), thisYear: z() },
+            bookingsGoal: { thisWeek: g(), thisMonth: g(), thisYear: g() },
+            topServices: { thisWeek: [], thisMonth: [], thisYear: [] },
         }
     }
 }
@@ -551,6 +617,8 @@ export interface BusinessProfile {
     onboarding_completed_at?: string | null
     /** Текущая пройденная версия тура (например v1) */
     onboarding_version?: string | null
+    /** Цель бронирований в месяц для виджета дашборда; null — авто от прошлой активности */
+    dashboard_monthly_bookings_goal?: number | null
     is_owner?: boolean
     permissions?: string[]
 }
@@ -562,6 +630,8 @@ export interface BusinessService {
     duration: number
     price: number
     status: 'active' | 'inactive'
+    /** Соответствует is_active в БД; для списков без include_inactive всегда true */
+    is_active?: boolean
     advertisement_id?: number | null
     service_type?: 'onsite' | 'offsite' | 'hybrid'
 }
@@ -573,6 +643,7 @@ export interface TeamMember {
     phone: string
     role: string
     status: 'active' | 'inactive'
+    is_active?: boolean
     img?: string
     /** Домашняя база для старта маршрута; координаты — с сервера (HERE) или с Google Places при сохранении */
     home_address?: string | null
@@ -600,6 +671,8 @@ export interface MarketplaceSettings {
     metaKeywords: string
     onlinePaymentEnabled?: boolean
     stripeConnected?: boolean
+    cancellationFreeHours?: number
+    cancellationLateFeePercent?: number
 }
 
 // Profile
@@ -623,8 +696,9 @@ export async function uploadBusinessAvatar(file: File): Promise<{ avatar: string
 }
 
 // Services
-export async function getBusinessServices(): Promise<BusinessService[]> {
-    const response = await LaravelAxios.get('/business/settings/services')
+export async function getBusinessServices(options?: { includeInactive?: boolean }): Promise<BusinessService[]> {
+    const params = options?.includeInactive ? { include_inactive: '1' } : undefined
+    const response = await LaravelAxios.get('/business/settings/services', { params })
     return response.data.data || response.data
 }
 
@@ -643,8 +717,9 @@ export async function deleteBusinessService(id: number): Promise<void> {
 }
 
 // Team
-export async function getTeamMembers(): Promise<TeamMember[]> {
-    const response = await LaravelAxios.get('/business/settings/team')
+export async function getTeamMembers(options?: { includeInactive?: boolean }): Promise<TeamMember[]> {
+    const params = options?.includeInactive ? { include_inactive: '1' } : undefined
+    const response = await LaravelAxios.get('/business/settings/team', { params })
     return response.data.data || response.data
 }
 

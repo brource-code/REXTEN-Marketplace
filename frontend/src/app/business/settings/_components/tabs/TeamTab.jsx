@@ -51,8 +51,8 @@ const TeamTab = () => {
     }
 
     const { data: teamMembers = [], isLoading } = useQuery({
-        queryKey: ['business-team'],
-        queryFn: getTeamMembers,
+        queryKey: ['business-team', 'full'],
+        queryFn: () => getTeamMembers({ includeInactive: true }),
     })
 
     const createMemberMutation = useMutation({

@@ -26,28 +26,31 @@ const Navigation = ({ toggleMode, mode }) => {
     const tNavbar = useTranslations('components.navbar')
     const { isAuthenticated, authReady } = useAuthStore()
 
-    const navMenu = [
-        {
-            title: t('features'),
-            value: 'features',
-            to: 'features',
-        },
-        {
-            title: t('demos'),
-            value: 'demos',
-            to: 'demos',
-        },
-        {
-            title: t('pricing'),
-            value: 'pricing',
-            to: 'pricing',
-        },
-        {
-            title: t('faq'),
-            value: 'faq',
-            to: 'faq',
-        },
-    ]
+    const navMenu = useMemo(
+        () => [
+            {
+                title: t('features'),
+                value: 'features',
+                to: 'features',
+            },
+            {
+                title: t('demos'),
+                value: 'demos',
+                to: 'demos',
+            },
+            {
+                title: t('pricing'),
+                value: 'pricing',
+                to: 'pricing',
+            },
+            {
+                title: t('faq'),
+                value: 'faq',
+                to: 'faq',
+            },
+        ],
+        [t],
+    )
 
     const selectLangFlag = useMemo(() => {
         return languageList.find((lang) => lang.value === locale)?.flag

@@ -16,7 +16,7 @@ function formatTierDiscount(tier) {
  * @param {object} props
  * @param {'marketplace' | 'business'} props.variant
  * @param {string} [props.companyName]
- * @param {string} [props.companySlug]
+ * @param {string} [props.companySlug] — slug компании для /marketplace/company/{slug}
  * @param {number} props.loyaltyBookingsCount
  * @param {string} props.loyaltyRule
  * @param {object | null} props.currentTier
@@ -91,7 +91,7 @@ export default function LoyaltyProgramBlock({
                     </div>
                     {companySlug ? (
                         <Link
-                            href={`/marketplace/${companySlug}`}
+                            href={`/marketplace/company/${companySlug}`}
                             className={classNames(
                                 'inline-flex items-center justify-center gap-1.5 shrink-0',
                                 'rounded-xl px-4 py-2.5 text-sm font-bold',

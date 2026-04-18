@@ -17,6 +17,8 @@ export interface Service {
     description: string
     path: string
     isFeatured?: boolean
+    cancellationFreeHours?: number
+    cancellationLateFeePercent?: number
 }
 
 export interface ServiceItem {

@@ -43,14 +43,10 @@ const FAQ = () => {
     const [openIndex, setOpenIndex] = useState(0)
     const t = useTranslations('landing.faq')
 
-    const faqItems = [
-        { question: t('items.0.question'), answer: t('items.0.answer') },
-        { question: t('items.1.question'), answer: t('items.1.answer') },
-        { question: t('items.2.question'), answer: t('items.2.answer') },
-        { question: t('items.3.question'), answer: t('items.3.answer') },
-        { question: t('items.4.question'), answer: t('items.4.answer') },
-        { question: t('items.5.question'), answer: t('items.5.answer') },
-    ]
+    const faqItems = Array.from({ length: 7 }, (_, i) => ({
+        question: t(`items.${i}.question`),
+        answer: t(`items.${i}.answer`),
+    }))
 
     return (
         <div id="faq" className="relative z-20 py-10 md:py-20">

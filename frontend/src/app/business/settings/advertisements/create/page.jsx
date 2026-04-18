@@ -793,15 +793,15 @@ export default function CreateAdvertisementPage() {
 
     // Загрузка команды
     const { data: companyTeamData } = useQuery({
-        queryKey: ['business-team'],
-        queryFn: getTeamMembers,
+        queryKey: ['business-team', 'full'],
+        queryFn: () => getTeamMembers({ includeInactive: true }),
     })
     const companyTeam = companyTeamData ?? STABLE_EMPTY_ARRAY
 
     // Загрузка услуг компании
     const { data: companyServicesData } = useQuery({
-        queryKey: ['business-services'],
-        queryFn: getBusinessServices,
+        queryKey: ['business-services', 'full'],
+        queryFn: () => getBusinessServices({ includeInactive: true }),
     })
     const companyServices = companyServicesData ?? STABLE_EMPTY_ARRAY
 

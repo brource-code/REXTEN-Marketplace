@@ -52,6 +52,36 @@ export const getLaravelApiUrl = () => {
     return process.env.NEXT_PUBLIC_LARAVEL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 }
 
+/** Публичные тарифы (БД) — для лендинга, без JWT */
+export interface PublicSubscriptionPlan {
+    id: string
+    name: string
+    description: string | null
+    price_monthly: number
+    price_yearly: number
+    features: Record<string, unknown> | null
+    badge_text: string | null
+    color: string
+    sort_order: number
+    is_free: boolean
+}
+
+export async function getPublicSubscriptionPlans(): Promise<PublicSubscriptionPlan[]> {
+    try {
+        const response = await fetch(`${getLaravelApiUrl()}/subscription-plans/public`, {
+            headers: { Accept: 'application/json' },
+        })
+        if (!response.ok) {
+            return []
+        }
+        const data = await response.json()
+        return Array.isArray(data.plans) ? data.plans : []
+    } catch (error) {
+        logClientApiError('getPublicSubscriptionPlans', error)
+        return []
+    }
+}
+
 // Получить список всех услуг
 export async function getServicesList(): Promise<Service[]> {
     try {
@@ -230,6 +260,7 @@ export interface ServicesFilters {
     priceMax?: number
     ratingMin?: number
     tags?: string[]
+    sort_by?: string
 }
 
 export async function getFilteredServices(filters: ServicesFilters): Promise<Service[]> {
@@ -249,6 +280,7 @@ export async function getFilteredServices(filters: ServicesFilters): Promise<Ser
         if (filters.tags && filters.tags.length > 0) {
             filters.tags.forEach(tag => params.append('tags[]', tag))
         }
+        if (filters.sort_by && filters.sort_by !== 'default') params.append('sort_by', filters.sort_by)
 
         const url = `${getLaravelApiUrl()}/marketplace/services?${params.toString()}`
         const response = await fetch(url)
@@ -370,5 +402,17 @@ export async function getFeaturedServices(
         logClientApiError('Error fetching featured services', error)
         return []
     }
+}
+
+export async function trackAdImpression(adId: number): Promise<void> {
+    try {
+        await fetch(`${getLaravelApiUrl()}/advertisements/${adId}/impression`, { method: 'POST' })
+    } catch { /* non-critical */ }
+}
+
+export async function trackAdClick(adId: number): Promise<void> {
+    try {
+        await fetch(`${getLaravelApiUrl()}/advertisements/${adId}/click`, { method: 'POST' })
+    } catch { /* non-critical */ }
 }
 

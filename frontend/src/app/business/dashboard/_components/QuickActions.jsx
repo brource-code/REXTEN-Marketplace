@@ -4,7 +4,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getBusinessProfile, getScheduleSlots } from '@/lib/api/business'
 import {
     PiCalendarPlus,
@@ -29,6 +29,7 @@ const QuickActions = () => {
     const canManageSchedule = usePermission('manage_schedule')
 
     const [isClientModalOpen, setIsClientModalOpen] = useState(false)
+    const queryClient = useQueryClient()
 
     const { refetch: refetchSlots } = useQuery({
         queryKey: ['business-schedule-slots'],
@@ -168,6 +169,16 @@ const QuickActions = () => {
                         : null
                 }
                 readOnly={!canManageSchedule}
+                onPaymentUpdated={async () => {
+                    const result = await refetchSlots()
+                    const list = result.data ?? queryClient.getQueryData(['business-schedule-slots']) ?? []
+                    const id = selectedSlot?.id
+                    if (!id) return
+                    const upd = list.find((s) => String(s.id) === String(id))
+                    if (upd) {
+                        setSelectedSlot({ ...upd, type: 'EDIT' })
+                    }
+                }}
             />
             <ConfirmDialog
                 isOpen={isDeleteDialogOpen}
