@@ -46,10 +46,13 @@ class SubscriptionMailer
 
         $company = Company::find($sub->company_id);
         $owner = self::resolveOwner($company);
-        if (! $owner) {
-            Log::warning('SubscriptionMailer: no owner email for notifyPaymentSucceeded', [
+        $recipient = self::resolveRecipientEmail($company, $owner);
+        if (! $recipient) {
+            Log::warning('SubscriptionMailer: no recipient email for notifyPaymentSucceeded', [
                 'subscription_id' => $sub->id,
                 'company_id' => $sub->company_id,
+                'owner_id' => $owner?->id,
+                'company_email' => $company?->email,
                 'invoice_id' => $invoiceId,
             ]);
             Cache::forget('subscription_mailer:invoice:'.$invoiceId);
@@ -102,7 +105,7 @@ class SubscriptionMailer
             $subjectTemplate = __('mail.subscription.plan_changed.subject', ['plan' => $planName], $locale);
             $intro = __('mail.subscription.plan_changed.intro', ['app' => self::appName(), 'plan' => $planName], $locale);
 
-            self::send($owner, $locale, $subjectTemplate, $intro, $fields, [
+            self::send($recipient, $locale, $subjectTemplate, $intro, $fields, [
                 'label' => __('mail.subscription.fields.total_charged', [], $locale),
                 'value' => $amount,
             ], $invoiceId);
@@ -130,7 +133,7 @@ class SubscriptionMailer
             ['label' => __('mail.subscription.fields.next_renewal', [], $locale), 'value' => $nextRenewal],
         ];
 
-        self::send($owner, $locale, $subjectTemplate, $intro, $fields, [
+        self::send($recipient, $locale, $subjectTemplate, $intro, $fields, [
             'label' => __('mail.subscription.fields.amount_paid', [], $locale),
             'value' => $amount,
         ], $invoiceId);
@@ -140,10 +143,13 @@ class SubscriptionMailer
     {
         $company = Company::find($sub->company_id);
         $owner = self::resolveOwner($company);
-        if (! $owner) {
-            Log::warning('SubscriptionMailer: no owner email for notifyCanceled', [
+        $recipient = self::resolveRecipientEmail($company, $owner);
+        if (! $recipient) {
+            Log::warning('SubscriptionMailer: no recipient email for notifyCanceled', [
                 'subscription_id' => $sub->id,
                 'company_id' => $sub->company_id,
+                'owner_id' => $owner?->id,
+                'company_email' => $company?->email,
             ]);
 
             return;
@@ -170,17 +176,20 @@ class SubscriptionMailer
             ['label' => __('mail.subscription.fields.access_until', [], $locale), 'value' => $until],
         ];
 
-        self::send($owner, $locale, $subject, $intro, $fields, null, null);
+        self::send($recipient, $locale, $subject, $intro, $fields, null, null);
     }
 
     public static function notifyDowngradeScheduled(Subscription $sub, string $newPlanSlug): void
     {
         $company = Company::find($sub->company_id);
         $owner = self::resolveOwner($company);
-        if (! $owner) {
-            Log::warning('SubscriptionMailer: no owner email for notifyDowngradeScheduled', [
+        $recipient = self::resolveRecipientEmail($company, $owner);
+        if (! $recipient) {
+            Log::warning('SubscriptionMailer: no recipient email for notifyDowngradeScheduled', [
                 'subscription_id' => $sub->id,
                 'company_id' => $sub->company_id,
+                'owner_id' => $owner?->id,
+                'company_email' => $company?->email,
             ]);
 
             return;
@@ -211,11 +220,11 @@ class SubscriptionMailer
             ['label' => __('mail.subscription.fields.effective_date', [], $locale), 'value' => $until],
         ];
 
-        self::send($owner, $locale, $subject, $intro, $fields, null, null);
+        self::send($recipient, $locale, $subject, $intro, $fields, null, null);
     }
 
     private static function send(
-        User $owner,
+        string $recipient,
         string $locale,
         string $subject,
         string $intro,
@@ -249,18 +258,17 @@ class SubscriptionMailer
                     'noteText' => $noteText,
                     'footerText' => $footerText,
                 ],
-                function ($message) use ($owner, $subject) {
-                    $message->to($owner->email)->subject($subject);
+                function ($message) use ($recipient, $subject) {
+                    $message->to($recipient)->subject($subject);
                 }
             );
             Log::info('SubscriptionMailer: email sent', [
-                'owner_id' => $owner->id,
-                'to' => $owner->email,
+                'to' => $recipient,
                 'subject' => $subject,
             ]);
         } catch (\Throwable $e) {
             Log::error('SubscriptionMailer: failed to send email', [
-                'owner_id' => $owner->id,
+                'to' => $recipient,
                 'subject' => $subject,
                 'error' => $e->getMessage(),
             ]);
@@ -292,20 +300,41 @@ class SubscriptionMailer
 
     private static function resolveOwner(?Company $company): ?User
     {
-        if (!$company) {
+        if (! $company) {
             return null;
         }
         $owner = User::find($company->owner_id);
-        if (!$owner || !$owner->email) {
+        if (! $owner) {
             return null;
         }
 
         return $owner;
     }
 
-    private static function ownerLocale(User $owner): string
+    /**
+     * Адрес получателя для подписки: предпочитаем контактный email компании,
+     * затем email владельца (как для платёжных уведомлений). Возвращает null,
+     * если не удалось найти ни одного.
+     */
+    private static function resolveRecipientEmail(?Company $company, ?User $owner): ?string
     {
-        return PasswordResetMailLocale::toMailLang($owner->locale ?? 'en') ?? 'en';
+        $candidates = [
+            $company?->email,
+            $owner?->email,
+        ];
+        foreach ($candidates as $candidate) {
+            $value = is_string($candidate) ? trim($candidate) : '';
+            if ($value !== '' && filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    private static function ownerLocale(?User $owner): string
+    {
+        return PasswordResetMailLocale::toMailLang($owner?->locale ?? 'en') ?? 'en';
     }
 
     private static function appName(): string

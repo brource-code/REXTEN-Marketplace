@@ -2518,6 +2518,7 @@
                 "scheduledBadge": "Downgrade to {plan} scheduled",
                 "cta": "Downgrade",
                 "scheduledSuccess": "Downgrade scheduled for the end of the billing period.",
+                "scheduleCanceled": "Scheduled downgrade canceled.",
                 "cancelSchedule": "Cancel scheduled downgrade",
                 "cancel": "Back",
                 "confirm": "Schedule downgrade",

@@ -2518,6 +2518,7 @@
                 "scheduledBadge": "Bajada a {plan} programada",
                 "cta": "Bajar de plan",
                 "scheduledSuccess": "Bajada de plan programada para el fin del período de facturación.",
+                "scheduleCanceled": "Bajada programada cancelada.",
                 "cancelSchedule": "Cancelar bajada programada",
                 "cancel": "Atrás",
                 "confirm": "Programar bajada",
