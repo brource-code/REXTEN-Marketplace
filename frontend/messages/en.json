@@ -2628,6 +2628,12 @@
             "subscriptionPayment": "Subscription payment — {planName} ({periodLabel})",
             "periodLabelMonth": "Monthly",
             "periodLabelYear": "Yearly",
+            "stripeChargeLabels": {
+                "subscriptionUpdate": "Subscription change (proration)",
+                "subscriptionCreation": "New subscription charge",
+                "subscriptionGeneric": "Subscription",
+                "refundOf": "Refund: {label}"
+            },
             "errors": {
                 "loadError": "Failed to load transactions"
             },

@@ -2615,6 +2615,12 @@
             "subscriptionPayment": "Оплата підписки — {planName} ({periodLabel})",
             "periodLabelMonth": "Щомісяця",
             "periodLabelYear": "Щороку",
+            "stripeChargeLabels": {
+                "subscriptionUpdate": "Зміна підписки (прорація)",
+                "subscriptionCreation": "Оплата нової підписки",
+                "subscriptionGeneric": "Підписка",
+                "refundOf": "Повернення: {label}"
+            },
             "errors": {
                 "loadError": "Не вдалося завантажити транзакції"
             },

@@ -2117,6 +2117,12 @@
             "subscriptionPayment": "Оплата подписки — {planName} ({periodLabel})",
             "periodLabelMonth": "Ежемесячно",
             "periodLabelYear": "Ежегодно",
+            "stripeChargeLabels": {
+                "subscriptionUpdate": "Изменение подписки (прорация)",
+                "subscriptionCreation": "Оплата новой подписки",
+                "subscriptionGeneric": "Подписка",
+                "refundOf": "Возврат: {label}"
+            },
             "errors": {
                 "loadError": "Не удалось загрузить транзакции"
             },

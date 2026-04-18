@@ -2615,6 +2615,12 @@
             "subscriptionPayment": "Բաժանորդագրության վճարում — {planName} ({periodLabel})",
             "periodLabelMonth": "Ամսական",
             "periodLabelYear": "Տարեկան",
+            "stripeChargeLabels": {
+                "subscriptionUpdate": "Բաժանորդագրության փոփոխություն (պրորացիա)",
+                "subscriptionCreation": "Նոր բաժանորդագրության վճարում",
+                "subscriptionGeneric": "Բաժանորդագրություն",
+                "refundOf": "Վերադարձ՝ {label}"
+            },
             "errors": {
                 "loadError": "Հնարավոր չէր բեռնել գործարքները"
             },

@@ -790,11 +790,12 @@ class StripeController extends Controller
             // так как metadata хранится именно в Session
             $sessions = Session::all([
                 'limit' => $request->input('limit', 100),
-                'expand' => ['data.payment_intent'],
+                'expand' => ['data.payment_intent.latest_charge'],
             ]);
 
             $transactions = [];
             $seenPaymentIntentIds = [];
+            $seenChargeIds = [];
 
             foreach ($sessions->data as $session) {
                 // Пропускаем неоплаченные сессии
@@ -905,11 +906,20 @@ class StripeController extends Controller
                 ];
 
                 if ($session->payment_intent) {
-                    $pi = is_string($session->payment_intent)
-                        ? $session->payment_intent
-                        : ($session->payment_intent->id ?? null);
+                    $piObj = $session->payment_intent;
+                    $pi = is_string($piObj)
+                        ? $piObj
+                        : ($piObj->id ?? null);
                     if ($pi) {
                         $seenPaymentIntentIds[$pi] = true;
+                    }
+                    if (! is_string($piObj) && ! empty($piObj->latest_charge)) {
+                        $lc = is_string($piObj->latest_charge)
+                            ? $piObj->latest_charge
+                            : ($piObj->latest_charge->id ?? null);
+                        if ($lc) {
+                            $seenChargeIds[$lc] = true;
+                        }
                     }
                 }
             }
@@ -935,7 +945,8 @@ class StripeController extends Controller
                     }
 
                     $md = $charge->metadata ?? (object) [];
-                    $appendRefundsOnly = $piId && isset($seenPaymentIntentIds[$piId]);
+                    $skipChargeRow = ($piId && isset($seenPaymentIntentIds[$piId]))
+                        || isset($seenChargeIds[$charge->id ?? '']);
 
                     $baseDescription = '';
                     $transactionType = 'unknown';
@@ -993,7 +1004,7 @@ class StripeController extends Controller
                             : ($invoiceRaw->id ?? null);
                     }
 
-                    if (! $appendRefundsOnly) {
+                    if (! $skipChargeRow) {
                         $amountCents = (int) ($charge->amount ?? 0);
                         if ($amountCents > 0 || $chargeStatus !== 'succeeded') {
                             $transactions[] = [
@@ -1045,6 +1056,8 @@ class StripeController extends Controller
                     }
                 }
             }
+
+            $transactions = $this->dedupeSubscriptionCheckoutCharges($transactions);
 
             usort($transactions, function ($a, $b) {
                 return ($b['created_timestamp'] ?? 0) <=> ($a['created_timestamp'] ?? 0);
@@ -2079,6 +2092,66 @@ class StripeController extends Controller
             'status' => Payment::STATUS_EXPIRED,
             'capture_status' => Payment::CAPTURE_CANCELLED,
         ]);
+    }
+
+    /**
+     * Убирает дубликат: одна и та же оплата как Checkout Session (cs_) и как Charge (ch_).
+     */
+    private function dedupeSubscriptionCheckoutCharges(array $transactions): array
+    {
+        $n = count($transactions);
+        if ($n < 2) {
+            return $transactions;
+        }
+        $remove = array_fill(0, $n, false);
+        for ($i = 0; $i < $n; $i++) {
+            for ($j = 0; $j < $n; $j++) {
+                if ($i === $j || $remove[$i] || $remove[$j]) {
+                    continue;
+                }
+                $a = $transactions[$i];
+                $b = $transactions[$j];
+                if (($a['type'] ?? '') !== 'subscription' || ($b['type'] ?? '') !== 'subscription') {
+                    continue;
+                }
+                if (($a['status'] ?? '') !== 'succeeded' || ($b['status'] ?? '') !== 'succeeded') {
+                    continue;
+                }
+                $idA = (string) ($a['id'] ?? '');
+                $idB = (string) ($b['id'] ?? '');
+                if ($idA === '' || $idB === '') {
+                    continue;
+                }
+                $aCs = str_starts_with($idA, 'cs_');
+                $bCs = str_starts_with($idB, 'cs_');
+                $aCh = str_starts_with($idA, 'ch_');
+                $bCh = str_starts_with($idB, 'ch_');
+                if (($aCs && $bCh && $this->billingSameSubscriptionFingerprint($a, $b)) ||
+                    ($aCh && $bCs && $this->billingSameSubscriptionFingerprint($a, $b))) {
+                    $remove[$aCh ? $i : $j] = true;
+                }
+            }
+        }
+        $out = [];
+        for ($k = 0; $k < $n; $k++) {
+            if (! $remove[$k]) {
+                $out[] = $transactions[$k];
+            }
+        }
+
+        return $out;
+    }
+
+    private function billingSameSubscriptionFingerprint(array $a, array $b): bool
+    {
+        if (strtoupper((string) ($a['currency'] ?? '')) !== strtoupper((string) ($b['currency'] ?? ''))) {
+            return false;
+        }
+        if (abs((float) ($a['amount'] ?? 0) - (float) ($b['amount'] ?? 0)) > 0.009) {
+            return false;
+        }
+
+        return abs((int) ($a['created_timestamp'] ?? 0) - (int) ($b['created_timestamp'] ?? 0)) <= 420;
     }
 
     private function refundPaymentIntentForStaleBooking(string $paymentIntentId, Payment $payment, Booking $booking): void

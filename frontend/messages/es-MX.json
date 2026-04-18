@@ -2615,6 +2615,12 @@
             "subscriptionPayment": "Pago de suscripción — {planName} ({periodLabel})",
             "periodLabelMonth": "Mensual",
             "periodLabelYear": "Anual",
+            "stripeChargeLabels": {
+                "subscriptionUpdate": "Cambio de plan (prorrateo)",
+                "subscriptionCreation": "Cargo por nueva suscripción",
+                "subscriptionGeneric": "Suscripción",
+                "refundOf": "Reembolso: {label}"
+            },
             "errors": {
                 "loadError": "No se pudieron cargar las transacciones"
             },
