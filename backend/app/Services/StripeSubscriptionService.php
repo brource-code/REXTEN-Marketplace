@@ -209,7 +209,10 @@ class StripeSubscriptionService
         // releas-им и пересоздадим, чтобы фазы были чистые.
         if ($existingScheduleId) {
             try {
-                StripeSubscriptionSchedule::release($existingScheduleId);
+                $existingSchedule = StripeSubscriptionSchedule::retrieve($existingScheduleId);
+                if (in_array($existingSchedule->status ?? '', ['not_started', 'active'], true)) {
+                    $existingSchedule->release();
+                }
             } catch (\Throwable $e) {
                 Log::warning('Stripe SubscriptionSchedule release before re-create failed', [
                     'schedule_id' => $existingScheduleId,
@@ -235,6 +238,10 @@ class StripeSubscriptionService
             throw new \RuntimeException('Stripe SubscriptionSchedule current phase has no price');
         }
 
+        // Stripe не принимает в одной фазе сразу start_date/end_date и iterations.
+        // Первая фаза описывается явными датами текущего периода, вторая — бесконечная
+        // (iterations не указываем; end_behavior=release вернёт обычную подписку после
+        // последней фазы, но т.к. вторая фаза без end — расписание просто живёт дальше).
         return StripeSubscriptionSchedule::update($schedule->id, [
             'end_behavior' => 'release',
             'phases' => [
@@ -252,7 +259,6 @@ class StripeSubscriptionService
                         'price' => $newPriceId,
                         'quantity' => 1,
                     ]],
-                    'iterations' => 1,
                     'proration_behavior' => 'none',
                 ],
             ],
@@ -266,7 +272,10 @@ class StripeSubscriptionService
     {
         self::init();
         try {
-            StripeSubscriptionSchedule::release($scheduleId);
+            $schedule = StripeSubscriptionSchedule::retrieve($scheduleId);
+            if (in_array($schedule->status ?? '', ['not_started', 'active'], true)) {
+                $schedule->release();
+            }
         } catch (\Throwable $e) {
             Log::warning('Stripe SubscriptionSchedule release failed', [
                 'schedule_id' => $scheduleId,
