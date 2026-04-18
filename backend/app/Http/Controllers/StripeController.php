@@ -223,6 +223,13 @@ class StripeController extends Controller
             case 'checkout.session.completed':
                 $metadata = $object->metadata;
                 $type = $metadata->type ?? null;
+                // mode=subscription + метаданные плана без явного type (старые сессии / ручные тесты)
+                if ($type !== 'subscription'
+                    && ($object->mode ?? null) === 'subscription'
+                    && isset($metadata->plan, $metadata->company_id)
+                    && ! isset($metadata->advertisement_id)) {
+                    $type = 'subscription';
+                }
                 if ($type === 'subscription') {
                     $this->handleSubscriptionPayment($object, $metadata);
                 } else {
@@ -340,22 +347,49 @@ class StripeController extends Controller
     }
 
     /**
+     * Stripe ID из поля вебхука (строка или развёрнутый объект API).
+     */
+    private function stripeRefToId(mixed $ref): ?string
+    {
+        if ($ref === null || $ref === '') {
+            return null;
+        }
+        if (is_string($ref)) {
+            return $ref;
+        }
+        if (is_object($ref) && isset($ref->id)) {
+            return (string) $ref->id;
+        }
+
+        return null;
+    }
+
+    /**
      * Stripe выставил инвойс и оплатил его (продление периода или первая оплата).
      * Обновляем current_period_end локальной записи.
      */
     private function handleInvoicePaymentSucceeded($invoice): void
     {
-        $stripeSubId = $invoice->subscription ?? null;
-        if (!$stripeSubId) {
+        $stripeSubId = $this->stripeRefToId($invoice->subscription ?? null);
+        if (! $stripeSubId) {
             return;
         }
 
-        $local = Subscription::where('stripe_subscription_id', $stripeSubId)->first();
-        if (!$local) {
-            Log::info('Webhook invoice.payment_succeeded: no local subscription (skipping)', [
+        // checkout.session.completed иногда приходит позже invoice.* — коротко ждём локальную строку.
+        $local = null;
+        for ($waitAttempt = 0; $waitAttempt < 20; $waitAttempt++) {
+            $local = Subscription::where('stripe_subscription_id', $stripeSubId)->first();
+            if ($local) {
+                break;
+            }
+            usleep(100000);
+        }
+        if (! $local) {
+            Log::warning('Webhook invoice.payment_succeeded: no local subscription after wait (mail may be sent on checkout webhook)', [
                 'stripe_subscription_id' => $stripeSubId,
                 'invoice_id' => $invoice->id ?? null,
             ]);
+
             return;
         }
 
@@ -389,8 +423,8 @@ class StripeController extends Controller
      */
     private function handleInvoicePaymentFailed($invoice): void
     {
-        $stripeSubId = $invoice->subscription ?? null;
-        if (!$stripeSubId) {
+        $stripeSubId = $this->stripeRefToId($invoice->subscription ?? null);
+        if (! $stripeSubId) {
             return;
         }
 
@@ -1163,8 +1197,8 @@ class StripeController extends Controller
         $companyId = $metadata->company_id ?? null;
         $planSlug = $metadata->plan ?? null;
         $interval = $metadata->interval ?? 'month';
-        $stripeSubId = $session->subscription ?? null;
-        $stripeCustomerId = $session->customer ?? null;
+        $stripeSubId = $this->stripeRefToId($session->subscription ?? null);
+        $stripeCustomerId = $this->stripeRefToId($session->customer ?? null);
 
         if (!$companyId || !$planSlug) {
             Log::error('Stripe webhook subscription: missing metadata', [
@@ -1274,13 +1308,18 @@ class StripeController extends Controller
         // Дубли гасим в SubscriptionMailer по invoice.id (Cache).
         $newLocal = Subscription::where('stripe_subscription_id', $stripeSubId)->first();
         if ($newLocal) {
-            $latestInvoiceRef = is_string($stripeSub->latest_invoice ?? null)
-                ? $stripeSub->latest_invoice
-                : ($stripeSub->latest_invoice->id ?? null);
+            $latestInvoiceRef = $this->stripeRefToId($stripeSub->latest_invoice ?? null);
             if ($latestInvoiceRef) {
                 try {
-                    $paidInvoice = StripeInvoice::retrieve($latestInvoiceRef, ['expand' => ['lines.data']]);
-                    if (($paidInvoice->status ?? '') === 'paid') {
+                    $paidInvoice = null;
+                    for ($invAttempt = 0; $invAttempt < 25; $invAttempt++) {
+                        $paidInvoice = StripeInvoice::retrieve($latestInvoiceRef, ['expand' => ['lines.data']]);
+                        if (($paidInvoice->status ?? '') === 'paid' || (int) ($paidInvoice->amount_paid ?? 0) > 0) {
+                            break;
+                        }
+                        usleep(120000);
+                    }
+                    if ($paidInvoice && (($paidInvoice->status ?? '') === 'paid' || (int) ($paidInvoice->amount_paid ?? 0) > 0)) {
                         SubscriptionMailer::notifyPaymentSucceeded($newLocal, $paidInvoice);
                     }
                 } catch (\Throwable $e) {

@@ -47,6 +47,11 @@ class SubscriptionMailer
         $company = Company::find($sub->company_id);
         $owner = self::resolveOwner($company);
         if (! $owner) {
+            Log::warning('SubscriptionMailer: no owner email for notifyPaymentSucceeded', [
+                'subscription_id' => $sub->id,
+                'company_id' => $sub->company_id,
+                'invoice_id' => $invoiceId,
+            ]);
             Cache::forget('subscription_mailer:invoice:'.$invoiceId);
 
             return;
@@ -135,7 +140,12 @@ class SubscriptionMailer
     {
         $company = Company::find($sub->company_id);
         $owner = self::resolveOwner($company);
-        if (!$owner) {
+        if (! $owner) {
+            Log::warning('SubscriptionMailer: no owner email for notifyCanceled', [
+                'subscription_id' => $sub->id,
+                'company_id' => $sub->company_id,
+            ]);
+
             return;
         }
 
@@ -167,7 +177,12 @@ class SubscriptionMailer
     {
         $company = Company::find($sub->company_id);
         $owner = self::resolveOwner($company);
-        if (!$owner) {
+        if (! $owner) {
+            Log::warning('SubscriptionMailer: no owner email for notifyDowngradeScheduled', [
+                'subscription_id' => $sub->id,
+                'company_id' => $sub->company_id,
+            ]);
+
             return;
         }
 
@@ -238,6 +253,11 @@ class SubscriptionMailer
                     $message->to($owner->email)->subject($subject);
                 }
             );
+            Log::info('SubscriptionMailer: email sent', [
+                'owner_id' => $owner->id,
+                'to' => $owner->email,
+                'subject' => $subject,
+            ]);
         } catch (\Throwable $e) {
             Log::error('SubscriptionMailer: failed to send email', [
                 'owner_id' => $owner->id,

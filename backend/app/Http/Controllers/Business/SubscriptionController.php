@@ -490,8 +490,15 @@ class SubscriptionController extends Controller
                         ? $stripeSub->latest_invoice
                         : ($stripeSub->latest_invoice->id ?? null);
                     if ($latestInvoiceRef) {
-                        $paidInvoice = StripeInvoice::retrieve($latestInvoiceRef, ['expand' => ['lines.data']]);
-                        if (($paidInvoice->status ?? '') === 'paid') {
+                        $paidInvoice = null;
+                        for ($invAttempt = 0; $invAttempt < 25; $invAttempt++) {
+                            $paidInvoice = StripeInvoice::retrieve($latestInvoiceRef, ['expand' => ['lines.data']]);
+                            if (($paidInvoice->status ?? '') === 'paid' || (int) ($paidInvoice->amount_paid ?? 0) > 0) {
+                                break;
+                            }
+                            usleep(120000);
+                        }
+                        if ($paidInvoice && (($paidInvoice->status ?? '') === 'paid' || (int) ($paidInvoice->amount_paid ?? 0) > 0)) {
                             SubscriptionMailer::notifyPaymentSucceeded($subscription->fresh(), $paidInvoice);
                         }
                     }
