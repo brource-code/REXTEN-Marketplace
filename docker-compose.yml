@@ -1,6 +1,8 @@
 version: '3.8'
 
 services:
+  # После пересоздания контейнеров frontend/backend nginx может слать 502 на старые IP upstream —
+  # выполните: docker exec rexten_nginx nginx -s reload
   nginx:
     image: nginx:alpine
     container_name: rexten_nginx
@@ -31,6 +33,7 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN:-}
+        NEXT_PUBLIC_LANDING_ASSET_VERSION: ${NEXT_PUBLIC_LANDING_ASSET_VERSION:-}
     container_name: rexten_frontend
     expose:
       - "3003"
