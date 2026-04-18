@@ -52,6 +52,7 @@ use App\Http\Controllers\Business\CompanyDiscountSettingsController;
 use App\Http\Controllers\Client\ClientDiscountsController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\Public\ReviewController;
+use App\Http\Controllers\Public\EnterpriseLeadController;
 use App\Http\Controllers\FamilyBudgetController;
 use App\Http\Controllers\FamilyBudget\FamilyBudgetApiController;
 use App\Http\Controllers\StripeController;
@@ -128,11 +129,13 @@ Route::prefix('bookings')->group(function () {
     Route::post('/available-slots-batch', [BookingController::class, 'getAvailableSlotsBatch']);
     Route::post('/check-availability', [BookingController::class, 'checkAvailability']);
     Route::get('/{id}/payment-eligibility', [StripeController::class, 'getBookingPaymentEligibility']);
-    Route::post('/{id}/pay', [StripeController::class, 'createClientBookingPayment']);
+    Route::post('/{id}/pay', [StripeController::class, 'createClientBookingPayment'])
+        ->middleware('throttle:5,1');
 });
 
 // Public platform settings (for logo customization)
 Route::get('/settings/public', [AdminSettingsController::class, 'getPublicSettings']);
+Route::get('/subscription-plans/public', [SubscriptionController::class, 'publicPlans']);
 
 /** Публичный pk-токен Mapbox: в Docker nginx весь /api идёт в Laravel, не в Next.js — см. frontend RouteMap.jsx */
 Route::get('/business/mapbox-config', function () {
@@ -147,6 +150,10 @@ Route::prefix('public/reviews')->group(function () {
     Route::get('/token/{token}', [ReviewController::class, 'showByToken']);
     Route::post('/token/{token}', [ReviewController::class, 'storeByToken']);
 });
+
+// Public enterprise lead form (landing pricing → email to sales)
+Route::post('/enterprise-lead', [EnterpriseLeadController::class, 'store'])
+    ->middleware('throttle:5,1');
 
 // Family Budget routes (public, no auth required)
 Route::prefix('family-budget')->group(function () {
@@ -390,9 +397,12 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::post('/stripe/connect/disconnect', [StripeConnectController::class, 'disconnect']);
 
         // Booking payments (hold -> capture flow)
-        Route::post('/bookings/{id}/pay', [StripeController::class, 'createBookingPayment']);
-        Route::post('/bookings/{id}/capture', [StripeController::class, 'captureBookingPayment']);
-        Route::post('/bookings/{id}/refund', [StripeController::class, 'refundBookingPayment']);
+        Route::post('/bookings/{id}/pay', [StripeController::class, 'createBookingPayment'])
+            ->middleware('throttle:5,1');
+        Route::post('/bookings/{id}/capture', [StripeController::class, 'captureBookingPayment'])
+            ->middleware('throttle:10,1');
+        Route::post('/bookings/{id}/refund', [StripeController::class, 'refundBookingPayment'])
+            ->middleware('throttle:10,1');
 
         // Subscriptions
         Route::get('/subscription/plans', [SubscriptionController::class, 'plans']);
@@ -546,9 +556,17 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/billing/campaigns', [BillingController::class, 'campaigns']);
         Route::get('/billing/revenue-by-company', [BillingController::class, 'revenueByCompany']);
         Route::get('/billing/transactions', [BillingController::class, 'transactions']);
+        Route::get('/billing/transactions/stripe', [BillingController::class, 'transactionStripe']);
         Route::get('/billing/export', [BillingController::class, 'export']);
         Route::get('/billing/revenue-structure', [BillingController::class, 'revenueStructure']); // Phase 1B
         Route::get('/billing/forecast', [BillingController::class, 'forecast']); // Phase 1B
+
+        // Stripe Connect Billing
+        Route::get('/billing/connect/overview', [BillingController::class, 'connectOverview']);
+        Route::get('/billing/connect/accounts', [BillingController::class, 'connectAccounts']);
+        Route::get('/billing/connect/payments', [BillingController::class, 'connectPayments']);
+        Route::get('/billing/connect/payments/{payment}/stripe', [BillingController::class, 'connectPaymentStripe']);
+        Route::get('/billing/connect/revenue-chart', [BillingController::class, 'connectRevenueChart']);
 
         // Business Events
         Route::get('/business-events', [BusinessEventsController::class, 'index']);

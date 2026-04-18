@@ -163,6 +163,8 @@ class SubscriptionLimitService
             'grace_period_active' => $graceActive,
             'is_over_limit' => self::isOverLimit($companyId),
             'scheduled_plan' => $sub?->scheduled_plan,
+            'current_period_end' => $sub?->current_period_end?->toIso8601String(),
+            'plan' => $sub?->plan,
         ];
     }
 
@@ -188,6 +190,17 @@ class SubscriptionLimitService
         $current = self::countResourceActive($companyId, $resource);
 
         return $current < $limit;
+    }
+
+    /**
+     * Можно ли реактивировать (вернуть is_active=true) сущность данного типа.
+     * Поведение совпадает с canCreate: если активных < лимита, разрешено.
+     * Используется во всех update-эндпоинтах, где is_active может стать true
+     * (защита от обхода лимитов через deactivate → reactivate).
+     */
+    public static function canActivate(int $companyId, string $resource): bool
+    {
+        return self::canCreate($companyId, $resource);
     }
 
     public static function hasAccess(int $companyId, string $feature): bool

@@ -37,6 +37,30 @@ class TeamMember extends Model
     ];
 
     /**
+     * Источник истины активности сотрудника — колонка is_active.
+     * Колонка status дублирует её строкой 'active'/'inactive' для UI/списков.
+     * Мутаторы держат оба поля согласованными при любых create/update.
+     */
+    public function setStatusAttribute($value): void
+    {
+        $normalized = is_string($value) ? strtolower(trim($value)) : $value;
+        $this->attributes['status'] = $normalized;
+
+        if ($normalized === 'active') {
+            $this->attributes['is_active'] = true;
+        } elseif ($normalized === 'inactive') {
+            $this->attributes['is_active'] = false;
+        }
+    }
+
+    public function setIsActiveAttribute($value): void
+    {
+        $bool = (bool) $value;
+        $this->attributes['is_active'] = $bool;
+        $this->attributes['status'] = $bool ? 'active' : 'inactive';
+    }
+
+    /**
      * Get the company that owns the team member.
      */
     public function company(): BelongsTo

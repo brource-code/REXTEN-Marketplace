@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Stripe\Stripe;
+use Stripe\Charge;
 use Stripe\Checkout\Session;
+use Stripe\Customer as StripeCustomer;
 use Stripe\PaymentIntent;
 use Stripe\Refund;
 use Stripe\Exception\SignatureVerificationException;
@@ -17,8 +19,13 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\PlatformSettingsService;
+use App\Services\StripeSubscriptionService;
+use App\Services\SubscriptionLifecycleService;
+use App\Services\SubscriptionMailer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Stripe\Invoice as StripeInvoice;
+use Stripe\Subscription as StripeSubscription;
 
 class StripeController extends Controller
 {
@@ -93,7 +100,7 @@ class StripeController extends Controller
 
         try {
             $session = Session::create([
-                'payment_method_types' => ['card'],
+                'automatic_payment_methods' => ['enabled' => true],
                 'line_items' => [[
                     'price_data' => [
                         'currency' => 'usd',
@@ -265,9 +272,139 @@ class StripeController extends Controller
                 $this->handleAccountUpdated($object, $stripeAccountId);
                 break;
 
+            case 'customer.subscription.updated':
+                $this->handleSubscriptionUpdated($object);
+                break;
+
+            case 'customer.subscription.deleted':
+                $this->handleSubscriptionDeleted($object);
+                break;
+
+            case 'invoice.payment_succeeded':
+            case 'invoice.paid':
+                $this->handleInvoicePaymentSucceeded($object);
+                break;
+
+            case 'invoice.payment_failed':
+                $this->handleInvoicePaymentFailed($object);
+                break;
+
             default:
                 Log::debug('Stripe webhook: unhandled event type', ['type' => $eventType]);
         }
+    }
+
+    /**
+     * Stripe прислал обновление подписки: смена статуса, cancel_at_period_end, период.
+     * Зеркалируем локально через StripeSubscriptionService::syncFromStripe.
+     */
+    private function handleSubscriptionUpdated($stripeSub): void
+    {
+        $local = Subscription::where('stripe_subscription_id', $stripeSub->id)->first();
+        if (!$local) {
+            Log::info('Webhook customer.subscription.updated: no local record (skipping)', [
+                'stripe_subscription_id' => $stripeSub->id,
+            ]);
+            return;
+        }
+
+        StripeSubscriptionService::syncFromStripe($local, $stripeSub);
+    }
+
+    /**
+     * Stripe удалил подписку (период завершён после cancel_at_period_end или dunning failed).
+     * Локально: помечаем canceled и переводим компанию на free с grace-периодом.
+     * Если был запланирован downgrade — он делается отдельно через cron (applyScheduledDowngradeViaStripe)
+     * до того, как Stripe удалит подписку. Если cron не успел — пользователь окажется на free,
+     * это безопасно (доступ восстанавливается checkout'ом previous_plan).
+     */
+    private function handleSubscriptionDeleted($stripeSub): void
+    {
+        $local = Subscription::where('stripe_subscription_id', $stripeSub->id)->first();
+        if (!$local) {
+            Log::info('Webhook customer.subscription.deleted: no local record (skipping)', [
+                'stripe_subscription_id' => $stripeSub->id,
+            ]);
+            return;
+        }
+
+        if ($local->status !== Subscription::STATUS_ACTIVE) {
+            Log::info('Webhook customer.subscription.deleted: local already not active (skipping)', [
+                'local_id' => $local->id,
+                'status' => $local->status,
+            ]);
+            return;
+        }
+
+        SubscriptionLifecycleService::transitionToFree($local);
+    }
+
+    /**
+     * Stripe выставил инвойс и оплатил его (продление периода или первая оплата).
+     * Обновляем current_period_end локальной записи.
+     */
+    private function handleInvoicePaymentSucceeded($invoice): void
+    {
+        $stripeSubId = $invoice->subscription ?? null;
+        if (!$stripeSubId) {
+            return;
+        }
+
+        $local = Subscription::where('stripe_subscription_id', $stripeSubId)->first();
+        if (!$local) {
+            Log::info('Webhook invoice.payment_succeeded: no local subscription (skipping)', [
+                'stripe_subscription_id' => $stripeSubId,
+                'invoice_id' => $invoice->id ?? null,
+            ]);
+            return;
+        }
+
+        try {
+            StripeSubscriptionService::init();
+            $stripeSub = StripeSubscription::retrieve($stripeSubId);
+            StripeSubscriptionService::syncFromStripe($local, $stripeSub);
+        } catch (\Exception $e) {
+            Log::error('Failed to sync subscription on invoice.payment_succeeded', [
+                'stripe_subscription_id' => $stripeSubId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Письмо владельцу: первая оплата / продление / смена плана с прорацией.
+        // Все три кейса покрываются одним хендлером, текст письма выбирается
+        // по billing_reason.
+        try {
+            SubscriptionMailer::notifyPaymentSucceeded($local->fresh() ?? $local, $invoice);
+        } catch (\Throwable $e) {
+            Log::error('SubscriptionMailer notifyPaymentSucceeded failed', [
+                'subscription_id' => $local->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Stripe не смог снять оплату — переводим в past_due (доступ временно сохраняется,
+     * Stripe сам делает retries; если все неудачны — пришлёт subscription.deleted).
+     */
+    private function handleInvoicePaymentFailed($invoice): void
+    {
+        $stripeSubId = $invoice->subscription ?? null;
+        if (!$stripeSubId) {
+            return;
+        }
+
+        $local = Subscription::where('stripe_subscription_id', $stripeSubId)->first();
+        if (!$local) {
+            return;
+        }
+
+        $local->forceFill(['status' => Subscription::STATUS_PAST_DUE])->save();
+
+        Log::warning('Subscription marked past_due via webhook', [
+            'local_id' => $local->id,
+            'stripe_subscription_id' => $stripeSubId,
+        ]);
     }
 
     private function handlePaymentIntentAuthorized($paymentIntent): void
@@ -308,7 +445,11 @@ class StripeController extends Controller
 
             $booking = Booking::with(['company', 'service', 'user.profile'])->find($payment->booking_id);
             if ($booking) {
-                app(\App\Services\BookingService::class)->notifyOwnerAboutPayment($booking);
+                $bookingService = app(\App\Services\BookingService::class);
+                $bookingService->notifyOwnerAboutPayment($booking);
+                if ($booking->user_id) {
+                    $bookingService->notifyClientAboutAuthorizedPayment($booking);
+                }
             }
         }
 
@@ -653,7 +794,8 @@ class StripeController extends Controller
             ]);
 
             $transactions = [];
-            
+            $seenPaymentIntentIds = [];
+
             foreach ($sessions->data as $session) {
                 // Пропускаем неоплаченные сессии
                 if ($session->payment_status !== 'paid') {
@@ -761,9 +903,154 @@ class StripeController extends Controller
                         'interval' => $intervalMeta,
                     ],
                 ];
+
+                if ($session->payment_intent) {
+                    $pi = is_string($session->payment_intent)
+                        ? $session->payment_intent
+                        : ($session->payment_intent->id ?? null);
+                    if ($pi) {
+                        $seenPaymentIntentIds[$pi] = true;
+                    }
+                }
             }
 
-            // Получаем последний ID для пагинации
+            // Инвойсы подписки (прорация при смене плана и т.п.) идут как Charge без Checkout Session.
+            $company = Company::query()->with('owner')->find($companyId);
+            $stripeCustomerId = $company?->owner?->stripe_customer_id;
+
+            if ($stripeCustomerId) {
+                $chargeLimit = min(100, (int) $request->input('limit', 100));
+                $charges = Charge::all([
+                    'customer' => $stripeCustomerId,
+                    'limit' => $chargeLimit,
+                    'expand' => ['data.refunds'],
+                ]);
+
+                foreach ($charges->data as $charge) {
+                    $piId = null;
+                    if (! empty($charge->payment_intent)) {
+                        $piId = is_string($charge->payment_intent)
+                            ? $charge->payment_intent
+                            : ($charge->payment_intent->id ?? null);
+                    }
+
+                    $md = $charge->metadata ?? (object) [];
+                    $appendRefundsOnly = $piId && isset($seenPaymentIntentIds[$piId]);
+
+                    $baseDescription = '';
+                    $transactionType = 'unknown';
+                    $planMeta = isset($md->plan) ? (string) $md->plan : null;
+                    $intervalMeta = isset($md->interval) ? (string) $md->interval : null;
+
+                    if (isset($md->advertisement_id)) {
+                        $transactionType = 'advertisement';
+                        $advertisementId = $md->advertisement_id;
+                        $packageId = $md->package_id ?? 'unknown';
+                        $advertisement = Advertisement::find($advertisementId);
+                        if ($advertisement) {
+                            $baseDescription = "Реклама: {$advertisement->title} ({$packageId})";
+                        } else {
+                            $baseDescription = "Реклама: Advertisement #{$advertisementId} ({$packageId})";
+                        }
+                    } elseif (
+                        isset($md->subscription_id)
+                        || (isset($md->type) && (string) $md->type === 'subscription')
+                        || (isset($md->plan) && ! isset($md->advertisement_id))
+                    ) {
+                        $transactionType = 'subscription';
+                        $planSlug = isset($md->plan) ? (string) $md->plan : '';
+                        $planModel = $planSlug !== '' ? SubscriptionPlan::findBySlug($planSlug) : null;
+                        $baseDescription = $planModel
+                            ? 'Subscription: '.$planModel->name
+                            : ($planSlug !== '' ? 'Subscription: '.$planSlug : 'Subscription payment');
+                    } elseif ($charge->invoice !== null) {
+                        $transactionType = 'subscription';
+                        $planSlug = isset($md->plan) ? (string) $md->plan : '';
+                        $planModel = $planSlug !== '' ? SubscriptionPlan::findBySlug($planSlug) : null;
+                        $baseDescription = $planModel
+                            ? 'Subscription: '.$planModel->name
+                            : ((string) ($charge->description ?? '') !== ''
+                                ? (string) $charge->description
+                                : 'Subscription payment');
+                    } else {
+                        $descLower = strtolower((string) ($charge->description ?? ''));
+                        if (str_contains($descLower, 'subscription')) {
+                            $transactionType = 'subscription';
+                        }
+                        $baseDescription = (string) ($charge->description ?? '') !== ''
+                            ? (string) $charge->description
+                            : 'Card payment';
+                    }
+
+                    $currency = strtoupper($charge->currency ?? 'USD');
+                    $chargeStatus = (string) ($charge->status ?? 'pending');
+
+                    $invoiceRaw = $charge->invoice ?? null;
+                    $stripeInvoiceId = null;
+                    if ($invoiceRaw !== null && $invoiceRaw !== '') {
+                        $stripeInvoiceId = is_string($invoiceRaw)
+                            ? $invoiceRaw
+                            : ($invoiceRaw->id ?? null);
+                    }
+
+                    if (! $appendRefundsOnly) {
+                        $amountCents = (int) ($charge->amount ?? 0);
+                        if ($amountCents > 0 || $chargeStatus !== 'succeeded') {
+                            $transactions[] = [
+                                'id' => $charge->id,
+                                'type' => $transactionType,
+                                'amount' => $amountCents / 100,
+                                'currency' => $currency,
+                                'status' => $chargeStatus === 'succeeded' ? 'succeeded' : $chargeStatus,
+                                'description' => $baseDescription,
+                                'plan' => $planMeta,
+                                'interval' => $intervalMeta,
+                                'created' => date('Y-m-d H:i:s', $charge->created),
+                                'created_timestamp' => $charge->created,
+                                'metadata' => [
+                                    'advertisement_id' => $md->advertisement_id ?? null,
+                                    'package_id' => $md->package_id ?? null,
+                                    'subscription_id' => $md->subscription_id ?? null,
+                                    'type' => $md->type ?? null,
+                                    'plan' => $planMeta,
+                                    'interval' => $intervalMeta,
+                                    'stripe_invoice_id' => $stripeInvoiceId,
+                                ],
+                            ];
+                        }
+                    }
+
+                    foreach ($charge->refunds->data ?? [] as $refund) {
+                        $refundStatus = (string) ($refund->status ?? '');
+                        if ($refundStatus === '' || $refundStatus === 'canceled') {
+                            continue;
+                        }
+                        $transactions[] = [
+                            'id' => $refund->id,
+                            'type' => 'refund',
+                            'amount' => ((int) ($refund->amount ?? 0)) / 100,
+                            'currency' => strtoupper($refund->currency ?? $currency),
+                            'status' => $refundStatus === 'succeeded' ? 'succeeded' : $refundStatus,
+                            'description' => 'Refund: '.$baseDescription,
+                            'plan' => $planMeta,
+                            'interval' => $intervalMeta,
+                            'created' => date('Y-m-d H:i:s', $refund->created),
+                            'created_timestamp' => $refund->created,
+                            'metadata' => [
+                                'charge_id' => $charge->id,
+                                'plan' => $planMeta,
+                                'interval' => $intervalMeta,
+                            ],
+                        ];
+                    }
+                }
+            }
+
+            usort($transactions, function ($a, $b) {
+                return ($b['created_timestamp'] ?? 0) <=> ($a['created_timestamp'] ?? 0);
+            });
+
+            // Получаем последний ID для пагинации (устаревший курсор по Checkout; порядок после merge — по дате)
             $lastId = null;
             if (count($transactions) > 0) {
                 $lastId = $transactions[count($transactions) - 1]['id'];
@@ -851,48 +1138,170 @@ class StripeController extends Controller
         ]);
     }
 
+    /**
+     * checkout.session.completed для mode=subscription:
+     * - Stripe уже создал customer.subscription (получаем ID из $session->subscription).
+     * - Создаём локальную запись Subscription, зеркалирующую Stripe-данные.
+     * - Старую активную подписку компании отменяем в Stripe немедленно (если есть),
+     *   чтобы не было двух одновременно платных подписок (upgrade-сценарий).
+     */
     private function handleSubscriptionPayment($session, $metadata): void
     {
         $companyId = $metadata->company_id ?? null;
-        $plan = $metadata->plan ?? null;
+        $planSlug = $metadata->plan ?? null;
         $interval = $metadata->interval ?? 'month';
-        $priceCents = (int) ($metadata->price_cents ?? 0);
+        $stripeSubId = $session->subscription ?? null;
+        $stripeCustomerId = $session->customer ?? null;
 
-        if (!$companyId || !$plan) {
+        if (!$companyId || !$planSlug) {
             Log::error('Stripe webhook subscription: missing metadata', [
                 'session_id' => $session->id,
             ]);
             return;
         }
 
-        $periodEnd = $interval === 'year' ? now()->addYear() : now()->addMonth();
+        if (!$stripeSubId) {
+            Log::error('Stripe webhook subscription: no subscription on session (mode=payment fallback?)', [
+                'session_id' => $session->id,
+            ]);
+            return;
+        }
 
-        $planModel = SubscriptionPlan::findBySlug((string) $plan);
+        // Идемпотентность: уже создавали запись по этой сессии или по этой stripe_subscription_id.
+        $alreadyProcessed = Subscription::where('stripe_session_id', $session->id)
+            ->orWhere('stripe_subscription_id', $stripeSubId)
+            ->exists();
+        if ($alreadyProcessed) {
+            Log::info('Subscription webhook duplicate ignored', [
+                'session_id' => $session->id,
+                'stripe_subscription_id' => $stripeSubId,
+                'company_id' => $companyId,
+            ]);
+            return;
+        }
 
-        DB::transaction(function () use ($companyId, $plan, $session, $priceCents, $interval, $periodEnd, $planModel) {
-            Subscription::where('company_id', $companyId)
+        $planModel = SubscriptionPlan::findBySlug((string) $planSlug);
+
+        // Получаем актуальное состояние Stripe Subscription (период, статус, price).
+        try {
+            StripeSubscriptionService::init();
+            $stripeSub = StripeSubscription::retrieve($stripeSubId);
+        } catch (\Exception $e) {
+            Log::error('Failed to retrieve Stripe Subscription after checkout', [
+                'stripe_subscription_id' => $stripeSubId,
+                'error' => $e->getMessage(),
+            ]);
+            return;
+        }
+
+        // С Stripe API 2025-09+ current_period_start/end переехали на items.data[N].
+        $periodStartTs = $stripeSub->current_period_start
+            ?? ($stripeSub->items->data[0]->current_period_start ?? null);
+        $periodEndTs = $stripeSub->current_period_end
+            ?? ($stripeSub->items->data[0]->current_period_end ?? null);
+
+        $periodStart = $periodStartTs
+            ? \Carbon\Carbon::createFromTimestamp($periodStartTs)
+            : now();
+        $periodEnd = $periodEndTs
+            ? \Carbon\Carbon::createFromTimestamp($periodEndTs)
+            : ($interval === 'year' ? now()->addYear() : now()->addMonth());
+
+        $stripePriceId = $stripeSub->items->data[0]->price->id ?? null;
+        $unitAmount = $stripeSub->items->data[0]->price->unit_amount ?? 0;
+        $currency = strtolower($stripeSub->items->data[0]->price->currency ?? ($planModel?->currency ?? 'usd'));
+
+        $oldStripeSubsToCancel = [];
+
+        DB::transaction(function () use (
+            $companyId, $planSlug, $session, $stripeSubId, $stripeCustomerId, $stripePriceId,
+            $unitAmount, $currency, $interval, $periodStart, $periodEnd, $planModel, &$oldStripeSubsToCancel
+        ) {
+            // Повторная защита внутри транзакции — на случай гонки.
+            if (Subscription::where('stripe_subscription_id', $stripeSubId)->lockForUpdate()->exists()) {
+                return;
+            }
+
+            // Отметим старые активные подписки как canceled и соберём их Stripe-ID для отмены через API.
+            $oldActive = Subscription::where('company_id', $companyId)
                 ->where('status', Subscription::STATUS_ACTIVE)
-                ->update(['status' => Subscription::STATUS_CANCELED]);
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($oldActive as $old) {
+                if ($old->stripe_subscription_id && $old->stripe_subscription_id !== $stripeSubId) {
+                    $oldStripeSubsToCancel[] = $old->stripe_subscription_id;
+                }
+                $old->forceFill(['status' => Subscription::STATUS_CANCELED])->save();
+            }
 
             Subscription::create([
                 'company_id' => $companyId,
-                'plan' => $plan,
+                'plan' => $planSlug,
                 'status' => Subscription::STATUS_ACTIVE,
                 'stripe_session_id' => $session->id,
-                'price_cents' => $priceCents,
-                'currency' => $planModel?->currency ?? 'usd',
+                'stripe_subscription_id' => $stripeSubId,
+                'stripe_customer_id' => $stripeCustomerId,
+                'stripe_price_id' => $stripePriceId,
+                'price_cents' => (int) $unitAmount,
+                'currency' => $currency,
                 'interval' => $interval,
-                'current_period_start' => now(),
+                'current_period_start' => $periodStart,
                 'current_period_end' => $periodEnd,
+                'cancel_at_period_end' => false,
+                'canceled_at' => null,
                 'grace_period_ends_at' => null,
                 'scheduled_plan' => null,
                 'previous_plan' => null,
             ]);
         });
 
-        Log::info('Subscription activated via webhook', [
+        // Письмо «оплата подписки»: invoice.payment_succeeded иногда приходит раньше
+        // checkout.session.completed — тогда локальной строки ещё нет и письмо теряется.
+        // Дубли гасим в SubscriptionMailer по invoice.id (Cache).
+        $newLocal = Subscription::where('stripe_subscription_id', $stripeSubId)->first();
+        if ($newLocal) {
+            $latestInvoiceRef = is_string($stripeSub->latest_invoice ?? null)
+                ? $stripeSub->latest_invoice
+                : ($stripeSub->latest_invoice->id ?? null);
+            if ($latestInvoiceRef) {
+                try {
+                    $paidInvoice = StripeInvoice::retrieve($latestInvoiceRef, ['expand' => ['lines.data']]);
+                    if (($paidInvoice->status ?? '') === 'paid') {
+                        SubscriptionMailer::notifyPaymentSucceeded($newLocal, $paidInvoice);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Subscription email after checkout.session.completed failed', [
+                        'stripe_subscription_id' => $stripeSubId,
+                        'invoice_id' => $latestInvoiceRef,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
+        // Отменяем старые Stripe-подписки немедленно (вне транзакции — внешний API).
+        // Это нужно для upgrade-сценария: чтобы клиента не списывали по двум планам.
+        foreach ($oldStripeSubsToCancel as $oldStripeSubId) {
+            try {
+                StripeSubscriptionService::cancelImmediately($oldStripeSubId);
+                Log::info('Old Stripe subscription canceled (after upgrade)', [
+                    'old_stripe_subscription_id' => $oldStripeSubId,
+                    'new_stripe_subscription_id' => $stripeSubId,
+                    'company_id' => $companyId,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to cancel old Stripe subscription on upgrade', [
+                    'old_stripe_subscription_id' => $oldStripeSubId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        Log::info('Recurring subscription activated via webhook', [
             'company_id' => $companyId,
-            'plan' => $plan,
+            'plan' => $planSlug,
+            'stripe_subscription_id' => $stripeSubId,
             'session_id' => $session->id,
         ]);
     }
@@ -945,6 +1354,48 @@ class StripeController extends Controller
     {
         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3003'));
         return rtrim($frontendUrl, '/');
+    }
+
+    /**
+     * Stripe Customer for the client who pays (booking owner), not the business user creating the PI.
+     */
+    private function ensureStripeCustomerForPayer(?User $payer, Booking $booking): ?string
+    {
+        if (! $payer || ! $payer->id) {
+            return null;
+        }
+        if ($payer->stripe_customer_id) {
+            return $payer->stripe_customer_id;
+        }
+        $email = $payer->email ?? $booking->client_email;
+        if (! $email) {
+            return null;
+        }
+        $payer->loadMissing('profile');
+        $profile = $payer->profile;
+        $first = $profile ? ($profile->first_name ?? '') : '';
+        $last = $profile ? ($profile->last_name ?? '') : '';
+        $name = trim($first.' '.$last);
+        if ($name === '') {
+            $name = $email;
+        }
+        try {
+            $customer = StripeCustomer::create([
+                'email' => $email,
+                'name' => $name,
+                'metadata' => ['app_user_id' => (string) $payer->id],
+            ]);
+            $payer->forceFill(['stripe_customer_id' => $customer->id])->save();
+
+            return $customer->id;
+        } catch (\Exception $e) {
+            Log::warning('Stripe Customer create failed', [
+                'user_id' => $payer->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     /**
@@ -1022,8 +1473,12 @@ class StripeController extends Controller
         $applicationFee = (int) round($amountCents * ($feePercent / 100));
         $currency = config('services.stripe.default_currency', 'usd');
 
+        $clientUser = $booking->user_id ? User::with('profile')->find($booking->user_id) : null;
+        $stripeCustomerId = $this->ensureStripeCustomerForPayer($clientUser, $booking);
+        $receiptEmail = $booking->client_email ?? ($clientUser?->email);
+
         try {
-            $paymentIntent = PaymentIntent::create([
+            $piParams = [
                 'amount' => $amountCents,
                 'currency' => $currency,
                 'capture_method' => 'manual',
@@ -1036,7 +1491,15 @@ class StripeController extends Controller
                     'company_id' => $company->id,
                     'user_id' => $user?->id,
                 ],
-            ], [
+            ];
+            if ($stripeCustomerId) {
+                $piParams['customer'] = $stripeCustomerId;
+            }
+            if ($receiptEmail) {
+                $piParams['receipt_email'] = $receiptEmail;
+            }
+
+            $paymentIntent = PaymentIntent::create($piParams, [
                 'idempotency_key' => "booking_{$bookingId}_payment_v1",
             ]);
 
@@ -1178,8 +1641,12 @@ class StripeController extends Controller
         $applicationFee = (int) round($amountCents * ($feePercent / 100));
         $currency = config('services.stripe.default_currency', 'usd');
 
+        $payer = $user ? User::with('profile')->find($user->id) : null;
+        $stripeCustomerId = $this->ensureStripeCustomerForPayer($payer, $booking);
+        $receiptEmail = $booking->client_email ?? ($payer?->email);
+
         try {
-            $paymentIntent = PaymentIntent::create([
+            $piParams = [
                 'amount' => $amountCents,
                 'currency' => $currency,
                 'capture_method' => 'manual',
@@ -1193,14 +1660,22 @@ class StripeController extends Controller
                     'user_id' => $user?->id,
                     'client_email' => $booking->client_email,
                 ],
-            ], [
+            ];
+            if ($stripeCustomerId) {
+                $piParams['customer'] = $stripeCustomerId;
+            }
+            if ($receiptEmail) {
+                $piParams['receipt_email'] = $receiptEmail;
+            }
+
+            $paymentIntent = PaymentIntent::create($piParams, [
                 'idempotency_key' => "client_booking_{$bookingId}_payment_v1",
             ]);
 
             $booking->refresh();
             if ($booking->payment_status !== 'pending_payment' || $booking->status === 'cancelled') {
                 try {
-                    PaymentIntent::cancel($paymentIntent->id);
+                    $paymentIntent->cancel();
                 } catch (\Exception $e) {
                     Log::warning('Cancelled orphan PaymentIntent after booking state changed', [
                         'pi_id' => $paymentIntent->id,
@@ -1381,94 +1856,160 @@ class StripeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $payment = Payment::where('booking_id', $booking->id)->first();
-        if (!$payment) {
-            return response()->json(['error' => 'Payment not found'], 404);
-        }
+        return DB::transaction(function () use ($validated, $booking, $user) {
+            $payment = Payment::where('booking_id', $booking->id)
+                ->lockForUpdate()
+                ->first();
 
-        if (!$payment->canBeRefunded()) {
-            return response()->json([
-                'error' => 'cannot_refund',
-                'message' => "Payment status is {$payment->status}, cannot refund.",
-            ], 400);
-        }
-
-        $refundAmountCents = $validated['amount']
-            ? (int) round($validated['amount'] * 100)
-            : null;
-
-        $maxRefundable = $payment->getRefundableAmount();
-
-        if ($refundAmountCents && $refundAmountCents > $maxRefundable) {
-            return response()->json([
-                'error' => 'amount_exceeds_refundable',
-                'message' => "Maximum refundable amount is $" . number_format($maxRefundable / 100, 2),
-                'max_refundable' => $maxRefundable / 100,
-            ], 400);
-        }
-
-        $initiatedBy = $user->isSuperAdmin() ? Payment::INITIATED_BY_PLATFORM : Payment::INITIATED_BY_BUSINESS;
-
-        try {
-            $refundParams = [
-                'payment_intent' => $payment->stripe_payment_intent_id,
-                'refund_application_fee' => true,
-                'reverse_transfer' => true,
-            ];
-
-            if ($refundAmountCents) {
-                $refundParams['amount'] = $refundAmountCents;
+            if (!$payment) {
+                return response()->json(['error' => 'Payment not found'], 404);
             }
 
-            $refund = Refund::create($refundParams);
-
-            $actualRefundedCents = $refund->amount;
-            $isFullRefund = ($payment->refunded_amount + $actualRefundedCents) >= $payment->amount;
-
-            $payment->addAuditTrail('refund', $user->id, $user->role, [
-                'amount' => $actualRefundedCents,
-                'reason' => $validated['reason'],
-                'refund_id' => $refund->id,
-            ]);
-
-            $payment->update([
-                'status' => $isFullRefund ? Payment::STATUS_REFUNDED : Payment::STATUS_PARTIALLY_REFUNDED,
-                'refunded_amount' => $payment->refunded_amount + $actualRefundedCents,
-                'refund_reason' => $validated['reason'],
-                'refund_initiated_by' => $initiatedBy,
-                'metadata' => $payment->metadata,
-            ]);
-
-            if ($isFullRefund) {
-                $booking->update(['payment_status' => 'refunded']);
+            if (!$payment->canBeRefundedOrCancelled()) {
+                return response()->json([
+                    'error' => 'cannot_refund',
+                    'message' => "Payment status is {$payment->status}, cannot refund or cancel.",
+                ], 400);
             }
 
-            Log::info('Payment refunded', [
-                'booking_id' => $booking->id,
-                'payment_id' => $payment->id,
-                'refund_id' => $refund->id,
-                'amount' => $actualRefundedCents,
-                'is_full' => $isFullRefund,
-            ]);
+            $initiatedBy = $user->isSuperAdmin() ? Payment::INITIATED_BY_PLATFORM : Payment::INITIATED_BY_BUSINESS;
 
-            return response()->json([
-                'status' => $isFullRefund ? 'refunded' : 'partially_refunded',
-                'refund_id' => $refund->id,
-                'refunded_amount' => $actualRefundedCents / 100,
-                'total_refunded' => ($payment->refunded_amount) / 100,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Payment refund failed', [
-                'booking_id' => $booking->id,
-                'payment_id' => $payment->id,
-                'error' => $e->getMessage(),
-            ]);
+            try {
+                // If payment is authorized but not captured — cancel the hold
+                if ($payment->canBeCancelled()) {
+                    $pi = PaymentIntent::retrieve($payment->stripe_payment_intent_id);
 
-            return response()->json([
-                'error' => 'refund_failed',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
+                    if (in_array($pi->status, ['requires_capture', 'requires_payment_method', 'requires_confirmation', 'requires_action'])) {
+                        $pi->cancel();
+
+                        $payment->addAuditTrail('cancel_hold', $user->id, $user->role, [
+                            'reason' => $validated['reason'],
+                        ]);
+
+                        $payment->update([
+                            'status' => Payment::STATUS_CANCELLED,
+                            'capture_status' => Payment::CAPTURE_CANCELLED,
+                            'refund_reason' => $validated['reason'],
+                            'refund_initiated_by' => $initiatedBy,
+                        ]);
+
+                        $booking->update(['payment_status' => 'cancelled']);
+
+                        Log::info('Payment hold cancelled', [
+                            'booking_id' => $booking->id,
+                            'payment_id' => $payment->id,
+                            'reason' => $validated['reason'],
+                        ]);
+
+                        $booking->refresh();
+                        app(\App\Services\BookingService::class)->notifyClientAboutRefundOrRelease($booking, false, 0.0, null);
+
+                        return response()->json([
+                            'status' => 'cancelled',
+                            'action' => 'hold_cancelled',
+                            'message' => 'Payment hold has been cancelled',
+                        ]);
+                    }
+
+                    // If PI is already succeeded, fall through to refund logic
+                }
+
+                // Refund captured payment
+                $refundAmountCents = $validated['amount']
+                    ? (int) round($validated['amount'] * 100)
+                    : null;
+
+                $maxRefundable = $payment->getRefundableAmount();
+
+                if ($refundAmountCents && $refundAmountCents > $maxRefundable) {
+                    return response()->json([
+                        'error' => 'amount_exceeds_refundable',
+                        'message' => "Maximum refundable amount is $" . number_format($maxRefundable / 100, 2),
+                        'max_refundable' => $maxRefundable / 100,
+                    ], 400);
+                }
+
+                $refundParams = [
+                    'payment_intent' => $payment->stripe_payment_intent_id,
+                    'refund_application_fee' => true,
+                    'reverse_transfer' => true,
+                ];
+
+                if ($refundAmountCents) {
+                    $refundParams['amount'] = $refundAmountCents;
+                }
+
+                $refund = Refund::create($refundParams);
+
+                $actualRefundedCents = $refund->amount;
+                $isFullRefund = ($payment->refunded_amount + $actualRefundedCents) >= $payment->amount;
+
+                $payment->addAuditTrail('refund', $user->id, $user->role, [
+                    'amount' => $actualRefundedCents,
+                    'reason' => $validated['reason'],
+                    'refund_id' => $refund->id,
+                ]);
+
+                $payment->update([
+                    'status' => $isFullRefund ? Payment::STATUS_REFUNDED : Payment::STATUS_PARTIALLY_REFUNDED,
+                    'refunded_amount' => $payment->refunded_amount + $actualRefundedCents,
+                    'refund_reason' => $validated['reason'],
+                    'refund_initiated_by' => $initiatedBy,
+                    'metadata' => $payment->metadata,
+                ]);
+
+                if ($isFullRefund) {
+                    $booking->update(['payment_status' => 'refunded']);
+                }
+
+                Log::info('Payment refunded', [
+                    'booking_id' => $booking->id,
+                    'payment_id' => $payment->id,
+                    'refund_id' => $refund->id,
+                    'amount' => $actualRefundedCents,
+                    'is_full' => $isFullRefund,
+                ]);
+
+                $booking->refresh();
+                $payment->refresh();
+                $toClientDollars = round($actualRefundedCents / 100, 2);
+                $retainedAfterCents = (int) $payment->amount - (int) $payment->refunded_amount;
+                $retainedDollars = round($retainedAfterCents / 100, 2);
+                if ($isFullRefund) {
+                    app(\App\Services\BookingService::class)->notifyClientAboutRefundOrRelease(
+                        $booking,
+                        true,
+                        $toClientDollars,
+                        null
+                    );
+                } else {
+                    app(\App\Services\BookingService::class)->notifyClientAboutRefundOrRelease(
+                        $booking,
+                        true,
+                        $toClientDollars,
+                        max(0.0, $retainedDollars)
+                    );
+                }
+
+                return response()->json([
+                    'status' => $isFullRefund ? 'refunded' : 'partially_refunded',
+                    'refund_id' => $refund->id,
+                    'refunded_amount' => $actualRefundedCents / 100,
+                    'total_refunded' => $payment->refunded_amount / 100,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Payment refund/cancel failed', [
+                    'booking_id' => $booking->id,
+                    'payment_id' => $payment->id,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return response()->json([
+                    'error' => 'refund_failed',
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
+        });
     }
 
     /**
@@ -1517,7 +2058,7 @@ class StripeController extends Controller
         try {
             $pi = PaymentIntent::retrieve($paymentIntentId);
             if (in_array($pi->status, ['requires_payment_method', 'requires_confirmation', 'requires_action', 'requires_capture'])) {
-                PaymentIntent::cancel($paymentIntentId);
+                $pi->cancel();
             } elseif ($pi->status === 'succeeded') {
                 Refund::create([
                     'payment_intent' => $paymentIntentId,

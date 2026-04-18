@@ -19,6 +19,8 @@ class Payment extends Model
     public const STATUS_TRANSFER_FAILED = 'transfer_failed';
     public const STATUS_DISPUTED = 'disputed';
     public const STATUS_EXPIRED = 'expired';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_REQUIRES_CAPTURE = 'requires_capture';
 
     public const CAPTURE_PENDING = 'pending';
     public const CAPTURE_CAPTURED = 'captured';
@@ -28,6 +30,7 @@ class Payment extends Model
     public const INITIATED_BY_BUSINESS = 'business';
     public const INITIATED_BY_PLATFORM = 'platform';
     public const INITIATED_BY_SYSTEM = 'system';
+    public const INITIATED_BY_CLIENT = 'client';
 
     protected $fillable = [
         'booking_id',
@@ -103,11 +106,28 @@ class Payment extends Model
     }
 
     /**
-     * Check if payment can be refunded.
+     * Check if payment can be refunded (captured payments).
      */
     public function canBeRefunded(): bool
     {
         return in_array($this->status, [self::STATUS_SUCCEEDED, self::STATUS_PARTIALLY_REFUNDED], true);
+    }
+
+    /**
+     * Check if payment hold can be cancelled (authorized but not captured).
+     */
+    public function canBeCancelled(): bool
+    {
+        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_REQUIRES_CAPTURE, self::STATUS_AUTHORIZED], true)
+            && $this->capture_status === self::CAPTURE_PENDING;
+    }
+
+    /**
+     * Check if payment can be refunded OR cancelled.
+     */
+    public function canBeRefundedOrCancelled(): bool
+    {
+        return $this->canBeRefunded() || $this->canBeCancelled();
     }
 
     /**

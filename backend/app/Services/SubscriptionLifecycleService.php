@@ -2,9 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Advertisement;
 use App\Models\Company;
+use App\Models\CompanyUser;
+use App\Models\Service;
 use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
+use App\Models\TeamMember;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -26,9 +30,22 @@ class SubscriptionLifecycleService
             ->get();
 
         foreach ($subs as $sub) {
+            // Recurring-подписки с активным Stripe ID (включая cancel_at_period_end):
+            // Stripe сам пришлёт customer.subscription.deleted/updated в конце периода,
+            // и handler в StripeController сделает переход. Наш cron не вмешивается.
+            // Исключение: scheduled_plan (downgrade) — этот сценарий мы делаем через
+            // Stripe API, потому что в Stripe нет "scheduled change без подмены подписки".
+            if ($sub->stripe_subscription_id && !$sub->scheduled_plan) {
+                continue;
+            }
+
             if ($sub->scheduled_plan && !$sub->canceled_at) {
-                self::applyScheduledDowngrade($sub);
-            } elseif ($sub->canceled_at) {
+                if ($sub->stripe_subscription_id) {
+                    self::applyScheduledDowngradeViaStripe($sub);
+                } else {
+                    self::applyScheduledDowngrade($sub);
+                }
+            } elseif ($sub->canceled_at && !$sub->stripe_subscription_id) {
                 self::applyCancelToFree($sub);
             }
         }
@@ -41,13 +58,20 @@ class SubscriptionLifecycleService
      */
     public static function finalizeExpiredForAll(): int
     {
+        // Берём только подписки, которые требуют действия от cron'а:
+        //   - legacy (без stripe_subscription_id) с canceled_at или scheduled_plan,
+        //   - recurring со scheduled_plan (downgrade меняем через Stripe API).
+        // Recurring без scheduled_plan (включая cancel_at_period_end) обрабатывает сам Stripe
+        // через webhook customer.subscription.deleted/updated.
         $ids = Subscription::query()
             ->where('status', Subscription::STATUS_ACTIVE)
             ->whereNotNull('current_period_end')
             ->where('current_period_end', '<=', now())
             ->where(function ($q) {
-                $q->whereNotNull('canceled_at')
-                    ->orWhereNotNull('scheduled_plan');
+                $q->whereNotNull('scheduled_plan')
+                    ->orWhere(function ($qq) {
+                        $qq->whereNotNull('canceled_at')->whereNull('stripe_subscription_id');
+                    });
             })
             ->distinct()
             ->pluck('company_id');
@@ -60,6 +84,73 @@ class SubscriptionLifecycleService
         date_default_timezone_set($appTz);
 
         return $ids->count();
+    }
+
+    /**
+     * Запланированный downgrade для recurring Stripe-подписки.
+     * В конце периода меняем price в Stripe (без прорации = без возврата за остаток),
+     * локально обновляем plan/price/period через syncFromStripe из ответа.
+     * grace_period_ends_at не ставим — клиент сам выбирал план, лишнее деактивируется по cron'у.
+     */
+    private static function applyScheduledDowngradeViaStripe(Subscription $sub): void
+    {
+        $newSlug = $sub->scheduled_plan;
+        $planModel = SubscriptionPlan::findBySlug($newSlug);
+        if (!$planModel || !$planModel->is_active) {
+            Log::warning('Scheduled downgrade (Stripe): invalid plan', [
+                'subscription_id' => $sub->id,
+                'scheduled_plan' => $newSlug,
+            ]);
+            return;
+        }
+
+        if ($planModel->is_free) {
+            // Free план без recurring price — отменяем Stripe-подписку, дальше webhook subscription.deleted
+            // вызовет handleSubscriptionDeleted → applyCancelToFree.
+            try {
+                StripeSubscriptionService::cancelImmediately($sub->stripe_subscription_id);
+            } catch (\Exception $e) {
+                Log::error('Failed to cancel Stripe subscription on scheduled downgrade to free', [
+                    'subscription_id' => $sub->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+            return;
+        }
+
+        try {
+            $newPriceId = StripeSubscriptionService::ensurePrice($planModel, $sub->interval ?? 'month');
+            $stripeSub = StripeSubscriptionService::changePrice(
+                $sub->stripe_subscription_id,
+                $newPriceId,
+                'none',
+                'allow_incomplete'
+            );
+
+            $unitAmount = $stripeSub->items->data[0]->price->unit_amount ?? 0;
+            $currency = strtolower($stripeSub->items->data[0]->price->currency ?? $sub->currency);
+
+            $sub->forceFill([
+                'plan' => $planModel->slug,
+                'previous_plan' => $sub->plan,
+                'scheduled_plan' => null,
+                'stripe_price_id' => $newPriceId,
+                'price_cents' => (int) $unitAmount,
+                'currency' => $currency,
+                'grace_period_ends_at' => now()->addDays(max(1, (int) config('subscription.grace_period_days', 7))),
+            ])->save();
+            StripeSubscriptionService::syncFromStripe($sub, $stripeSub);
+
+            Log::info('Scheduled downgrade applied via Stripe', [
+                'company_id' => $sub->company_id,
+                'to_plan' => $planModel->slug,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to apply scheduled downgrade via Stripe', [
+                'subscription_id' => $sub->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private static function applyScheduledDowngrade(Subscription $sub): void
@@ -108,6 +199,161 @@ class SubscriptionLifecycleService
                 'to_plan' => $planModel->slug,
             ]);
         });
+    }
+
+    /**
+     * Если у компании истёк grace-период и активные ресурсы превышают лимит,
+     * автоматически деактивируем «лишние» (newest-first), чтобы привести к плану.
+     *
+     * @return array<string, int> map ресурс → сколько штук было деактивировано
+     */
+    public static function enforceLimitsAfterGraceForCompany(int $companyId): array
+    {
+        $sub = SubscriptionLimitService::getActiveSubscription($companyId);
+        if (!$sub) {
+            return [];
+        }
+        $graceEnds = $sub->grace_period_ends_at;
+        // Триггерим только когда grace был задан и уже истёк.
+        if (!$graceEnds || $graceEnds->isFuture()) {
+            return [];
+        }
+
+        $details = SubscriptionLimitService::getOverLimitDetails($companyId);
+        if (empty($details['is_over_limit'])) {
+            // Лимит соблюдён — отметим grace как обработанный, чтобы не дёргать впустую.
+            $sub->forceFill(['grace_period_ends_at' => null])->save();
+            return [];
+        }
+
+        $deactivated = [];
+
+        DB::transaction(function () use ($companyId, $details, &$deactivated) {
+            foreach ($details['resources'] as $resource => $info) {
+                $overBy = (int) ($info['over_by'] ?? 0);
+                if ($overBy <= 0) {
+                    continue;
+                }
+                $deactivated[$resource] = self::deactivateExcess($companyId, $resource, $overBy);
+            }
+        });
+
+        // Помечаем grace как обработанный, чтобы крон не повторял enforcement.
+        $sub->forceFill(['grace_period_ends_at' => null])->save();
+
+        Log::info('Subscription enforce after grace', [
+            'company_id' => $companyId,
+            'deactivated' => $deactivated,
+        ]);
+
+        return $deactivated;
+    }
+
+    /**
+     * Прогон по всем компаниям с истёкшим grace-периодом.
+     *
+     * @return int количество компаний, для которых были применены деактивации
+     */
+    public static function enforceLimitsAfterGraceForAll(): int
+    {
+        $ids = Subscription::query()
+            ->where('status', Subscription::STATUS_ACTIVE)
+            ->whereNotNull('grace_period_ends_at')
+            ->where('grace_period_ends_at', '<=', now())
+            ->distinct()
+            ->pluck('company_id');
+
+        $appTz = (string) config('app.timezone');
+        $touched = 0;
+        foreach ($ids as $companyId) {
+            date_default_timezone_set(Company::timezoneById((int) $companyId));
+            $result = self::enforceLimitsAfterGraceForCompany((int) $companyId);
+            if (!empty($result)) {
+                $touched++;
+            }
+        }
+        date_default_timezone_set($appTz);
+
+        return $touched;
+    }
+
+    /**
+     * Деактивирует $count «лишних» сущностей данного ресурса (newest-first).
+     */
+    private static function deactivateExcess(int $companyId, string $resource, int $count): int
+    {
+        if ($count <= 0) {
+            return 0;
+        }
+
+        switch ($resource) {
+            case 'team_members':
+                // Сначала приглашённые сотрудники (CompanyUser, кроме owner), потом специалисты — newest first.
+                $staff = CompanyUser::where('company_id', $companyId)
+                    ->where('is_active', true)
+                    ->whereHas('company', function ($q) {
+                        $q->whereColumn('owner_id', '!=', 'company_users.user_id');
+                    })
+                    ->orderByDesc('id')
+                    ->limit($count)
+                    ->pluck('id')
+                    ->all();
+                $deactivatedStaff = 0;
+                if (!empty($staff)) {
+                    $deactivatedStaff = CompanyUser::whereIn('id', $staff)
+                        ->update(['is_active' => false]);
+                }
+                $remain = $count - $deactivatedStaff;
+                $deactivatedSpecialists = 0;
+                if ($remain > 0) {
+                    $specialists = TeamMember::where('company_id', $companyId)
+                        ->where('is_active', true)
+                        ->orderByDesc('sort_order')
+                        ->orderByDesc('id')
+                        ->limit($remain)
+                        ->pluck('id')
+                        ->all();
+                    if (!empty($specialists)) {
+                        $deactivatedSpecialists = TeamMember::whereIn('id', $specialists)
+                            ->update(['is_active' => false, 'status' => 'inactive']);
+                    }
+                }
+                return (int) ($deactivatedStaff + $deactivatedSpecialists);
+
+            case 'services':
+                $ids = Service::where('company_id', $companyId)
+                    ->where('is_active', true)
+                    ->orderByDesc('id')
+                    ->limit($count)
+                    ->pluck('id')
+                    ->all();
+                if (empty($ids)) {
+                    return 0;
+                }
+                return (int) Service::whereIn('id', $ids)->update(['is_active' => false]);
+
+            case 'advertisements':
+                $ids = Advertisement::where('company_id', $companyId)
+                    ->where('is_active', true)
+                    ->orderByDesc('id')
+                    ->limit($count)
+                    ->pluck('id')
+                    ->all();
+                if (empty($ids)) {
+                    return 0;
+                }
+                return (int) Advertisement::whereIn('id', $ids)->update(['is_active' => false]);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Публичная обёртка для перевода на free (используется webhook'ом customer.subscription.deleted).
+     */
+    public static function transitionToFree(Subscription $sub): void
+    {
+        self::applyCancelToFree($sub);
     }
 
     private static function applyCancelToFree(Subscription $sub): void

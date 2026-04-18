@@ -88,7 +88,7 @@ class BookingController extends Controller
             // Проверяем существование компании
             $company = Company::findOrFail($request->company_id);
 
-            if ($company->online_payment_enabled && $company->isStripeConnected()) {
+            if ($company->online_payment_enabled && $company->canAcceptPayments()) {
                 $authUser = auth('api')->user();
                 if (!$authUser && empty(trim((string) ($request->client_email ?? '')))) {
                     return response()->json([
@@ -529,7 +529,7 @@ class BookingController extends Controller
             $company = Company::find($booking->company_id);
             $requiresPayment = $company
                 && $company->online_payment_enabled
-                && $company->isStripeConnected();
+                && $company->canAcceptPayments();
 
             if ($requiresPayment) {
                 $booking->update(['payment_status' => 'pending_payment']);
@@ -567,7 +567,7 @@ class BookingController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Проверьте введённые данные',
+                'message' => $e->getMessage() ?: 'Проверьте введённые данные',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {

@@ -618,6 +618,8 @@ class MarketplaceController extends Controller
                 'state' => $advertisement->state ?? $company->state ?? '',
                 'timezone' => $company->timezone ?? 'America/Los_Angeles',
                 'location' => trim(($advertisement->city ?? $company->city ?? '') . ((($advertisement->city ?? $company->city ?? '')) ? ', ' : '') . ($advertisement->state ?? $company->state ?? '')),
+                'cancellationFreeHours' => (int) ($company->cancellation_free_hours ?? 12),
+                'cancellationLateFeePercent' => (int) ($company->cancellation_late_fee_percent ?? 50),
             ];
 
             // Преобразуем данные объявления в формат профиля
@@ -807,6 +809,7 @@ class MarketplaceController extends Controller
             // Сначала получаем команду из БД
             $team = \App\Models\TeamMember::where('company_id', $advertisement->company_id)
                 ->where('status', 'active')
+                ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get()
@@ -894,6 +897,7 @@ class MarketplaceController extends Controller
                         if ($needsSync) {
                             $syncedIds = \App\Models\TeamMember::where('company_id', $advertisement->company_id)
                                 ->where('status', 'active')
+                                ->where('is_active', true)
                                 ->pluck('id')
                                 ->toArray();
                             $advertisement->update(['team' => $syncedIds]);
@@ -901,6 +905,7 @@ class MarketplaceController extends Controller
                             // Получаем команду снова из БД
                             $team = \App\Models\TeamMember::where('company_id', $advertisement->company_id)
                                 ->where('status', 'active')
+                                ->where('is_active', true)
                                 ->orderBy('sort_order')
                                 ->orderBy('name')
                                 ->get()
@@ -1260,6 +1265,8 @@ class MarketplaceController extends Controller
             'companyName' => $company->name ?? 'N/A',
             'companySlug' => $company->slug ?? '',
             'companyAdvertisementsCount' => $companyAdvertisementsCount,
+            'cancellationFreeHours' => (int) ($company->cancellation_free_hours ?? 12),
+            'cancellationLateFeePercent' => (int) ($company->cancellation_late_fee_percent ?? 50),
         ];
 
         // Список услуг компании (для вкладки "Услуги")
@@ -1367,6 +1374,7 @@ class MarketplaceController extends Controller
         // Команда из таблицы team_members (основной источник)
         $team = \App\Models\TeamMember::where('company_id', $company->id)
             ->where('status', 'active')
+            ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get()

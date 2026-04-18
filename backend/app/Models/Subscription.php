@@ -17,12 +17,15 @@ class Subscription extends Model
         'status',
         'stripe_session_id',
         'stripe_subscription_id',
+        'stripe_customer_id',
+        'stripe_price_id',
         'price_cents',
         'currency',
         'interval',
         'current_period_start',
         'current_period_end',
         'canceled_at',
+        'cancel_at_period_end',
         'grace_period_ends_at',
         'previous_plan',
     ];
@@ -31,6 +34,7 @@ class Subscription extends Model
         'current_period_start' => 'datetime',
         'current_period_end' => 'datetime',
         'canceled_at' => 'datetime',
+        'cancel_at_period_end' => 'boolean',
         'grace_period_ends_at' => 'datetime',
     ];
 

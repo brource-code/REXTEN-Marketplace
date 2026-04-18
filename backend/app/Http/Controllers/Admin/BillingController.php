@@ -4,15 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\Payment;
+use App\Services\StripeAdminTransactionEnricherService;
 use App\Services\StripeBillingAggregatorService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BillingController extends Controller
 {
     public function __construct(
-        private StripeBillingAggregatorService $stripeBilling
+        private StripeBillingAggregatorService $stripeBilling,
+        private StripeAdminTransactionEnricherService $stripeTxnEnricher,
     ) {}
 
     public function overview(Request $request)
@@ -254,11 +258,13 @@ class BillingController extends Controller
             $offset = ($page - 1) * $pageSize;
             $slice = array_slice($filtered, $offset, $pageSize);
 
-            $data = array_map(function ($r) use ($companies) {
+            $includeStripe = $request->boolean('include_stripe', false);
+
+            $data = array_map(function ($r) use ($companies, $includeStripe) {
                 $cid = $r['company_id'] ?? null;
                 $cname = $cid && $companies->has($cid) ? $companies->get($cid)->name : null;
 
-                return [
+                $row = [
                     'id' => $r['id'],
                     'type' => $r['type'],
                     'amount' => round((float) $r['amount'], 2),
@@ -271,6 +277,12 @@ class BillingController extends Controller
                     'advertisement_id' => $r['advertisement_id'],
                     'package_id' => $r['package_id'],
                 ];
+
+                if ($includeStripe && $this->stripeTxnEnricher->isConfigured() && ! empty($r['id'])) {
+                    $row['stripe'] = $this->stripeTxnEnricher->snapshotCheckoutSession($r['id']);
+                }
+
+                return $row;
             }, $slice);
 
             return response()->json([
@@ -286,6 +298,28 @@ class BillingController extends Controller
                 'message' => $e->getMessage(),
             ], 502);
         }
+    }
+
+    /**
+     * Снимок Checkout Session + PaymentIntent из Stripe по id сессии (ленивая загрузка для модалки).
+     */
+    public function transactionStripe(Request $request)
+    {
+        $sessionId = $request->query('session_id');
+        if (! is_string($sessionId) || $sessionId === '') {
+            return response()->json(['error' => 'session_id_required'], 422);
+        }
+
+        if (! $this->stripeTxnEnricher->isConfigured()) {
+            return response()->json(['error' => 'stripe_not_configured'], 400);
+        }
+
+        $stripe = $this->stripeTxnEnricher->snapshotCheckoutSession($sessionId);
+
+        return response()->json([
+            'session_id' => $sessionId,
+            'stripe' => $stripe,
+        ]);
     }
 
     public function revenueByCompany(Request $request)
@@ -550,5 +584,280 @@ class BillingController extends Controller
                 'message' => $e->getMessage(),
             ], 502);
         }
+    }
+
+    /**
+     * Stripe Connect: overview of Connect accounts and payments.
+     */
+    public function connectOverview(Request $request)
+    {
+        $totalCompanies = Company::count();
+        $connectedCompanies = Company::whereNotNull('stripe_account_id')->count();
+        $activeCompanies = Company::where('stripe_account_status', 'active')->count();
+        $pendingCompanies = Company::where('stripe_account_status', 'pending')->count();
+        $restrictedCompanies = Company::where('stripe_account_status', 'restricted')->count();
+        $disabledCompanies = Company::where('stripe_account_status', 'disabled')->count();
+        $disputeCompanies = Company::where('has_active_dispute', true)->count();
+
+        $now = now();
+        $startThisMonth = $now->copy()->startOfMonth();
+        $startLastMonth = $now->copy()->subMonthNoOverflow()->startOfMonth();
+        $endLastMonth = $now->copy()->subMonthNoOverflow()->endOfMonth();
+
+        $paymentsThisMonth = Payment::where('created_at', '>=', $startThisMonth)
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_PARTIALLY_REFUNDED])
+            ->count();
+        $revenueThisMonth = Payment::where('created_at', '>=', $startThisMonth)
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_PARTIALLY_REFUNDED])
+            ->sum('amount') / 100;
+        $feesThisMonth = Payment::where('created_at', '>=', $startThisMonth)
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_PARTIALLY_REFUNDED])
+            ->sum('application_fee') / 100;
+
+        $paymentsLastMonth = Payment::whereBetween('created_at', [$startLastMonth, $endLastMonth])
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_PARTIALLY_REFUNDED])
+            ->count();
+        $revenueLastMonth = Payment::whereBetween('created_at', [$startLastMonth, $endLastMonth])
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_PARTIALLY_REFUNDED])
+            ->sum('amount') / 100;
+
+        $pendingCaptures = Payment::where('capture_status', Payment::CAPTURE_PENDING)->count();
+        $pendingCapturesAmount = Payment::where('capture_status', Payment::CAPTURE_PENDING)->sum('amount') / 100;
+
+        $refundedThisMonth = Payment::where('created_at', '>=', $startThisMonth)
+            ->where('refunded_amount', '>', 0)
+            ->sum('refunded_amount') / 100;
+
+        $disputedThisMonth = Payment::where('created_at', '>=', $startThisMonth)
+            ->where('status', Payment::STATUS_DISPUTED)
+            ->count();
+
+        $revenueGrowth = $revenueLastMonth > 0
+            ? round((($revenueThisMonth - $revenueLastMonth) / $revenueLastMonth) * 100, 1)
+            : ($revenueThisMonth > 0 ? 100 : null);
+
+        return response()->json([
+            'total_companies' => $totalCompanies,
+            'connected_companies' => $connectedCompanies,
+            'active_companies' => $activeCompanies,
+            'pending_companies' => $pendingCompanies,
+            'restricted_companies' => $restrictedCompanies,
+            'disabled_companies' => $disabledCompanies,
+            'dispute_companies' => $disputeCompanies,
+            'payments_this_month' => $paymentsThisMonth,
+            'payments_last_month' => $paymentsLastMonth,
+            'revenue_this_month' => round($revenueThisMonth, 2),
+            'revenue_last_month' => round($revenueLastMonth, 2),
+            'revenue_growth_pct' => $revenueGrowth,
+            'fees_this_month' => round($feesThisMonth, 2),
+            'pending_captures' => $pendingCaptures,
+            'pending_captures_amount' => round($pendingCapturesAmount, 2),
+            'refunded_this_month' => round($refundedThisMonth, 2),
+            'disputed_this_month' => $disputedThisMonth,
+        ]);
+    }
+
+    /**
+     * Stripe Connect: list of Connect accounts with statuses.
+     */
+    public function connectAccounts(Request $request)
+    {
+        $status = $request->input('status', 'all');
+        $search = $request->input('search', '');
+        $page = max(1, (int) $request->input('page', 1));
+        $pageSize = min(50, max(5, (int) $request->input('pageSize', 15)));
+
+        $query = Company::whereNotNull('stripe_account_id');
+
+        if ($status !== 'all') {
+            if ($status === 'dispute') {
+                $query->where('has_active_dispute', true);
+            } else {
+                $query->where('stripe_account_status', $status);
+            }
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                  ->orWhere('stripe_account_id', 'ilike', "%{$search}%");
+            });
+        }
+
+        $total = $query->count();
+        $companies = $query->orderByDesc('stripe_onboarding_completed_at')
+            ->offset(($page - 1) * $pageSize)
+            ->limit($pageSize)
+            ->get();
+
+        $companyIds = $companies->pluck('id')->toArray();
+
+        $paymentStats = Payment::whereIn('company_id', $companyIds)
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_PARTIALLY_REFUNDED])
+            ->selectRaw('company_id, COUNT(*) as payment_count, SUM(amount) as total_amount, SUM(application_fee) as total_fees')
+            ->groupBy('company_id')
+            ->get()
+            ->keyBy('company_id');
+
+        $data = $companies->map(function ($company) use ($paymentStats) {
+            $stats = $paymentStats->get($company->id);
+            return [
+                'id' => $company->id,
+                'name' => $company->name,
+                'stripe_account_id' => $company->stripe_account_id,
+                'stripe_account_status' => $company->stripe_account_status,
+                'stripe_payouts_enabled' => $company->stripe_payouts_enabled,
+                'stripe_charges_enabled' => $company->stripe_charges_enabled,
+                'stripe_onboarding_completed_at' => $company->stripe_onboarding_completed_at?->toISOString(),
+                'stripe_disabled_reason' => $company->stripe_disabled_reason,
+                'has_active_dispute' => $company->has_active_dispute,
+                'payment_count' => $stats ? (int) $stats->payment_count : 0,
+                'total_amount' => $stats ? round($stats->total_amount / 100, 2) : 0,
+                'total_fees' => $stats ? round($stats->total_fees / 100, 2) : 0,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+            'pageSize' => $pageSize,
+        ]);
+    }
+
+    /**
+     * Stripe Connect: list of booking payments.
+     */
+    public function connectPayments(Request $request)
+    {
+        $status = $request->input('status', 'all');
+        $companyId = $request->input('company_id');
+        $page = max(1, (int) $request->input('page', 1));
+        $pageSize = min(50, max(5, (int) $request->input('pageSize', 15)));
+
+        $query = Payment::with(['company', 'booking', 'user']);
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($companyId) {
+            $query->where('company_id', $companyId);
+        }
+
+        $total = $query->count();
+        $payments = $query->orderByDesc('created_at')
+            ->offset(($page - 1) * $pageSize)
+            ->limit($pageSize)
+            ->get();
+
+        $includeStripe = $request->boolean('include_stripe', false);
+
+        $data = $payments->map(function ($payment) use ($includeStripe) {
+            $row = [
+                'id' => $payment->id,
+                'stripe_payment_intent_id' => $payment->stripe_payment_intent_id,
+                'stripe_charge_id' => $payment->stripe_charge_id,
+                'stripe_account_id' => $payment->company?->stripe_account_id,
+                'company_id' => $payment->company_id,
+                'company_name' => $payment->company?->name,
+                'booking_id' => $payment->booking_id,
+                'user_id' => $payment->user_id,
+                'user_name' => $payment->user?->email,
+                'amount' => round($payment->amount / 100, 2),
+                'application_fee' => round($payment->application_fee / 100, 2),
+                'currency' => $payment->currency,
+                'status' => $payment->status,
+                'capture_status' => $payment->capture_status,
+                'refunded_amount' => round($payment->refunded_amount / 100, 2),
+                'refund_reason' => $payment->refund_reason,
+                'refund_initiated_by' => $payment->refund_initiated_by,
+                'disputed_at' => $payment->disputed_at?->toISOString(),
+                'captured_at' => $payment->captured_at?->toISOString(),
+                'created_at' => $payment->created_at->toISOString(),
+            ];
+
+            if ($includeStripe && $this->stripeTxnEnricher->isConfigured() && $payment->stripe_payment_intent_id) {
+                $row['stripe'] = $this->stripeTxnEnricher->snapshotPaymentIntent($payment->stripe_payment_intent_id);
+            }
+
+            return $row;
+        });
+
+        return response()->json([
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+            'pageSize' => $pageSize,
+        ]);
+    }
+
+    /**
+     * Stripe Connect: полный снимок PaymentIntent из Stripe по локальному платежу.
+     */
+    public function connectPaymentStripe(Payment $payment)
+    {
+        if (! $this->stripeTxnEnricher->isConfigured()) {
+            return response()->json(['error' => 'stripe_not_configured'], 400);
+        }
+
+        if (! $payment->stripe_payment_intent_id) {
+            // 200 + error в теле — не «валидация», чтобы клиент не логировал 422 и модалка показала текст
+            return response()->json([
+                'payment_id' => $payment->id,
+                'stripe' => [
+                    'error_code' => 'no_payment_intent',
+                    'error' => 'no_payment_intent',
+                ],
+            ]);
+        }
+
+        $stripe = $this->stripeTxnEnricher->snapshotPaymentIntent($payment->stripe_payment_intent_id);
+
+        return response()->json([
+            'payment_id' => $payment->id,
+            'stripe' => $stripe,
+        ]);
+    }
+
+    /**
+     * Stripe Connect: revenue chart by day.
+     */
+    public function connectRevenueChart(Request $request)
+    {
+        $days = (int) $request->input('days', 14);
+        $days = in_array($days, [7, 14, 30, 90], true) ? $days : 14;
+
+        $startDate = now()->subDays($days - 1)->startOfDay();
+
+        $payments = Payment::where('created_at', '>=', $startDate)
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_PARTIALLY_REFUNDED])
+            ->selectRaw('DATE(created_at) as date, SUM(amount) as total_amount, SUM(application_fee) as total_fees')
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy(DB::raw('DATE(created_at)'))
+            ->get()
+            ->keyBy('date');
+
+        $dates = [];
+        $amounts = [];
+        $fees = [];
+        $current = $startDate->copy();
+
+        for ($i = 0; $i < $days; $i++) {
+            $dateStr = $current->format('Y-m-d');
+            $dates[] = $dateStr;
+            $dayData = $payments->get($dateStr);
+            $amounts[] = $dayData ? round($dayData->total_amount / 100, 2) : 0;
+            $fees[] = $dayData ? round($dayData->total_fees / 100, 2) : 0;
+            $current->addDay();
+        }
+
+        return response()->json([
+            'date' => $dates,
+            'series' => [
+                ['name' => 'revenue', 'data' => $amounts],
+                ['name' => 'fees', 'data' => $fees],
+            ],
+        ]);
     }
 }

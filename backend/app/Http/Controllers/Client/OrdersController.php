@@ -46,6 +46,9 @@ class OrdersController extends Controller
                 'status' => $order->status,
                 'price' => (float) $order->total,
                 'createdAt' => $order->created_at->toISOString(),
+                'payment_status' => $order->payment_status,
+                'payment_method' => $order->payment_method,
+                'paid_at' => $order->paid_at ? $order->paid_at->toISOString() : null,
             ];
         });
 

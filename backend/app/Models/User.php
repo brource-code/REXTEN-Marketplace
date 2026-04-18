@@ -22,6 +22,7 @@ class User extends Authenticatable implements JWTSubject, CanResetPasswordContra
      */
     protected $fillable = [
         'email',
+        'stripe_customer_id',
         'password',
         'role',
         'locale',

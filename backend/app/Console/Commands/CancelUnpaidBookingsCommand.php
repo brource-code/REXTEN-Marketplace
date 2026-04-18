@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Services\BookingService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Stripe\PaymentIntent;
@@ -93,6 +94,11 @@ class CancelUnpaidBookingsCommand extends Command
                     'cancelled_at' => now(),
                     'cancellation_reason' => 'Payment not received within 30 minutes',
                 ]);
+
+                if ($booking->user_id) {
+                    $booking->refresh();
+                    app(BookingService::class)->notifyClientAboutUnpaidBookingExpired($booking);
+                }
 
                 Log::info('Cancelled unpaid booking', [
                     'booking_id' => $booking->id,

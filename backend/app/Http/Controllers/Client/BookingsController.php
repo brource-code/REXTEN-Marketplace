@@ -17,7 +17,7 @@ class BookingsController extends Controller
         $user = auth('api')->user();
 
         $query = Booking::where('user_id', $user->id)
-            ->with(['service', 'company', 'specialist', 'additionalServices', 'discountTier', 'promoCode']);
+            ->with(['service', 'company', 'specialist', 'additionalServices', 'discountTier', 'promoCode', 'payment']);
 
         // Filter by status
         if ($request->has('status')) {
@@ -176,6 +176,12 @@ class BookingsController extends Controller
                 ? (float) $booking->total_price
                 : max(0, $subtotal - $discountAmount);
 
+            $pay = $booking->payment;
+            $paymentAmount = $pay ? round(((float) $pay->amount) / 100, 2) : null;
+            $refundedAmount = $pay && ($pay->refunded_amount ?? 0) > 0
+                ? round(((float) $pay->refunded_amount) / 100, 2)
+                : null;
+
             return [
                 'id' => $booking->id,
                 'serviceName' => $serviceName,
@@ -194,6 +200,10 @@ class BookingsController extends Controller
                 'additional_services' => $additionalServices,
                 'specialist' => $specialistName,
                 'notes' => $booking->client_notes,
+                'payment_status' => $booking->payment_status ?? 'unpaid',
+                'payment_amount' => $paymentAmount,
+                'refunded_amount' => $refundedAmount,
+                'payment_method' => $pay ? 'card' : null,
             ];
         });
 
@@ -215,12 +225,21 @@ class BookingsController extends Controller
         }
 
         $previousStatus = $booking->status;
+        $previousPaymentStatus = $booking->payment_status;
 
         $booking->update([
             'status' => 'cancelled',
             'cancelled_at' => now(),
             'cancellation_reason' => 'Отменено клиентом',
         ]);
+
+        // Auto-refund or cancel hold if payment was authorized/paid
+        $refundResult = null;
+        if (in_array($previousPaymentStatus, ['authorized', 'paid'])) {
+            $refundResult = app(\App\Services\BookingService::class)
+                ->refundOrCancelPayment($booking, $user->id, 'CLIENT', 'Отменено клиентом', true);
+            $booking->refresh();
+        }
 
         try {
             ActivityService::logBookingCancelled($booking->fresh(), $user, $previousStatus);
@@ -233,6 +252,7 @@ class BookingsController extends Controller
 
         return response()->json([
             'message' => 'Бронирование отменено',
+            'refund' => $refundResult,
         ]);
     }
 }

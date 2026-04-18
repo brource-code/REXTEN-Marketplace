@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Company;
+use App\Models\Service;
 use App\Models\User;
 use App\Models\Advertisement;
 use App\Helpers\DatabaseHelper;
@@ -47,6 +49,9 @@ class DashboardController extends Controller
             }
 
             $payload = Cache::remember('dashboard.stats.' . $companyId, 60, function () use ($companyId) {
+            $company = Company::query()->find($companyId);
+            $monthlyBookingsGoal = $company?->dashboard_monthly_bookings_goal;
+
             // Total bookings
             $totalBookings = Booking::where('company_id', $companyId)->count();
 
@@ -248,6 +253,49 @@ class DashboardController extends Controller
                         'value' => $clientsThisYear,
                         'growShrink' => $this->pctChange((float) $cliPrevYear, (float) $clientsThisYear),
                     ],
+                ],
+                'bookingsGoal' => [
+                    'thisWeek' => $this->buildBookingsGoalEntry(
+                        $bookingsThisWeek,
+                        $bookPrevWeek,
+                        $monthlyBookingsGoal,
+                        'thisWeek',
+                    ),
+                    'thisMonth' => $this->buildBookingsGoalEntry(
+                        $bookingsThisMonth,
+                        $bookPrevMonth,
+                        $monthlyBookingsGoal,
+                        'thisMonth',
+                    ),
+                    'thisYear' => $this->buildBookingsGoalEntry(
+                        $bookingsThisYear,
+                        $bookPrevYear,
+                        $monthlyBookingsGoal,
+                        'thisYear',
+                    ),
+                ],
+                'topServices' => [
+                    'thisWeek' => $this->topBookedServices(
+                        $companyId,
+                        $weekStart,
+                        $today,
+                        $pwFrom,
+                        $pwTo,
+                    ),
+                    'thisMonth' => $this->topBookedServices(
+                        $companyId,
+                        $monthStart,
+                        $today,
+                        $pmFrom,
+                        $pmTo,
+                    ),
+                    'thisYear' => $this->topBookedServices(
+                        $companyId,
+                        $yearStart,
+                        $today,
+                        $pyFrom,
+                        $pyTo,
+                    ),
                 ],
             ];
 
@@ -599,6 +647,105 @@ class DashboardController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * @return array{current: int, target: int, percent: int}
+     */
+    private function buildBookingsGoalEntry(int $current, int $prev, ?int $monthlyGoal, string $period): array
+    {
+        $target = $this->resolveBookingsTarget($monthlyGoal, $period, $prev);
+        $percent = $target > 0 ? (int) min(100, round(($current / $target) * 100)) : 0;
+
+        return [
+            'current' => $current,
+            'target' => $target,
+            'percent' => $percent,
+        ];
+    }
+
+    private function resolveBookingsTarget(?int $monthlyGoal, string $period, int $prevBookings): int
+    {
+        if ($monthlyGoal !== null && $monthlyGoal > 0) {
+            return match ($period) {
+                'thisWeek' => max(1, (int) ceil($monthlyGoal / 4)),
+                'thisMonth' => $monthlyGoal,
+                'thisYear' => max(1, (int) ($monthlyGoal * 12)),
+                default => max(1, $monthlyGoal),
+            };
+        }
+
+        $floor = match ($period) {
+            'thisWeek' => 8,
+            'thisMonth' => 10,
+            'thisYear' => 100,
+            default => 10,
+        };
+
+        if ($prevBookings <= 0) {
+            return $floor;
+        }
+
+        $mult = $period === 'thisYear' ? 1.1 : 1.15;
+
+        return max($floor, (int) ceil($prevBookings * $mult));
+    }
+
+    /**
+     * @return array<int, array{serviceId: int, name: string, image: string|null, count: int, growShrink: float}>
+     */
+    private function topBookedServices(
+        int $companyId,
+        string $from,
+        string $to,
+        string $prevFrom,
+        string $prevTo,
+        int $limit = 6,
+    ): array {
+        $current = Booking::where('company_id', $companyId)
+            ->where('status', '!=', 'cancelled')
+            ->whereDate('booking_date', '>=', $from)
+            ->whereDate('booking_date', '<=', $to)
+            ->whereNotNull('service_id')
+            ->selectRaw('service_id, COUNT(*) as c')
+            ->groupBy('service_id')
+            ->orderByDesc('c')
+            ->limit($limit)
+            ->get();
+
+        if ($current->isEmpty()) {
+            return [];
+        }
+
+        $ids = $current->pluck('service_id')->map(fn ($id) => (int) $id)->all();
+
+        $prevMap = Booking::where('company_id', $companyId)
+            ->where('status', '!=', 'cancelled')
+            ->whereDate('booking_date', '>=', $prevFrom)
+            ->whereDate('booking_date', '<=', $prevTo)
+            ->whereIn('service_id', $ids)
+            ->selectRaw('service_id, COUNT(*) as c')
+            ->groupBy('service_id')
+            ->pluck('c', 'service_id');
+
+        $services = Service::whereIn('id', $ids)->get()->keyBy('id');
+
+        $out = [];
+        foreach ($current as $row) {
+            $sid = (int) $row->service_id;
+            $cur = (int) $row->c;
+            $prev = (int) ($prevMap[$sid] ?? 0);
+            $svc = $services->get($sid);
+            $out[] = [
+                'serviceId' => $sid,
+                'name' => $svc ? (string) $svc->name : ('#' . $sid),
+                'image' => $svc && $svc->image ? (string) $svc->image : null,
+                'count' => $cur,
+                'growShrink' => $this->pctChange((float) $prev, (float) $cur),
+            ];
+        }
+
+        return $out;
     }
 
     private function pctChange(float $prev, float $cur): float

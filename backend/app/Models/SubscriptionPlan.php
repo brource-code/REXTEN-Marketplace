@@ -21,6 +21,9 @@ class SubscriptionPlan extends Model
         'sort_order',
         'badge_text',
         'color',
+        'stripe_product_id',
+        'stripe_price_id_monthly',
+        'stripe_price_id_yearly',
     ];
 
     protected $casts = [

@@ -69,6 +69,9 @@ class Company extends Model
         'stripe_disabled_reason',
         'has_active_dispute',
         'online_payment_enabled',
+        'cancellation_free_hours',
+        'cancellation_late_fee_percent',
+        'dashboard_monthly_bookings_goal',
     ];
 
     /**
@@ -102,6 +105,8 @@ class Company extends Model
         'stripe_onboarding_completed_at' => 'datetime',
         'has_active_dispute' => 'boolean',
         'online_payment_enabled' => 'boolean',
+        'cancellation_free_hours' => 'integer',
+        'cancellation_late_fee_percent' => 'integer',
     ];
 
     /**

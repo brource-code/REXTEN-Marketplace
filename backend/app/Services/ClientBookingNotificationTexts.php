@@ -20,18 +20,16 @@ class ClientBookingNotificationTexts
             return null;
         }
 
-        $serviceName = self::resolveServiceName($booking);
-        $companyName = $booking->company?->name ?? 'Компания';
-        $bookingTime = (string) ($booking->booking_time ?? '');
-
         $locale = NotificationLocale::forClientRecipient($booking->user_id);
+
+        $serviceName = self::resolveServiceName($booking, $locale);
+        $companyName = $booking->company?->name ?? self::defaultCompanyLabel($locale);
+        $bookingTime = (string) ($booking->booking_time ?? '');
 
         $bookingDate = '';
         if ($booking->booking_date) {
             $date = $booking->getTimeWindow()['start'];
-            $bookingDate = ($locale === 'en' || $locale === 'es-mx' || $locale === 'hy-am' || $locale === 'uk-ua')
-                ? $date->format('M d, Y')
-                : $date->format('d.m.Y');
+            $bookingDate = self::formatBookingDateLocalized($date, $locale);
         }
 
         $translations = self::translationsTemplate($serviceName, $companyName, $bookingDate, $bookingTime);
@@ -45,7 +43,7 @@ class ClientBookingNotificationTexts
             $message = $bucket['confirmed']['message'];
         } elseif ($newStatus === 'cancelled') {
             $title = $bucket['cancelled']['title'];
-            $reason = $booking->cancellation_reason ?? self::defaultCancellationReason($locale);
+            $reason = self::localizedCancellationReason($booking->cancellation_reason, $locale);
             $message = str_replace('%reason%', $reason, $bucket['cancelled']['message']);
         } else {
             $title = $bucket['completed']['title'];
@@ -63,9 +61,87 @@ class ClientBookingNotificationTexts
         ];
     }
 
-    private static function resolveServiceName(Booking $booking): string
+    /**
+     * Дата в теле уведомления: ru — 14.04.2026; en — Apr 14, 2026; остальные — через ICU (месяц на языке локали).
+     */
+    private static function formatBookingDateLocalized(Carbon $date, string $locale): string
     {
-        $serviceName = 'Услуга';
+        if ($locale === 'ru') {
+            return $date->format('d.m.Y');
+        }
+
+        if ($locale === 'en') {
+            return $date->format('M j, Y');
+        }
+
+        if (class_exists(\IntlDateFormatter::class)) {
+            $intlLocale = match ($locale) {
+                'es-mx' => 'es_MX',
+                'uk-ua' => 'uk_UA',
+                'hy-am' => 'hy_AM',
+                default => 'en_US',
+            };
+
+            $formatter = new \IntlDateFormatter(
+                $intlLocale,
+                \IntlDateFormatter::LONG,
+                \IntlDateFormatter::NONE,
+                $date->getTimezone()->getName(),
+                \IntlDateFormatter::GREGORIAN
+            );
+
+            $out = $formatter->format($date->getTimestamp());
+            if ($out !== false && $out !== '') {
+                return $out;
+            }
+        }
+
+        return self::formatBookingDateCarbonFallback($date, $locale);
+    }
+
+    /**
+     * Запасной формат без ext-intl: локализованные названия месяцев через Carbon (если есть переводы).
+     */
+    private static function formatBookingDateCarbonFallback(Carbon $date, string $locale): string
+    {
+        $carbonLocale = match ($locale) {
+            'es-mx' => 'es',
+            'uk-ua' => 'uk',
+            'hy-am' => 'hy_AM',
+            default => 'en',
+        };
+
+        $d = $date->copy()->locale($carbonLocale);
+
+        return $d->translatedFormat('j F Y');
+    }
+
+    private static function defaultCompanyLabel(string $locale): string
+    {
+        return match ($locale) {
+            'ru' => 'Компания',
+            'es-mx' => 'Empresa',
+            'uk-ua' => 'Компанія',
+            'hy-am' => 'Ընկերություն',
+            default => 'Company',
+        };
+    }
+
+    private static function defaultServiceLabel(string $locale): string
+    {
+        return match ($locale) {
+            'ru' => 'Услуга',
+            'es-mx' => 'Servicio',
+            'uk-ua' => 'Послуга',
+            'hy-am' => 'Ծառայություն',
+            default => 'Service',
+        };
+    }
+
+    private static function resolveServiceName(Booking $booking, string $locale): string
+    {
+        $defaultLabel = self::defaultServiceLabel($locale);
+        $serviceName = $defaultLabel;
 
         if ($booking->advertisement_id) {
             $advertisement = \App\Models\Advertisement::find($booking->advertisement_id);
@@ -80,22 +156,83 @@ class ClientBookingNotificationTexts
             }
         }
 
-        if ($serviceName === 'Услуга' && $booking->service) {
+        if ($serviceName === $defaultLabel && $booking->service) {
             $serviceName = $booking->service->name;
         }
 
         return $serviceName;
     }
 
-    private static function defaultCancellationReason(string $locale): string
+    /**
+     * Причина отмены для клиента: системные строки из БД (часто на русском) переводим по locale;
+     * произвольный текст бизнеса оставляем как введён.
+     */
+    private static function localizedCancellationReason(?string $stored, string $locale): string
     {
-        return match ($locale) {
-            'ru' => 'Отменено администратором',
-            'es-mx' => 'Cancelado por el administrador',
-            'hy-am' => 'Չեղարկել է ադմինիստրատորը',
-            'uk-ua' => 'Скасовано адміністратором',
-            default => 'Cancelled by administrator',
-        };
+        $stored = trim((string) $stored);
+        if ($stored === '') {
+            return self::cancellationReasonLabel('by_admin', $locale);
+        }
+
+        $key = self::canonicalCancellationReasonKey($stored);
+        if ($key !== null) {
+            return self::cancellationReasonLabel($key, $locale);
+        }
+
+        return $stored;
+    }
+
+    private static function canonicalCancellationReasonKey(string $stored): ?string
+    {
+        $map = [
+            'Отменено клиентом' => 'by_client',
+            'Отменено администратором' => 'by_admin',
+            'Отменено бизнесом' => 'by_business',
+            'Payment not received within 30 minutes' => 'unpaid_timeout',
+        ];
+
+        return $map[$stored] ?? null;
+    }
+
+    private static function cancellationReasonLabel(string $key, string $locale): string
+    {
+        $labels = [
+            'by_client' => [
+                'en' => 'Cancelled by you',
+                'ru' => 'Отменено клиентом',
+                'es-mx' => 'Cancelada por ti',
+                'hy-am' => 'Չեղարկել եք դուք',
+                'uk-ua' => 'Скасовано вами',
+            ],
+            'by_admin' => [
+                'en' => 'Cancelled by the administrator',
+                'ru' => 'Отменено администратором',
+                'es-mx' => 'Cancelada por el administrador',
+                'hy-am' => 'Չեղարկել է ադմինիստրատորը',
+                'uk-ua' => 'Скасовано адміністратором',
+            ],
+            'by_business' => [
+                'en' => 'Cancelled by the business',
+                'ru' => 'Отменено бизнесом',
+                'es-mx' => 'Cancelada por el negocio',
+                'hy-am' => 'Չեղարկել է բիզնեսը',
+                'uk-ua' => 'Скасовано бізнесом',
+            ],
+            'unpaid_timeout' => [
+                'en' => 'Payment was not received within 30 minutes',
+                'ru' => 'Оплата не поступила в течение 30 минут',
+                'es-mx' => 'No se recibió el pago en 30 minutos',
+                'hy-am' => 'Վճարումը չի ստացվել 30 րոպեի ընթացքում',
+                'uk-ua' => 'Оплату не отримано протягом 30 хвилин',
+            ],
+        ];
+
+        $bucket = $labels[$key] ?? null;
+        if (! $bucket) {
+            return '';
+        }
+
+        return $bucket[$locale] ?? $bucket['en'];
     }
 
     /**

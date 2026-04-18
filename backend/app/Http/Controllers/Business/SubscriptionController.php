@@ -11,13 +11,16 @@ use App\Models\Service;
 use App\Models\TeamMember;
 use App\Models\Advertisement;
 use App\Services\PlatformSettingsService;
+use App\Services\StripeSubscriptionService;
 use App\Services\SubscriptionLifecycleService;
+use App\Services\SubscriptionMailer;
 use App\Services\SubscriptionLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
+use Stripe\Invoice as StripeInvoice;
 
 class SubscriptionController extends Controller
 {
@@ -31,24 +34,39 @@ class SubscriptionController extends Controller
      */
     public function plans()
     {
-        $plans = SubscriptionPlan::where('is_active', true)
+        return response()->json(['plans' => $this->collectActivePaidPlans()]);
+    }
+
+    /**
+     * Публичный список планов (лендинг, без авторизации) — те же данные, что в кабинете.
+     */
+    public function publicPlans()
+    {
+        return response()->json(['plans' => $this->collectActivePaidPlans()]);
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     */
+    private function collectActivePaidPlans()
+    {
+        return SubscriptionPlan::where('is_active', true)
             ->where('is_free', false)
             ->orderBy('sort_order')
             ->get()
-            ->map(fn($plan) => [
+            ->map(fn ($plan) => [
                 'id' => $plan->slug,
                 'name' => $plan->name,
                 'description' => $plan->description,
                 'price_monthly' => $plan->getPriceMonthly(),
                 'price_yearly' => $plan->getPriceYearly(),
+                'currency' => strtoupper((string) ($plan->currency ?? 'USD')),
                 'features' => $plan->features,
                 'badge_text' => $plan->badge_text,
                 'color' => $plan->color,
                 'sort_order' => $plan->sort_order,
                 'is_free' => $plan->is_free,
             ]);
-
-        return response()->json(['plans' => $plans]);
     }
 
     /**
@@ -58,7 +76,7 @@ class SubscriptionController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         SubscriptionLifecycleService::finalizeExpiredForCompany((int) $companyId);
@@ -73,7 +91,7 @@ class SubscriptionController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         SubscriptionLifecycleService::finalizeExpiredForCompany((int) $companyId);
@@ -103,7 +121,8 @@ class SubscriptionController extends Controller
                 'current_period_start' => $subscription->current_period_start?->toISOString(),
                 'current_period_end' => $subscription->current_period_end?->toISOString(),
                 'canceled_at' => $subscription->canceled_at?->toISOString(),
-                'cancellation_scheduled' => $subscription->canceled_at !== null,
+                'cancel_at_period_end' => (bool) $subscription->cancel_at_period_end,
+                'cancellation_scheduled' => $subscription->canceled_at !== null || (bool) $subscription->cancel_at_period_end,
                 'scheduled_plan' => $subscription->scheduled_plan,
                 'grace_period_ends_at' => $subscription->grace_period_ends_at?->toISOString(),
                 'previous_plan' => $subscription->previous_plan,
@@ -126,6 +145,7 @@ class SubscriptionController extends Controller
         if (!PlatformSettingsService::isStripePaymentsEnabled()) {
             return response()->json([
                 'error' => 'stripe_disabled',
+                'code' => 'stripe_disabled',
                 'message' => 'Stripe payments are disabled.',
             ], 403);
         }
@@ -139,17 +159,17 @@ class SubscriptionController extends Controller
         $companyId = $this->resolveCompanyId($request);
 
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         $planModel = SubscriptionPlan::findBySlug($validated['plan']);
         
         if (!$planModel || !$planModel->is_active) {
-            return response()->json(['error' => 'Invalid or inactive plan'], 422);
+            return response()->json(['error' => 'Invalid or inactive plan', 'code' => 'invalid_plan'], 422);
         }
 
         if ($planModel->is_free) {
-            return response()->json(['error' => 'Cannot purchase free plan'], 422);
+            return response()->json(['error' => 'Cannot purchase free plan', 'code' => 'cannot_purchase_free'], 422);
         }
 
         return $this->createCheckoutSessionInternal(
@@ -169,7 +189,7 @@ class SubscriptionController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         $subscription = Subscription::where('company_id', $companyId)
@@ -177,36 +197,75 @@ class SubscriptionController extends Controller
             ->first();
 
         if (!$subscription) {
-            return response()->json(['error' => 'No active subscription'], 404);
+            return response()->json(['error' => 'No active subscription', 'code' => 'no_active_subscription'], 404);
         }
 
         $planModel = SubscriptionPlan::findBySlug($subscription->plan);
         if ($planModel?->is_free) {
             return response()->json([
                 'error' => 'cannot_cancel_free',
+                'code' => 'cannot_cancel_free',
                 'message' => 'Free plan cannot be canceled.',
             ], 422);
         }
 
-        if ($subscription->canceled_at) {
+        if ($subscription->canceled_at || $subscription->cancel_at_period_end) {
             return response()->json([
                 'error' => 'already_scheduled',
+                'code' => 'already_scheduled',
                 'message' => 'Cancellation is already scheduled.',
             ], 422);
         }
 
-        $subscription->update([
-            'canceled_at' => now(),
-            'scheduled_plan' => null,
-        ]);
+        // Источник истины — Stripe. Проставляем cancel_at_period_end=true там
+        // и зеркалим локально (через ответ Stripe или webhook customer.subscription.updated).
+        if ($subscription->stripe_subscription_id) {
+            try {
+                $stripeSub = StripeSubscriptionService::setCancelAtPeriodEnd(
+                    $subscription->stripe_subscription_id,
+                    true
+                );
+                StripeSubscriptionService::syncFromStripe($subscription, $stripeSub);
+            } catch (\Exception $e) {
+                Log::error('Failed to set cancel_at_period_end in Stripe', [
+                    'subscription_id' => $subscription->id,
+                    'stripe_subscription_id' => $subscription->stripe_subscription_id,
+                    'error' => $e->getMessage(),
+                ]);
+                return response()->json([
+                    'error' => 'stripe_error',
+                    'code' => 'stripe_error',
+                    'message' => $e->getMessage(),
+                ], 502);
+            }
+        } else {
+            // Legacy-путь для подписок до перехода на recurring (без stripe_subscription_id).
+            // Помечаем локально, переход на free сделает наш cron в конце периода.
+            $subscription->update([
+                'canceled_at' => now(),
+                'cancel_at_period_end' => true,
+                'scheduled_plan' => null,
+            ]);
+        }
 
         Log::info('Subscription canceled (access until period end)', [
             'subscription_id' => $subscription->id,
             'company_id' => $companyId,
             'current_period_end' => $subscription->current_period_end?->toISOString(),
+            'has_stripe_id' => (bool) $subscription->stripe_subscription_id,
         ]);
 
+        try {
+            SubscriptionMailer::notifyCanceled($subscription->fresh() ?? $subscription);
+        } catch (\Throwable $e) {
+            Log::error('SubscriptionMailer notifyCanceled failed', [
+                'subscription_id' => $subscription->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return response()->json([
+            'code' => 'subscription_canceled',
             'message' => 'Subscription canceled. Access remains until the end of the billing period.',
             'canceled_at' => $subscription->fresh()->canceled_at?->toISOString(),
         ]);
@@ -219,7 +278,7 @@ class SubscriptionController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         SubscriptionLifecycleService::finalizeExpiredForCompany((int) $companyId);
@@ -229,20 +288,22 @@ class SubscriptionController extends Controller
             ->first();
 
         if (!$subscription) {
-            return response()->json(['error' => 'No active subscription'], 404);
+            return response()->json(['error' => 'No active subscription', 'code' => 'no_active_subscription'], 404);
         }
 
         $planModel = SubscriptionPlan::findBySlug($subscription->plan);
         if ($planModel?->is_free) {
             return response()->json([
                 'error' => 'cannot_resume_free',
+                'code' => 'cannot_resume_free',
                 'message' => 'Free plan cannot be resumed.',
             ], 422);
         }
 
-        if (!$subscription->canceled_at) {
+        if (!$subscription->canceled_at && !$subscription->cancel_at_period_end) {
             return response()->json([
                 'error' => 'not_canceled',
+                'code' => 'not_canceled',
                 'message' => 'Subscription is not canceled.',
             ], 422);
         }
@@ -250,11 +311,33 @@ class SubscriptionController extends Controller
         if ($subscription->current_period_end && $subscription->current_period_end->isPast()) {
             return response()->json([
                 'error' => 'period_ended',
+                'code' => 'period_ended',
                 'message' => 'Billing period has already ended.',
             ], 422);
         }
 
-        $subscription->update(['canceled_at' => null]);
+        if ($subscription->stripe_subscription_id) {
+            try {
+                $stripeSub = StripeSubscriptionService::setCancelAtPeriodEnd(
+                    $subscription->stripe_subscription_id,
+                    false
+                );
+                StripeSubscriptionService::syncFromStripe($subscription, $stripeSub);
+            } catch (\Exception $e) {
+                Log::error('Failed to clear cancel_at_period_end in Stripe', [
+                    'subscription_id' => $subscription->id,
+                    'stripe_subscription_id' => $subscription->stripe_subscription_id,
+                    'error' => $e->getMessage(),
+                ]);
+                return response()->json([
+                    'error' => 'stripe_error',
+                    'code' => 'stripe_error',
+                    'message' => $e->getMessage(),
+                ], 502);
+            }
+        } else {
+            $subscription->update(['canceled_at' => null, 'cancel_at_period_end' => false]);
+        }
 
         Log::info('Subscription cancellation withdrawn (resumed)', [
             'subscription_id' => $subscription->id,
@@ -262,6 +345,7 @@ class SubscriptionController extends Controller
         ]);
 
         return response()->json([
+            'code' => 'subscription_resumed',
             'message' => 'Subscription resumed.',
             'canceled_at' => null,
         ]);
@@ -275,6 +359,7 @@ class SubscriptionController extends Controller
         if (!PlatformSettingsService::isStripePaymentsEnabled()) {
             return response()->json([
                 'error' => 'stripe_disabled',
+                'code' => 'stripe_disabled',
                 'message' => 'Stripe payments are disabled.',
             ], 403);
         }
@@ -288,19 +373,20 @@ class SubscriptionController extends Controller
         $companyId = $this->resolveCompanyId($request);
 
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         SubscriptionLifecycleService::finalizeExpiredForCompany((int) $companyId);
 
         $targetPlan = SubscriptionPlan::findBySlug($validated['plan']);
         if (!$targetPlan || !$targetPlan->is_active) {
-            return response()->json(['error' => 'Invalid or inactive plan'], 422);
+            return response()->json(['error' => 'Invalid or inactive plan', 'code' => 'invalid_plan'], 422);
         }
 
         if ($targetPlan->is_free) {
             return response()->json([
                 'error' => 'use_cancel_for_free',
+                'code' => 'use_cancel_for_free',
                 'message' => 'To switch to the free plan, cancel your paid subscription.',
             ], 422);
         }
@@ -311,25 +397,27 @@ class SubscriptionController extends Controller
             ->first();
 
         if (!$subscription) {
-            return response()->json(['error' => 'No active subscription'], 404);
+            return response()->json(['error' => 'No active subscription', 'code' => 'no_active_subscription'], 404);
         }
 
         $currentPlan = SubscriptionPlan::findBySlug($subscription->plan);
         if (!$currentPlan) {
-            return response()->json(['error' => 'Current plan not found'], 422);
+            return response()->json(['error' => 'Current plan not found', 'code' => 'current_plan_not_found'], 422);
         }
 
         if ($currentPlan->slug === $targetPlan->slug) {
             return response()->json([
                 'error' => 'already_on_plan',
+                'code' => 'already_on_plan',
                 'message' => 'You are already on this plan.',
             ], 422);
         }
 
         if ($targetPlan->sort_order < $currentPlan->sort_order) {
-            if ($subscription->canceled_at) {
+            if ($subscription->canceled_at || $subscription->cancel_at_period_end) {
                 return response()->json([
                     'error' => 'cancellation_pending',
+                    'code' => 'cancellation_pending',
                     'message' => 'Cancel or resume your subscription before scheduling a downgrade.',
                 ], 422);
             }
@@ -345,15 +433,106 @@ class SubscriptionController extends Controller
                 'period_ends' => $subscription->current_period_end?->toISOString(),
             ]);
 
+            try {
+                SubscriptionMailer::notifyDowngradeScheduled(
+                    $subscription->fresh() ?? $subscription,
+                    $targetPlan->slug
+                );
+            } catch (\Throwable $e) {
+                Log::error('SubscriptionMailer notifyDowngradeScheduled failed', [
+                    'subscription_id' => $subscription->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             return response()->json([
                 'action' => 'downgrade_scheduled',
+                'code' => 'downgrade_scheduled',
                 'scheduled_plan' => $targetPlan->slug,
                 'current_period_end' => $subscription->current_period_end?->toISOString(),
                 'message' => 'Downgrade scheduled for the end of your billing period.',
             ]);
         }
 
-        // Upgrade: оплата через Stripe; после webhook старые активные подписки закрываются.
+        // Upgrade. Если у подписки уже есть Stripe ID — меняем price через API
+        // с always_invoice + error_if_incomplete: Stripe немедленно выпустит invoice
+        // на доплату-прорацию и попытается её списать. Если карта откажет —
+        // выбросит CardException, апгрейд НЕ применится (ни в Stripe, ни локально).
+        // Если default_payment_method отсутствует — также провалимся и пойдём в checkout.
+        if ($subscription->stripe_subscription_id) {
+            try {
+                $newPriceId = StripeSubscriptionService::ensurePrice($targetPlan, $validated['interval']);
+                $stripeSub = StripeSubscriptionService::changePrice(
+                    $subscription->stripe_subscription_id,
+                    $newPriceId,
+                    'always_invoice',
+                    'error_if_incomplete'
+                );
+
+                $unitAmount = $stripeSub->items->data[0]->price->unit_amount ?? 0;
+                $currency = strtolower($stripeSub->items->data[0]->price->currency ?? $subscription->currency);
+
+                $subscription->forceFill([
+                    'plan' => $targetPlan->slug,
+                    'stripe_price_id' => $newPriceId,
+                    'price_cents' => (int) $unitAmount,
+                    'currency' => $currency,
+                    'interval' => $validated['interval'],
+                    'scheduled_plan' => null,
+                    'previous_plan' => $currentPlan->slug,
+                ])->save();
+                StripeSubscriptionService::syncFromStripe($subscription, $stripeSub);
+
+                // Письмо о доплате/смене плана: не полагаться только на webhook invoice.* —
+                // на проде вебхук может прийти с задержкой или не быть настроен.
+                try {
+                    $latestInvoiceRef = is_string($stripeSub->latest_invoice ?? null)
+                        ? $stripeSub->latest_invoice
+                        : ($stripeSub->latest_invoice->id ?? null);
+                    if ($latestInvoiceRef) {
+                        $paidInvoice = StripeInvoice::retrieve($latestInvoiceRef, ['expand' => ['lines.data']]);
+                        if (($paidInvoice->status ?? '') === 'paid') {
+                            SubscriptionMailer::notifyPaymentSucceeded($subscription->fresh(), $paidInvoice);
+                        }
+                    }
+                } catch (\Throwable $mailEx) {
+                    Log::warning('Subscription upgrade payment email (API path) failed', [
+                        'subscription_id' => $subscription->id,
+                        'error' => $mailEx->getMessage(),
+                    ]);
+                }
+
+                Log::info('Subscription upgraded via Stripe API', [
+                    'company_id' => $companyId,
+                    'from_plan' => $currentPlan->slug,
+                    'to_plan' => $targetPlan->slug,
+                    'stripe_subscription_id' => $subscription->stripe_subscription_id,
+                ]);
+
+                return response()->json([
+                    'action' => 'upgraded',
+                    'code' => 'subscription_upgraded',
+                    'plan' => $targetPlan->slug,
+                    'message' => 'Subscription upgraded.',
+                ]);
+            } catch (\Stripe\Exception\CardException $e) {
+                Log::warning('Stripe upgrade declined by card; falling back to checkout', [
+                    'company_id' => $companyId,
+                    'error' => $e->getMessage(),
+                    'decline_code' => $e->getDeclineCode(),
+                ]);
+                // Карта отклонена → редирект в Checkout, чтобы юзер мог ввести
+                // другую карту. Локально ничего не меняли, Stripe тоже откатил.
+            } catch (\Exception $e) {
+                Log::error('Stripe upgrade failed, falling back to checkout', [
+                    'company_id' => $companyId,
+                    'error' => $e->getMessage(),
+                ]);
+                // Прочая ошибка (нет default PM, network и т.п.) — отправляем
+                // юзера через Checkout, где Stripe точно соберёт оплату.
+            }
+        }
+
         return $this->createCheckoutSessionInternal($request, $validated['plan'], $validated['interval'], $user, (int) $companyId, true);
     }
 
@@ -364,7 +543,7 @@ class SubscriptionController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         SubscriptionLifecycleService::finalizeExpiredForCompany((int) $companyId);
@@ -374,12 +553,13 @@ class SubscriptionController extends Controller
             ->first();
 
         if (!$subscription) {
-            return response()->json(['error' => 'No active subscription'], 404);
+            return response()->json(['error' => 'No active subscription', 'code' => 'no_active_subscription'], 404);
         }
 
         if (!$subscription->scheduled_plan) {
             return response()->json([
                 'error' => 'no_scheduled_change',
+                'code' => 'no_scheduled_change',
                 'message' => 'No scheduled plan change.',
             ], 422);
         }
@@ -387,6 +567,7 @@ class SubscriptionController extends Controller
         $subscription->update(['scheduled_plan' => null]);
 
         return response()->json([
+            'code' => 'scheduled_change_canceled',
             'message' => 'Scheduled downgrade canceled.',
             'scheduled_plan' => null,
         ]);
@@ -396,7 +577,7 @@ class SubscriptionController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         SubscriptionLifecycleService::finalizeExpiredForCompany((int) $companyId);
@@ -410,7 +591,7 @@ class SubscriptionController extends Controller
     {
         $companyId = $this->resolveCompanyId($request);
         if (!$companyId) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         $validated = $request->validate([
@@ -426,14 +607,14 @@ class SubscriptionController extends Controller
 
         $company = Company::find($companyId);
         if (!$company) {
-            return response()->json(['error' => 'Company not found'], 404);
+            return response()->json(['error' => 'Company not found', 'code' => 'company_not_found'], 404);
         }
 
         DB::transaction(function () use ($validated, $companyId, $company) {
             if (!empty($validated['deactivate_team_member_ids'])) {
                 TeamMember::where('company_id', $companyId)
                     ->whereIn('id', $validated['deactivate_team_member_ids'])
-                    ->update(['is_active' => false]);
+                    ->update(['is_active' => false, 'status' => 'inactive']);
             }
 
             if (!empty($validated['deactivate_company_user_ids'])) {
@@ -463,6 +644,7 @@ class SubscriptionController extends Controller
         }
 
         return response()->json([
+            'code' => 'limits_updated',
             'message' => 'Limits updated.',
             'usage' => SubscriptionLimitService::getUsage((int) $companyId),
             'over_limit' => SubscriptionLimitService::getOverLimitDetails((int) $companyId),
@@ -483,11 +665,11 @@ class SubscriptionController extends Controller
         $planModel = SubscriptionPlan::findBySlug($planSlug);
 
         if (!$planModel || !$planModel->is_active) {
-            return response()->json(['error' => 'Invalid or inactive plan'], 422);
+            return response()->json(['error' => 'Invalid or inactive plan', 'code' => 'invalid_plan'], 422);
         }
 
         if ($planModel->is_free) {
-            return response()->json(['error' => 'Cannot purchase free plan'], 422);
+            return response()->json(['error' => 'Cannot purchase free plan', 'code' => 'cannot_purchase_free'], 422);
         }
 
         if (!$isUpgrade) {
@@ -499,6 +681,7 @@ class SubscriptionController extends Controller
             if ($existing) {
                 return response()->json([
                     'error' => 'already_subscribed',
+                    'code' => 'already_subscribed',
                     'message' => 'You already have an active paid subscription. Cancel it first to change plans.',
                 ], 409);
             }
@@ -515,38 +698,53 @@ class SubscriptionController extends Controller
         $frontendUrl = $this->getFrontendUrl($request);
 
         try {
-            $session = Session::create([
+            // Stripe Customer привязываем к юзеру (владельцу бизнеса).
+            // Это нужно для recurring подписок: invoice'ы и method хранятся на customer.
+            $company = Company::find($companyId);
+            $customerId = StripeSubscriptionService::ensureCustomer($user, $company);
+
+            // Lazy-создание/переиспользование Stripe Price для (plan, interval).
+            $stripePriceId = StripeSubscriptionService::ensurePrice($planModel, $interval);
+
+            $sessionParams = [
+                'mode' => 'subscription',
                 'payment_method_types' => ['card'],
+                'customer' => $customerId,
                 'line_items' => [[
-                    'price_data' => [
-                        'currency' => $planModel->currency,
-                        'product_data' => [
-                            'name' => "Rexten {$planModel->name} Plan",
-                            'description' => ucfirst($interval).'ly subscription',
-                        ],
-                        'unit_amount' => $priceCents,
-                    ],
+                    'price' => $stripePriceId,
                     'quantity' => 1,
                 ]],
-                'mode' => 'payment',
                 'success_url' => $frontendUrl.'/business/subscription?payment=success&session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => $frontendUrl.'/business/subscription?payment=cancelled',
+                'subscription_data' => [
+                    'metadata' => [
+                        'type' => 'subscription',
+                        'plan' => $planSlug,
+                        'interval' => $interval,
+                        'user_id' => (string) $user->id,
+                        'company_id' => (string) $companyId,
+                    ],
+                ],
                 'metadata' => [
                     'type' => 'subscription',
                     'plan' => $planSlug,
                     'interval' => $interval,
                     'price_cents' => $priceCents,
-                    'user_id' => $user->id,
-                    'company_id' => $companyId,
+                    'user_id' => (string) $user->id,
+                    'company_id' => (string) $companyId,
                     'is_upgrade' => $isUpgrade ? '1' : '0',
                 ],
-            ]);
+            ];
 
-            Log::info('Subscription checkout session created', [
+            $session = Session::create($sessionParams);
+
+            Log::info('Subscription checkout session created (recurring)', [
                 'session_id' => $session->id,
                 'plan' => $planSlug,
+                'interval' => $interval,
                 'company_id' => $companyId,
                 'is_upgrade' => $isUpgrade,
+                'stripe_price_id' => $stripePriceId,
             ]);
 
             return response()->json([
@@ -562,6 +760,7 @@ class SubscriptionController extends Controller
 
             return response()->json([
                 'error' => 'checkout_failed',
+                'code' => 'checkout_failed',
                 'message' => $e->getMessage(),
             ], 500);
         }

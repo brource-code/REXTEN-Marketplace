@@ -18,6 +18,7 @@ use App\Services\Routing\GeocodingService;
 use App\Services\SubscriptionLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -238,6 +239,7 @@ class SettingsController extends Controller
                     'onboarding_completed' => (bool) ($company->onboarding_completed ?? false),
                     'onboarding_completed_at' => $company->onboarding_completed_at ? $company->onboarding_completed_at->toISOString() : null,
                     'onboarding_version' => $company->onboarding_version ?? null,
+                    'dashboard_monthly_bookings_goal' => $company->dashboard_monthly_bookings_goal,
                     'is_owner' => $isOwner,
                     'permissions' => $permissions,
                 ]
@@ -283,6 +285,7 @@ class SettingsController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'timezone' => 'sometimes|nullable|string|timezone',
+            'dashboard_monthly_bookings_goal' => 'nullable|integer|min:1|max:99999',
         ]);
 
         if ($validator->fails()) {
@@ -337,7 +340,7 @@ class SettingsController extends Controller
             $company = Company::findOrFail($companyId);
             
             $updateData = $request->only([
-                'name', 'description', 'address', 'phone', 'email', 'telegram', 'whatsapp', 'website', 'city', 'state', 'timezone',
+                'name', 'description', 'address', 'phone', 'email', 'telegram', 'whatsapp', 'website', 'city', 'state', 'timezone', 'dashboard_monthly_bookings_goal',
             ]);
 
             if (array_key_exists('state', $updateData) && ! array_key_exists('timezone', $updateData)) {
@@ -356,6 +359,7 @@ class SettingsController extends Controller
             }
 
             $company->update($updateData);
+            Cache::forget('dashboard.stats.' . $company->id);
         }
 
         return response()->json([
@@ -372,6 +376,7 @@ class SettingsController extends Controller
                 'city' => $company->city ?? null,
                 'state' => $company->state ?? null,
                 'timezone' => $company->timezone ?? 'America/Los_Angeles',
+                'dashboard_monthly_bookings_goal' => $company->dashboard_monthly_bookings_goal,
             ],
         ]);
     }
@@ -451,9 +456,12 @@ class SettingsController extends Controller
 
         // Показываем только услуги из таблицы services
         // Все услуги (и из шаблонов, и из объявлений) должны быть в таблице services
-        $services = Service::where('company_id', $companyId)
-            ->with('category')
-            ->orderBy('sort_order')
+        // По умолчанию — только активные (запись/расписание); ?include_inactive=1 — весь список для настроек
+        $q = Service::where('company_id', $companyId)->with('category');
+        if (!$request->boolean('include_inactive')) {
+            $q->where('is_active', true);
+        }
+        $services = $q->orderBy('sort_order')
             ->get()
             ->map(function($service) {
                 return [
@@ -463,8 +471,9 @@ class SettingsController extends Controller
                     'duration' => $service->duration_minutes ?? 60,
                     'duration_unit' => $service->duration_unit ?? 'hours',
                     'price' => $service->price ?? 0,
-                    'status' => 'active',
+                    'status' => $service->is_active ? 'active' : 'inactive',
                     'service_type' => $service->service_type ?? 'onsite',
+                    'is_active' => (bool) $service->is_active,
                 ];
             });
 
@@ -946,8 +955,11 @@ class SettingsController extends Controller
         }
         
         // Получаем команду только из таблицы team_members
-        $teamMembers = TeamMember::where('company_id', $companyId)
-            ->orderBy('sort_order')
+        $tq = TeamMember::where('company_id', $companyId);
+        if (!$request->boolean('include_inactive')) {
+            $tq->where('is_active', true);
+        }
+        $teamMembers = $tq->orderBy('sort_order')
             ->orderBy('name')
             ->get()
             ->map(function ($member) {
@@ -958,6 +970,7 @@ class SettingsController extends Controller
                     'phone' => $member->phone ?? '',
                     'role' => $member->role ?? '',
                     'status' => $member->status ?? 'active',
+                    'is_active' => (bool) $member->is_active,
                     'img' => $member->img ?? null,
                     'home_address' => $member->home_address ?? null,
                     'home_latitude' => $member->home_latitude !== null ? (float) $member->home_latitude : null,
@@ -1078,6 +1091,20 @@ class SettingsController extends Controller
                 'success' => false,
                 'errors' => $validator->errors(),
             ], 422);
+        }
+
+        // Guard: реактивация сотрудника (inactive → active) расходует слот лимита.
+        if ($request->has('status')) {
+            $newStatus = strtolower(trim((string) $request->input('status')));
+            $wasActive = (bool) $specialist->is_active;
+            if ($newStatus === 'active' && !$wasActive) {
+                if (!SubscriptionLimitService::canActivate((int) $companyId, 'team_members')) {
+                    return response()->json(
+                        SubscriptionLimitService::limitExceededPayload((int) $companyId, 'team_members'),
+                        403
+                    );
+                }
+            }
         }
 
         $payload = [
@@ -2511,8 +2538,20 @@ class SettingsController extends Controller
             ], 404);
         }
 
-        $isActive = $request->input('is_active', true);
-        $advertisement->update(['is_active' => (bool) $isActive]);
+        $isActive = (bool) $request->input('is_active', true);
+
+        // Guard: реактивация (is_active false → true) расходует слот лимита.
+        // Если активных уже на лимите — отказать.
+        if ($isActive && !$advertisement->is_active) {
+            if (!SubscriptionLimitService::canActivate((int) $companyId, 'advertisements')) {
+                return response()->json(
+                    SubscriptionLimitService::limitExceededPayload((int) $companyId, 'advertisements'),
+                    403
+                );
+            }
+        }
+
+        $advertisement->update(['is_active' => $isActive]);
 
         return response()->json([
             'success' => true,
@@ -2770,6 +2809,8 @@ public function deleteAdvertisement(Request $request, $id)
                 'metaKeywords' => $company->meta_keywords ?? '',
                 'onlinePaymentEnabled' => (bool) ($company->online_payment_enabled ?? false),
                 'stripeConnected' => $company->isStripeConnected(),
+                'cancellationFreeHours' => (int) ($company->cancellation_free_hours ?? 12),
+                'cancellationLateFeePercent' => (int) ($company->cancellation_late_fee_percent ?? 50),
             ],
         ]);
     }
@@ -2851,6 +2892,28 @@ public function deleteAdvertisement(Request $request, $id)
             $company->online_payment_enabled = $enable;
         }
 
+        if ($request->has('cancellationFreeHours')) {
+            $h = (int) $request->input('cancellationFreeHours');
+            if ($h < 1 || $h > 168) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'cancellationFreeHours must be between 1 and 168.',
+                ], 422);
+            }
+            $company->cancellation_free_hours = $h;
+        }
+
+        if ($request->has('cancellationLateFeePercent')) {
+            $p = (int) $request->input('cancellationLateFeePercent');
+            if ($p < 0 || $p > 100) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'cancellationLateFeePercent must be between 0 and 100.',
+                ], 422);
+            }
+            $company->cancellation_late_fee_percent = $p;
+        }
+
         $company->save();
 
         return response()->json([
@@ -2866,6 +2929,8 @@ public function deleteAdvertisement(Request $request, $id)
                 'seoDescription' => $company->seo_description ?? '',
                 'metaKeywords' => $company->meta_keywords ?? '',
                 'onlinePaymentEnabled' => (bool) ($company->online_payment_enabled ?? false),
+                'cancellationFreeHours' => (int) ($company->cancellation_free_hours ?? 12),
+                'cancellationLateFeePercent' => (int) ($company->cancellation_late_fee_percent ?? 50),
             ],
         ]);
     }

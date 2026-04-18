@@ -16,6 +16,9 @@ class FinalizeExpiredSubscriptionsCommand extends Command
         $count = SubscriptionLifecycleService::finalizeExpiredForAll();
         $this->info("Processed subscription transitions (companies touched: {$count}).");
 
+        $enforced = SubscriptionLifecycleService::enforceLimitsAfterGraceForAll();
+        $this->info("Enforced limits after grace (companies touched: {$enforced}).");
+
         return self::SUCCESS;
     }
 }
