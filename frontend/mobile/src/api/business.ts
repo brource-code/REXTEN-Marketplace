@@ -463,8 +463,11 @@ export interface BusinessServiceItem {
   advertisement_id?: number | null;
 }
 
-export async function getBusinessServices(): Promise<BusinessServiceItem[]> {
-  const res = await apiClient.get('/business/settings/services');
+export async function getBusinessServices(options?: {
+  includeInactive?: boolean;
+}): Promise<BusinessServiceItem[]> {
+  const params = options?.includeInactive ? { include_inactive: '1' } : undefined;
+  const res = await apiClient.get('/business/settings/services', { params });
   const d = res.data?.data ?? res.data;
   return Array.isArray(d) ? d : [];
 }
@@ -771,7 +774,7 @@ export async function updateBusinessProfile(data: Partial<BusinessProfile>): Pro
 // ========== Stripe ==========
 export interface StripeTransaction {
   id: string;
-  type: 'advertisement' | 'subscription' | 'unknown';
+  type: 'advertisement' | 'subscription' | 'unknown' | 'refund';
   amount: number;
   currency: string;
   status: string;
@@ -911,8 +914,11 @@ export interface TeamMember {
   home_address?: string | null;
 }
 
-export async function getTeamMembers(): Promise<TeamMember[]> {
-  const res = await apiClient.get('/business/settings/team');
+export async function getTeamMembers(options?: {
+  includeInactive?: boolean;
+}): Promise<TeamMember[]> {
+  const params = options?.includeInactive ? { include_inactive: '1' } : undefined;
+  const res = await apiClient.get('/business/settings/team', { params });
   const d = res.data?.data ?? res.data;
   return Array.isArray(d) ? d : [];
 }
@@ -1033,6 +1039,10 @@ export interface MarketplaceSettings {
   seoTitle: string;
   seoDescription: string;
   metaKeywords: string;
+  onlinePaymentEnabled?: boolean;
+  stripeConnected?: boolean;
+  cancellationFreeHours?: number;
+  cancellationLateFeePercent?: number;
 }
 
 export async function getMarketplaceSettings(): Promise<MarketplaceSettings> {

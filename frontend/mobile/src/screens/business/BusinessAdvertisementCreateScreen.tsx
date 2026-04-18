@@ -200,14 +200,14 @@ const navigation = useNavigation();
 
   // Загрузка команды
   const { data: companyTeam = [] } = useQuery({
-    queryKey: ['business-team'],
-    queryFn: getTeamMembers,
+    queryKey: ['business-team', 'full'],
+    queryFn: () => getTeamMembers({ includeInactive: true }),
   });
 
   // Загрузка услуг компании
   const { data: companyServices = [] } = useQuery({
-    queryKey: ['business-services'],
-    queryFn: getBusinessServices,
+    queryKey: ['business-services', 'full'],
+    queryFn: () => getBusinessServices({ includeInactive: true }),
   });
 
   // Заполнение формы при редактировании

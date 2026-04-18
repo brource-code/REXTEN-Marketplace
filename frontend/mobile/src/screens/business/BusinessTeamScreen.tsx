@@ -114,8 +114,8 @@ export function BusinessTeamScreen() {
   };
 
   const query = useQuery({
-    queryKey: ['business-team'],
-    queryFn: getTeamMembers,
+    queryKey: ['business-team', 'full'],
+    queryFn: () => getTeamMembers({ includeInactive: true }),
   });
 
   const filteredMembers = useMemo(() => {

@@ -37,6 +37,9 @@ const T = {
     payout: 'Выплата',
     transfer: 'Перевод',
     payment: 'Платёж',
+    advertisement: 'Реклама',
+    subscription: 'Подписка',
+    unknown: 'Другое',
   } as Record<string, string>,
 };
 
@@ -99,7 +102,13 @@ export function BusinessBillingScreen() {
 
   const stats = useMemo(() => {
     const succeeded = list.filter((t) => t.status === 'succeeded');
-    const total = succeeded.reduce((sum, t) => sum + (parseFloat(String(t.amount)) || 0), 0);
+    const total = succeeded.reduce((sum, t) => {
+      const amt = parseFloat(String(t.amount)) || 0;
+      if (t.type === 'refund') {
+        return sum - amt;
+      }
+      return sum + amt;
+    }, 0);
     return {
       count: list.length,
       succeeded: succeeded.length,
@@ -117,17 +126,33 @@ export function BusinessBillingScreen() {
     const status = item.status || 'pending';
     const statusColors = STATUS_COLORS[status] || STATUS_COLORS.pending;
     const type = item.type || 'payment';
-    const isPositive = type !== 'refund' && status === 'succeeded';
+    const isRefund = type === 'refund';
+    const isSucceeded = status === 'succeeded';
+    const amountIsCredit = isRefund && isSucceeded;
+    const amountIsDebit = !isRefund && isSucceeded;
 
     return (
       <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
-            <View style={[styles.iconWrap, { backgroundColor: isPositive ? colors.successLight : colors.backgroundTertiary }]}>
+            <View
+              style={[
+                styles.iconWrap,
+                {
+                  backgroundColor: amountIsDebit
+                    ? colors.errorLight
+                    : amountIsCredit
+                      ? colors.successLight
+                      : colors.backgroundTertiary,
+                },
+              ]}
+            >
               <Ionicons
-                name={type === 'refund' ? 'arrow-undo-outline' : 'card-outline'}
+                name={isRefund ? 'arrow-undo-outline' : type === 'advertisement' ? 'megaphone-outline' : 'card-outline'}
                 size={20}
-                color={isPositive ? colors.successDark : colors.textSecondary}
+                color={
+                  amountIsDebit ? colors.error : amountIsCredit ? colors.successDark : colors.textSecondary
+                }
               />
             </View>
             <View style={styles.cardInfo}>
@@ -135,8 +160,16 @@ export function BusinessBillingScreen() {
                 <Text style={[styles.transactionTitle, { color: colors.text }]} numberOfLines={1}>
                   {item.description || T.types[type] || type}
                 </Text>
-                <Text style={[styles.amount, { color: isPositive ? colors.successDark : colors.text }]}>
-                  {isPositive ? '+' : ''}{formatCurrency(item.amount, item.currency)}
+                <Text
+                  style={[
+                    styles.amount,
+                    {
+                      color: amountIsCredit ? colors.successDark : amountIsDebit ? colors.error : colors.text,
+                    },
+                  ]}
+                >
+                  {amountIsCredit ? '+' : amountIsDebit ? '-' : ''}
+                  {formatCurrency(item.amount, item.currency)}
                 </Text>
               </View>
               <View style={styles.metaRow}>

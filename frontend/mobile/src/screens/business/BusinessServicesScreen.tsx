@@ -135,8 +135,8 @@ export function BusinessServicesScreen() {
   const canManage = true;
 
   const query = useQuery({
-    queryKey: ['business-services'],
-    queryFn: getBusinessServices,
+    queryKey: ['business-services', 'full'],
+    queryFn: () => getBusinessServices({ includeInactive: true }),
   });
 
   const filteredServices = useMemo(() => {
