@@ -473,6 +473,7 @@
             "adminAddress": "street or city as stored on the company"
         },
         "sections": {
+            "pages": "Pages",
             "clients": "Clients",
             "bookings": "Bookings",
             "services": "Services",
@@ -773,6 +774,14 @@
                 "limpieza": "Cleaning",
                 "calefaccin-y-ventilacin": "HVAC",
                 "calefaccin_y_ventilacin": "HVAC"
+            },
+            "sortOptions": {
+                "default": "Recommended",
+                "rating": "Highest rated",
+                "price_asc": "Price: low to high",
+                "price_desc": "Price: high to low",
+                "newest": "Newest",
+                "reviews": "Most reviews"
             }
         },
         "marketplace": {
@@ -1284,6 +1293,20 @@
                 "mobile": {
                     "service": "Service"
                 }
+            },
+            "bookingsGoal": {
+                "title": "Booking goal",
+                "units": "bookings",
+                "captionWeek": "Progress toward your weekly goal",
+                "captionMonth": "Progress toward your monthly goal",
+                "captionYear": "Progress toward your yearly goal",
+                "adjustInSettings": "Adjust goal in settings"
+            },
+            "topServices": {
+                "title": "Top services",
+                "viewAll": "View all",
+                "empty": "No data for this period",
+                "booked": "{count} bookings"
             }
         },
         "bookings": {
@@ -1294,6 +1317,7 @@
             "statusLabel": "Status",
             "openInSchedule": "Open in schedule",
             "paidOnline": "Paid online",
+            "feeLine": "Platform fee {fee} · You receive {net}",
             "scheduleCalendar": "Calendar",
             "empty": "No bookings match your filters.",
             "booking": "Booking",
@@ -1526,7 +1550,16 @@
                     "capturePayment": "Capture payment",
                     "captureSuccess": "Payment captured successfully",
                     "captureError": "Failed to capture payment",
-                    "netAfterFee": "Total: {total}, platform fee: {fee}"
+                    "netAfterFee": "Total: {total}, platform fee: {fee}",
+                    "paymentCancelled": "Payment cancelled.",
+                    "paymentRefunded": "Payment refunded",
+                    "cardReservedNotCharged": "Card on file — not charged yet",
+                    "paymentActions": "Actions",
+                    "refundPayment": "Refund",
+                    "refundFull": "Full refund",
+                    "refundPartial": "Partial refund",
+                    "refundSuccess": "Refund successful",
+                    "refundError": "Refund failed"
                 },
                 "durationPicker": {
                     "min15": "15 minutes",
@@ -1536,6 +1569,19 @@
                     "hourMinutes": "{hours}h {minutes}m"
                 },
                 "titleRequired": "Please enter event title",
+                "refundDialog": {
+                    "title": "Refund payment",
+                    "amountLabel": "Refund amount",
+                    "fullRefund": "Full amount",
+                    "customAmount": "Custom amount",
+                    "amountPlaceholder": "Partial amount ({currency})",
+                    "amountHintFullNew": "Leave empty to refund the full captured amount, or enter a smaller amount for a partial refund.",
+                    "reasonLabel": "Reason",
+                    "reasonPlaceholder": "Reason for refund (required)",
+                    "submit": "Confirm refund",
+                    "reasonRequired": "Please enter a reason for the refund.",
+                    "amountInvalid": "Enter a valid positive amount."
+                },
                 "reviewLink": {
                     "title": "Review link for client:",
                     "copy": "Copy",
@@ -2387,9 +2433,9 @@
                 }
             },
             "features": {
-                "teamMembers": "team members",
-                "services": "services",
-                "advertisements": "advertisements",
+                "teamMembers": "Team members",
+                "services": "Services",
+                "advertisements": "Advertisements",
                 "analytics": "Advanced analytics",
                 "prioritySupport": "Priority support",
                 "apiAccess": "API access",
@@ -2397,14 +2443,16 @@
             },
             "cancelDialog": {
                 "title": "Cancel subscription?",
-                "message": "Your subscription is canceled immediately (no further charges for this plan). You keep full paid access until {endDate}. After that, your workspace moves to the free plan.",
-                "messageNoEnd": "Your subscription is canceled immediately (no further charges for this plan). You keep full paid access until the end of the billing period. After that, your workspace moves to the free plan.",
+                "message": "You keep full paid access until {endDate}. After that, your workspace moves to the free plan and you get a 7-day grace period to bring team members, services and ads within the free-plan limits — anything above the limit after the grace period will be deactivated automatically.",
+                "messageNoEnd": "You keep full paid access until the end of the billing period. After that, your workspace moves to the free plan and you get a 7-day grace period to bring team members, services and ads within the free-plan limits — anything above the limit after the grace period will be deactivated automatically.",
                 "keep": "Keep subscription",
                 "confirm": "Cancel subscription"
             },
             "canceledBadge": "Canceled",
             "resumeSubscription": "Resume subscription",
             "resumeSuccess": "Subscription resumed. Cancellation has been withdrawn.",
+            "restorePreviousPlan": "Restore {plan}",
+            "comingSoon": "Coming soon",
             "activeUntil": "Access until",
             "successDialog": {
                 "title": "Subscription activated!",
@@ -2455,9 +2503,12 @@
                 "title": "Plan limit reached",
                 "description": "Upgrade your subscription to add more.",
                 "upgrade": "View plans",
+                "manageSubscription": "Manage subscription",
                 "teamMembers": "You have reached the limit for team members and staff seats.",
                 "services": "You have reached the limit for services.",
-                "advertisements": "You have reached the limit for listings and advertisements."
+                "advertisements": "You have reached the limit for listings and advertisements.",
+                "scheduledDowngrade": "{resource} You have a scheduled plan downgrade — please reduce the excess before it takes effect or it will be deactivated automatically.",
+                "scheduledDowngradeWithDate": "{resource} You have a scheduled plan downgrade on {endDate} — please reduce the excess before that date or it will be deactivated automatically after the grace period."
             },
             "upgrade": "Upgrade",
             "downgrade": {
@@ -2471,6 +2522,16 @@
                 "cancel": "Back",
                 "confirm": "Schedule downgrade",
                 "warningLine": "{resource}: {count} over the new plan limit"
+            },
+            "upgradeDialog": {
+                "title": "Confirm upgrade?",
+                "intro": "Your plan will switch to the higher tier immediately. Stripe charges a prorated amount right away to the card on file for this subscription (the exact amount depends on how much time is left in your current billing period).",
+                "fromTo": "From {from} to {to}",
+                "note": "If the charge is declined, your plan will not change and you may be redirected to Stripe Checkout to complete payment with another card.",
+                "cancel": "Back",
+                "confirm": "Confirm and upgrade",
+                "defaultSuccess": "Your subscription has been upgraded.",
+                "successNote": "The prorated charge was applied to your saved payment method. Check your email for the receipt."
             },
             "overLimit": {
                 "bannerTitle": "Usage exceeds your plan limits",
@@ -2492,6 +2553,32 @@
                 "description": "This feature is not included in your current plan.",
                 "upgrade": "View subscription plans",
                 "analytics": "Advanced reports and analytics are available on higher plans."
+            },
+            "serverMessages": {
+                "stripe_disabled": "Online payments are currently disabled. Contact support.",
+                "company_not_found": "Company not found.",
+                "no_active_subscription": "No active subscription.",
+                "invalid_plan": "The selected plan is invalid or inactive.",
+                "cannot_purchase_free": "The free plan cannot be purchased.",
+                "current_plan_not_found": "Your current plan was not found.",
+                "cannot_cancel_free": "The free plan cannot be canceled.",
+                "already_scheduled": "Cancellation is already scheduled.",
+                "stripe_error": "Payment provider error. Please try again later.",
+                "subscription_canceled": "Subscription canceled. Access remains until the end of the billing period.",
+                "cannot_resume_free": "The free plan cannot be resumed.",
+                "not_canceled": "This subscription is not canceled.",
+                "period_ended": "The billing period has already ended.",
+                "subscription_resumed": "Subscription resumed.",
+                "use_cancel_for_free": "To switch to the free plan, cancel your paid subscription first.",
+                "already_on_plan": "You are already on this plan.",
+                "cancellation_pending": "Cancel or resume your subscription before scheduling a downgrade.",
+                "downgrade_scheduled": "Downgrade scheduled for the end of your billing period.",
+                "subscription_upgraded": "Subscription upgraded.",
+                "no_scheduled_change": "There is no scheduled plan change.",
+                "scheduled_change_canceled": "Scheduled downgrade canceled.",
+                "limits_updated": "Limits updated.",
+                "already_subscribed": "You already have an active paid subscription. Cancel it first to change plans.",
+                "checkout_failed": "Failed to start payment. Please try again."
             }
         },
         "billing": {
@@ -2502,6 +2589,8 @@
             "noExpenses": "No platform expenses yet",
             "earningsDescription": "Booking payment",
             "feeNote": "of {total}, fee: {fee}",
+            "bookingRef": "#{id}",
+            "bookingRefAria": "View booking {id}",
             "sections": {
                 "earnings": "Earnings",
                 "expenses": "Platform expenses",
@@ -2520,7 +2609,8 @@
                 "advertisement": "Advertisement",
                 "subscription": "Subscription",
                 "booking": "Booking payment",
-                "unknown": "Unknown"
+                "unknown": "Unknown",
+                "refund": "Refund"
             },
             "statuses": {
                 "succeeded": "Succeeded",
@@ -2544,6 +2634,24 @@
             "pagination": {
                 "prev": "Previous",
                 "next": "Next"
+            },
+            "export": {
+                "csv": "Download CSV",
+                "excel": "Download Excel",
+                "toastOk": "File downloaded",
+                "toastErr": "Could not export",
+                "toastEmpty": "Nothing to export with the current filters",
+                "sheetEarnings": "Earnings",
+                "sheetExpenses": "Expenses",
+                "columns": {
+                    "bookingType": "Payment type",
+                    "service": "Service",
+                    "client": "Client",
+                    "grossAmount": "Gross amount",
+                    "platformFee": "Platform fee",
+                    "netAmount": "Net to you",
+                    "currency": "Currency"
+                }
             }
         },
         "knowledge": {
@@ -2759,7 +2867,11 @@
                 "whatsappPlaceholder": "+1234567890",
                 "websitePlaceholder": "https://example.com",
                 "timezone": "Time zone",
-                "timezoneHint": "Used for schedule, dashboard, booking times, and reports for your business."
+                "timezoneHint": "Used for schedule, dashboard, booking times, and reports for your business.",
+                "dashboardSection": "Dashboard",
+                "monthlyBookingsGoal": "Monthly bookings goal",
+                "monthlyBookingsGoalPlaceholder": "10",
+                "monthlyBookingsGoalHint": "Target number of completed bookings per calendar month for the progress ring on the dashboard. Leave empty to use the default."
             },
             "team": {
                 "title": "Team",
@@ -3432,6 +3544,7 @@
             "client": "Client"
         },
         "plans": {
+            "free": "Free",
             "starter": "Starter",
             "professional": "Professional",
             "enterprise": "Enterprise"
@@ -4847,8 +4960,8 @@
     },
     "landing": {
         "meta": {
-            "title": "REXTEN — Service Business Platform for the USA",
-            "description": "All-in-one platform for service businesses: online booking, CRM, scheduling, marketing, and analytics."
+            "title": "REXTEN — Service marketplace and business workspace",
+            "description": "Clients browse and book services; your team runs schedules, CRM, routes, and reports in one connected system."
         },
         "nav": {
             "features": "Features",
@@ -4858,71 +4971,71 @@
             "drawerTitle": "Navigation"
         },
         "hero": {
-            "title": "Manage and scale your service business with REXTEN",
-            "subtitle": "All tools in one platform: CRM, Online Booking, Marketing, and Analytics. Automate routine tasks, attract new clients, and manage multiple locations from any device.",
+            "title": "Marketplace for clients, workspace for your team — REXTEN",
+            "subtitle": "People discover services and book online. You run the business side—schedules, clients, routes, and reporting—in one place, without a patchwork of tools.",
             "ctaSignUp": "Get Started",
             "ctaDemo": "View Demo"
         },
         "features": {
-            "sectionTitle": "Everything you need to run your business",
-            "sectionSubtitle": "REXTEN replaces 5 different services. We combined online booking, CRM, team management, and marketing tools into one convenient platform.",
+            "sectionTitle": "Two sides, one platform",
+            "sectionSubtitle": "Public listings bring demand; your dashboard handles day-to-day operations end to end.",
             "brand": {
-                "title": "Brand & Online Booking",
-                "description": "Customize colors and style of your booking page. Clients book 24/7, and you receive instant notifications."
+                "title": "Listings & online booking",
+                "description": "Services appear in the marketplace; clients choose a time and pay online where enabled. Notifications keep your team aligned."
             },
             "crm": {
-                "title": "Client Database (CRM)",
-                "description": "Visit history, preferences, and client contacts always at hand. Bring clients back with email campaigns."
+                "title": "Clients & CRM",
+                "description": "Profiles combine contacts, preferences, and visit history so handoffs stay consistent."
             },
             "schedule": {
-                "title": "Smart Scheduling",
-                "description": "Flexible staff schedules, vacation and break tracking. Automatic appointment distribution and workload control across locations."
+                "title": "Schedules & routes",
+                "description": "Calendars, staff coverage, and field-friendly workflows keep workload visible—across locations when you operate more than one site."
             },
             "marketing": {
-                "title": "Marketing & Analytics",
-                "description": "Launch ads for your services within REXTEN in one click. Track revenue, conversion, and staff performance through detailed reports."
+                "title": "Growth & analytics",
+                "description": "Promote listings and review performance: bookings, revenue trends, and team activity in dashboards and exports—clear signals for your next step."
             }
         },
         "industries": {
-            "sectionTitle": "Built for every service business",
-            "sectionSubtitle": "From beauty salons to HVAC contractors — REXTEN adapts to your industry with specialized features.",
+            "sectionTitle": "From discovery to delivery",
+            "sectionSubtitle": "The same hybrid setup—client-facing presence plus back-office tools—fits many service models.",
             "demoButton": "Try Demo",
             "cleaning": {
                 "title": "Cleaning Services",
-                "description": "Route optimization for field teams, recurring bookings, and automated client reminders."
+                "description": "Routes for field teams, recurring visits, and reminders so jobs stay on schedule."
             },
             "beauty": {
                 "title": "Beauty & Wellness",
-                "description": "Online booking calendar, staff schedules, client preferences, and loyalty programs."
+                "description": "Online booking, staff calendars, client preferences, and loyalty-style follow-up."
             },
             "hvac": {
                 "title": "HVAC & Home Services",
-                "description": "Dispatch management, route planning, service history tracking, and seasonal promotions."
+                "description": "Dispatch-friendly flows, route planning, service history, and seasonal offers."
             },
             "auto": {
                 "title": "Auto Services",
-                "description": "Appointment scheduling, service packages, vehicle history, and automated follow-ups."
+                "description": "Service appointments, packages, vehicle notes, and automated follow-ups."
             },
             "education": {
                 "title": "Education & Training",
-                "description": "Class scheduling, student management, packages, and automated reminders."
+                "description": "Sessions, student records, packages, and reminders in one flow."
             },
             "events": {
                 "title": "Events & Entertainment",
-                "description": "Ticket-style booking, staff coordination, deposits, and calendar sync."
+                "description": "Ticket-style booking, team coordination, deposits, and calendar alignment."
             },
             "legal": {
                 "title": "Consulting & Legal",
-                "description": "Client intake forms, appointment booking, document management, and billing integration."
+                "description": "Intake, scheduling, documents, and billing where your process requires them."
             },
             "petCare": {
                 "title": "Pet Care",
-                "description": "Pet profiles, grooming schedules, vaccination reminders, and daycare management."
+                "description": "Pet profiles, grooming slots, vaccination reminders, and daycare-style scheduling."
             }
         },
         "demos": {
-            "sectionTitle": "Business showcase examples on REXTEN",
-            "sectionSubtitle": "See how service pages created on our platform look. Everything works automatically, supports online payments, and requires no designer.",
+            "sectionTitle": "Browse the marketplace",
+            "sectionSubtitle": "Sample listings—the same booking flow your clients use when they choose a service.",
             "viewAll": "View all services",
             "loading": "Loading...",
             "noResults": "No services in this category",
@@ -4936,142 +5049,188 @@
                 "events": "Events"
             }
         },
+        "businessPage": {
+            "title": "A public page clients can save or share",
+            "lead": "Each business gets a profile on the marketplace—like a digital business card with your services, reviews, and contacts in one place.",
+            "point1": "Clients browse what you offer and read feedback without jumping between random links.",
+            "point2": "Easy to drop into a chat or email—one link with services, reviews, and how to reach you.",
+            "point3": "For many solo professionals and small teams, it replaces a separate simple website.",
+            "imagePlaceholder": "No preview image for this language yet.",
+            "imageAlt": "Company profile page preview (add your image)",
+            "previewCaption": "Example: how your public business page looks on a phone"
+        },
         "pricing": {
             "sectionTitle": "Simple and transparent pricing",
-            "sectionSubtitle": "Pick Starter, Pro, or Business, or begin on the Free plan with limited usage. When you subscribe to a paid plan, the first 14 days are free.",
-            "freeTierNote": "The Free plan stays available with caps on bookings, staff, and features. Upgrade anytime when you need higher limits.",
+            "sectionLead": "Four plans — from Free to Enterprise. Any paid plan starts with <b>14 days free</b>.",
+            "chipPlans": "Free · Starter · Professional · Enterprise",
+            "chipTrial": "First 14 days free on any paid plan",
+            "chipFree": "Free plan stays available, with limits",
+            "chipUpgrade": "Limits and upgrades — in Subscription",
+            "cardTitlePlans": "Four plans",
+            "cardTitleTrial": "14 days free",
+            "cardTitleFree": "Free, always",
+            "cardTitleUpgrade": "Switch anytime",
+            "trialDaysLabel": "days",
+            "trialFreeLabel": "free",
             "popular": "Popular",
-            "perMonth": "/mo",
-            "starter": {
-                "name": "Starter",
-                "description": "For individual professionals",
-                "features": {
-                    "booking": "Personal booking page",
-                    "appointments": "Up to 100 bookings/month",
-                    "reminders": "Client reminders (email)",
-                    "analytics": "Basic analytics",
-                    "payments": "Online payments"
-                },
-                "button": "Start Free"
+            "fromPlan": {
+                "perMonth": "/mo",
+                "ctaStart": "Get started",
+                "ctaContact": "Contact us",
+                "loading": "Loading plans…",
+                "loadError": "Could not load pricing. Please refresh the page.",
+                "teamUpTo": "Up to {n} team seats",
+                "teamUnlimited": "Unlimited team seats",
+                "servicesUpTo": "Up to {n} services in your catalog",
+                "servicesUnlimited": "Unlimited services",
+                "listingsUpTo": "Up to {n} active marketplace listings",
+                "listingsUnlimited": "Unlimited active listings",
+                "featAnalytics": "Advanced analytics",
+                "featPriority": "Priority support",
+                "featApi": "API access"
             },
-            "pro": {
-                "name": "Pro",
-                "description": "For salons with up to 5 staff",
-                "features": {
-                    "includesStarter": "Everything in Starter",
-                    "staff": "Up to 5 team members",
-                    "unlimited": "Unlimited bookings",
-                    "crm": "CRM & client database",
-                    "schedule": "Team schedule management",
-                    "marketing": "Marketing campaigns",
-                    "support": "Priority support"
+            "enterpriseDialog": {
+                "title": "Talk to sales — Enterprise plan",
+                "subtitle": "Tell us a bit about your business and we will get back within 1 business day.",
+                "fields": {
+                    "name": "Your name",
+                    "email": "Work email",
+                    "phone": "Phone (optional)",
+                    "company": "Company",
+                    "team_size": "Team size",
+                    "message": "What do you want to discuss?"
                 },
-                "button": "Try Free"
-            },
-            "business": {
-                "name": "Business",
-                "description": "For companies with multiple locations",
-                "features": {
-                    "includesPro": "Everything in Pro",
-                    "unlimitedStaff": "Unlimited team members",
-                    "locations": "Multi-location management",
-                    "analytics": "Advanced analytics",
-                    "api": "API integrations",
-                    "manager": "Dedicated account manager",
-                    "branding": "Custom branding"
+                "teamSizePlaceholder": "Choose team size",
+                "teamSizes": {
+                    "1-10": "1–10 people",
+                    "11-50": "11–50 people",
+                    "51-200": "51–200 people",
+                    "200+": "200+ people"
                 },
-                "button": "Contact Us"
+                "messagePlaceholder": "Briefly describe your task: number of locations, integrations, deadlines.",
+                "consent": "I agree that the information will be processed to handle my inquiry.",
+                "cancel": "Cancel",
+                "submit": "Send inquiry",
+                "validation": {
+                    "name": "Please enter your name (2–150 characters).",
+                    "email": "Please enter a valid email.",
+                    "phone": "Phone is too long.",
+                    "company": "Company name is too long.",
+                    "team_size": "Choose a team size from the list.",
+                    "message_min": "The message should contain at least 10 characters.",
+                    "message_max": "The message is too long (max 2000 characters).",
+                    "consent": "Please confirm consent to data processing."
+                },
+                "success": {
+                    "title": "Inquiry sent",
+                    "body": "Thanks! We will reach out within 1 business day."
+                },
+                "error": {
+                    "title": "Could not send",
+                    "body": "Please try again later or write to us directly."
+                }
             }
         },
         "otherFeatures": {
-            "sectionTitle": "Business always at your fingertips",
-            "sectionSubtitle": "Manage your company from your smartphone. Dedicated mobile app for owners and staff, synced with the web version.",
+            "sectionTitle": "More ways to stay on top",
+            "sectionSubtitle": "Mobile access for owners and staff, alongside the web product.",
             "mobile": {
-                "title": "Business in your pocket",
-                "description": "Control your schedule, accept payments, and chat with clients through the mobile app. New booking notifications arrive instantly.",
+                "title": "Business on the go",
+                "description": "Review schedules, respond to clients, and see key activity from the mobile app—alongside notifications for new bookings when enabled.",
                 "points": {
-                    "schedule": "Manage bookings and staff schedules",
-                    "chat": "Chat with clients and view message history",
-                    "stats": "Real-time daily financial stats"
+                    "schedule": "Bookings and team schedules in one place",
+                    "chat": "Client conversations with message history",
+                    "stats": "Day-level financial signals where available"
                 }
             },
             "growth": {
-                "title": "Growth & Multi-location",
-                "description": "Easily manage multiple locations across different states. Unified standards, centralized quality control, and network-wide analytics.",
+                "title": "Scale & locations",
+                "description": "Operate multiple sites with shared standards: roles for managers, location-level views, and analytics that roll up across the network.",
                 "points": {
                     "access": "Role-based access for managers",
                     "compare": "Compare location performance",
-                    "languages": "Multi-language support for local markets"
+                    "languages": "Multiple interface languages for local markets"
                 }
             },
             "integrations": {
-                "title": "Integrations & Payments",
-                "description": "Automate accounting and payment processing. REXTEN integrates with Stripe for secure transactions and automatic payouts to staff.",
+                "title": "Payments & data",
+                "description": "Stripe powers card checkout and Connect payouts where you configure them—so money movement matches your rules.",
                 "points": {
                     "stripe": "Secure payments via Stripe Connect",
-                    "salary": "Automatic commission and salary calculations",
-                    "export": "Export financial reports for accounting"
+                    "salary": "Fees and payouts structured in Stripe Connect",
+                    "export": "Export financial views for accounting"
+                },
+                "paymentVisual": {
+                    "cardLabel": "Card",
+                    "amountCaption": "Client payment",
+                    "toBusiness": "To your Stripe account",
+                    "platformFee": "Platform fee from 10%",
+                    "footer": "Funds settle directly into your Stripe Connect — we don't hold money"
                 }
             }
         },
         "testimonials": {
-            "sectionTitle": "Trusted by hundreds of businesses",
-            "sectionSubtitle": "Salon owners, professionals, and service companies already use REXTEN to grow their business.",
+            "sectionTitle": "What operators notice first",
+            "sectionSubtitle": "Short notes from teams that run bookings and operations on REXTEN.",
             "items": [
                 {
                     "name": "Sarah Johnson",
                     "role": "Owner",
                     "company": "Glow Beauty Studio",
-                    "quote": "REXTEN helped us increase bookings by 40%. Clients book themselves, and we no longer spend hours on phone calls."
+                    "quote": "Clients self-book online instead of endless phone tag. The team sees the same schedule and history in one system."
                 },
                 {
                     "name": "Michael Chen",
                     "role": "Founder",
                     "company": "AutoPro Service",
-                    "quote": "Managing a network of 3 auto shops became easier. I see each location's workload in real-time and can react quickly."
+                    "quote": "Multiple shops are easier when workload and calendars stay visible in one workspace—not scattered spreadsheets."
                 },
                 {
                     "name": "Emily Davis",
                     "role": "Independent Professional",
                     "company": "Mobile Nail Art",
-                    "quote": "Finally I have a beautiful booking page and client reminders. Fewer missed appointments!"
+                    "quote": "A clear booking page plus reminders means fewer no-shows without extra admin work."
                 }
             ]
         },
         "faq": {
             "sectionTitle": "Frequently Asked Questions",
-            "sectionSubtitle": "Answers to popular questions about REXTEN. Didn't find your answer? Chat with us.",
+            "sectionSubtitle": "Straight answers about the marketplace and the business workspace. Need more detail? Contact us from your account.",
             "items": [
                 {
-                    "question": "How do I connect my business to REXTEN?",
-                    "answer": "Registration takes 5 minutes. Fill out the form, add your services and staff — and your booking page is ready. We'll help customize everything to match your brand."
+                    "question": "What is REXTEN?",
+                    "answer": "REXTEN combines a client marketplace with a business workspace. Clients search, compare, and book services; you manage schedules, client records, routes where they matter, and reporting in the same account."
+                },
+                {
+                    "question": "How do I get started?",
+                    "answer": "Create an account, add services and team members, and publish availability. Your public listing and booking flow can go live when you are ready."
                 },
                 {
                     "question": "How much does it cost?",
-                    "answer": "There is a Free plan with limited usage. Paid plans are Starter ($29/mo) for solos, Pro ($79/mo) for salons with up to 5 staff, and Business ($199/mo) for multi-location companies. The first 14 days are free when you start a paid subscription."
+                    "answer": "A Free plan is available with usage limits. Paid tiers are Starter, Pro, and Business—the amounts on this page are typical starting prices; confirm current numbers in the product before checkout. The first 14 days of a paid subscription are free."
                 },
                 {
-                    "question": "Can I migrate clients from another system?",
-                    "answer": "Yes, we'll help import your client database from Excel, Google Sheets, or other CRM systems. Just send the file to our support team."
+                    "question": "Can I import existing clients?",
+                    "answer": "Often yes. Send a CSV or spreadsheet export to support and we will walk you through import options that fit your data."
                 },
                 {
-                    "question": "How does online payment work?",
-                    "answer": "We're integrated with Stripe. Clients can pay by card when booking. Money goes to your account automatically."
+                    "question": "How do online payments work?",
+                    "answer": "Where payments are enabled, checkout uses Stripe. Clients pay by card; payouts follow your Stripe Connect settings."
                 },
                 {
                     "question": "Is there a mobile app?",
-                    "answer": "Yes, there are apps for iOS and Android. Manage bookings, chat with clients, and view stats right from your smartphone."
+                    "answer": "Yes—business workflows are available on iOS and Android alongside the web app. Use the links provided in your account for the current build."
                 },
                 {
-                    "question": "What support is available?",
-                    "answer": "Chat support works 24/7. Pro and Business plans get priority support with response within an hour. Business plan includes a dedicated account manager."
+                    "question": "How do I reach support?",
+                    "answer": "Use the help or contact options shown in the product. Response times vary by channel and plan; paid tiers may include priority handling where offered."
                 }
             ]
         },
         "footer": {
             "cta": {
-                "title": "Connect your business to REXTEN",
-                "description": "We'll show you how to list on the marketplace, prepare your storefront to match your brand, and launch bookings in just a few days.",
+                "title": "Bring client discovery and your day-to-day work together in one place.",
+                "description": "List services, take bookings, and manage your team from one workspace. Open your calendar to clients when you are ready.",
                 "button": "Try for free"
             },
             "links": {

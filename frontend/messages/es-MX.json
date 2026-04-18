@@ -473,6 +473,7 @@
             "adminAddress": "calle o ciudad tal como figuran en la empresa"
         },
         "sections": {
+            "pages": "Páginas",
             "clients": "Clientes",
             "bookings": "Reservas",
             "services": "Servicios",
@@ -773,6 +774,14 @@
                 "limpieza": "Limpieza",
                 "calefaccin-y-ventilacin": "Calefacción y ventilación",
                 "calefaccin_y_ventilacin": "Calefacción y ventilación"
+            },
+            "sortOptions": {
+                "default": "Recomendados",
+                "rating": "Mejor calificados",
+                "price_asc": "Precio: menor a mayor",
+                "price_desc": "Precio: mayor a menor",
+                "newest": "Más recientes",
+                "reviews": "Más reseñas"
             }
         },
         "marketplace": {
@@ -1284,6 +1293,20 @@
                 "mobile": {
                     "service": "Servicio"
                 }
+            },
+            "bookingsGoal": {
+                "title": "Meta de reservas",
+                "units": "reservas",
+                "captionWeek": "Avance hacia tu meta semanal",
+                "captionMonth": "Avance hacia tu meta mensual",
+                "captionYear": "Avance hacia tu meta anual",
+                "adjustInSettings": "Ajustar meta en configuración"
+            },
+            "topServices": {
+                "title": "Servicios principales",
+                "viewAll": "Ver todo",
+                "empty": "No hay datos en este período",
+                "booked": "{count} reservas"
             }
         },
         "bookings": {
@@ -1294,6 +1317,7 @@
             "statusLabel": "Estado",
             "openInSchedule": "Abrir en agenda",
             "paidOnline": "Pagado en línea",
+            "feeLine": "Comisión de plataforma {fee} · Usted recibe {net}",
             "scheduleCalendar": "Calendario",
             "empty": "No hay reservas que coincidan con los filtros.",
             "booking": "Reserva",
@@ -1526,7 +1550,16 @@
                     "capturePayment": "Capturar pago",
                     "captureSuccess": "Pago capturado exitosamente",
                     "captureError": "Error al capturar el pago",
-                    "netAfterFee": "Total: {total}, comisión de plataforma: {fee}"
+                    "netAfterFee": "Total: {total}, comisión de plataforma: {fee}",
+                    "paymentCancelled": "Pago cancelado.",
+                    "paymentRefunded": "Pago reembolsado",
+                    "cardReservedNotCharged": "Tarjeta guardada — aún no se cobró",
+                    "paymentActions": "Acciones",
+                    "refundPayment": "Reembolsar",
+                    "refundFull": "Reembolso total",
+                    "refundPartial": "Reembolso parcial",
+                    "refundSuccess": "Reembolso realizado",
+                    "refundError": "No se pudo reembolsar"
                 },
                 "durationPicker": {
                     "min15": "15 minutos",
@@ -1536,6 +1569,19 @@
                     "hourMinutes": "{hours} h {minutes} min"
                 },
                 "titleRequired": "Ingresa el título del evento",
+                "refundDialog": {
+                    "title": "Reembolsar pago",
+                    "amountLabel": "Monto del reembolso",
+                    "fullRefund": "Monto completo",
+                    "customAmount": "Monto personalizado",
+                    "amountPlaceholder": "Monto parcial ({currency})",
+                    "amountHintFullNew": "Déjalo vacío para reembolsar el monto capturado completo o ingresa un monto menor para un reembolso parcial.",
+                    "reasonLabel": "Motivo",
+                    "reasonPlaceholder": "Motivo del reembolso (obligatorio)",
+                    "submit": "Confirmar reembolso",
+                    "reasonRequired": "Indica el motivo del reembolso.",
+                    "amountInvalid": "Ingresa un monto válido y positivo."
+                },
                 "reviewLink": {
                     "title": "Enlace de reseña para el cliente:",
                     "copy": "Copiar",
@@ -2387,9 +2433,9 @@
                 }
             },
             "features": {
-                "teamMembers": "miembros del equipo",
-                "services": "servicios",
-                "advertisements": "anuncios",
+                "teamMembers": "Miembros del equipo",
+                "services": "Servicios",
+                "advertisements": "Anuncios",
                 "analytics": "Analíticas avanzadas",
                 "prioritySupport": "Soporte prioritario",
                 "apiAccess": "Acceso a API",
@@ -2397,14 +2443,16 @@
             },
             "cancelDialog": {
                 "title": "¿Cancelar suscripción?",
-                "message": "La suscripción se cancela de inmediato (no habrá más cargos por este plan). Mantienes el acceso completo de pago hasta el {endDate}. Después, el espacio de trabajo pasa al plan gratuito.",
-                "messageNoEnd": "La suscripción se cancela de inmediato (no habrá más cargos por este plan). Mantienes el acceso completo de pago hasta el final del período facturado. Después, el espacio de trabajo pasa al plan gratuito.",
+                "message": "Mantienes el acceso completo de pago hasta el {endDate}. Después, el espacio de trabajo pasa al plan gratuito y tendrás un período de gracia de 7 días para ajustar el número de personal, servicios y anuncios a los límites del plan gratuito; lo que exceda los límites al terminar el período de gracia se desactivará automáticamente.",
+                "messageNoEnd": "Mantienes el acceso completo de pago hasta el final del período facturado. Después, el espacio de trabajo pasa al plan gratuito y tendrás un período de gracia de 7 días para ajustar el número de personal, servicios y anuncios a los límites del plan gratuito; lo que exceda los límites al terminar el período de gracia se desactivará automáticamente.",
                 "keep": "Mantener suscripción",
                 "confirm": "Cancelar suscripción"
             },
             "canceledBadge": "Cancelada",
             "resumeSubscription": "Reanudar suscripción",
             "resumeSuccess": "Suscripción reanudada. Se retiró la cancelación.",
+            "restorePreviousPlan": "Restaurar {plan}",
+            "comingSoon": "Próximamente",
             "activeUntil": "Acceso hasta",
             "successDialog": {
                 "title": "¡Suscripción activada!",
@@ -2455,9 +2503,12 @@
                 "title": "Límite del plan alcanzado",
                 "description": "Mejora tu plan para añadir más.",
                 "upgrade": "Ver planes",
+                "manageSubscription": "Gestionar suscripción",
                 "teamMembers": "Alcanzaste el límite de miembros del equipo y plazas de personal.",
                 "services": "Alcanzaste el límite de servicios.",
-                "advertisements": "Alcanzaste el límite de anuncios y fichas."
+                "advertisements": "Alcanzaste el límite de anuncios y fichas.",
+                "scheduledDowngrade": "{resource} Tienes un cambio a un plan inferior programado — reduce el exceso antes o se desactivará automáticamente.",
+                "scheduledDowngradeWithDate": "{resource} Tienes un cambio a un plan inferior programado el {endDate} — reduce el exceso antes de esa fecha o se desactivará automáticamente al terminar el período de gracia."
             },
             "upgrade": "Mejorar plan",
             "downgrade": {
@@ -2471,6 +2522,16 @@
                 "cancel": "Atrás",
                 "confirm": "Programar bajada",
                 "warningLine": "{resource}: {count} por encima del límite del nuevo plan"
+            },
+            "upgradeDialog": {
+                "title": "¿Confirmar mejora de plan?",
+                "intro": "El plan cambiará al nivel superior de inmediato. Stripe cobrará de forma prorrateada a la tarjeta guardada para esta suscripción (el importe exacto depende del tiempo restante en tu periodo de facturación actual).",
+                "fromTo": "De {from} a {to}",
+                "note": "Si el cobro es rechazado, el plan no cambiará y es posible que debas completar el pago en Stripe Checkout con otra tarjeta.",
+                "cancel": "Volver",
+                "confirm": "Confirmar y mejorar",
+                "defaultSuccess": "Tu suscripción se ha mejorado.",
+                "successNote": "Se aplicó el cargo prorrateado a tu método de pago guardado. Revisa tu correo para el recibo."
             },
             "overLimit": {
                 "bannerTitle": "El uso supera los límites de tu plan",
@@ -2492,6 +2553,32 @@
                 "description": "Esta función no está incluida en tu plan actual.",
                 "upgrade": "Ver planes de suscripción",
                 "analytics": "Los informes y analíticas avanzados están en planes superiores."
+            },
+            "serverMessages": {
+                "stripe_disabled": "Los pagos en línea están desactivados. Contacta con soporte.",
+                "company_not_found": "Empresa no encontrada.",
+                "no_active_subscription": "No hay suscripción activa.",
+                "invalid_plan": "El plan seleccionado no es válido o está inactivo.",
+                "cannot_purchase_free": "El plan gratuito no se puede comprar.",
+                "current_plan_not_found": "No se encontró tu plan actual.",
+                "cannot_cancel_free": "El plan gratuito no se puede cancelar.",
+                "already_scheduled": "La cancelación ya está programada.",
+                "stripe_error": "Error del proveedor de pagos. Inténtalo más tarde.",
+                "subscription_canceled": "Suscripción cancelada. El acceso permanece hasta el final del período facturado.",
+                "cannot_resume_free": "El plan gratuito no se puede reanudar.",
+                "not_canceled": "Esta suscripción no está cancelada.",
+                "period_ended": "El período de facturación ya terminó.",
+                "subscription_resumed": "Suscripción reanudada.",
+                "use_cancel_for_free": "Para cambiar al plan gratuito, primero cancela tu suscripción de pago.",
+                "already_on_plan": "Ya estás en este plan.",
+                "cancellation_pending": "Cancela o reanuda tu suscripción antes de programar una baja de plan.",
+                "downgrade_scheduled": "Baja de plan programada para el final del período facturado.",
+                "subscription_upgraded": "Suscripción mejorada.",
+                "no_scheduled_change": "No hay ningún cambio de plan programado.",
+                "scheduled_change_canceled": "Baja de plan programada cancelada.",
+                "limits_updated": "Límites actualizados.",
+                "already_subscribed": "Ya tienes una suscripción de pago activa. Cancélala primero para cambiar de plan.",
+                "checkout_failed": "No se pudo iniciar el pago. Inténtalo de nuevo."
             }
         },
         "billing": {
@@ -2509,7 +2596,8 @@
                 "advertisement": "Anuncio",
                 "subscription": "Suscripción",
                 "booking": "Pago de reserva",
-                "unknown": "Desconocido"
+                "unknown": "Desconocido",
+                "refund": "Reembolso"
             },
             "statuses": {
                 "succeeded": "Exitoso",
@@ -2534,10 +2622,30 @@
                 "prev": "Anterior",
                 "next": "Siguiente"
             },
+            "export": {
+                "csv": "Descargar CSV",
+                "excel": "Descargar Excel",
+                "toastOk": "Archivo descargado",
+                "toastErr": "No se pudo exportar",
+                "toastEmpty": "No hay datos para exportar con los filtros actuales",
+                "sheetEarnings": "Ingresos",
+                "sheetExpenses": "Gastos",
+                "columns": {
+                    "bookingType": "Tipo de pago",
+                    "service": "Servicio",
+                    "client": "Cliente",
+                    "grossAmount": "Importe bruto",
+                    "platformFee": "Comisión de la plataforma",
+                    "netAmount": "Neto para usted",
+                    "currency": "Moneda"
+                }
+            },
             "noEarnings": "Aún no hay ingresos",
             "noExpenses": "Aún no hay gastos de plataforma",
             "earningsDescription": "Pago de reserva",
             "feeNote": "de {total}, comisión: {fee}",
+            "bookingRef": "#{id}",
+            "bookingRefAria": "Ver reserva {id}",
             "sections": {
                 "earnings": "Ingresos",
                 "expenses": "Gastos de plataforma",
@@ -2759,7 +2867,11 @@
                 "whatsappPlaceholder": "+1234567890",
                 "websitePlaceholder": "https://ejemplo.com",
                 "timezone": "Zona horaria",
-                "timezoneHint": "Se usa para el horario, el panel, las horas de reserva y los informes de tu negocio."
+                "timezoneHint": "Se usa para el horario, el panel, las horas de reserva y los informes de tu negocio.",
+                "dashboardSection": "Panel",
+                "monthlyBookingsGoal": "Meta de reservas mensuales",
+                "monthlyBookingsGoalPlaceholder": "10",
+                "monthlyBookingsGoalHint": "Número objetivo de reservas completadas por mes natural para el anillo de progreso en el panel. Déjalo vacío para usar el valor predeterminado."
             },
             "team": {
                 "title": "Equipo",
@@ -3432,6 +3544,7 @@
             "client": "Cliente"
         },
         "plans": {
+            "free": "Gratis",
             "starter": "Inicial",
             "professional": "Profesional",
             "enterprise": "Empresarial"
@@ -4847,8 +4960,8 @@
     },
     "landing": {
         "meta": {
-            "title": "REXTEN — Plataforma para negocios de servicios en EE.UU.",
-            "description": "Plataforma todo en uno para negocios de servicios: reservas en línea, CRM, programación, marketing y análisis."
+            "title": "REXTEN — Marketplace de servicios y espacio de trabajo para tu negocio",
+            "description": "Los clientes exploran y reservan servicios; tu equipo gestiona agendas, CRM, rutas e informes en un solo sistema conectado."
         },
         "nav": {
             "features": "Funciones",
@@ -4858,71 +4971,71 @@
             "drawerTitle": "Navegación"
         },
         "hero": {
-            "title": "Gestiona y escala tu negocio de servicios con REXTEN",
-            "subtitle": "Todas las herramientas en una plataforma: CRM, Reservas en línea, Marketing y Análisis. Automatiza tareas rutinarias, atrae nuevos clientes y gestiona múltiples ubicaciones desde cualquier dispositivo.",
+            "title": "Marketplace para clientes, espacio de trabajo para tu equipo — REXTEN",
+            "subtitle": "Las personas descubren servicios y reservan en línea. Tú llevas la operación—agendas, clientes, rutas e informes—en un solo lugar, sin un revoltijo de herramientas.",
             "ctaSignUp": "Comenzar",
             "ctaDemo": "Ver Demo"
         },
         "features": {
-            "sectionTitle": "Todo lo que necesitas para tu negocio",
-            "sectionSubtitle": "REXTEN reemplaza 5 servicios diferentes. Combinamos reservas en línea, CRM, gestión de equipos y herramientas de marketing en una plataforma conveniente.",
+            "sectionTitle": "Dos lados, una plataforma",
+            "sectionSubtitle": "Las fichas públicas generan demanda; tu panel cubre las operaciones del día a día de punta a punta.",
             "brand": {
-                "title": "Marca y Reservas en línea",
-                "description": "Personaliza colores y estilo de tu página de reservas. Los clientes reservan 24/7 y recibes notificaciones instantáneas."
+                "title": "Fichas y reservas en línea",
+                "description": "Tus servicios aparecen en el marketplace; el cliente elige horario y, donde aplique, paga en línea. Las notificaciones mantienen alineado al equipo."
             },
             "crm": {
-                "title": "Base de clientes (CRM)",
-                "description": "Historial de visitas, preferencias y contactos de clientes siempre a mano. Recupera clientes con campañas de email."
+                "title": "Clientes y CRM",
+                "description": "Perfiles con contactos, preferencias e historial de visitas para que los traspasos entre personas sean consistentes."
             },
             "schedule": {
-                "title": "Programación inteligente",
-                "description": "Horarios flexibles del personal, seguimiento de vacaciones y descansos. Distribución automática de citas y control de carga en ubicaciones."
+                "title": "Agendas y rutas",
+                "description": "Calendarios, cobertura del personal y flujos de campo mantienen la carga visible—incluso con varias ubicaciones."
             },
             "marketing": {
-                "title": "Marketing y Análisis",
-                "description": "Lanza anuncios de tus servicios dentro de REXTEN con un clic. Rastrea ingresos, conversión y rendimiento del personal con informes detallados."
+                "title": "Crecimiento y analítica",
+                "description": "Promociona fichas y revisa resultados: reservas, tendencias de ingresos y actividad del equipo en tableros y exportaciones—señales claras para el siguiente paso."
             }
         },
         "industries": {
-            "sectionTitle": "Diseñado para cada negocio de servicios",
-            "sectionSubtitle": "Desde salones de belleza hasta contratistas de HVAC — REXTEN se adapta a tu industria con funciones especializadas.",
+            "sectionTitle": "Del descubrimiento a la entrega",
+            "sectionSubtitle": "El mismo esquema híbrido—presencia para el cliente y herramientas de back office—encaja en muchos modelos de servicio.",
             "demoButton": "Probar Demo",
             "cleaning": {
                 "title": "Servicios de limpieza",
-                "description": "Optimización de rutas para equipos de campo, reservas recurrentes y recordatorios automáticos a clientes."
+                "description": "Rutas para cuadrillas, visitas recurrentes y recordatorios para cumplir fechas."
             },
             "beauty": {
                 "title": "Belleza y Bienestar",
-                "description": "Calendario de reservas en línea, horarios del personal, preferencias de clientes y programas de lealtad."
+                "description": "Reservas en línea, calendarios del personal, preferencias y seguimiento sin fricción."
             },
             "hvac": {
                 "title": "HVAC y Servicios del hogar",
-                "description": "Gestión de despacho, planificación de rutas, historial de servicios y promociones de temporada."
+                "description": "Flujos tipo despacho, rutas, historial de servicios y ofertas de temporada."
             },
             "auto": {
                 "title": "Servicios automotrices",
-                "description": "Programación de citas, paquetes de servicios, historial de vehículos y seguimientos automáticos."
+                "description": "Citas, paquetes, notas del vehículo y seguimientos automáticos."
             },
             "education": {
                 "title": "Educación y capacitación",
-                "description": "Programación de clases, gestión de alumnos, paquetes y recordatorios automáticos."
+                "description": "Sesiones, alumnos, paquetes y recordatorios en un solo flujo."
             },
             "events": {
                 "title": "Eventos y entretenimiento",
-                "description": "Reservas estilo entradas, coordinación del personal, depósitos y sincronización de calendario."
+                "description": "Reservas estilo boleto, coordinación del equipo, depósitos y calendarios alineados."
             },
             "legal": {
                 "title": "Consultoría y Legal",
-                "description": "Formularios de admisión de clientes, reserva de citas, gestión de documentos e integración de facturación."
+                "description": "Intake, citas, documentos y cobro donde tu proceso lo requiera."
             },
             "petCare": {
                 "title": "Cuidado de mascotas",
-                "description": "Perfiles de mascotas, horarios de peluquería, recordatorios de vacunación y gestión de guardería."
+                "description": "Perfiles, turnos de grooming, vacunas y estilo guardería en la agenda."
             }
         },
         "demos": {
-            "sectionTitle": "Ejemplos de escaparates de negocios en REXTEN",
-            "sectionSubtitle": "Mira cómo lucen las páginas de servicios creadas en nuestra plataforma. Todo funciona automáticamente, soporta pagos en línea y no requiere diseñador.",
+            "sectionTitle": "Explora el marketplace",
+            "sectionSubtitle": "Ejemplos de fichas—el mismo flujo de reserva que verá tu cliente.",
             "viewAll": "Ver todos los servicios",
             "loading": "Cargando...",
             "noResults": "No hay servicios en esta categoría",
@@ -4936,142 +5049,188 @@
                 "events": "Eventos"
             }
         },
+        "businessPage": {
+            "title": "Una página pública que puedes compartir",
+            "lead": "Cada negocio tiene un perfil en el marketplace: servicios, reseñas y contactos en un solo enlace—sin depender de otro sitio para empezar.",
+            "point1": "El cliente ve ofertas y opiniones sin saltar entre enlaces sueltos.",
+            "point2": "Cómodo enviar un solo enlace en un chat o correo: servicios, reseñas y contacto en un mismo lugar.",
+            "point3": "Para equipos pequeños y profesionales solos suele bastar en lugar de un sitio sencillo aparte.",
+            "imagePlaceholder": "Aún no hay imagen de vista previa para este idioma.",
+            "imageAlt": "Vista previa de la página del negocio (añade tu imagen)",
+            "previewCaption": "Ejemplo: cómo se ve la página pública del negocio en el móvil"
+        },
         "pricing": {
             "sectionTitle": "Precios simples y transparentes",
-            "sectionSubtitle": "Elige Inicial, Pro o Empresa, o empieza con el plan Gratis con límites de uso. Los primeros 14 días son gratis al suscribirte a un plan de pago.",
-            "freeTierNote": "El plan Gratis sigue disponible con límites en reservas, equipo y funciones. Mejora cuando necesites más capacidad.",
+            "sectionLead": "Cuatro planes — de Free a Enterprise. Cualquier plan de pago empieza con <b>14 días gratis</b>.",
+            "chipPlans": "Free · Starter · Professional · Enterprise",
+            "chipTrial": "Primeros 14 días gratis en cualquier plan de pago",
+            "chipFree": "El plan Free sigue disponible, con límites",
+            "chipUpgrade": "Límites y cambio de plan — en Suscripción",
+            "cardTitlePlans": "Cuatro planes",
+            "cardTitleTrial": "14 días gratis",
+            "cardTitleFree": "Gratis, siempre",
+            "cardTitleUpgrade": "Cambia cuando quieras",
+            "trialDaysLabel": "días",
+            "trialFreeLabel": "gratis",
             "popular": "Popular",
-            "perMonth": "/mes",
-            "starter": {
-                "name": "Inicial",
-                "description": "Para profesionales individuales",
-                "features": {
-                    "booking": "Página de reservas personal",
-                    "appointments": "Hasta 100 reservas/mes",
-                    "reminders": "Recordatorios a clientes (correo)",
-                    "analytics": "Análisis básico",
-                    "payments": "Pagos en línea"
-                },
-                "button": "Comenzar gratis"
+            "fromPlan": {
+                "perMonth": "/mes",
+                "ctaStart": "Empezar",
+                "ctaContact": "Contáctanos",
+                "loading": "Cargando planes…",
+                "loadError": "No se pudieron cargar los precios. Actualiza la página.",
+                "teamUpTo": "Hasta {n} plazas de equipo",
+                "teamUnlimited": "Plazas de equipo ilimitadas",
+                "servicesUpTo": "Hasta {n} servicios en tu catálogo",
+                "servicesUnlimited": "Servicios ilimitados",
+                "listingsUpTo": "Hasta {n} anuncios activos en el marketplace",
+                "listingsUnlimited": "Anuncios activos ilimitados",
+                "featAnalytics": "Analítica avanzada",
+                "featPriority": "Soporte prioritario",
+                "featApi": "Acceso a la API"
             },
-            "pro": {
-                "name": "Pro",
-                "description": "Para salones de hasta 5 empleados",
-                "features": {
-                    "includesStarter": "Todo en Inicial",
-                    "staff": "Hasta 5 miembros del equipo",
-                    "unlimited": "Reservas ilimitadas",
-                    "crm": "CRM y base de clientes",
-                    "schedule": "Gestión de horarios del equipo",
-                    "marketing": "Campañas de marketing",
-                    "support": "Soporte prioritario"
+            "enterpriseDialog": {
+                "title": "Habla con ventas — plan Enterprise",
+                "subtitle": "Cuéntanos un poco sobre tu negocio y te responderemos en 1 día hábil.",
+                "fields": {
+                    "name": "Tu nombre",
+                    "email": "Correo de trabajo",
+                    "phone": "Teléfono (opcional)",
+                    "company": "Empresa",
+                    "team_size": "Tamaño del equipo",
+                    "message": "¿De qué quieres hablar?"
                 },
-                "button": "Probar gratis"
-            },
-            "business": {
-                "name": "Empresa",
-                "description": "Para empresas con múltiples ubicaciones",
-                "features": {
-                    "includesPro": "Todo en Pro",
-                    "unlimitedStaff": "Miembros del equipo ilimitados",
-                    "locations": "Gestión multi-ubicación",
-                    "analytics": "Análisis avanzado",
-                    "api": "Integraciones API",
-                    "manager": "Gerente de cuenta dedicado",
-                    "branding": "Marca personalizada"
+                "teamSizePlaceholder": "Elige el tamaño del equipo",
+                "teamSizes": {
+                    "1-10": "1–10 personas",
+                    "11-50": "11–50 personas",
+                    "51-200": "51–200 personas",
+                    "200+": "Más de 200 personas"
                 },
-                "button": "Contáctanos"
+                "messagePlaceholder": "Describe brevemente tu necesidad: número de sedes, integraciones, plazos.",
+                "consent": "Acepto el tratamiento de los datos para responder a mi consulta.",
+                "cancel": "Cancelar",
+                "submit": "Enviar consulta",
+                "validation": {
+                    "name": "Ingresa tu nombre (2–150 caracteres).",
+                    "email": "Ingresa un correo válido.",
+                    "phone": "El teléfono es demasiado largo.",
+                    "company": "El nombre de la empresa es demasiado largo.",
+                    "team_size": "Elige un tamaño de equipo de la lista.",
+                    "message_min": "El mensaje debe tener al menos 10 caracteres.",
+                    "message_max": "El mensaje es demasiado largo (máx. 2000 caracteres).",
+                    "consent": "Confirma el consentimiento para el tratamiento de datos."
+                },
+                "success": {
+                    "title": "Consulta enviada",
+                    "body": "¡Gracias! Te contactaremos en 1 día hábil."
+                },
+                "error": {
+                    "title": "No se pudo enviar",
+                    "body": "Inténtalo de nuevo más tarde o escríbenos directamente."
+                }
             }
         },
         "otherFeatures": {
-            "sectionTitle": "Tu negocio siempre a mano",
-            "sectionSubtitle": "Gestiona tu empresa desde tu smartphone. App móvil dedicada para propietarios y personal, sincronizada con la versión web.",
+            "sectionTitle": "Más formas de mantener el control",
+            "sectionSubtitle": "Acceso móvil para dueños y equipo, junto al producto web.",
             "mobile": {
-                "title": "Negocio en tu bolsillo",
-                "description": "Controla tu agenda, acepta pagos y chatea con clientes a través de la app móvil. Las notificaciones de nuevas reservas llegan al instante.",
+                "title": "Negocio en movimiento",
+                "description": "Revisa agendas, responde a clientes y ve la actividad clave desde la app—junto a notificaciones de nuevas reservas cuando estén activadas.",
                 "points": {
-                    "schedule": "Gestiona reservas y horarios del personal",
-                    "chat": "Chatea con clientes y ve el historial de mensajes",
-                    "stats": "Estadísticas financieras diarias en tiempo real"
+                    "schedule": "Reservas y horarios del equipo en un solo lugar",
+                    "chat": "Conversaciones con clientes e historial",
+                    "stats": "Señales financieras del día donde estén disponibles"
                 }
             },
             "growth": {
-                "title": "Crecimiento y Multi-ubicación",
-                "description": "Gestiona fácilmente múltiples ubicaciones en diferentes estados. Estándares unificados, control de calidad centralizado y análisis de toda la red.",
+                "title": "Escala y ubicaciones",
+                "description": "Varias sedes con estándares compartidos: roles para gerentes, vistas por ubicación y analítica consolidada.",
                 "points": {
                     "access": "Acceso basado en roles para gerentes",
-                    "compare": "Compara el rendimiento de ubicaciones",
-                    "languages": "Soporte multilingüe para mercados locales"
+                    "compare": "Compara el desempeño por ubicación",
+                    "languages": "Varios idiomas de interfaz para mercados locales"
                 }
             },
             "integrations": {
-                "title": "Integraciones y Pagos",
-                "description": "Automatiza la contabilidad y el procesamiento de pagos. REXTEN se integra con Stripe para transacciones seguras y pagos automáticos al personal.",
+                "title": "Pagos y datos",
+                "description": "Stripe impulsa el cobro con tarjeta y los pagos con Connect según la configuración que definas.",
                 "points": {
                     "stripe": "Pagos seguros vía Stripe Connect",
-                    "salary": "Cálculos automáticos de comisiones y salarios",
-                    "export": "Exporta informes financieros para contabilidad"
+                    "salary": "Comisiones y pagos estructurados en Stripe Connect",
+                    "export": "Exportaciones para contabilidad"
+                },
+                "paymentVisual": {
+                    "cardLabel": "Tarjeta",
+                    "amountCaption": "Pago del cliente",
+                    "toBusiness": "A tu cuenta de Stripe",
+                    "platformFee": "Comisión de la plataforma desde 10%",
+                    "footer": "El dinero llega directo a tu Stripe Connect — nosotros no lo retenemos"
                 }
             }
         },
         "testimonials": {
-            "sectionTitle": "Cientos de negocios confían en nosotros",
-            "sectionSubtitle": "Propietarios de salones, profesionales y empresas de servicios ya usan REXTEN para hacer crecer su negocio.",
+            "sectionTitle": "Lo que los equipos notan primero",
+            "sectionSubtitle": "Notas breves de quienes operan reservas y operación en REXTEN.",
             "items": [
                 {
                     "name": "María García",
                     "role": "Propietaria",
                     "company": "Glow Beauty Studio",
-                    "quote": "REXTEN nos ayudó a aumentar las reservas en un 40%. Los clientes reservan solos y ya no pasamos horas en llamadas telefónicas."
+                    "quote": "Los clientes reservan en línea y se acaba el ping-pong telefónico. El equipo ve la misma agenda e historial en un sistema."
                 },
                 {
                     "name": "Carlos Rodríguez",
                     "role": "Fundador",
                     "company": "AutoPro Service",
-                    "quote": "Gestionar una red de 3 talleres se volvió más fácil. Veo la carga de trabajo de cada ubicación en tiempo real y puedo reaccionar rápido."
+                    "quote": "Varias ubicaciones son más simples cuando la carga y los calendarios viven en un solo panel, no en hojas sueltas."
                 },
                 {
                     "name": "Ana Martínez",
                     "role": "Profesional independiente",
                     "company": "Uñas a Domicilio",
-                    "quote": "¡Por fin tengo una página de reservas bonita y recordatorios para clientes. Menos citas perdidas!"
+                    "quote": "Una página de reserva clara más recordatorios: menos inasistencias sin trabajo administrativo extra."
                 }
             ]
         },
         "faq": {
             "sectionTitle": "Preguntas frecuentes",
-            "sectionSubtitle": "Respuestas a preguntas populares sobre REXTEN. ¿No encontraste tu respuesta? Escríbenos en el chat.",
+            "sectionSubtitle": "Respuestas directas sobre el marketplace y el espacio de trabajo. ¿Más detalle? Escríbenos desde tu cuenta.",
             "items": [
                 {
-                    "question": "¿Cómo conecto mi negocio a REXTEN?",
-                    "answer": "El registro toma 5 minutos. Completa el formulario, agrega tus servicios y personal — y tu página de reservas está lista. Te ayudaremos a personalizar todo según tu marca."
+                    "question": "¿Qué es REXTEN?",
+                    "answer": "REXTEN combina un marketplace para clientes con un espacio de trabajo para tu negocio. Las personas buscan, comparan y reservan servicios; tú gestionas agendas, fichas de clientes, rutas cuando aplica e informes en la misma cuenta."
+                },
+                {
+                    "question": "¿Cómo empiezo?",
+                    "answer": "Crea una cuenta, agrega servicios y equipo, y publica disponibilidad. Tu ficha pública y el flujo de reserva pueden activarse cuando tú estés listo."
                 },
                 {
                     "question": "¿Cuánto cuesta?",
-                    "answer": "Hay un plan Gratis con límites y tres planes de pago: Inicial ($29/mes) para profesionales solos, Pro ($79/mes) para salones de hasta 5 personas, y Empresa ($199/mes) para varias ubicaciones. Los primeros 14 días son gratis al iniciar una suscripción de pago."
+                    "answer": "Hay un plan Gratis con límites. Los planes de pago son Inicial, Pro y Empresa; los montos de esta página son orientativos—confirma cifras actuales en el producto antes de pagar. Los primeros 14 días de una suscripción de pago son gratis."
                 },
                 {
-                    "question": "¿Puedo migrar clientes de otro sistema?",
-                    "answer": "Sí, te ayudaremos a importar tu base de clientes desde Excel, Google Sheets u otros sistemas CRM. Solo envía el archivo a nuestro equipo de soporte."
+                    "question": "¿Puedo importar clientes existentes?",
+                    "answer": "Muchas veces sí. Envía un CSV o exportación de hoja de cálculo al soporte y te guiamos en las opciones de importación."
                 },
                 {
-                    "question": "¿Cómo funciona el pago en línea?",
-                    "answer": "Estamos integrados con Stripe. Los clientes pueden pagar con tarjeta al reservar. El dinero llega a tu cuenta automáticamente."
+                    "question": "¿Cómo funcionan los pagos en línea?",
+                    "answer": "Donde los pagos estén habilitados, el cobro usa Stripe. El cliente paga con tarjeta; los desembolsos siguen tu configuración de Stripe Connect."
                 },
                 {
-                    "question": "¿Hay una app móvil?",
-                    "answer": "Sí, hay apps para iOS y Android. Gestiona reservas, chatea con clientes y ve estadísticas directamente desde tu smartphone."
+                    "question": "¿Hay app móvil?",
+                    "answer": "Sí—flujos de negocio en iOS y Android junto a la web. Usa los enlaces actualizados en tu cuenta."
                 },
                 {
-                    "question": "¿Qué soporte está disponible?",
-                    "answer": "El chat de soporte funciona 24/7. Los planes Pro y Empresa tienen soporte prioritario con respuesta en una hora. El plan Empresa incluye un gerente de cuenta dedicado."
+                    "question": "¿Cómo contacto soporte?",
+                    "answer": "Usa la ayuda o los contactos dentro del producto. Los tiempos de respuesta varían por canal y plan; los niveles pagos pueden incluir prioridad cuando aplique."
                 }
             ]
         },
         "footer": {
             "cta": {
-                "title": "Conecta tu negocio a REXTEN",
-                "description": "Te mostraremos cómo listarte en el marketplace, prepararemos tu escaparate según tu marca y lanzaremos las reservas en pocos días.",
+                "title": "Reúne en un solo lugar cómo te encuentran los clientes y el trabajo diario de tu equipo.",
+                "description": "Publica servicios, recibe reservas y coordina a tu equipo desde el mismo espacio de trabajo. Abre tu agenda a los clientes cuando estés listo.",
                 "button": "Probar gratis"
             },
             "links": {
