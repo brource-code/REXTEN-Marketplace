@@ -17,6 +17,7 @@ class Subscription extends Model
         'status',
         'stripe_session_id',
         'stripe_subscription_id',
+        'stripe_subscription_schedule_id',
         'stripe_customer_id',
         'stripe_price_id',
         'price_cents',

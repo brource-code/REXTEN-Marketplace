@@ -30,22 +30,25 @@ class SubscriptionLifecycleService
             ->get();
 
         foreach ($subs as $sub) {
-            // Recurring-подписки с активным Stripe ID (включая cancel_at_period_end):
-            // Stripe сам пришлёт customer.subscription.deleted/updated в конце периода,
-            // и handler в StripeController сделает переход. Наш cron не вмешивается.
-            // Исключение: scheduled_plan (downgrade) — этот сценарий мы делаем через
-            // Stripe API, потому что в Stripe нет "scheduled change без подмены подписки".
-            if ($sub->stripe_subscription_id && !$sub->scheduled_plan) {
+            // Recurring-подписки с активным Stripe ID (включая cancel_at_period_end и
+            // scheduled_plan через Stripe Subscription Schedule): Stripe сам пришлёт
+            // customer.subscription.updated/deleted в конце периода, наш cron не вмешивается.
+            if ($sub->stripe_subscription_id && (
+                ! $sub->scheduled_plan
+                || $sub->stripe_subscription_schedule_id
+            )) {
                 continue;
             }
 
-            if ($sub->scheduled_plan && !$sub->canceled_at) {
+            if ($sub->scheduled_plan && ! $sub->canceled_at) {
                 if ($sub->stripe_subscription_id) {
+                    // Fallback для подписок, у которых scheduled_plan есть, но schedule_id нет
+                    // (созданы до перехода на Subscription Schedules) — добиваем старым путём.
                     self::applyScheduledDowngradeViaStripe($sub);
                 } else {
                     self::applyScheduledDowngrade($sub);
                 }
-            } elseif ($sub->canceled_at && !$sub->stripe_subscription_id) {
+            } elseif ($sub->canceled_at && ! $sub->stripe_subscription_id) {
                 self::applyCancelToFree($sub);
             }
         }
@@ -60,18 +63,22 @@ class SubscriptionLifecycleService
     {
         // Берём только подписки, которые требуют действия от cron'а:
         //   - legacy (без stripe_subscription_id) с canceled_at или scheduled_plan,
-        //   - recurring со scheduled_plan (downgrade меняем через Stripe API).
-        // Recurring без scheduled_plan (включая cancel_at_period_end) обрабатывает сам Stripe
-        // через webhook customer.subscription.deleted/updated.
+        //   - recurring со scheduled_plan, но без активного Stripe Subscription Schedule
+        //     (fallback для устаревших записей).
+        // Recurring без scheduled_plan (включая cancel_at_period_end) и recurring со
+        // scheduled_plan + Stripe Subscription Schedule обрабатывает сам Stripe через
+        // webhook customer.subscription.deleted/updated.
         $ids = Subscription::query()
             ->where('status', Subscription::STATUS_ACTIVE)
             ->whereNotNull('current_period_end')
             ->where('current_period_end', '<=', now())
             ->where(function ($q) {
-                $q->whereNotNull('scheduled_plan')
-                    ->orWhere(function ($qq) {
-                        $qq->whereNotNull('canceled_at')->whereNull('stripe_subscription_id');
-                    });
+                $q->where(function ($qq) {
+                    $qq->whereNotNull('scheduled_plan')
+                        ->whereNull('stripe_subscription_schedule_id');
+                })->orWhere(function ($qq) {
+                    $qq->whereNotNull('canceled_at')->whereNull('stripe_subscription_id');
+                });
             })
             ->distinct()
             ->pluck('company_id');

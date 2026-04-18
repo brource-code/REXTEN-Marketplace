@@ -12,6 +12,7 @@ use Stripe\Price as StripePrice;
 use Stripe\Product as StripeProduct;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
+use Stripe\SubscriptionSchedule as StripeSubscriptionSchedule;
 
 /**
  * Управление recurring Stripe Subscriptions.
@@ -179,6 +180,103 @@ class StripeSubscriptionService
     }
 
     /**
+     * Запланировать смену тарифа (downgrade) на конец текущего расчётного периода
+     * через Stripe Subscription Schedules.
+     *
+     * Stripe сам в момент `current_period_end`:
+     *  - переключит подписку на $newPriceId (без прорации, $prorationBehavior='none'),
+     *  - выпустит invoice по новому price и попытается списать,
+     *  - пришлёт webhooks customer.subscription.updated → invoice.payment_succeeded.
+     *
+     * Возвращает созданный/обновлённый объект SubscriptionSchedule.
+     */
+    public static function scheduleDowngrade(
+        string $stripeSubscriptionId,
+        string $newPriceId
+    ): StripeSubscriptionSchedule {
+        self::init();
+
+        $subscription = StripeSubscription::retrieve([
+            'id' => $stripeSubscriptionId,
+            'expand' => ['schedule'],
+        ]);
+
+        $existingScheduleId = is_string($subscription->schedule ?? null)
+            ? $subscription->schedule
+            : ($subscription->schedule->id ?? null);
+
+        // Если расписание уже привязано к этой подписке (например, остался хвост от предыдущей попытки) —
+        // releas-им и пересоздадим, чтобы фазы были чистые.
+        if ($existingScheduleId) {
+            try {
+                StripeSubscriptionSchedule::release($existingScheduleId);
+            } catch (\Throwable $e) {
+                Log::warning('Stripe SubscriptionSchedule release before re-create failed', [
+                    'schedule_id' => $existingScheduleId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $schedule = StripeSubscriptionSchedule::create([
+            'from_subscription' => $stripeSubscriptionId,
+        ]);
+
+        $currentPhase = $schedule->phases[0] ?? null;
+        if (! $currentPhase) {
+            throw new \RuntimeException('Stripe SubscriptionSchedule has no current phase');
+        }
+
+        $currentItem = $currentPhase->items[0] ?? null;
+        $currentPriceId = is_string($currentItem->price ?? null)
+            ? $currentItem->price
+            : ($currentItem->price->id ?? null);
+        if (! $currentPriceId) {
+            throw new \RuntimeException('Stripe SubscriptionSchedule current phase has no price');
+        }
+
+        return StripeSubscriptionSchedule::update($schedule->id, [
+            'end_behavior' => 'release',
+            'phases' => [
+                [
+                    'items' => [[
+                        'price' => $currentPriceId,
+                        'quantity' => $currentItem->quantity ?? 1,
+                    ]],
+                    'start_date' => $currentPhase->start_date,
+                    'end_date' => $currentPhase->end_date,
+                    'proration_behavior' => 'none',
+                ],
+                [
+                    'items' => [[
+                        'price' => $newPriceId,
+                        'quantity' => 1,
+                    ]],
+                    'iterations' => 1,
+                    'proration_behavior' => 'none',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Снять запланированный downgrade (release schedule). Подписка остаётся на текущем price.
+     */
+    public static function releaseSchedule(string $scheduleId): void
+    {
+        self::init();
+        try {
+            StripeSubscriptionSchedule::release($scheduleId);
+        } catch (\Throwable $e) {
+            Log::warning('Stripe SubscriptionSchedule release failed', [
+                'schedule_id' => $scheduleId,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Синхронизировать локальную Subscription из Stripe-объекта.
      * Используется в webhook'ах customer.subscription.* и при ручной сверке.
      */
@@ -217,19 +315,62 @@ class StripeSubscriptionService
             ? \Carbon\Carbon::createFromTimestamp($canceledAtTs)
             : ($cancelAtPeriodEnd ? ($local->canceled_at ?? now()) : null);
 
-        $local->forceFill([
+        $update = [
             'status' => $localStatus,
             'current_period_start' => $periodStart ?? $local->current_period_start,
             'current_period_end' => $periodEnd ?? $local->current_period_end,
             'cancel_at_period_end' => $cancelAtPeriodEnd,
             'canceled_at' => $canceledAt,
-        ])->save();
+        ];
+
+        $scheduleId = is_string($stripeSub->schedule ?? null)
+            ? $stripeSub->schedule
+            : ($stripeSub->schedule->id ?? null);
+        $update['stripe_subscription_schedule_id'] = $scheduleId;
+
+        // Если в Stripe нет активного schedule — значит, запланированный
+        // downgrade был применён или отменён, scheduled_plan локально больше не нужен.
+        if (! $scheduleId) {
+            $update['scheduled_plan'] = null;
+        }
+
+        // Stripe мог переключить price (применённый downgrade через schedule, ручной апгрейд).
+        // Подхватываем новый price/plan локально, чтобы UI/лимиты сразу соответствовали.
+        $stripePriceId = $stripeSub->items->data[0]->price->id ?? null;
+        $stripeUnitAmount = $stripeSub->items->data[0]->price->unit_amount ?? null;
+        $stripeCurrency = $stripeSub->items->data[0]->price->currency ?? null;
+        $stripeInterval = $stripeSub->items->data[0]->price->recurring->interval ?? null;
+
+        if ($stripePriceId && $stripePriceId !== $local->stripe_price_id) {
+            $newPlan = SubscriptionPlan::query()
+                ->where('stripe_price_id_monthly', $stripePriceId)
+                ->orWhere('stripe_price_id_yearly', $stripePriceId)
+                ->first();
+            if ($newPlan && $newPlan->slug !== $local->plan) {
+                $update['previous_plan'] = $local->plan;
+                $update['plan'] = $newPlan->slug;
+            }
+            $update['stripe_price_id'] = $stripePriceId;
+            if (is_int($stripeUnitAmount)) {
+                $update['price_cents'] = $stripeUnitAmount;
+            }
+            if (is_string($stripeCurrency) && $stripeCurrency !== '') {
+                $update['currency'] = strtolower($stripeCurrency);
+            }
+            if (in_array($stripeInterval, ['month', 'year'], true)) {
+                $update['interval'] = $stripeInterval;
+            }
+        }
+
+        $local->forceFill($update)->save();
 
         Log::info('Local subscription synced from Stripe', [
             'local_id' => $local->id,
             'stripe_subscription_id' => $stripeSub->id,
             'status' => $localStatus,
             'cancel_at_period_end' => $cancelAtPeriodEnd,
+            'schedule_id' => $scheduleId,
+            'plan' => $local->plan,
         ]);
     }
 }

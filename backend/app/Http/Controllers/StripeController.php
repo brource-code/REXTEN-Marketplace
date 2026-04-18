@@ -315,7 +315,24 @@ class StripeController extends Controller
             return;
         }
 
+        $previousPlan = $local->plan;
+        $previousScheduleId = $local->stripe_subscription_schedule_id;
+
         StripeSubscriptionService::syncFromStripe($local, $stripeSub);
+
+        $local->refresh();
+
+        // Запланированный downgrade применён Stripe Subscription Schedule:
+        // план поменялся и schedule больше не привязан.
+        if ($previousPlan !== $local->plan && $previousScheduleId && ! $local->stripe_subscription_schedule_id) {
+            Log::info('Scheduled downgrade applied via Stripe Subscription Schedule', [
+                'subscription_id' => $local->id,
+                'company_id' => $local->company_id,
+                'from_plan' => $previousPlan,
+                'to_plan' => $local->plan,
+                'schedule_id' => $previousScheduleId,
+            ]);
+        }
     }
 
     /**

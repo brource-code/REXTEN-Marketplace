@@ -422,16 +422,58 @@ class SubscriptionController extends Controller
                 ], 422);
             }
 
-            $subscription->update([
-                'scheduled_plan' => $targetPlan->slug,
-            ]);
+            // Recurring-подписка с активным Stripe ID — создаём Stripe Subscription Schedule.
+            // Stripe сам в момент current_period_end переключит price и выпустит новый invoice;
+            // нам прилетят webhooks customer.subscription.updated → invoice.payment_succeeded,
+            // и syncFromStripe подтянет новый plan + сбросит scheduled_plan/schedule_id локально.
+            if ($subscription->stripe_subscription_id) {
+                try {
+                    $newPriceId = StripeSubscriptionService::ensurePrice(
+                        $targetPlan,
+                        $subscription->interval ?: $validated['interval']
+                    );
+                    $schedule = StripeSubscriptionService::scheduleDowngrade(
+                        $subscription->stripe_subscription_id,
+                        $newPriceId
+                    );
 
-            Log::info('Downgrade scheduled', [
-                'company_id' => $companyId,
-                'current' => $currentPlan->slug,
-                'scheduled_plan' => $targetPlan->slug,
-                'period_ends' => $subscription->current_period_end?->toISOString(),
-            ]);
+                    $subscription->forceFill([
+                        'scheduled_plan' => $targetPlan->slug,
+                        'stripe_subscription_schedule_id' => $schedule->id,
+                    ])->save();
+
+                    Log::info('Downgrade scheduled via Stripe SubscriptionSchedule', [
+                        'company_id' => $companyId,
+                        'current' => $currentPlan->slug,
+                        'scheduled_plan' => $targetPlan->slug,
+                        'schedule_id' => $schedule->id,
+                        'period_ends' => $subscription->current_period_end?->toISOString(),
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::error('Stripe SubscriptionSchedule downgrade failed', [
+                        'company_id' => $companyId,
+                        'subscription_id' => $subscription->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    return response()->json([
+                        'error' => 'stripe_schedule_failed',
+                        'code' => 'stripe_schedule_failed',
+                        'message' => 'Failed to schedule downgrade in Stripe. Please try again later.',
+                    ], 502);
+                }
+            } else {
+                // Legacy-подписка без Stripe ID — старый сценарий, переключение делает cron.
+                $subscription->update([
+                    'scheduled_plan' => $targetPlan->slug,
+                ]);
+
+                Log::info('Downgrade scheduled (legacy, no Stripe subscription)', [
+                    'company_id' => $companyId,
+                    'current' => $currentPlan->slug,
+                    'scheduled_plan' => $targetPlan->slug,
+                    'period_ends' => $subscription->current_period_end?->toISOString(),
+                ]);
+            }
 
             try {
                 SubscriptionMailer::notifyDowngradeScheduled(
@@ -563,7 +605,7 @@ class SubscriptionController extends Controller
             return response()->json(['error' => 'No active subscription', 'code' => 'no_active_subscription'], 404);
         }
 
-        if (!$subscription->scheduled_plan) {
+        if (!$subscription->scheduled_plan && !$subscription->stripe_subscription_schedule_id) {
             return response()->json([
                 'error' => 'no_scheduled_change',
                 'code' => 'no_scheduled_change',
@@ -571,7 +613,28 @@ class SubscriptionController extends Controller
             ], 422);
         }
 
-        $subscription->update(['scheduled_plan' => null]);
+        // Если в Stripe есть привязанный schedule — release(), чтобы Stripe не применил downgrade.
+        if ($subscription->stripe_subscription_schedule_id) {
+            try {
+                StripeSubscriptionService::releaseSchedule($subscription->stripe_subscription_schedule_id);
+            } catch (\Throwable $e) {
+                Log::error('Stripe SubscriptionSchedule release on cancel failed', [
+                    'subscription_id' => $subscription->id,
+                    'schedule_id' => $subscription->stripe_subscription_schedule_id,
+                    'error' => $e->getMessage(),
+                ]);
+                return response()->json([
+                    'error' => 'stripe_schedule_release_failed',
+                    'code' => 'stripe_schedule_release_failed',
+                    'message' => 'Failed to cancel scheduled downgrade in Stripe. Please try again later.',
+                ], 502);
+            }
+        }
+
+        $subscription->forceFill([
+            'scheduled_plan' => null,
+            'stripe_subscription_schedule_id' => null,
+        ])->save();
 
         return response()->json([
             'code' => 'scheduled_change_canceled',
