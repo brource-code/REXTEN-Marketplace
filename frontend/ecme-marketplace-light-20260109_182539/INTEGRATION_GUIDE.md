@@ -47,15 +47,15 @@ npm run dev
 
 ### Клиент
 - Email: `client@ecme.com`
-- Пароль: `password123`
+- Пароль: `demo12345`
 
 ### Владелец бизнеса
 - Email: `business@ecme.com`
-- Пароль: `password123`
+- Пароль: `demo12345`
 
 ### Суперадмин
 - Email: `admin@ecme.com`
-- Пароль: `password123`
+- Пароль: `demo12345`
 
 ## 📝 Изменения в формате ответов
 

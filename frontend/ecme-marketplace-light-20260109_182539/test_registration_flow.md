@@ -7,8 +7,8 @@
    - Имя: Test
    - Фамилия: User
    - Email: test_registration_XXXX@example.com (замените XXXX на случайное число)
-   - Пароль: password123
-   - Подтверждение пароля: password123
+   - Пароль: demo12345
+   - Подтверждение пароля: demo12345
    - Название бизнеса: Test Business Registration
    - Описание: Test description
    - Адрес: 123 Test Street

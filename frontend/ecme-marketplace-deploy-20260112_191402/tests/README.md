@@ -24,7 +24,7 @@
 ```bash
 API_URL=http://localhost:8000/api \
 TEST_EMAIL=admin@ecme.com \
-TEST_PASSWORD=password123 \
+TEST_PASSWORD=demo12345 \
 npm run test:advertisements
 ```
 

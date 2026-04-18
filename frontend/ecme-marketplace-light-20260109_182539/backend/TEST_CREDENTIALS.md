@@ -4,27 +4,27 @@
 
 ### Суперадмин
 - **Email**: `admin@ecme.com`
-- **Пароль**: `password123`
+- **Пароль**: `demo12345`
 - **Роль**: SUPERADMIN
 
 ### Владелец бизнеса
 - **Email**: `business@ecme.com`
-- **Пароль**: `password123`
+- **Пароль**: `demo12345`
 - **Роль**: BUSINESS_OWNER
 
 ### Клиенты
 1. **Email**: `client@ecme.com`
-   - **Пароль**: `password123`
+   - **Пароль**: `demo12345`
    - **Имя**: Иван Иванов
    - **Телефон**: +7 (999) 111-11-11
 
 2. **Email**: `client2@ecme.com`
-   - **Пароль**: `password123`
+   - **Пароль**: `demo12345`
    - **Имя**: Мария Петрова
    - **Телефон**: +7 (999) 222-22-22
 
 3. **Email**: `client3@ecme.com`
-   - **Пароль**: `password123`
+   - **Пароль**: `demo12345`
    - **Имя**: Алексей Сидоров
    - **Телефон**: +7 (999) 333-33-33
 
@@ -50,7 +50,7 @@ curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "client@ecme.com",
-    "password": "password123"
+    "password": "demo12345"
   }'
 ```
 
@@ -66,7 +66,7 @@ curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "business@ecme.com",
-    "password": "password123"
+    "password": "demo12345"
   }'
 ```
 
@@ -82,7 +82,7 @@ curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@ecme.com",
-    "password": "password123"
+    "password": "demo12345"
   }'
 ```
 

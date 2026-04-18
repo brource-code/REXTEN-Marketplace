@@ -30,7 +30,7 @@
 ```bash
 curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"client@ecme.com","password":"password123"}'
+  -d '{"email":"client@ecme.com","password":"demo12345"}'
 ```
 
 ### Проверка Frontend

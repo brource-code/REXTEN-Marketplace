@@ -28,15 +28,15 @@
 
 ### Клиент
 - Email: `client@ecme.com`
-- Пароль: `password123`
+- Пароль: `demo12345`
 
 ### Владелец бизнеса
 - Email: `business@ecme.com`
-- Пароль: `password123`
+- Пароль: `demo12345`
 
 ### Суперадмин
 - Email: `admin@ecme.com`
-- Пароль: `password123`
+- Пароль: `demo12345`
 
 ## 📝 Проверка работы
 
@@ -49,7 +49,7 @@ curl http://localhost:8000
 ```bash
 curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"client@ecme.com","password":"password123"}'
+  -d '{"email":"client@ecme.com","password":"demo12345"}'
 ```
 
 ### Проверить Frontend

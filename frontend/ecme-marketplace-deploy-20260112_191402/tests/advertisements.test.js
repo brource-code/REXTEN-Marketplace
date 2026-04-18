@@ -8,7 +8,7 @@ const axios = require('axios');
 const API_URL = process.env.API_URL || 'http://127.0.0.1:8000/api';
 // Учетные данные суперадмина (из TEST_CREDENTIALS.md)
 const TEST_EMAIL = process.env.TEST_EMAIL || 'admin@ecme.com';
-const TEST_PASSWORD = process.env.TEST_PASSWORD || 'password123';
+const TEST_PASSWORD = process.env.TEST_PASSWORD || 'demo12345';
 
 let authToken = null;
 let createdAdvertisementId = null;
