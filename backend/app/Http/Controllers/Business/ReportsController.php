@@ -433,7 +433,7 @@ class ReportsController extends Controller
                 ->values();
 
             $validSpecialistIds = TeamMember::where('company_id', $companyId)
-                ->where('is_active', true)
+                ->where('status', 'active')
                 ->pluck('id')
                 ->toArray();
 
@@ -517,7 +517,7 @@ class ReportsController extends Controller
             // Получаем ТОЛЬКО специалистов из team_members (основной источник)
             // Не используем старые данные из объявлений или бронирований
             $teamMembers = TeamMember::where('company_id', $companyId)
-                ->where('is_active', true)
+                ->where('status', 'active')
                 ->get();
             
             // Получаем все ID текущих специалистов для фильтрации
@@ -664,11 +664,12 @@ class ReportsController extends Controller
                 // Рассчитываем зарплату на лету БЕЗ сохранения в БД
                 // Получаем всех специалистов с завершенными бронированиями за период
                 $specialists = TeamMember::where('company_id', $companyId)
-                    ->where('is_active', true)
+                    ->where('status', 'active')
                     ->get();
                 
                 // Получаем всех специалистов с завершенными бронированиями за период
                 $specialistsWithBookings = Booking::where('company_id', $companyId)
+                    ->withoutPendingPayment()
                     ->where('status', 'completed')
                     ->whereNotNull('specialist_id')
                     ->whereDate('booking_date', '>=', $periodStart)
@@ -750,13 +751,13 @@ class ReportsController extends Controller
                 // Правильный подсчет уникальных специалистов
                 $specialistIdsFromCalculations = array_keys($bySpecialistData);
                 $totalSpecialists = TeamMember::where('company_id', $companyId)
-                    ->where('is_active', true)
+                    ->where('status', 'active')
                     ->whereIn('id', $specialistIdsFromCalculations)
                     ->count();
                 
                 if (empty($specialistIdsFromCalculations)) {
                     $totalSpecialists = TeamMember::where('company_id', $companyId)
-                        ->where('is_active', true)
+                        ->where('status', 'active')
                         ->count();
                 }
                 
@@ -779,6 +780,7 @@ class ReportsController extends Controller
                     ->toArray();
                 // Считаем бронирования без специалиста
                 $bookingsWithoutSpecialist = Booking::where('company_id', $companyId)
+                    ->withoutPendingPayment()
                     ->where('status', 'completed')
                     ->whereNull('specialist_id')
                     ->whereDate('booking_date', '>=', $periodStart)
@@ -1090,7 +1092,7 @@ class ReportsController extends Controller
         // Не используем старые данные из объявлений
         $specialist = TeamMember::where('id', $booking->specialist_id)
             ->where('company_id', $booking->company_id)
-            ->where('is_active', true)
+            ->where('status', 'active')
             ->first();
         
         if ($specialist) {
@@ -1114,7 +1116,7 @@ class ReportsController extends Controller
         // Не используем старые данные из объявлений
         $specialist = TeamMember::where('company_id', $companyId)
             ->where('id', $specialistId)
-            ->where('is_active', true)
+            ->where('status', 'active')
             ->first();
         
         if ($specialist && $specialist->name) {
@@ -1132,7 +1134,13 @@ class ReportsController extends Controller
      */
     private function getBaseQuery($companyId, $filters)
     {
-        $query = Booking::where('bookings.company_id', $companyId);
+        $query = Booking::where('bookings.company_id', $companyId)
+            // Скрываем «черновики» под Stripe PaymentIntent (pending_payment) и автоматически
+            // отменённые крон-командой брони (expired) — в отчётах не учитываются.
+            ->where(function ($q) {
+                $q->whereNull('bookings.payment_status')
+                    ->orWhereNotIn('bookings.payment_status', ['pending_payment', 'expired']);
+            });
 
         if ($filters['date_from']) {
             $query->whereDate('bookings.booking_date', '>=', $filters['date_from']);

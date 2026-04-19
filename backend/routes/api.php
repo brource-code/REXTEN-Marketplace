@@ -63,12 +63,35 @@ use App\Http\Controllers\Business\RouteController;
 use App\Http\Controllers\Admin\SearchController as AdminSearchController;
 use App\Http\Controllers\Admin\RealtimeMetricsController;
 use App\Http\Controllers\UserPresenceController;
+use App\Http\Controllers\Api\V1\BookingsController as ApiV1BookingsController;
+use App\Http\Controllers\Api\V1\ClientsController as ApiV1ClientsController;
+use App\Http\Controllers\Api\V1\MeController as ApiV1MeController;
+use App\Http\Controllers\Api\V1\ServicesController as ApiV1ServicesController;
+use App\Http\Controllers\Business\ApiTokensController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+// Read-only public API v1 (Bearer Sanctum token; Enterprise api_access)
+Route::prefix('v1')->middleware([
+    'auth:sanctum',
+    'tenant.api',
+    'subscription.feature:api_access',
+    'throttle:api_v1',
+    'api.v1.read',
+    'log.api_v1',
+])->group(function () {
+    Route::get('/me', [ApiV1MeController::class, 'show']);
+    Route::get('/services', [ApiV1ServicesController::class, 'index']);
+    Route::get('/services/{id}', [ApiV1ServicesController::class, 'show'])->whereNumber('id');
+    Route::get('/clients', [ApiV1ClientsController::class, 'index']);
+    Route::get('/clients/{id}', [ApiV1ClientsController::class, 'show'])->whereNumber('id');
+    Route::get('/bookings', [ApiV1BookingsController::class, 'index']);
+    Route::get('/bookings/{id}', [ApiV1BookingsController::class, 'show'])->whereNumber('id');
+});
 
 // Public routes
 Route::prefix('auth')->group(function () {
@@ -179,6 +202,9 @@ Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 // Sentry → Telegram webhook (public, no auth - Sentry sends directly)
 Route::post('/webhooks/sentry-telegram', [\App\Http\Controllers\Webhooks\SentryTelegramController::class, 'handle']);
 
+// Telegram business bot webhook (public, защищён secret-токеном из заголовка)
+Route::post('/webhooks/telegram-business', [\App\Http\Controllers\Webhooks\TelegramBusinessController::class, 'handle']);
+
 // Protected routes
 Route::middleware(['jwt.auth'])->group(function () {
     // Auth routes
@@ -250,7 +276,8 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/dashboard/chart', [DashboardController::class, 'chart']);
 
         // Route Intelligence (daily routes / optimization)
-        Route::prefix('routes')->group(function () {
+        // Платная фича: только планы с features.routes=true (professional, enterprise).
+        Route::prefix('routes')->middleware('subscription.feature:routes')->group(function () {
             Route::get('/{specialist}/saved', [RouteController::class, 'savedList'])
                 ->whereNumber('specialist');
             Route::post('/{routeId}/recalculate', [RouteController::class, 'recalculate'])
@@ -415,7 +442,14 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::post('/subscription/resolve-limits', [SubscriptionController::class, 'resolveLimits']);
         Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel']);
         Route::post('/subscription/resume', [SubscriptionController::class, 'resume']);
-        
+
+        // Developer API — токены (Enterprise api_access)
+        Route::prefix('api')->middleware('subscription.feature:api_access')->group(function () {
+            Route::get('/tokens', [ApiTokensController::class, 'index']);
+            Route::post('/tokens', [ApiTokensController::class, 'store']);
+            Route::delete('/tokens/{id}', [ApiTokensController::class, 'destroy'])->whereNumber('id');
+        });
+
         // Onboarding
         Route::post('/onboarding/complete', [SettingsController::class, 'completeOnboarding']);
 
@@ -442,6 +476,11 @@ Route::middleware(['jwt.auth'])->group(function () {
         // Notification Settings
         Route::get('/settings/notifications', [SettingsController::class, 'getNotificationSettings']);
         Route::put('/settings/notifications', [SettingsController::class, 'updateNotificationSettings']);
+
+        // Telegram bot link (per-user: owner/staff)
+        Route::get('/settings/telegram', [\App\Http\Controllers\Business\TelegramController::class, 'status']);
+        Route::post('/settings/telegram/connect', [\App\Http\Controllers\Business\TelegramController::class, 'connect']);
+        Route::delete('/settings/telegram', [\App\Http\Controllers\Business\TelegramController::class, 'disconnect']);
 
         // Notifications (list, read, delete)
         Route::get('/notifications', [BusinessNotificationsController::class, 'index']);

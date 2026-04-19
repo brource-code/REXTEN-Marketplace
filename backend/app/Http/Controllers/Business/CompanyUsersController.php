@@ -229,7 +229,7 @@ class CompanyUsersController extends Controller
         }
 
         $user = Auth::user();
-        if (!$user->hasPermissionInCompany($companyId, 'manage_users')) {
+        if (!$user->isOwnerOfCompany((int) $companyId)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 

@@ -13,6 +13,14 @@ class SubscriptionPlansController extends Controller
     public function index()
     {
         $plans = SubscriptionPlan::orderBy('sort_order')->get()->map(function ($plan) {
+            $activeSubs = Subscription::where('plan', $plan->slug)
+                ->where('status', Subscription::STATUS_ACTIVE)
+                ->get(['id', 'trial_ends_at']);
+
+            $trialingCount = $activeSubs->filter(
+                fn ($s) => $s->trial_ends_at && $s->trial_ends_at->isFuture()
+            )->count();
+
             return [
                 'id' => $plan->id,
                 'slug' => $plan->slug,
@@ -27,12 +35,13 @@ class SubscriptionPlansController extends Controller
                 'is_active' => $plan->is_active,
                 'is_default' => $plan->is_default,
                 'is_free' => $plan->is_free,
+                'trial_days' => (int) $plan->trial_days,
+                'is_trial_default' => (bool) $plan->is_trial_default,
                 'sort_order' => $plan->sort_order,
                 'badge_text' => $plan->badge_text,
                 'color' => $plan->color,
-                'subscribers_count' => Subscription::where('plan', $plan->slug)
-                    ->where('status', Subscription::STATUS_ACTIVE)
-                    ->count(),
+                'subscribers_count' => $activeSubs->count(),
+                'trialing_count' => $trialingCount,
             ];
         });
 
@@ -60,6 +69,8 @@ class SubscriptionPlansController extends Controller
                 'is_active' => $plan->is_active,
                 'is_default' => $plan->is_default,
                 'is_free' => $plan->is_free,
+                'trial_days' => (int) $plan->trial_days,
+                'is_trial_default' => (bool) $plan->is_trial_default,
                 'sort_order' => $plan->sort_order,
                 'badge_text' => $plan->badge_text,
                 'color' => $plan->color,
@@ -80,6 +91,8 @@ class SubscriptionPlansController extends Controller
             'is_active' => 'boolean',
             'is_default' => 'boolean',
             'is_free' => 'boolean',
+            'trial_days' => 'integer|min:0|max:365',
+            'is_trial_default' => 'boolean',
             'sort_order' => 'integer',
             'badge_text' => 'nullable|string|max:50',
             'color' => 'string|max:20',
@@ -87,6 +100,10 @@ class SubscriptionPlansController extends Controller
 
         if ($validated['is_default'] ?? false) {
             SubscriptionPlan::where('is_default', true)->update(['is_default' => false]);
+        }
+
+        if ($validated['is_trial_default'] ?? false) {
+            SubscriptionPlan::where('is_trial_default', true)->update(['is_trial_default' => false]);
         }
 
         $plan = SubscriptionPlan::create($validated);
@@ -112,6 +129,8 @@ class SubscriptionPlansController extends Controller
             'is_active' => 'boolean',
             'is_default' => 'boolean',
             'is_free' => 'boolean',
+            'trial_days' => 'integer|min:0|max:365',
+            'is_trial_default' => 'boolean',
             'sort_order' => 'integer',
             'badge_text' => 'nullable|string|max:50',
             'color' => 'string|max:20',
@@ -119,6 +138,10 @@ class SubscriptionPlansController extends Controller
 
         if (($validated['is_default'] ?? false) && !$plan->is_default) {
             SubscriptionPlan::where('is_default', true)->update(['is_default' => false]);
+        }
+
+        if (($validated['is_trial_default'] ?? false) && !$plan->is_trial_default) {
+            SubscriptionPlan::where('is_trial_default', true)->update(['is_trial_default' => false]);
         }
 
         $plan->update($validated);

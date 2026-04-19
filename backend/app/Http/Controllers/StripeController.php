@@ -490,6 +490,8 @@ class StripeController extends Controller
         $payment->update(['status' => Payment::STATUS_AUTHORIZED]);
 
         if ($payment->booking_id) {
+            $wasPendingPayment = $booking && $booking->payment_status === 'pending_payment';
+
             Booking::where('id', $payment->booking_id)->update([
                 'payment_status' => 'authorized',
             ]);
@@ -497,6 +499,12 @@ class StripeController extends Controller
             $booking = Booking::with(['company', 'service', 'user.profile'])->find($payment->booking_id);
             if ($booking) {
                 $bookingService = app(\App\Services\BookingService::class);
+                // При создании брони с онлайн-оплатой владельца не уведомляли — бронь была «черновиком».
+                // Сейчас она впервые становится реальной для бизнеса (карта авторизована),
+                // поэтому шлём «новая бронь» именно здесь.
+                if ($wasPendingPayment) {
+                    $bookingService->notifyOwnerAboutNewBooking($booking);
+                }
                 $bookingService->notifyOwnerAboutPayment($booking);
                 if ($booking->user_id) {
                     $bookingService->notifyClientAboutAuthorizedPayment($booking);
@@ -530,6 +538,8 @@ class StripeController extends Controller
             return;
         }
 
+        $wasPendingPayment = $booking && $booking->payment_status === 'pending_payment';
+
         $payment->update([
             'status' => Payment::STATUS_SUCCEEDED,
             'capture_status' => Payment::CAPTURE_CAPTURED,
@@ -539,6 +549,15 @@ class StripeController extends Controller
 
         if ($payment->booking_id) {
             Booking::where('id', $payment->booking_id)->update(['payment_status' => 'paid']);
+
+            // Если бронь сразу проходит в succeeded минуя authorize (например, instant capture)
+            // — уведомим бизнес о «новой брони» здесь, чтобы не пропустить событие.
+            if ($wasPendingPayment) {
+                $freshBooking = Booking::with(['company', 'service', 'user.profile'])->find($payment->booking_id);
+                if ($freshBooking) {
+                    app(\App\Services\BookingService::class)->notifyOwnerAboutNewBooking($freshBooking);
+                }
+            }
         }
 
         Log::info('Payment succeeded via webhook', ['payment_id' => $payment->id, 'pi_id' => $paymentIntent->id]);

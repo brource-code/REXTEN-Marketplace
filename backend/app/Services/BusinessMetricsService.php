@@ -52,7 +52,13 @@ class BusinessMetricsService
         $serviceId = null,
         $status = null
     ): Builder {
-        $query->where('bookings.company_id', $companyId);
+        $query->where('bookings.company_id', $companyId)
+            // Скрываем «черновики» под Stripe PaymentIntent (pending_payment) и автоматически
+            // отменённые крон-командой брони (expired) — в отчётах они не должны учитываться.
+            ->where(function (Builder $q): void {
+                $q->whereNull('bookings.payment_status')
+                    ->orWhereNotIn('bookings.payment_status', ['pending_payment', 'expired']);
+            });
 
         if ($dateFrom) {
             $query->whereDate('bookings.booking_date', '>=', $dateFrom);
@@ -85,6 +91,10 @@ class BusinessMetricsService
         $q = DB::table('bookings')
             ->where('company_id', $companyId)
             ->where('status', '!=', 'cancelled')
+            ->where(function ($qq) {
+                $qq->whereNull('payment_status')
+                    ->orWhereNotIn('payment_status', ['pending_payment', 'expired']);
+            })
             ->whereNull('deleted_at')
             ->whereNotNull('user_id');
 

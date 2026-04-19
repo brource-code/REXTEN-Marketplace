@@ -38,6 +38,18 @@ return [
         'chat_id' => env('TELEGRAM_CHAT_ID'),
     ],
 
+    /*
+    | Отдельный Telegram-бот для уведомлений бизнес-кабинета (НЕ путать с Sentry-каналом выше).
+    | bot_token / bot_username — выдаёт @BotFather для нового бота.
+    | webhook_secret — произвольная строка, передаётся при setWebhook и приходит в заголовке
+    |   X-Telegram-Bot-Api-Secret-Token при каждом обновлении.
+    */
+    'telegram_business' => [
+        'bot_token' => env('TELEGRAM_BUSINESS_BOT_TOKEN'),
+        'bot_username' => env('TELEGRAM_BUSINESS_BOT_USERNAME'),
+        'webhook_secret' => env('TELEGRAM_BUSINESS_WEBHOOK_SECRET'),
+    ],
+
     'here' => [
         'api_key' => env('HERE_API_KEY'),
         'router_url' => env('HERE_API_URL', 'https://router.hereapi.com'),

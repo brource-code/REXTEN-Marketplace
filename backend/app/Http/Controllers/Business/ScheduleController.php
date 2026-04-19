@@ -32,6 +32,7 @@ class ScheduleController extends Controller
 
             $bookings = Booking::where('company_id', $companyId)
                 ->whereNotNull('booking_date')
+                ->withoutPendingPayment()
                 ->with([
                     'service:id,name,service_type', 
                     'user:id,email,role',
@@ -764,8 +765,10 @@ class ScheduleController extends Controller
             }
 
             // Находим бронирование по ID и company_id
+            // Брони в pending_payment скрыты от бизнеса — обновлять их нельзя.
             $booking = Booking::where('company_id', $companyId)
                 ->where('id', $id)
+                ->withoutPendingPayment()
                 ->first();
 
             if (!$booking) {
@@ -1142,6 +1145,7 @@ class ScheduleController extends Controller
             // Находим бронирование по ID и company_id
             $booking = Booking::where('company_id', $companyId)
                 ->where('id', $id)
+                ->withoutPendingPayment()
                 ->first();
 
             if (!$booking) {
@@ -1447,6 +1451,14 @@ class ScheduleController extends Controller
         BusinessOwnerMailer::notifyIfEnabled(
             $company,
             (int) $company->owner_id,
+            $prefEvent,
+            $title,
+            $message,
+            '/business/schedule'
+        );
+
+        \App\Services\TelegramBusinessNotifier::notifyCompany(
+            $company,
             $prefEvent,
             $title,
             $message,

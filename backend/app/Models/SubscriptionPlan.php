@@ -18,6 +18,8 @@ class SubscriptionPlan extends Model
         'is_active',
         'is_default',
         'is_free',
+        'trial_days',
+        'is_trial_default',
         'sort_order',
         'badge_text',
         'color',
@@ -31,9 +33,11 @@ class SubscriptionPlan extends Model
         'is_active' => 'boolean',
         'is_default' => 'boolean',
         'is_free' => 'boolean',
+        'is_trial_default' => 'boolean',
         'price_monthly_cents' => 'integer',
         'price_yearly_cents' => 'integer',
         'sort_order' => 'integer',
+        'trial_days' => 'integer',
     ];
 
     public function subscriptions(): HasMany
@@ -44,6 +48,21 @@ class SubscriptionPlan extends Model
     public static function getDefault(): ?self
     {
         return static::where('is_default', true)->where('is_active', true)->first();
+    }
+
+    /**
+     * Платный план, который выдаётся новым компаниям как триал.
+     * Если их несколько (что не должно случаться — контролируем в админке),
+     * берём первый по sort_order.
+     */
+    public static function getTrialDefault(): ?self
+    {
+        return static::where('is_trial_default', true)
+            ->where('is_active', true)
+            ->where('is_free', false)
+            ->where('trial_days', '>', 0)
+            ->orderBy('sort_order')
+            ->first();
     }
 
     public static function getActive()

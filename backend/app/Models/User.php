@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject, CanResetPasswordContract
 {
     use CanResetPassword;
+    use HasApiTokens;
     use HasFactory, Notifiable, SoftDeletes;
 
     /**
@@ -33,6 +35,11 @@ class User extends Authenticatable implements JWTSubject, CanResetPasswordContra
         'provider',
         'last_login_at',
         'email_verified_at',
+        'telegram_chat_id',
+        'telegram_username',
+        'telegram_linked_at',
+        'telegram_link_token',
+        'telegram_link_token_expires_at',
     ];
 
     /**
@@ -56,6 +63,8 @@ class User extends Authenticatable implements JWTSubject, CanResetPasswordContra
         'password' => 'hashed',
         'is_active' => 'boolean',
         'is_blocked' => 'boolean',
+        'telegram_linked_at' => 'datetime',
+        'telegram_link_token_expires_at' => 'datetime',
     ];
 
     /**

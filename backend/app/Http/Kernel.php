@@ -33,6 +33,10 @@ class Kernel extends HttpKernel
         'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'subscription.feature' => \App\Http\Middleware\CheckSubscriptionFeature::class,
+        'tenant.api' => \App\Http\Middleware\TenantApi::class,
+        'log.api_v1' => \App\Http\Middleware\LogApiV1Request::class,
+        'api.v1.read' => \App\Http\Middleware\EnsureApiV1ReadScope::class,
+        'abilities' => \Laravel\Sanctum\Http\Middleware\CheckAbilities::class,
     ];
 }
 

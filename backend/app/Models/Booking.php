@@ -146,7 +146,24 @@ class Booking extends Model
                     ->orWhereNull('specialist_id');
             })
             ->whereDate('booking_date', $date)
-            ->where('status', '!=', 'cancelled');
+            ->where('status', '!=', 'cancelled')
+            ->withoutPendingPayment();
+    }
+
+    /**
+     * Брони, которые уже «реальны» для бизнеса.
+     * Скрывает «черновики» онлайн-оплаты:
+     *   - pending_payment — клиент ещё не подтвердил оплату (Stripe PaymentIntent в процессе),
+     *   - expired — крон booking:cancel-unpaid отменил бронь, потому что оплата так и не пришла.
+     * Бизнес о таких бронях узнавать не должен: их по сути не было.
+     * NULL допускается — это обычные брони без онлайн-оплаты.
+     */
+    public function scopeWithoutPendingPayment(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q): void {
+            $q->whereNull('payment_status')
+                ->orWhereNotIn('payment_status', ['pending_payment', 'expired']);
+        });
     }
 
     /**

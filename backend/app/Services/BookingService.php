@@ -816,6 +816,14 @@ class BookingService
             $t['message'],
             '/business/schedule'
         );
+
+        TelegramBusinessNotifier::notifyCompany(
+            $company,
+            BusinessOwnerNotificationPreferences::EVENT_NEW_BOOKING,
+            $t['title'],
+            $t['message'],
+            '/business/schedule'
+        );
     }
 
     /**
@@ -923,6 +931,14 @@ class BookingService
             $t['message'],
             '/business/schedule'
         );
+
+        TelegramBusinessNotifier::notifyCompany(
+            $company,
+            $prefEvent,
+            $t['title'],
+            $t['message'],
+            '/business/schedule'
+        );
     }
 
     /**
@@ -996,6 +1012,14 @@ class BookingService
         BusinessOwnerMailer::notifyIfEnabled(
             $company,
             (int) $company->owner_id,
+            BusinessOwnerNotificationPreferences::EVENT_PAYMENT,
+            $t['title'],
+            $t['message'],
+            '/business/schedule'
+        );
+
+        TelegramBusinessNotifier::notifyCompany(
+            $company,
             BusinessOwnerNotificationPreferences::EVENT_PAYMENT,
             $t['title'],
             $t['message'],
@@ -1273,6 +1297,14 @@ class BookingService
         BusinessOwnerMailer::notifyIfEnabled(
             $company,
             (int) $company->owner_id,
+            BusinessOwnerNotificationPreferences::EVENT_REVIEW,
+            $t['title'],
+            $t['message'],
+            '/business/reviews'
+        );
+
+        TelegramBusinessNotifier::notifyCompany(
+            $company,
             BusinessOwnerNotificationPreferences::EVENT_REVIEW,
             $t['title'],
             $t['message'],

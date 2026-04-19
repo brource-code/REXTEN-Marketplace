@@ -38,6 +38,7 @@ class BookingsController extends Controller
         }
 
         $query = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
             ->with(['service', 'user.profile', 'specialist', 'location']);
 
         // Фильтры
@@ -126,6 +127,7 @@ class BookingsController extends Controller
         }
 
         $booking = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
             ->with([
                 'service',
                 'user.profile',
@@ -306,7 +308,9 @@ class BookingsController extends Controller
             ], 404);
         }
 
-        $booking = Booking::where('company_id', $companyId)->findOrFail($id);
+        $booking = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
+            ->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'service_id' => 'sometimes|exists:services,id',
@@ -480,7 +484,9 @@ class BookingsController extends Controller
             ], 404);
         }
 
-        $booking = Booking::where('company_id', $companyId)->findOrFail($id);
+        $booking = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
+            ->findOrFail($id);
 
         // Не удаляем завершенные бронирования
         if ($booking->status === 'completed') {

@@ -53,13 +53,13 @@ class DashboardController extends Controller
             $monthlyBookingsGoal = $company?->dashboard_monthly_bookings_goal;
 
             // Total bookings
-            $totalBookings = Booking::where('company_id', $companyId)->count();
+            $totalBookings = Booking::where('company_id', $companyId)->withoutPendingPayment()->count();
 
             // Общая выручка — сумма по завершённым бронированиям
             $totalRevenue = BusinessMetricsService::totalRecognizedRevenue($companyId);
 
             // Revenue in work - активные бронирования (new, pending, confirmed) - все кроме завершенных и отмененных
-            $revenueInWork = Booking::where('company_id', $companyId)
+            $revenueInWork = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->whereIn('status', ['new', 'pending', 'confirmed'])
                 ->sum(DB::raw('COALESCE(total_price, price)'));
             $revenueInWork = $revenueInWork ? (float) $revenueInWork : 0;
@@ -67,11 +67,11 @@ class DashboardController extends Controller
             // Просроченные бронирования (активные, но с датой в прошлом)
             // Используем whereDate для сравнения только даты, без времени
             $today = now()->startOfDay()->format('Y-m-d');
-            $overdueBookingsCount = Booking::where('company_id', $companyId)
+            $overdueBookingsCount = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->whereDate('booking_date', '<', $today)
                 ->whereIn('status', ['new', 'pending', 'confirmed'])
                 ->count();
-            $overdueBookingsRevenue = Booking::where('company_id', $companyId)
+            $overdueBookingsRevenue = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->whereDate('booking_date', '<', $today)
                 ->whereIn('status', ['new', 'pending', 'confirmed'])
                 ->sum(DB::raw('COALESCE(total_price, price)'));
@@ -81,7 +81,7 @@ class DashboardController extends Controller
             $activeClients = BusinessMetricsService::countDistinctRegisteredClients($companyId);
 
             // Upcoming bookings
-            $upcomingBookings = Booking::where('company_id', $companyId)
+            $upcomingBookings = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('booking_date', '>=', now()->startOfDay())
                 ->whereIn('status', ['new', 'pending', 'confirmed']) // Включаем статус 'new'
                 ->count();
@@ -94,7 +94,7 @@ class DashboardController extends Controller
 
             // Revenue by period (last 6 months) — завершённые брони по дате услуги
             $dateFormatSql = DatabaseHelper::dateFormatYearMonth('booking_date');
-            $revenueByPeriod = Booking::where('company_id', $companyId)
+            $revenueByPeriod = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('status', 'completed')
                 ->where('booking_date', '>=', now()->subMonths(6)->startOfDay())
                 ->select(
@@ -123,36 +123,36 @@ class DashboardController extends Controller
             $yearStart = $startOfYear->format('Y-m-d');
 
             // Выручка за период — завершённые брони по дате услуги (booking_date)
-            $revenueThisWeek = (float) (Booking::where('company_id', $companyId)
+            $revenueThisWeek = (float) (Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('status', 'completed')
                 ->whereDate('booking_date', '>=', $weekStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0);
 
-            $revenueThisMonth = (float) (Booking::where('company_id', $companyId)
+            $revenueThisMonth = (float) (Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('status', 'completed')
                 ->whereDate('booking_date', '>=', $monthStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0);
 
-            $revenueThisYear = (float) (Booking::where('company_id', $companyId)
+            $revenueThisYear = (float) (Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('status', 'completed')
                 ->whereDate('booking_date', '>=', $yearStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0);
 
             // Бронирования по периодам — без cancelled (согласованно с выручкой)
-            $bookingsThisWeek = Booking::where('company_id', $companyId)
+            $bookingsThisWeek = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('status', '!=', 'cancelled')
                 ->whereDate('booking_date', '>=', $weekStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->count();
-            $bookingsThisMonth = Booking::where('company_id', $companyId)
+            $bookingsThisMonth = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('status', '!=', 'cancelled')
                 ->whereDate('booking_date', '>=', $monthStart)
                 ->whereDate('booking_date', '<=', $today)
                 ->count();
-            $bookingsThisYear = Booking::where('company_id', $companyId)
+            $bookingsThisYear = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->where('status', '!=', 'cancelled')
                 ->whereDate('booking_date', '>=', $yearStart)
                 ->whereDate('booking_date', '<=', $today)
@@ -327,7 +327,7 @@ class DashboardController extends Controller
 
             $limit = (int) $request->get('limit', 5);
 
-            $bookings = Booking::where('company_id', $companyId)
+            $bookings = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->whereNotNull('booking_date')
                 ->whereIn('status', ['new', 'pending', 'confirmed', 'completed', 'cancelled']) // Включаем все статусы
                 ->with(['service:id,name', 'user.profile'])
@@ -443,7 +443,7 @@ class DashboardController extends Controller
                             continue;
                         }
 
-                        $bookingsAmount = Booking::where('company_id', $companyId)
+                        $bookingsAmount = Booking::where('company_id', $companyId)->withoutPendingPayment()
                             ->where('status', 'completed')
                             ->whereDate('booking_date', $dayFormatted)
                             ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0;
@@ -470,7 +470,7 @@ class DashboardController extends Controller
                             $periodEndDate = $todayStr;
                         }
 
-                        $bookingsAmount = Booking::where('company_id', $companyId)
+                        $bookingsAmount = Booking::where('company_id', $companyId)->withoutPendingPayment()
                             ->where('status', 'completed')
                             ->whereBetween('booking_date', [$periodStartDate, $periodEndDate])
                             ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0;
@@ -490,7 +490,7 @@ class DashboardController extends Controller
                             ? $todayStr
                             : $now->copy()->month($i)->endOfMonth()->format('Y-m-d');
 
-                        $bookingAmount = Booking::where('company_id', $companyId)
+                        $bookingAmount = Booking::where('company_id', $companyId)->withoutPendingPayment()
                             ->where('status', 'completed')
                             ->whereBetween('booking_date', [$monthStartDate, $monthEndDate])
                             ->sum(DB::raw('COALESCE(total_price, price)')) ?? 0;
@@ -512,7 +512,7 @@ class DashboardController extends Controller
                         }
                         $dayEnd = $date->copy()->endOfDay()->format('Y-m-d');
 
-                        $count = Booking::where('company_id', $companyId)
+                        $count = Booking::where('company_id', $companyId)->withoutPendingPayment()
                             ->where('status', '!=', 'cancelled')
                             ->whereBetween('booking_date', [$dayStart, $dayEnd])
                             ->count();
@@ -535,7 +535,7 @@ class DashboardController extends Controller
                         }
                         $periodEndCapped = $periodEndDate > $todayStr ? $todayStr : $periodEndDate;
 
-                        $count = Booking::where('company_id', $companyId)
+                        $count = Booking::where('company_id', $companyId)->withoutPendingPayment()
                             ->where('status', '!=', 'cancelled')
                             ->whereBetween('booking_date', [$periodStartDate, $periodEndCapped])
                             ->count();
@@ -555,7 +555,7 @@ class DashboardController extends Controller
                             ? $todayStr
                             : $now->copy()->month($i)->endOfMonth()->format('Y-m-d');
 
-                        $count = Booking::where('company_id', $companyId)
+                        $count = Booking::where('company_id', $companyId)->withoutPendingPayment()
                             ->where('status', '!=', 'cancelled')
                             ->whereBetween('booking_date', [$monthStart, $monthEnd])
                             ->count();
@@ -702,7 +702,7 @@ class DashboardController extends Controller
         string $prevTo,
         int $limit = 6,
     ): array {
-        $current = Booking::where('company_id', $companyId)
+        $current = Booking::where('company_id', $companyId)->withoutPendingPayment()
             ->where('status', '!=', 'cancelled')
             ->whereDate('booking_date', '>=', $from)
             ->whereDate('booking_date', '<=', $to)
@@ -719,7 +719,7 @@ class DashboardController extends Controller
 
         $ids = $current->pluck('service_id')->map(fn ($id) => (int) $id)->all();
 
-        $prevMap = Booking::where('company_id', $companyId)
+        $prevMap = Booking::where('company_id', $companyId)->withoutPendingPayment()
             ->where('status', '!=', 'cancelled')
             ->whereDate('booking_date', '>=', $prevFrom)
             ->whereDate('booking_date', '<=', $prevTo)
@@ -762,7 +762,7 @@ class DashboardController extends Controller
 
     private function completedBookingRevenueBetween(int $companyId, string $from, string $to): float
     {
-        return (float) (Booking::where('company_id', $companyId)
+        return (float) (Booking::where('company_id', $companyId)->withoutPendingPayment()
             ->where('status', 'completed')
             ->whereDate('booking_date', '>=', $from)
             ->whereDate('booking_date', '<=', $to)
@@ -771,7 +771,7 @@ class DashboardController extends Controller
 
     private function bookingsCountBetween(int $companyId, string $from, string $to): int
     {
-        return (int) Booking::where('company_id', $companyId)
+        return (int) Booking::where('company_id', $companyId)->withoutPendingPayment()
             ->where('status', '!=', 'cancelled')
             ->whereDate('booking_date', '>=', $from)
             ->whereDate('booking_date', '<=', $to)

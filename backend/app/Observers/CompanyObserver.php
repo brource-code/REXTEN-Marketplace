@@ -24,6 +24,42 @@ class CompanyObserver
             return;
         }
 
+        // Новой компании при возможности выдаём бесплатный триал на платном плане
+        // (например Professional 14 дней). Если триальный план не настроен — fallback на free.
+        $trialPlan = SubscriptionPlan::getTrialDefault();
+
+        if ($trialPlan) {
+            try {
+                $trialEnds = now()->addDays((int) $trialPlan->trial_days);
+                Subscription::create([
+                    'company_id' => $company->id,
+                    'plan' => $trialPlan->slug,
+                    'status' => Subscription::STATUS_ACTIVE,
+                    'price_cents' => $trialPlan->price_monthly_cents,
+                    'currency' => $trialPlan->currency,
+                    'interval' => 'month',
+                    'current_period_start' => now(),
+                    // Подписка живёт до конца триала; cron в LifecycleService переведёт на free,
+                    // если за это время компания не оформила платную подписку через Stripe.
+                    'current_period_end' => $trialEnds,
+                    'trial_ends_at' => $trialEnds,
+                ]);
+
+                Log::info('Trial subscription created for company', [
+                    'company_id' => $company->id,
+                    'plan' => $trialPlan->slug,
+                    'trial_days' => $trialPlan->trial_days,
+                    'trial_ends_at' => $trialEnds->toISOString(),
+                ]);
+                return;
+            } catch (\Exception $e) {
+                Log::error('Failed to create trial subscription, falling back to default', [
+                    'company_id' => $company->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         $defaultPlan = SubscriptionPlan::getDefault();
 
         if (!$defaultPlan) {

@@ -66,6 +66,8 @@ class SubscriptionController extends Controller
                 'color' => $plan->color,
                 'sort_order' => $plan->sort_order,
                 'is_free' => $plan->is_free,
+                'trial_days' => (int) $plan->trial_days,
+                'is_trial_default' => (bool) $plan->is_trial_default,
             ]);
     }
 
@@ -128,6 +130,10 @@ class SubscriptionController extends Controller
                 'previous_plan' => $subscription->previous_plan,
                 'is_active' => $subscription->isActive(),
                 'is_free' => $planModel?->is_free ?? false,
+                'trial_ends_at' => $subscription->trial_ends_at?->toISOString(),
+                'is_trial' => $subscription->isTrialing(),
+                'trial_days_left' => $subscription->trialDaysLeft(),
+                'has_payment_method' => (bool) $subscription->stripe_subscription_id,
             ],
             'plan' => $planModel ? [
                 'name' => $planModel->name,

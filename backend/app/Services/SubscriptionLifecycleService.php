@@ -16,9 +16,22 @@ class SubscriptionLifecycleService
 {
     /**
      * Закрыть истёкшие подписки компании: запланированный даунгрейд или отмена → free.
+     * Также обрабатываются истёкшие триалы (trial_ends_at <= now без оформленной Stripe-подписки).
      */
     public static function finalizeExpiredForCompany(int $companyId): void
     {
+        // 1) Истёкшие триалы без оформленного Stripe (компания так и не оплатила) → free.
+        $expiredTrials = Subscription::where('company_id', $companyId)
+            ->where('status', Subscription::STATUS_ACTIVE)
+            ->whereNull('stripe_subscription_id')
+            ->whereNotNull('trial_ends_at')
+            ->where('trial_ends_at', '<=', now())
+            ->get();
+
+        foreach ($expiredTrials as $trialSub) {
+            self::applyCancelToFree($trialSub);
+        }
+
         $subs = Subscription::where('company_id', $companyId)
             ->where('status', Subscription::STATUS_ACTIVE)
             ->whereNotNull('current_period_end')
@@ -70,14 +83,24 @@ class SubscriptionLifecycleService
         // webhook customer.subscription.deleted/updated.
         $ids = Subscription::query()
             ->where('status', Subscription::STATUS_ACTIVE)
-            ->whereNotNull('current_period_end')
-            ->where('current_period_end', '<=', now())
-            ->where(function ($q) {
-                $q->where(function ($qq) {
-                    $qq->whereNotNull('scheduled_plan')
-                        ->whereNull('stripe_subscription_schedule_id');
-                })->orWhere(function ($qq) {
-                    $qq->whereNotNull('canceled_at')->whereNull('stripe_subscription_id');
+            ->where(function ($main) {
+                $main->where(function ($q) {
+                    // Триал истёк, оплаченной Stripe-подписки нет → переводим на free.
+                    $q->whereNotNull('trial_ends_at')
+                        ->where('trial_ends_at', '<=', now())
+                        ->whereNull('stripe_subscription_id');
+                })->orWhere(function ($q) {
+                    $q->whereNotNull('current_period_end')
+                        ->where('current_period_end', '<=', now())
+                        ->where(function ($qq) {
+                            $qq->where(function ($qqq) {
+                                $qqq->whereNotNull('scheduled_plan')
+                                    ->whereNull('stripe_subscription_schedule_id');
+                            })->orWhere(function ($qqq) {
+                                $qqq->whereNotNull('canceled_at')
+                                    ->whereNull('stripe_subscription_id');
+                            });
+                        });
                 });
             })
             ->distinct()

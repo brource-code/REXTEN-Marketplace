@@ -246,6 +246,7 @@ class SearchController extends Controller
             ->pluck('user_id');
 
         $clientIdsFromBookings = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
             ->whereNotNull('user_id')
             ->distinct()
             ->pluck('user_id');
@@ -283,7 +284,8 @@ class SearchController extends Controller
 
     private function searchBookings(int $companyId, string $search)
     {
-        $query = Booking::where('company_id', $companyId);
+        $query = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment();
 
         $query->where(function ($q) use ($search) {
             if (ctype_digit($search)) {

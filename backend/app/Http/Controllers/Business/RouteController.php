@@ -463,6 +463,8 @@ class RouteController extends Controller
                         'time_window_end' => $tw['end']->toIso8601String(),
                         'priority' => (int) ($booking->priority ?? 5),
                         'duration_minutes' => (int) ($booking->duration_minutes ?? 60),
+                        'total_price' => (float) ($booking->total_price ?? $booking->price ?? 0),
+                        'currency' => 'USD',
                     ],
                 ];
             })->values()->all(),

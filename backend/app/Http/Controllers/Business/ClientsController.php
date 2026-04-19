@@ -186,6 +186,7 @@ class ClientsController extends Controller
             ->pluck('user_id');
         
         $clientIdsFromBookings = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
             ->whereNotNull('user_id')
             ->distinct()
             ->pluck('user_id');
@@ -231,11 +232,13 @@ class ClientsController extends Controller
 
         $data = $clients->map(function ($client) use ($companyId) {
             $totalBookings = Booking::where('company_id', $companyId)
+                ->withoutPendingPayment()
                 ->where('user_id', $client->id)
                 ->count();
 
             // Считаем потраченную сумму из завершенных бронирований (как на странице просмотра)
             $bookings = Booking::where('company_id', $companyId)
+                ->withoutPendingPayment()
                 ->where('user_id', $client->id)
                 ->where('status', 'completed')
                 ->get();
@@ -253,6 +256,7 @@ class ClientsController extends Controller
             $totalSpent = (float) $totalSpentFromBookings + (float) $totalSpentFromOrders;
 
             $lastVisitBooking = Booking::where('company_id', $companyId)
+                ->withoutPendingPayment()
                 ->where('user_id', $client->id)
                 ->latest('created_at')
                 ->first();
@@ -306,12 +310,14 @@ class ClientsController extends Controller
 
         // Получаем все бронирования для расчета сводки
         $allBookings = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
             ->where('user_id', $id)
             ->with(['service', 'specialist'])
             ->get();
 
         // Фильтры для бронирований
         $bookingsQuery = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
             ->where('user_id', $id)
             ->with(['service', 'specialist', 'additionalServices', 'reviews', 'location', 'discountTier', 'promoCode']);
 

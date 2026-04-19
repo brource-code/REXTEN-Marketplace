@@ -535,7 +535,13 @@ class BookingController extends Controller
                 $booking->update(['payment_status' => 'pending_payment']);
             }
 
-            $this->bookingService->notifyOwnerAboutNewBooking($booking);
+            // Если бронь требует онлайн-оплаты — владельцу/сотрудникам сообщим только
+            // после успешной авторизации/оплаты карты (см. StripeController::handlePaymentIntent*).
+            // До этого момента бронь считается «черновиком» и в админке бизнеса не видна
+            // (фильтруется скоупом Booking::scopeWithoutPendingPayment).
+            if (!$requiresPayment) {
+                $this->bookingService->notifyOwnerAboutNewBooking($booking);
+            }
 
             $booking->load('additionalServices');
 
