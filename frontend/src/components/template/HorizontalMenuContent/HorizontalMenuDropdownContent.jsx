@@ -10,6 +10,7 @@ import {
     NAV_ITEM_TYPE_ITEM,
 } from '@/constants/navigation.constant'
 import navigationIcon from '@/configs/navigation-icon.config'
+import NavUpgradeBadge from '../NavUpgradeBadge'
 import { translateNavLabel, translateNavMetaDescription } from '@/utils/navTranslation'
 import { TbCircle } from 'react-icons/tb'
 
@@ -76,6 +77,9 @@ const MenuLink = ({
     title,
     description,
     active,
+    upgradeBadge,
+    upgradeBadgeTone,
+    upgradeBadgeFeature,
 }) => (
     <HorizontalMenuNavLink
         path={path}
@@ -98,7 +102,16 @@ const MenuLink = ({
                 />
             </div>
             <div className="min-w-0">
-                <div className="heading-text font-bold">{title}</div>
+                <div className="heading-text font-bold flex items-center">
+                    <span className="truncate">{title}</span>
+                    {upgradeBadge && (
+                        <NavUpgradeBadge
+                            label={upgradeBadge}
+                            tone={upgradeBadgeTone}
+                            feature={upgradeBadgeFeature}
+                        />
+                    )}
+                </div>
                 <div className="text-xs truncate">{description}</div>
             </div>
         </MenuItem>
@@ -161,13 +174,16 @@ const ColumnsLayout = (props) => {
                                                                 t,
                                                                 subNav,
                                                             )}
-                                                            description={translateNavMetaDescription(
+                                                                description={translateNavMetaDescription(
                                                                 t,
                                                                 subNav.meta?.description,
                                                             )}
                                                             active={
                                                                 subNav.key === routeKey
                                                             }
+                                                            upgradeBadge={subNav.meta?.upgradeBadge}
+                                                            upgradeBadgeTone={subNav.meta?.upgradeBadgeTone}
+                                                            upgradeBadgeFeature={subNav.meta?.requiredFeature}
                                                             onClick={onDropdownClose}
                                                         />
                                                     </div>
@@ -215,6 +231,9 @@ const ColumnsLayout = (props) => {
                                                 nav.meta?.description,
                                             )}
                                             active={nav.key === routeKey}
+                                            upgradeBadge={nav.meta?.upgradeBadge}
+                                            upgradeBadgeTone={nav.meta?.upgradeBadgeTone}
+                                            upgradeBadgeFeature={nav.meta?.requiredFeature}
                                             onClick={onDropdownClose}
                                         />
                                     </PermissionCheck>
@@ -258,8 +277,14 @@ const DefaultLayout = ({
                                             onClick={onDropdownClose}
                                         >
                                             <MenuIcon icon={nav.icon} />
-                                            <span>
-                                                {translateNavLabel(t, nav)}
+                                            <span className="flex items-center">
+                                                <span>{translateNavLabel(t, nav)}</span>
+                                                {nav.meta?.upgradeBadge && (
+                                                    <NavUpgradeBadge
+                                                        label={nav.meta.upgradeBadge}
+                                                        tone={nav.meta.upgradeBadgeTone}
+                                                    />
+                                                )}
                                             </span>
                                         </HorizontalMenuNavLink>
                                     </Dropdown.Item>

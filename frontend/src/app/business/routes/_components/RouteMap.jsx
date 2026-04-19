@@ -39,7 +39,15 @@ function mapboxConfigUrl() {
  * 2) Если ответ пустой/404: запасной запрос на абсолютный Laravel API (NEXT_PUBLIC_LARAVEL_API_URL), где отдаётся
  *    токен из backend/.env — нужно, если nginx всё ещё шлёт /api только в PHP без сниппета mapbox-next.
  */
-export default function RouteMap({ stops, pathLngLat, minHeight, includeReturnLeg = true }) {
+export default function RouteMap({
+    stops,
+    pathLngLat,
+    minHeight,
+    includeReturnLeg = true,
+    fill = false,
+    onOpenBooking,
+    displayTimezone,
+}) {
     const [accessToken, setAccessToken] = useState(null)
     const [fetchFailed, setFetchFailed] = useState(false)
 
@@ -113,6 +121,9 @@ export default function RouteMap({ stops, pathLngLat, minHeight, includeReturnLe
             minHeight={minHeight}
             accessToken={accessToken}
             includeReturnLeg={includeReturnLeg}
+            fill={fill}
+            onOpenBooking={onOpenBooking}
+            displayTimezone={displayTimezone}
         />
     )
 }

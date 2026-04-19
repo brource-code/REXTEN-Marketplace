@@ -874,6 +874,35 @@ export async function updateBusinessNotificationSettings(
     return response.data.data || response.data
 }
 
+// Telegram bot link (per-user)
+export interface BusinessTelegramStatus {
+    connected: boolean
+    username?: string | null
+    linkedAt?: string | null
+    botUsername?: string | null
+    botConfigured: boolean
+}
+
+export interface BusinessTelegramConnect extends BusinessTelegramStatus {
+    deepLink: string
+    tokenExpiresAt: string
+}
+
+export async function getBusinessTelegramStatus(): Promise<BusinessTelegramStatus> {
+    const response = await LaravelAxios.get('/business/settings/telegram')
+    return response.data.data || response.data
+}
+
+export async function connectBusinessTelegram(): Promise<BusinessTelegramConnect> {
+    const response = await LaravelAxios.post('/business/settings/telegram/connect')
+    return response.data.data || response.data
+}
+
+export async function disconnectBusinessTelegram(): Promise<BusinessTelegramStatus> {
+    const response = await LaravelAxios.delete('/business/settings/telegram')
+    return response.data.data || response.data
+}
+
 // Business notifications (list, read, delete)
 export interface BusinessNotificationItem {
     id: number
@@ -1647,10 +1676,14 @@ export interface BusinessRouteStop {
         client_name: string | null
         title?: string | null
         address: string
+        execution_type?: string
+        offsite_address_missing?: boolean
         time_window_start: string
         time_window_end: string
         priority: number
         duration_minutes: number
+        total_price?: number
+        currency?: string
     } | null
 }
 
@@ -1843,4 +1876,37 @@ export async function getBusinessRouteSavedList(
         logClientApiError('getBusinessRouteSavedList', e)
         return []
     }
+}
+
+// ========== Developer API tokens ==========
+
+export interface BusinessApiTokenRow {
+    id: number
+    name: string
+    prefix: string | null
+    abilities: string[] | null
+    last_used_at: string | null
+    expires_at: string | null
+    created_at: string | null
+}
+
+export async function listBusinessApiTokens(): Promise<BusinessApiTokenRow[]> {
+    const response = await LaravelAxios.get('/business/api/tokens')
+    const raw = response.data?.data
+    return Array.isArray(raw) ? (raw as BusinessApiTokenRow[]) : []
+}
+
+export async function createBusinessApiToken(payload: {
+    name: string
+    expires_in_days?: 30 | 90 | 365 | 'never' | null
+}): Promise<{ token: string; meta: { id: number; name: string; prefix: string; expires_at: string | null } }> {
+    const response = await LaravelAxios.post('/business/api/tokens', payload)
+    return response.data as {
+        token: string
+        meta: { id: number; name: string; prefix: string; expires_at: string | null }
+    }
+}
+
+export async function revokeBusinessApiToken(id: number): Promise<void> {
+    await LaravelAxios.delete(`/business/api/tokens/${id}`)
 }

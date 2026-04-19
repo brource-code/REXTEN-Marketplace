@@ -7,7 +7,7 @@ import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import PermissionGuard from '@/components/shared/PermissionGuard'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import RouteFilters from './_components/RouteFilters'
+import FeatureLockOverlay from '@/components/shared/FeatureLockOverlay'
 import RouteContent from './_components/RouteContent'
 import ScheduleSlotModal from '@/app/business/schedule/_components/ScheduleSlotModal'
 import {
@@ -226,17 +226,14 @@ function RoutesPageInner() {
                         </p>
                     </div>
 
-                    <RouteFilters
+                    <RouteContent
+                        route={routeQuery.data}
+                        isLoading={routeQuery.isLoading || loadingTeam}
                         teamMembers={teamMembers}
                         specialistId={resolvedSpecialistId}
                         onSpecialistChange={setSpecialistId}
                         date={date}
                         onDateChange={setDate}
-                    />
-
-                    <RouteContent
-                        route={routeQuery.data}
-                        isLoading={routeQuery.isLoading || loadingTeam}
                         preview={preview}
                         previewOpen={previewOpen}
                         onOptimizePreview={onOptimizePreview}
@@ -301,7 +298,9 @@ function RoutesPageInner() {
 export default function BusinessRoutesPage() {
     return (
         <PermissionGuard permission={['view_routes', 'view_schedule']}>
-            <RoutesPageInner />
+            <FeatureLockOverlay feature="routes">
+                <RoutesPageInner />
+            </FeatureLockOverlay>
         </PermissionGuard>
     )
 }

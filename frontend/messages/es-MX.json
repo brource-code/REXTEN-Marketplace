@@ -335,6 +335,7 @@
             "knowledge": "Base de conocimiento",
             "notifications": "Notificaciones",
             "support": "Soporte",
+            "api": "API",
             "groups": {
                 "work": "Trabajo",
                 "crm": "Clientes",
@@ -363,7 +364,8 @@
             "settings": "Configuración",
             "knowledge": "Base de conocimiento",
             "support": "Soporte",
-            "subscriptions": "Suscripciones"
+            "subscriptions": "Suscripciones",
+            "warehouse": "Almacén"
         },
         "home": "Inicio"
     },
@@ -1355,6 +1357,20 @@
             "mapMarkerStart": "Inicio (salida)",
             "mapMarkerEnd": "Fin (regreso)",
             "mapMarkerVisit": "Visita {n}",
+            "mapPopup": {
+                "visit": "Visita {n}",
+                "client": "Cliente",
+                "service": "Servicio",
+                "time": "Hora",
+                "duration": "Duración",
+                "durationMin": "{min} min",
+                "price": "Precio",
+                "address": "Dirección",
+                "openBooking": "Abrir reserva",
+                "noClient": "Sin cliente",
+                "noService": "Sin servicio",
+                "noAddress": "Dirección no especificada"
+            },
             "optimize": "Optimizar ruta",
             "optimizing": "Optimizando…",
             "recalculate": "Recalcular",
@@ -1441,7 +1457,24 @@
                 "optimizeFailed": "No se pudo optimizar la ruta",
                 "bookingModalLoadFailed": "No se pudo abrir la reserva. Actualiza la página e inténtalo de nuevo."
             },
-            "dayBookingOpenLink": "Ver reserva"
+            "dayBookingOpenLink": "Ver reserva",
+            "tabs": {
+                "filter": "Filtro",
+                "route": "Ruta",
+                "saved": "Guardadas"
+            },
+            "metricsLine": "{mi} mi · {min} min · {visits} visitas",
+            "actions": "Acciones",
+            "noRouteShort": "Aún no hay ruta",
+            "savedRoutesGroups": {
+                "active": "Rutas activas",
+                "empty": "Rutas vacías"
+            },
+            "showTimeline": "Mostrar cronología",
+            "hideTimeline": "Ocultar cronología",
+            "currentRouteSection": "Ruta actual",
+            "noteSingleVisitTitle": "Atención",
+            "homeAndDate": "Punto de partida y fecha"
         },
         "notifications": {
             "title": "Todas las notificaciones",
@@ -2394,6 +2427,110 @@
                 "delete": "Eliminar"
             }
         },
+        "featureLock": {
+            "routes": {
+                "title": "Las Rutas son una función Pro",
+                "description": "Las rutas están disponibles en los planes Professional y Enterprise. Mejora tu plan para optimizar los viajes diarios de tus especialistas.",
+                "cta": "Mejorar plan"
+            },
+            "analytics": {
+                "title": "Los reportes son una función Pro",
+                "description": "Los reportes y la analítica detallada están disponibles en los planes Professional y Enterprise. Mejora tu plan para analizar reservas, ingresos y desempeño del equipo en profundidad.",
+                "cta": "Mejorar plan"
+            },
+            "api_access": {
+                "title": "El acceso a la API es una función Enterprise",
+                "description": "Tokens de API de solo lectura, exportaciones a CRM/BI e integraciones están incluidos en el plan Enterprise.",
+                "cta": "Ver planes"
+            }
+        },
+        "api": {
+            "title": "API para desarrolladores",
+            "description": "Crea tokens y llama a la API de solo lectura para los datos de tu empresa (servicios, clientes, reservas).",
+            "tabs": {
+                "tokens": "Tokens",
+                "docs": "Documentación",
+                "webhooks": "Webhooks",
+                "logs": "Registros de solicitudes",
+                "comingSoon": "Pronto"
+            },
+            "tokens": {
+                "cancel": "Cancelar",
+                "emptyTitle": "Aún no hay tokens de API",
+                "emptyHint": "Crea un token para CRM, scripts o herramientas internas.",
+                "create": "Crear token",
+                "name": "Nombre del token",
+                "namePlaceholder": "p. ej. CRM producción",
+                "prefix": "Prefijo",
+                "lastUsed": "Último uso",
+                "expiresAt": "Expira",
+                "never": "Nunca",
+                "revoke": "Revocar",
+                "revokeConfirm": "¿Revocar este token? Las integraciones que lo usen dejarán de funcionar.",
+                "expiresIn": "Vencimiento",
+                "expiresOptions": {
+                    "30": "30 días",
+                    "90": "90 días",
+                    "365": "365 días",
+                    "never": "Sin vencimiento"
+                },
+                "createdToken": {
+                    "title": "Copia tu token ahora",
+                    "warning": "No podrás ver este token de nuevo. Guárdalo en un gestor de contraseñas o almacén de secretos.",
+                    "copy": "Copiar al portapapeles",
+                    "done": "Listo"
+                },
+                "errors": {
+                    "loadFailed": "No se pudieron cargar los tokens",
+                    "createFailed": "No se pudo crear el token",
+                    "revokeFailed": "No se pudo revocar el token"
+                }
+            },
+            "docs": {
+                "intro": "Autenticación con token Bearer. Todos los endpoints son de solo lectura (GET) y limitados a tu empresa.",
+                "baseUrl": "URL base",
+                "auth": "Encabezado Authorization",
+                "endpointsTitle": "Endpoints (lanzamiento 1)",
+                "endpointMe": "Espacio de trabajo y uso de suscripción",
+                "endpointServices": "Listar u obtener un servicio",
+                "endpointClients": "Listar u obtener un cliente",
+                "endpointBookings": "Listar u obtener una reserva",
+                "pagination": "Paginación: parámetros page y per_page (máx. 100, predeterminado 25).",
+                "filtersBookings": "Reservas: opcional status, from, to (o date_from, date_to), service_id, specialist_id.",
+                "filtersClients": "Clientes: opcional search, status, created_from, created_to.",
+                "rateLimits": "Límites: 60 solicitudes por minuto por token y 5000 por día por empresa (salvo que el plan indique lo contrario).",
+                "errorsTitle": "Errores",
+                "errorExample": "El cuerpo JSON incluye error y message; HTTP 401/403/404/429 según corresponda.",
+                "errorBodyTitle": "Ejemplo de cuerpo de error",
+                "onThisPage": "En esta página",
+                "tagline": "REST · Solo lectura · Alcance de la empresa",
+                "releaseBadge": "Lanzamiento 1",
+                "baseUrlHint": "Todas las URLs de solicitud comienzan con esta ruta base.",
+                "authHint": "Crea un token en la pestaña Tokens y envíalo en este encabezado.",
+                "copy": "Copiar",
+                "copied": "Copiado",
+                "querySectionTitle": "Paginación y filtros",
+                "limitsSectionTitle": "Límites de solicitudes",
+                "exampleTitle": "Pruébalo",
+                "exampleHint": "Solicitud mínima para verificar conectividad y permisos.",
+                "pathsBlockTitle": "URLs completas (GET)",
+                "endpointServiceById": "Un servicio por id",
+                "endpointClientById": "Un cliente por id",
+                "endpointBookingById": "Una reserva por id",
+                "nav": {
+                    "base": "URL base",
+                    "auth": "Autenticación",
+                    "endpoints": "Endpoints",
+                    "query": "Paginación y filtros",
+                    "limits": "Límites",
+                    "errors": "Errores",
+                    "example": "Ejemplo"
+                }
+            },
+            "placeholders": {
+                "token": "TU_TOKEN_AQUÍ"
+            }
+        },
         "subscription": {
             "title": "Suscripción",
             "description": "Elige un plan que se adapte a las necesidades de tu negocio",
@@ -2410,6 +2547,16 @@
             "active": "Activa",
             "cancel": "Cancelar",
             "renewsOn": "Se renueva el",
+            "trialBadge": "Prueba",
+            "trialEndsOn": "La prueba termina el",
+            "subscribeNow": "Suscribirme ahora",
+            "trial": {
+                "bannerTitle": "Estás en una prueba gratuita de {plan}",
+                "daysLeft": "{days, plural, one {Queda # día} other {Quedan # días}}",
+                "endsOn": "Termina el {date}",
+                "bannerHint": "Agrega un método de pago antes de que termine la prueba para conservar todas las funciones. De lo contrario, tu cuenta pasará al plan Gratis.",
+                "bannerCta": "Suscribirme ahora"
+            },
             "stripeDisabled": "Los pagos en línea están deshabilitados. Contacta a soporte.",
             "paymentCancelled": "El pago fue cancelado.",
             "cancelSuccess": "Suscripción cancelada ahora. Las funciones de pago siguen activas hasta el {endDate}.",
@@ -2453,6 +2600,7 @@
             "resumeSuccess": "Suscripción reanudada. Se retiró la cancelación.",
             "restorePreviousPlan": "Restaurar {plan}",
             "comingSoon": "Próximamente",
+            "apiManageLink": "Administrar tokens",
             "activeUntil": "Acceso hasta",
             "successDialog": {
                 "title": "¡Suscripción activada!",
@@ -2786,6 +2934,10 @@
                 "noUsers": "No hay usuarios invitados",
                 "inviteSuccess": "Usuario invitado",
                 "removeSuccess": "Usuario eliminado",
+                "editRole": "Editar rol",
+                "editRoleTitle": "Cambiar rol",
+                "editRoleDescription": "Elige un nuevo rol para este miembro del equipo.",
+                "roleUpdateSuccess": "Rol actualizado",
                 "tempPassword": "Contraseña temporal",
                 "copyPassword": "Copiar contraseña",
                 "copyError": "Error al copiar",
@@ -2831,7 +2983,8 @@
                     "manage_users": "Gestionar usuarios",
                     "manage_roles": "Gestionar roles",
                     "view_routes": "Ver rutas",
-                    "manage_routes": "Gestionar rutas"
+                    "manage_routes": "Gestionar rutas",
+                    "receive_notifications": "Recibir notificaciones"
                 },
                 "deleteConfirm": {
                     "title": "¿Eliminar rol?",
@@ -3053,6 +3206,20 @@
                 "cancellationsNotifications": "Notificaciones de cancelaciones",
                 "paymentsNotifications": "Notificaciones de pagos",
                 "reviewsNotifications": "Notificaciones de reseñas",
+                "telegram": {
+                    "title": "Conexión con el bot de Telegram",
+                    "notConnected": "No conectado. Toca «Conectar» — se abrirá el bot, confirma el comando /start ahí.",
+                    "notConfigured": "El bot aún no está configurado en el servidor",
+                    "connectedAs": "Conectado como {username}",
+                    "unknownUsername": "Telegram",
+                    "connect": "Conectar",
+                    "disconnect": "Desconectar",
+                    "disconnected": "Telegram desconectado",
+                    "staffHint": "Reciben notificaciones el propietario y el personal con el permiso «Recibir notificaciones».",
+                    "errorConnect": "No se pudo iniciar la conexión",
+                    "errorDisconnect": "No se pudo desconectar",
+                    "errorNotConfigured": "El bot de Telegram aún no está configurado en el servidor"
+                },
                 "notifications": {
                     "saved": "Configuración de notificaciones guardada",
                     "saveError": "No se pudo guardar la configuración"
@@ -3477,6 +3644,7 @@
             "toPay": "Total a pagar",
             "payAtVenue": "Pago en el lugar",
             "paymentRequired": "Paga con tarjeta para confirmar",
+            "cancellationPolicyNote": "Cancelación gratuita hasta {hours} h antes de la cita. Después o si no asistes, se cobra el {percent}% del precio del servicio.",
             "successTitle": "Reserva confirmada",
             "successSubtitle": "El pago se registró y tu reserva quedó guardada.",
             "paymentSuccess": "Listo — tu reserva está confirmada y pagada.",
@@ -4960,6 +5128,13 @@
             "apiAccess": "Acceso a API",
             "isActive": "Activo",
             "isFree": "Plan gratuito",
+            "trialSection": "Prueba gratuita",
+            "trialDays": "Duración de la prueba (días)",
+            "trialDaysHint": "0 = sin prueba",
+            "isTrialDefault": "Plan de prueba por defecto",
+            "isTrialDefaultHint": "Si se activa, cada empresa nueva inicia con este plan y la duración de prueba indicada. Solo un plan puede ser el de prueba por defecto.",
+            "trialDefaultBadge": "Prueba {days}d",
+            "trialingCount": "{count} en prueba",
             "cancel": "Cancelar",
             "save": "Guardar",
             "create": "Crear"

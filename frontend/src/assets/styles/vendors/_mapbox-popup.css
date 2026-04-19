@@ -1,0 +1,23 @@
+/* Стили попапа Mapbox для маркеров маршрутов */
+
+.route-map-popup .mapboxgl-popup-content {
+    padding: 12px 14px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.18);
+}
+
+.route-map-popup .mapboxgl-popup-close-button {
+    display: none;
+}
+
+html.dark .route-map-popup .mapboxgl-popup-content {
+    background-color: #111827;
+    color: #f3f4f6;
+    border: 1px solid #374151;
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.55);
+}
+
+html.dark .route-map-popup .mapboxgl-popup-tip {
+    border-top-color: #111827;
+    border-bottom-color: #111827;
+}

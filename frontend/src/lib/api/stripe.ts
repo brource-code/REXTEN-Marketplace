@@ -231,6 +231,7 @@ export interface SubscriptionPlanFeatures {
     analytics: boolean
     priority_support: boolean
     api_access: boolean
+    routes?: boolean
 }
 
 export interface SubscriptionPlan {
@@ -241,6 +242,8 @@ export interface SubscriptionPlan {
     features: SubscriptionPlanFeatures
     sort_order?: number
     is_free?: boolean
+    trial_days?: number
+    is_trial_default?: boolean
 }
 
 export interface SubscriptionData {
@@ -260,6 +263,10 @@ export interface SubscriptionData {
     previous_plan?: string | null
     is_active: boolean
     is_free?: boolean
+    trial_ends_at?: string | null
+    is_trial?: boolean
+    trial_days_left?: number | null
+    has_payment_method?: boolean
 }
 
 export interface CurrentSubscriptionResponse {
@@ -290,6 +297,7 @@ export interface SubscriptionUsage {
     analytics: SubscriptionUsageBoolean
     api_access: SubscriptionUsageBoolean
     priority_support: SubscriptionUsageBoolean
+    routes: SubscriptionUsageBoolean
     grace_period_ends_at?: string | null
     grace_period_active?: boolean
     is_over_limit?: boolean

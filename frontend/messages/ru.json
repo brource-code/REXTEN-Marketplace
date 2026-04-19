@@ -96,6 +96,7 @@
             "knowledge": "База знаний",
             "notifications": "Уведомления",
             "support": "Поддержка",
+            "api": "API",
             "groups": {
                 "work": "Работа",
                 "crm": "Клиенты",
@@ -132,7 +133,8 @@
             "settings": "Настройки",
             "knowledge": "База знаний",
             "support": "Поддержка",
-            "subscriptions": "Подписки"
+            "subscriptions": "Подписки",
+            "warehouse": "Склад"
         },
         "examplesDesc": "Примеры дашбордов и концептов",
         "components": "Компоненты",
@@ -1370,6 +1372,20 @@
             "mapMarkerStart": "Старт (выезд)",
             "mapMarkerEnd": "Финиш (возврат)",
             "mapMarkerVisit": "Визит {n}",
+            "mapPopup": {
+                "visit": "Визит {n}",
+                "client": "Клиент",
+                "service": "Услуга",
+                "time": "Время",
+                "duration": "Длительность",
+                "durationMin": "{min} мин",
+                "price": "Стоимость",
+                "address": "Адрес",
+                "openBooking": "Открыть бронь",
+                "noClient": "Без клиента",
+                "noService": "Без услуги",
+                "noAddress": "Адрес не указан"
+            },
             "optimize": "Оптимизировать маршрут",
             "optimizing": "Оптимизация…",
             "recalculate": "Пересчитать",
@@ -1456,7 +1472,24 @@
                 "optimizeFailed": "Не удалось оптимизировать маршрут",
                 "bookingModalLoadFailed": "Не удалось открыть бронирование. Обновите страницу и попробуйте снова."
             },
-            "dayBookingOpenLink": "К брони"
+            "dayBookingOpenLink": "К брони",
+            "tabs": {
+                "filter": "Фильтр",
+                "route": "Маршрут",
+                "saved": "Сохранённые"
+            },
+            "metricsLine": "{mi} миль · {min} мин · визитов: {visits}",
+            "actions": "Действия",
+            "noRouteShort": "Маршрута ещё нет",
+            "savedRoutesGroups": {
+                "active": "Активные маршруты",
+                "empty": "Пустые маршруты"
+            },
+            "showTimeline": "Показать хронологию",
+            "hideTimeline": "Скрыть хронологию",
+            "currentRouteSection": "Текущий маршрут",
+            "noteSingleVisitTitle": "Обратите внимание",
+            "homeAndDate": "Точка старта и дата"
         },
         "notifications": {
             "title": "Все уведомления",
@@ -1883,6 +1916,110 @@
                 "delete": "Удалить"
             }
         },
+        "featureLock": {
+            "routes": {
+                "title": "Маршруты — функция тарифа Pro",
+                "description": "Маршруты доступны на тарифах Professional и Enterprise. Перейдите на платный план, чтобы оптимизировать дневные поездки специалистов.",
+                "cta": "Перейти на тариф выше"
+            },
+            "analytics": {
+                "title": "Отчёты — функция тарифа Pro",
+                "description": "Подробные отчёты и аналитика доступны на тарифах Professional и Enterprise. Перейдите на платный план, чтобы детально отслеживать бронирования, выручку и работу команды.",
+                "cta": "Перейти на тариф выше"
+            },
+            "api_access": {
+                "title": "Доступ к API — функция Enterprise",
+                "description": "Токены read-only API, выгрузки в CRM/BI и интеграции доступны на тарифе Enterprise.",
+                "cta": "К планам"
+            }
+        },
+        "api": {
+            "title": "API для разработчиков",
+            "description": "Создавайте токены и вызывайте read-only API по данным компании (услуги, клиенты, бронирования).",
+            "tabs": {
+                "tokens": "Токены",
+                "docs": "Документация",
+                "webhooks": "Webhooks",
+                "logs": "Логи запросов",
+                "comingSoon": "Скоро"
+            },
+            "tokens": {
+                "cancel": "Отмена",
+                "emptyTitle": "Пока нет API-токенов",
+                "emptyHint": "Создайте токен для CRM, скриптов или внутренних инструментов.",
+                "create": "Создать токен",
+                "name": "Название токена",
+                "namePlaceholder": "напр. Production CRM",
+                "prefix": "Префикс",
+                "lastUsed": "Последнее использование",
+                "expiresAt": "Истекает",
+                "never": "Без срока",
+                "revoke": "Отозвать",
+                "revokeConfirm": "Отозвать этот токен? Интеграции с ним перестанут работать.",
+                "expiresIn": "Срок действия",
+                "expiresOptions": {
+                    "30": "30 дней",
+                    "90": "90 дней",
+                    "365": "365 дней",
+                    "never": "Без ограничения"
+                },
+                "createdToken": {
+                    "title": "Скопируйте токен сейчас",
+                    "warning": "Полный токен больше не будет показан. Храните его в менеджере паролей или секрет-хранилище.",
+                    "copy": "Скопировать",
+                    "done": "Готово"
+                },
+                "errors": {
+                    "loadFailed": "Не удалось загрузить токены",
+                    "createFailed": "Не удалось создать токен",
+                    "revokeFailed": "Не удалось отозвать токен"
+                }
+            },
+            "docs": {
+                "intro": "Авторизация: заголовок Bearer. Все методы — только GET (read-only) в рамках вашей компании.",
+                "baseUrl": "Базовый URL",
+                "auth": "Заголовок Authorization",
+                "endpointsTitle": "Эндпоинты (релиз 1)",
+                "endpointMe": "Компания и использование подписки",
+                "endpointServices": "Список или одна услуга",
+                "endpointClients": "Список или один клиент",
+                "endpointBookings": "Список или одно бронирование",
+                "pagination": "Пагинация: page и per_page (макс. 100, по умолчанию 25).",
+                "filtersBookings": "Бронирования: опционально status, from, to (или date_from, date_to), service_id, specialist_id.",
+                "filtersClients": "Клиенты: опционально search, status, created_from, created_to.",
+                "rateLimits": "Лимиты: 60 запросов в минуту на токен и 5000 в сутки на компанию (если не задано иначе в плане).",
+                "errorsTitle": "Ошибки",
+                "errorExample": "В теле JSON поля error и message; коды HTTP 401/403/404/429.",
+                "errorBodyTitle": "Пример тела ошибки",
+                "onThisPage": "На странице",
+                "tagline": "REST · Только чтение · Данные компании",
+                "releaseBadge": "Релиз 1",
+                "baseUrlHint": "Все запросы используют этот базовый путь.",
+                "authHint": "Создайте токен на вкладке «Токены» и передавайте его в этом заголовке.",
+                "copy": "Копировать",
+                "copied": "Скопировано",
+                "querySectionTitle": "Пагинация и фильтры",
+                "limitsSectionTitle": "Лимиты запросов",
+                "exampleTitle": "Пример",
+                "exampleHint": "Минимальный запрос для проверки доступа и областей.",
+                "pathsBlockTitle": "Полные URL (GET)",
+                "endpointServiceById": "Одна услуга по id",
+                "endpointClientById": "Один клиент по id",
+                "endpointBookingById": "Одно бронирование по id",
+                "nav": {
+                    "base": "Базовый URL",
+                    "auth": "Авторизация",
+                    "endpoints": "Эндпоинты",
+                    "query": "Пагинация и фильтры",
+                    "limits": "Лимиты",
+                    "errors": "Ошибки",
+                    "example": "Пример"
+                }
+            },
+            "placeholders": {
+                "token": "ВАШ_ТОКЕН"
+            }
+        },
         "subscription": {
             "title": "Подписка",
             "description": "Выберите план, который подходит вашему бизнесу",
@@ -1899,6 +2036,16 @@
             "active": "Активна",
             "cancel": "Отменить",
             "renewsOn": "Продление",
+            "trialBadge": "Триал",
+            "trialEndsOn": "Триал до",
+            "subscribeNow": "Оформить подписку",
+            "trial": {
+                "bannerTitle": "У вас бесплатный триал тарифа {plan}",
+                "daysLeft": "{days, plural, one {Осталось # день} few {Осталось # дня} many {Осталось # дней} other {Осталось # дней}}",
+                "endsOn": "Закончится {date}",
+                "bannerHint": "Добавьте способ оплаты до окончания триала, чтобы сохранить все возможности. Иначе аккаунт переключится на план Free.",
+                "bannerCta": "Оформить подписку"
+            },
             "stripeDisabled": "Онлайн-платежи временно отключены. Свяжитесь с поддержкой.",
             "paymentCancelled": "Оплата отменена.",
             "cancelSuccess": "Подписка отменена сейчас. Платные функции доступны до {endDate}.",
@@ -1942,6 +2089,7 @@
             "resumeSuccess": "Подписка возобновлена. Отмена снята.",
             "restorePreviousPlan": "Вернуть {plan}",
             "comingSoon": "Скоро",
+            "apiManageLink": "Управление токенами",
             "activeUntil": "Доступ до",
             "successDialog": {
                 "title": "Подписка активирована!",
@@ -2796,6 +2944,10 @@
                 "noUsers": "Нет приглашённых пользователей",
                 "inviteSuccess": "Пользователь приглашён",
                 "removeSuccess": "Пользователь удалён",
+                "editRole": "Изменить роль",
+                "editRoleTitle": "Смена роли",
+                "editRoleDescription": "Выберите новую роль для этого пользователя.",
+                "roleUpdateSuccess": "Роль обновлена",
                 "tempPassword": "Временный пароль",
                 "copyPassword": "Скопировать пароль",
                 "copyError": "Не удалось скопировать",
@@ -2841,7 +2993,8 @@
                     "manage_users": "Управление пользователями",
                     "manage_roles": "Управление ролями",
                     "view_routes": "Просмотр маршрутов",
-                    "manage_routes": "Управление маршрутами"
+                    "manage_routes": "Управление маршрутами",
+                    "receive_notifications": "Получение уведомлений"
                 },
                 "deleteConfirm": {
                     "title": "Удалить роль?",
@@ -3063,6 +3216,20 @@
                 "cancellationsNotifications": "Уведомления об отменах",
                 "paymentsNotifications": "Уведомления о платежах",
                 "reviewsNotifications": "Уведомления об отзывах",
+                "telegram": {
+                    "title": "Подключение к Telegram-боту",
+                    "notConnected": "Не подключено. Нажмите «Подключить» — откроется бот, в нём подтвердите команду /start.",
+                    "notConfigured": "Бот ещё не настроен на сервере",
+                    "connectedAs": "Подключено как {username}",
+                    "unknownUsername": "Telegram",
+                    "connect": "Подключить",
+                    "disconnect": "Отвязать",
+                    "disconnected": "Telegram отключён",
+                    "staffHint": "Уведомления получают владелец и сотрудники с правом «Получение уведомлений».",
+                    "errorConnect": "Не удалось начать подключение",
+                    "errorDisconnect": "Не удалось отключить",
+                    "errorNotConfigured": "Telegram-бот ещё не настроен на сервере"
+                },
                 "notifications": {
                     "saved": "Настройки уведомлений успешно сохранены",
                     "saveError": "Не удалось сохранить настройки"
@@ -3487,6 +3654,7 @@
             "toPay": "К оплате",
             "payAtVenue": "Оплата на месте",
             "paymentRequired": "Оплатите картой, чтобы подтвердить бронь",
+            "cancellationPolicyNote": "Бесплатная отмена не позже чем за {hours} ч до визита. Позже или при неявке удерживается {percent}% от стоимости услуги.",
             "successTitle": "Бронь подтверждена",
             "successSubtitle": "Оплата прошла, запись сохранена.",
             "paymentSuccess": "Готово — бронь подтверждена и оплачена.",
@@ -4970,6 +5138,13 @@
             "apiAccess": "Доступ к API",
             "isActive": "Активен",
             "isFree": "Бесплатный план",
+            "trialSection": "Бесплатный триал",
+            "trialDays": "Длительность триала (дней)",
+            "trialDaysHint": "0 — без триала",
+            "isTrialDefault": "Триал по умолчанию",
+            "isTrialDefaultHint": "Если включено, каждая новая компания автоматически получает этот план с указанной выше длительностью триала. Только один план может быть «по умолчанию» для триала.",
+            "trialDefaultBadge": "Триал {days}д",
+            "trialingCount": "{count} на триале",
             "cancel": "Отмена",
             "save": "Сохранить",
             "create": "Создать"

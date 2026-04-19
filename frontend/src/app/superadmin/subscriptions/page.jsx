@@ -34,6 +34,7 @@ import {
     PiUsers,
     PiChartLineUp,
     PiCurrencyDollar,
+    PiGift,
 } from 'react-icons/pi'
 
 const planIcons = {
@@ -235,6 +236,14 @@ function SubscriptionsContent() {
                                                                             {t('free')}
                                                                         </Tag>
                                                                     )}
+                                                                    {plan.is_trial_default && (
+                                                                        <Tag className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 text-[10px] inline-flex items-center gap-1">
+                                                                            <PiGift size={10} />
+                                                                            {t('trialDefaultBadge', {
+                                                                                days: plan.trial_days,
+                                                                            })}
+                                                                        </Tag>
+                                                                    )}
                                                                 </div>
                                                                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{plan.slug}</div>
                                                             </div>
@@ -251,9 +260,17 @@ function SubscriptionsContent() {
                                                         </span>
                                                     </td>
                                                     <td className="text-center py-3 px-2">
-                                                        <span className="font-bold text-gray-900 dark:text-gray-100">
-                                                            {plan.subscribers_count || 0}
-                                                        </span>
+                                                        <div className="flex flex-col items-center gap-0.5">
+                                                            <span className="font-bold text-gray-900 dark:text-gray-100">
+                                                                {plan.subscribers_count || 0}
+                                                            </span>
+                                                            {(plan.trialing_count || 0) > 0 && (
+                                                                <span className="text-[10px] font-bold text-violet-600 dark:text-violet-300 inline-flex items-center gap-1">
+                                                                    <PiGift size={10} />
+                                                                    {t('trialingCount', { count: plan.trialing_count })}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="text-center py-3 px-2">
                                                         {plan.is_active ? (
@@ -387,6 +404,8 @@ function EditPlanDialog({ plan, onClose, onSave, loading, t }) {
                 is_active: plan.is_active,
                 badge_text: plan.badge_text || '',
                 color: plan.color,
+                trial_days: plan.trial_days || 0,
+                is_trial_default: !!plan.is_trial_default,
                 features: { ...plan.features },
             })
         }
@@ -457,6 +476,33 @@ function EditPlanDialog({ plan, onClose, onSave, loading, t }) {
                             </div>
                         </div>
                     </div>
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-2 mb-2">
+                            <PiGift className="text-violet-500" />
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('trialSection')}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('trialDays')}</label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    max={365}
+                                    value={form.trial_days ?? 0}
+                                    onChange={(e) => setForm({ ...form, trial_days: parseInt(e.target.value) || 0 })}
+                                />
+                                <span className="text-[10px] text-gray-400">{t('trialDaysHint')}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Switcher
+                                    checked={form.is_trial_default ?? false}
+                                    onChange={(val) => setForm({ ...form, is_trial_default: val })}
+                                />
+                                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('isTrialDefault')}</span>
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-2">{t('isTrialDefaultHint')}</p>
+                    </div>
                     <div className="flex items-center gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex items-center gap-2">
                             <Switcher checked={form.is_active ?? true} onChange={(val) => setForm({ ...form, is_active: val })} />
@@ -482,6 +528,8 @@ function CreatePlanDialog({ isOpen, onClose, onSave, loading, t }) {
         price_yearly_cents: 0,
         is_active: true,
         is_free: false,
+        trial_days: 0,
+        is_trial_default: false,
         badge_text: '',
         color: 'blue',
         features: {
@@ -539,6 +587,32 @@ function CreatePlanDialog({ isOpen, onClose, onSave, loading, t }) {
                             <Switcher checked={form.is_free} onChange={(val) => setForm({ ...form, is_free: val })} />
                             <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('isFree')}</span>
                         </div>
+                    </div>
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-2 mb-2">
+                            <PiGift className="text-violet-500" />
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('trialSection')}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('trialDays')}</label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    max={365}
+                                    value={form.trial_days}
+                                    onChange={(e) => setForm({ ...form, trial_days: parseInt(e.target.value) || 0 })}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Switcher
+                                    checked={form.is_trial_default}
+                                    onChange={(val) => setForm({ ...form, is_trial_default: val })}
+                                />
+                                <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('isTrialDefault')}</span>
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-2">{t('isTrialDefaultHint')}</p>
                     </div>
                 </div>
                 <div className="flex gap-3 mt-6">

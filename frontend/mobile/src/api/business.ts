@@ -1080,6 +1080,35 @@ export async function updateBusinessNotificationSettings(
   return (res.data?.data ?? res.data) as BusinessNotificationSettings;
 }
 
+// ========== Telegram bot link (per-user) ==========
+export interface BusinessTelegramStatus {
+  connected: boolean;
+  username?: string | null;
+  linkedAt?: string | null;
+  botUsername?: string | null;
+  botConfigured: boolean;
+}
+
+export interface BusinessTelegramConnect extends BusinessTelegramStatus {
+  deepLink: string;
+  tokenExpiresAt: string;
+}
+
+export async function getBusinessTelegramStatus(): Promise<BusinessTelegramStatus> {
+  const res = await apiClient.get('/business/settings/telegram');
+  return (res.data?.data ?? res.data) as BusinessTelegramStatus;
+}
+
+export async function connectBusinessTelegram(): Promise<BusinessTelegramConnect> {
+  const res = await apiClient.post('/business/settings/telegram/connect');
+  return (res.data?.data ?? res.data) as BusinessTelegramConnect;
+}
+
+export async function disconnectBusinessTelegram(): Promise<BusinessTelegramStatus> {
+  const res = await apiClient.delete('/business/settings/telegram');
+  return (res.data?.data ?? res.data) as BusinessTelegramStatus;
+}
+
 export interface BusinessNotificationItem {
   id: number;
   type: string;

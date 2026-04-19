@@ -13,19 +13,21 @@ import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import Select from '@/components/ui/Select'
 import { PiUserPlus, PiCopy, PiCheck } from 'react-icons/pi'
-import { TbTrash, TbMail, TbCrown } from 'react-icons/tb'
+import { TbTrash, TbMail, TbCrown, TbPencil } from 'react-icons/tb'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     getCompanyUsers,
     inviteCompanyUser,
     removeCompanyUser,
     getCompanyRoles,
+    updateCompanyUserRole,
 } from '@/lib/api/business'
 import Loading from '@/components/shared/Loading'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { usePermission } from '@/hooks/usePermission'
+import useBusinessStore from '@/store/businessStore'
 
 const UsersTab = () => {
     const t = useTranslations('business.settings.users')
@@ -33,7 +35,9 @@ const UsersTab = () => {
     const queryClient = useQueryClient()
     const [isInviteOpen, setIsInviteOpen] = useState(false)
     const [removeTarget, setRemoveTarget] = useState(null)
+    const [roleEditTarget, setRoleEditTarget] = useState(null)
     const canManageUsers = usePermission('manage_users')
+    const isOwner = useBusinessStore((s) => s.isOwner)
 
     const { data: usersData, isLoading } = useQuery({
         queryKey: ['business-company-users'],
@@ -139,15 +143,29 @@ const UsersTab = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    {canManageUsers && !member.is_owner && (
-                                        <Tooltip title={tCommon('delete')}>
-                                            <div
-                                                className="text-xl cursor-pointer hover:text-red-600"
-                                                onClick={() => setRemoveTarget(member)}
-                                            >
-                                                <TbTrash />
-                                            </div>
-                                        </Tooltip>
+                                    {!member.is_owner && (isOwner || canManageUsers) && (
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            {isOwner && (
+                                                <Tooltip title={t('editRole')}>
+                                                    <div
+                                                        className="text-xl cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 text-gray-600 dark:text-gray-400"
+                                                        onClick={() => setRoleEditTarget(member)}
+                                                    >
+                                                        <TbPencil />
+                                                    </div>
+                                                </Tooltip>
+                                            )}
+                                            {canManageUsers && (
+                                                <Tooltip title={tCommon('delete')}>
+                                                    <div
+                                                        className="text-xl cursor-pointer hover:text-red-600"
+                                                        onClick={() => setRemoveTarget(member)}
+                                                    >
+                                                        <TbTrash />
+                                                    </div>
+                                                </Tooltip>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -181,6 +199,8 @@ const UsersTab = () => {
                 onClose={() => setIsInviteOpen(false)}
                 roles={roles}
             />
+
+            <EditRoleModal member={roleEditTarget} roles={roles} onClose={() => setRoleEditTarget(null)} />
 
             <ConfirmDialog
                 isOpen={!!removeTarget}
@@ -426,6 +446,109 @@ const InviteModal = ({ isOpen, onClose, roles }) => {
                         }}
                     >
                         {t('invite')}
+                    </Button>
+                </div>
+            </div>
+        </Dialog>
+    )
+}
+
+const EditRoleModal = ({ member, roles, onClose }) => {
+    const t = useTranslations('business.settings.users')
+    const tCommon = useTranslations('business.common')
+    const queryClient = useQueryClient()
+    const [roleId, setRoleId] = useState(null)
+
+    const assignableRoles = roles.filter((r) => !r.is_system || r.slug === 'manager')
+    const roleOptions = [...assignableRoles]
+    if (member?.role?.id && !assignableRoles.some((r) => r.id === member.role.id)) {
+        roleOptions.push({
+            id: member.role.id,
+            name: member.role.name,
+            slug: member.role.slug,
+            is_system: member.role.is_system,
+        })
+    }
+
+    useEffect(() => {
+        if (member) {
+            setRoleId(member.role?.id ?? null)
+        }
+    }, [member])
+
+    const updateMutation = useMutation({
+        mutationFn: ({ id, role_id }) => updateCompanyUserRole(id, role_id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['business-company-users'] })
+            onClose()
+            toast.push(
+                <Notification title={tCommon('success')} type="success">
+                    {t('roleUpdateSuccess')}
+                </Notification>,
+            )
+        },
+        onError: (err) => {
+            toast.push(
+                <Notification title={tCommon('error')} type="danger">
+                    {err?.response?.data?.message || err?.message || 'Error'}
+                </Notification>,
+            )
+        },
+    })
+
+    const handleSave = () => {
+        if (!member || roleId == null) return
+        const numericId = typeof member.id === 'string' && member.id.startsWith('owner-') ? null : Number(member.id)
+        if (numericId == null || Number.isNaN(numericId)) return
+        updateMutation.mutate({ id: numericId, role_id: roleId })
+    }
+
+    const isOpen = !!member
+    const initialRoleId = member?.role?.id ?? null
+    const unchanged = roleId === initialRoleId
+
+    return (
+        <Dialog isOpen={isOpen} onClose={onClose} width={440}>
+            <div className="flex flex-col max-h-[85vh]">
+                <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('editRoleTitle')}</h4>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{t('editRoleDescription')}</p>
+                    {member && (
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-3">
+                            {member.name || member.email}
+                        </p>
+                    )}
+                </div>
+                <div className="px-6 py-4">
+                    <FormItem label={t('role')} required>
+                        <Select
+                            isSearchable={false}
+                            value={
+                                roleOptions.find((r) => r.id === roleId)
+                                    ? {
+                                          value: roleId,
+                                          label: roleOptions.find((r) => r.id === roleId)?.name,
+                                      }
+                                    : null
+                            }
+                            onChange={(opt) => setRoleId(opt?.value ?? null)}
+                            options={roleOptions.map((r) => ({ value: r.id, label: r.name }))}
+                            placeholder={t('selectRole')}
+                        />
+                    </FormItem>
+                </div>
+                <div className="px-6 pt-4 pb-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+                    <Button type="button" variant="plain" onClick={onClose}>
+                        {tCommon('cancel')}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="solid"
+                        loading={updateMutation.isPending}
+                        disabled={roleId == null || unchanged}
+                        onClick={handleSave}
+                    >
+                        {tCommon('save')}
                     </Button>
                 </div>
             </div>

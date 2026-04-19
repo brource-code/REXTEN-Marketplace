@@ -1244,6 +1244,9 @@ export interface SubscriptionPlan {
     badge_text: string | null
     color: string
     subscribers_count?: number
+    trialing_count?: number
+    trial_days?: number
+    is_trial_default?: boolean
 }
 
 export interface SubscriptionPlansStats {

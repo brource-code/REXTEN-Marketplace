@@ -59,6 +59,10 @@ const businessNavigationConfig = [
                 icon: 'routes',
                 type: NAV_ITEM_TYPE_ITEM,
                 permission: ['view_routes', 'view_schedule'],
+                meta: {
+                    requiredFeature: 'routes',
+                    upgradeBadge: 'Pro',
+                },
                 subMenu: [],
             },
             {
@@ -69,6 +73,10 @@ const businessNavigationConfig = [
                 icon: 'reports',
                 type: NAV_ITEM_TYPE_ITEM,
                 permission: 'view_reports',
+                meta: {
+                    requiredFeature: 'analytics',
+                    upgradeBadge: 'Pro',
+                },
                 subMenu: [],
             },
             {
@@ -188,6 +196,21 @@ const businessNavigationConfig = [
                 translateKey: 'nav.business.support',
                 icon: 'support',
                 type: NAV_ITEM_TYPE_ITEM,
+                subMenu: [],
+            },
+            {
+                key: 'business.api',
+                path: '/business/api',
+                title: 'API',
+                translateKey: 'nav.business.api',
+                icon: 'code',
+                type: NAV_ITEM_TYPE_ITEM,
+                permission: 'manage_settings',
+                meta: {
+                    requiredFeature: 'api_access',
+                    upgradeBadge: 'Enterprise',
+                    upgradeBadgeTone: 'enterprise',
+                },
                 subMenu: [],
             },
         ],

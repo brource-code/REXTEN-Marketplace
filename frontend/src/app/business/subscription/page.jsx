@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
@@ -44,6 +45,7 @@ import {
     PiUsers,
     PiMegaphone,
     PiWrench,
+    PiGift,
 } from 'react-icons/pi'
 import PermissionGuard from '@/components/shared/PermissionGuard'
 import Checkbox from '@/components/ui/Checkbox'
@@ -478,7 +480,7 @@ function SubscriptionContent() {
         { key: 'max_advertisements', label: t('features.advertisements'), icon: PiMegaphone },
         { key: 'analytics', label: t('features.analytics'), icon: PiChartLineUp },
         { key: 'priority_support', label: t('features.prioritySupport'), icon: PiHeadset, comingSoon: true },
-        { key: 'api_access', label: t('features.apiAccess'), icon: PiCode, comingSoon: true },
+        { key: 'api_access', label: t('features.apiAccess'), icon: PiCode },
     ], [t])
 
     const faqItems = useMemo(() => [
@@ -508,6 +510,64 @@ function SubscriptionContent() {
                                 {t('description')}
                             </p>
                         </div>
+
+                        {activeSub?.is_trial && (
+                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <div className="p-4 rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/70 dark:bg-violet-900/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-violet-100 dark:bg-violet-900/40 flex-shrink-0">
+                                            <PiGift className="text-xl text-violet-600 dark:text-violet-300" />
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {t('trial.bannerTitle', {
+                                                    plan: t(`plans.${activeSub.plan}.name`, {
+                                                        defaultValue: activeSub.plan,
+                                                    }),
+                                                })}
+                                            </div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5">
+                                                {activeSub.trial_days_left != null
+                                                    ? t('trial.daysLeft', {
+                                                          days: activeSub.trial_days_left,
+                                                      })
+                                                    : null}
+                                                {activeSub.trial_ends_at ? (
+                                                    <>
+                                                        {activeSub.trial_days_left != null ? ' · ' : null}
+                                                        {t('trial.endsOn', {
+                                                            date: usShortDate(activeSub.trial_ends_at),
+                                                        })}
+                                                    </>
+                                                ) : null}
+                                            </div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                                {t('trial.bannerHint')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {stripeOn && (
+                                        <Button
+                                            variant="solid"
+                                            size="sm"
+                                            icon={<PiArrowRight />}
+                                            loading={
+                                                checkoutMutation.isPending &&
+                                                checkoutMutation.variables?.plan === activeSub.plan
+                                            }
+                                            onClick={() =>
+                                                checkoutMutation.mutate({
+                                                    plan: activeSub.plan,
+                                                    interval: billingInterval,
+                                                })
+                                            }
+                                        >
+                                            {t('trial.bannerCta')}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Текущая подписка */}
                         {activeSub && (
@@ -551,6 +611,20 @@ function SubscriptionContent() {
                                                                     <PiCalendarCheck size={14} />
                                                                     {t('activeUntil')}{' '}
                                                                     {usShortDate(activeSub.current_period_end)}
+                                                                </span>
+                                                            )}
+                                                        </>
+                                                    ) : activeSub.is_trial ? (
+                                                        <>
+                                                            <Tag className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 inline-flex items-center gap-1">
+                                                                <PiGift size={12} />
+                                                                {t('trialBadge')}
+                                                            </Tag>
+                                                            {activeSub.trial_ends_at && (
+                                                                <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
+                                                                    <PiCalendarCheck size={14} />
+                                                                    {t('trialEndsOn')}{' '}
+                                                                    {usShortDate(activeSub.trial_ends_at)}
                                                                 </span>
                                                             )}
                                                         </>
@@ -601,6 +675,7 @@ function SubscriptionContent() {
                                                     </Button>
                                                 )}
                                             {!activeSub.is_free &&
+                                                !activeSub.is_trial &&
                                                 !activeSub.cancellation_scheduled &&
                                                 !activeSub.canceled_at && (
                                                     <Button
@@ -612,6 +687,25 @@ function SubscriptionContent() {
                                                         {t('cancel')}
                                                     </Button>
                                                 )}
+                                            {activeSub.is_trial && stripeOn && (
+                                                <Button
+                                                    variant="solid"
+                                                    size="xs"
+                                                    icon={<PiArrowRight />}
+                                                    loading={
+                                                        checkoutMutation.isPending &&
+                                                        checkoutMutation.variables?.plan === activeSub.plan
+                                                    }
+                                                    onClick={() =>
+                                                        checkoutMutation.mutate({
+                                                            plan: activeSub.plan,
+                                                            interval: billingInterval,
+                                                        })
+                                                    }
+                                                >
+                                                    {t('subscribeNow')}
+                                                </Button>
+                                            )}
                                             {activeSub.is_free &&
                                                 activeSub.previous_plan &&
                                                 activeSub.previous_plan !== activeSub.plan && (
@@ -718,9 +812,14 @@ function SubscriptionContent() {
                                                     ? t('usage.included')
                                                     : t('usage.notIncluded')}
                                             </span>
-                                            <Tag className="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300 text-[10px] uppercase tracking-wide">
-                                                {t('comingSoon')}
-                                            </Tag>
+                                            {usageData.api_access.allowed ? (
+                                                <Link
+                                                    href="/business/api"
+                                                    className="text-xs font-bold text-primary hover:underline ml-1"
+                                                >
+                                                    {t('apiManageLink')}
+                                                </Link>
+                                            ) : null}
                                         </span>
                                         <span className="hidden sm:inline text-gray-300 dark:text-gray-600">
                                             ·
@@ -830,23 +929,26 @@ function SubscriptionContent() {
                                                 </div>
                                             )
                                         })}
-                                        <Button
-                                            variant="solid"
-                                            loading={resolveLimitsMutation.isPending}
-                                            onClick={() =>
-                                                resolveLimitsMutation.mutate({
-                                                    deactivate_team_member_ids:
-                                                        selectedDeactivate.team_member_ids,
-                                                    deactivate_company_user_ids:
-                                                        selectedDeactivate.company_user_ids,
-                                                    deactivate_service_ids: selectedDeactivate.service_ids,
-                                                    deactivate_advertisement_ids:
-                                                        selectedDeactivate.advertisement_ids,
-                                                })
-                                            }
-                                        >
-                                            {t('resolveLimits.submit')}
-                                        </Button>
+                                        <div className="flex">
+                                            <Button
+                                                variant="solid"
+                                                className="w-full sm:w-auto"
+                                                loading={resolveLimitsMutation.isPending}
+                                                onClick={() =>
+                                                    resolveLimitsMutation.mutate({
+                                                        deactivate_team_member_ids:
+                                                            selectedDeactivate.team_member_ids,
+                                                        deactivate_company_user_ids:
+                                                            selectedDeactivate.company_user_ids,
+                                                        deactivate_service_ids: selectedDeactivate.service_ids,
+                                                        deactivate_advertisement_ids:
+                                                            selectedDeactivate.advertisement_ids,
+                                                    })
+                                                }
+                                            >
+                                                {t('resolveLimits.submit')}
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                             </div>

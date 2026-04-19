@@ -335,6 +335,7 @@
             "knowledge": "База знань",
             "notifications": "Сповіщення",
             "support": "Підтримка",
+            "api": "API",
             "groups": {
                 "work": "Робота",
                 "crm": "Клієнти",
@@ -363,7 +364,8 @@
             "settings": "Налаштування",
             "knowledge": "База знань",
             "support": "Підтримка",
-            "subscriptions": "Підписки"
+            "subscriptions": "Підписки",
+            "warehouse": "Склад"
         },
         "home": "Головна"
     },
@@ -1355,6 +1357,20 @@
             "mapMarkerStart": "Старт (виїзд)",
             "mapMarkerEnd": "Фініш (повернення)",
             "mapMarkerVisit": "Візит {n}",
+            "mapPopup": {
+                "visit": "Візит {n}",
+                "client": "Клієнт",
+                "service": "Послуга",
+                "time": "Час",
+                "duration": "Тривалість",
+                "durationMin": "{min} хв",
+                "price": "Вартість",
+                "address": "Адреса",
+                "openBooking": "Відкрити бронь",
+                "noClient": "Без клієнта",
+                "noService": "Без послуги",
+                "noAddress": "Адреса не вказана"
+            },
             "optimize": "Оптимізувати маршрут",
             "optimizing": "Оптимізація…",
             "recalculate": "Перерахувати",
@@ -1441,7 +1457,24 @@
                 "optimizeFailed": "Не вдалося оптимізувати маршрут",
                 "bookingModalLoadFailed": "Не вдалося відкрити бронювання. Оновіть сторінку й спробуйте ще раз."
             },
-            "dayBookingOpenLink": "До бронювання"
+            "dayBookingOpenLink": "До бронювання",
+            "tabs": {
+                "filter": "Фільтр",
+                "route": "Маршрут",
+                "saved": "Збережені"
+            },
+            "metricsLine": "{mi} миль · {min} хв · візитів: {visits}",
+            "actions": "Дії",
+            "noRouteShort": "Маршруту ще немає",
+            "savedRoutesGroups": {
+                "active": "Активні маршрути",
+                "empty": "Порожні маршрути"
+            },
+            "showTimeline": "Показати хронологію",
+            "hideTimeline": "Сховати хронологію",
+            "currentRouteSection": "Поточний маршрут",
+            "noteSingleVisitTitle": "Зверніть увагу",
+            "homeAndDate": "Точка старту й дата"
         },
         "notifications": {
             "title": "Усі сповіщення",
@@ -2394,6 +2427,110 @@
                 "delete": "Видалити"
             }
         },
+        "featureLock": {
+            "routes": {
+                "title": "Маршрути — функція тарифу Pro",
+                "description": "Маршрути доступні на тарифах Professional та Enterprise. Перейдіть на платний план, щоб оптимізувати щоденні поїздки спеціалістів.",
+                "cta": "Перейти на вищий тариф"
+            },
+            "analytics": {
+                "title": "Звіти — функція тарифу Pro",
+                "description": "Детальні звіти та аналітика доступні на тарифах Professional та Enterprise. Перейдіть на платний план, щоб детально відстежувати бронювання, виторг і роботу команди.",
+                "cta": "Перейти на вищий тариф"
+            },
+            "api_access": {
+                "title": "Доступ до API — функція Enterprise",
+                "description": "Токени read-only API, експорт у CRM/BI та інтеграції входять до тарифу Enterprise.",
+                "cta": "До планів"
+            }
+        },
+        "api": {
+            "title": "API для розробників",
+            "description": "Створюйте токени та викликайте read-only API для даних компанії (послуги, клієнти, бронювання).",
+            "tabs": {
+                "tokens": "Токени",
+                "docs": "Документація",
+                "webhooks": "Webhooks",
+                "logs": "Журнали запитів",
+                "comingSoon": "Незабаром"
+            },
+            "tokens": {
+                "cancel": "Скасувати",
+                "emptyTitle": "Поки немає API-токенів",
+                "emptyHint": "Створіть токен для CRM, скриптів або внутрішніх інструментів.",
+                "create": "Створити токен",
+                "name": "Назва токена",
+                "namePlaceholder": "напр. Production CRM",
+                "prefix": "Префікс",
+                "lastUsed": "Останнє використання",
+                "expiresAt": "Закінчується",
+                "never": "Без терміну",
+                "revoke": "Відкликати",
+                "revokeConfirm": "Відкликати цей токен? Інтеграції, що його використовують, перестануть працювати.",
+                "expiresIn": "Термін дії",
+                "expiresOptions": {
+                    "30": "30 днів",
+                    "90": "90 днів",
+                    "365": "365 днів",
+                    "never": "Без обмеження"
+                },
+                "createdToken": {
+                    "title": "Скопіюйте токен зараз",
+                    "warning": "Повний токен більше не буде показано. Зберігайте його в менеджері паролів або сховищі секретів.",
+                    "copy": "Скопіювати",
+                    "done": "Готово"
+                },
+                "errors": {
+                    "loadFailed": "Не вдалося завантажити токени",
+                    "createFailed": "Не вдалося створити токен",
+                    "revokeFailed": "Не вдалося відкликати токен"
+                }
+            },
+            "docs": {
+                "intro": "Авторизація: заголовок Bearer. Усі ендпоінти лише GET (read-only) у межах вашої компанії.",
+                "baseUrl": "Базовий URL",
+                "auth": "Заголовок Authorization",
+                "endpointsTitle": "Ендпоінти (реліз 1)",
+                "endpointMe": "Компанія та використання підписки",
+                "endpointServices": "Список або одна послуга",
+                "endpointClients": "Список або один клієнт",
+                "endpointBookings": "Список або одне бронювання",
+                "pagination": "Пагінація: page та per_page (макс. 100, за замовчуванням 25).",
+                "filtersBookings": "Бронювання: опційно status, from, to (або date_from, date_to), service_id, specialist_id.",
+                "filtersClients": "Клієнти: опційно search, status, created_from, created_to.",
+                "rateLimits": "Ліміти: 60 запитів на хвилину на токен і 5000 на день на компанію (якщо планом не вказано інше).",
+                "errorsTitle": "Помилки",
+                "errorExample": "У тілі JSON поля error та message; коди HTTP 401/403/404/429.",
+                "errorBodyTitle": "Приклад тіла помилки",
+                "onThisPage": "На сторінці",
+                "tagline": "REST · Лише читання · Дані компанії",
+                "releaseBadge": "Реліз 1",
+                "baseUrlHint": "Усі запити використовують цей базовий шлях.",
+                "authHint": "Створіть токен на вкладці «Токени» і передайте його в цьому заголовку.",
+                "copy": "Копіювати",
+                "copied": "Скопійовано",
+                "querySectionTitle": "Пагінація та фільтри",
+                "limitsSectionTitle": "Ліміти запитів",
+                "exampleTitle": "Спробувати",
+                "exampleHint": "Мінімальний запит для перевірки доступу та областей.",
+                "pathsBlockTitle": "Повні URL (GET)",
+                "endpointServiceById": "Одна послуга за id",
+                "endpointClientById": "Один клієнт за id",
+                "endpointBookingById": "Одне бронювання за id",
+                "nav": {
+                    "base": "Базовий URL",
+                    "auth": "Авторизація",
+                    "endpoints": "Ендпоінти",
+                    "query": "Пагінація та фільтри",
+                    "limits": "Ліміти",
+                    "errors": "Помилки",
+                    "example": "Приклад"
+                }
+            },
+            "placeholders": {
+                "token": "ВАШ_ТОКЕН"
+            }
+        },
         "subscription": {
             "title": "Підписка",
             "description": "Оберіть план, який підходить вашому бізнесу",
@@ -2410,6 +2547,16 @@
             "active": "Активна",
             "cancel": "Скасувати",
             "renewsOn": "Поновлення",
+            "trialBadge": "Пробний період",
+            "trialEndsOn": "Пробний період до",
+            "subscribeNow": "Оформити підписку",
+            "trial": {
+                "bannerTitle": "У вас безкоштовний пробний період тарифу {plan}",
+                "daysLeft": "{days, plural, one {Залишився # день} few {Залишилось # дні} many {Залишилось # днів} other {Залишилось # днів}}",
+                "endsOn": "Завершується {date}",
+                "bannerHint": "Додайте спосіб оплати до завершення пробного періоду, щоб зберегти всі можливості. Інакше робочий простір перейде на план Free.",
+                "bannerCta": "Оформити підписку"
+            },
             "stripeDisabled": "Онлайн-платежі тимчасово вимкнені. Зверніться до підтримки.",
             "paymentCancelled": "Платіж скасовано.",
             "cancelSuccess": "Підписку скасовано зараз. Платні функції залишаються до {endDate}.",
@@ -2453,6 +2600,7 @@
             "resumeSuccess": "Підписку відновлено. Скасування знято.",
             "restorePreviousPlan": "Повернути {plan}",
             "comingSoon": "Незабаром",
+            "apiManageLink": "Керування токенами",
             "activeUntil": "Доступ до",
             "successDialog": {
                 "title": "Підписку активовано!",
@@ -2786,6 +2934,10 @@
                 "noUsers": "Немає запрошених користувачів",
                 "inviteSuccess": "Користувача запрошено",
                 "removeSuccess": "Користувача видалено",
+                "editRole": "Змінити роль",
+                "editRoleTitle": "Зміна ролі",
+                "editRoleDescription": "Оберіть нову роль для цього учасника команди.",
+                "roleUpdateSuccess": "Роль оновлено",
                 "tempPassword": "Тимчасовий пароль",
                 "copyPassword": "Копіювати пароль",
                 "copyError": "Не вдалося скопіювати",
@@ -2831,7 +2983,8 @@
                     "manage_users": "Керувати користувачами",
                     "manage_roles": "Керувати ролями",
                     "view_routes": "Перегляд маршрутів",
-                    "manage_routes": "Керування маршрутами"
+                    "manage_routes": "Керування маршрутами",
+                    "receive_notifications": "Отримання сповіщень"
                 },
                 "deleteConfirm": {
                     "title": "Видалити роль?",
@@ -3053,6 +3206,20 @@
                 "cancellationsNotifications": "Сповіщення про скасування",
                 "paymentsNotifications": "Сповіщення про платежі",
                 "reviewsNotifications": "Сповіщення про відгуки",
+                "telegram": {
+                    "title": "Підключення до Telegram-бота",
+                    "notConnected": "Не підключено. Натисніть «Підключити» — відкриється бот, підтвердіть там команду /start.",
+                    "notConfigured": "Бот ще не налаштований на сервері",
+                    "connectedAs": "Підключено як {username}",
+                    "unknownUsername": "Telegram",
+                    "connect": "Підключити",
+                    "disconnect": "Відв'язати",
+                    "disconnected": "Telegram відключено",
+                    "staffHint": "Сповіщення отримують власник і працівники з правом «Отримання сповіщень».",
+                    "errorConnect": "Не вдалося розпочати підключення",
+                    "errorDisconnect": "Не вдалося відключити",
+                    "errorNotConfigured": "Telegram-бот ще не налаштований на сервері"
+                },
                 "notifications": {
                     "saved": "Налаштування сповіщень успішно збережено",
                     "saveError": "Не вдалося зберегти налаштування"
@@ -3477,6 +3644,7 @@
             "toPay": "До сплати",
             "payAtVenue": "Оплата на місці",
             "paymentRequired": "Оплатіть карткою, щоб підтвердити бронювання",
+            "cancellationPolicyNote": "Безкоштовне скасування не пізніше ніж за {hours} год до візиту. Пізніше або у разі неявки утримується {percent}% від вартості послуги.",
             "successTitle": "Бронювання підтверджено",
             "successSubtitle": "Оплату зараховано, запис збережено.",
             "paymentSuccess": "Готово — бронювання підтверджено й оплачено.",
@@ -4960,6 +5128,13 @@
             "apiAccess": "Доступ до API",
             "isActive": "Активний",
             "isFree": "Безкоштовний план",
+            "trialSection": "Пробний період",
+            "trialDays": "Тривалість пробного періоду (днів)",
+            "trialDaysHint": "0 — без пробного періоду",
+            "isTrialDefault": "Пробний план за замовчуванням",
+            "isTrialDefaultHint": "Якщо увімкнено, кожна нова компанія автоматично отримує цей план із указаною тривалістю пробного періоду. Лише один план може бути пробним за замовчуванням.",
+            "trialDefaultBadge": "Пробний {days}д",
+            "trialingCount": "{count} у пробному",
             "cancel": "Скасувати",
             "save": "Зберегти",
             "create": "Створити"

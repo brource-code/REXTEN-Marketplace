@@ -148,6 +148,10 @@ function stopsWithCoordsSorted(stops) {
             lng: Number(s.longitude),
             seq: s.sequence_order ?? 0,
             stopType: s.stop_type || 'booking',
+            booking: s.booking ?? null,
+            eta: s.eta ?? null,
+            arrivedAt: s.arrived_at ?? null,
+            waitBeforeSeconds: s.wait_before_seconds ?? 0,
         }))
         .filter((s) => !Number.isNaN(s.lat) && !Number.isNaN(s.lng))
         .sort((a, b) => a.seq - b.seq)

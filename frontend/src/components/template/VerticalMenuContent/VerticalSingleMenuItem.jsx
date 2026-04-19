@@ -3,6 +3,7 @@ import Menu from '@/components/ui/Menu'
 import AuthorityCheck from '@/components/shared/AuthorityCheck'
 import PermissionCheck from '@/components/shared/PermissionCheck'
 import VerticalMenuIcon from './VerticalMenuIcon'
+import NavUpgradeBadge from '../NavUpgradeBadge'
 import Link from 'next/link'
 import Dropdown from '@/components/ui/Dropdown'
 import { translateNavLabel } from '@/utils/navTranslation'
@@ -98,7 +99,18 @@ const DefaultItem = (props) => {
                         }
                     >
                         {showIcon && <VerticalMenuIcon icon={nav.icon} />}
-                        {showTitle && <span>{translateNavLabel(t, nav)}</span>}
+                        {showTitle && (
+                            <span className="flex items-center min-w-0">
+                                <span className="truncate">{translateNavLabel(t, nav)}</span>
+                                {nav.meta?.upgradeBadge && (
+                                    <NavUpgradeBadge
+                                        label={nav.meta.upgradeBadge}
+                                        tone={nav.meta.upgradeBadgeTone}
+                                        feature={nav.meta.requiredFeature}
+                                    />
+                                )}
+                            </span>
+                        )}
                     </Link>
                 </MenuItem>
             </PermissionCheck>

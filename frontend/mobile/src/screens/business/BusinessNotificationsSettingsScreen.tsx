@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Linking,
 } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,9 @@ import {
   getBusinessNotificationSettings,
   updateBusinessNotificationSettings,
   BusinessNotificationSettings,
+  getBusinessTelegramStatus,
+  connectBusinessTelegram,
+  disconnectBusinessTelegram,
 } from '../../api/business';
 import { ScreenContainer } from '../../components/ScreenContainer';
 
@@ -43,6 +47,16 @@ const T = {
   },
   save: 'Сохранить изменения',
   success: 'Настройки сохранены',
+  tg: {
+    title: 'Подключение к Telegram-боту',
+    notConnected: 'Не подключено. Нажмите «Подключить» — откроется бот, в нём подтвердите команду /start.',
+    notConfigured: 'Бот ещё не настроен на сервере',
+    connectedAs: (u?: string | null) => (u ? `Подключено как @${u}` : 'Подключено'),
+    connect: 'Подключить',
+    disconnect: 'Отвязать',
+    staffHint: 'Уведомления получают владелец и сотрудники с правом «Получение уведомлений».',
+    cantOpen: 'Не удалось открыть Telegram',
+  },
 };
 
 export function BusinessNotificationsSettingsScreen() {
@@ -58,15 +72,42 @@ const queryClient = useQueryClient();
     queryFn: getBusinessNotificationSettings,
   });
 
+  const tgQuery = useQuery({
+    queryKey: ['business-telegram-status'],
+    queryFn: getBusinessTelegramStatus,
+    refetchInterval: 5000,
+  });
+
   useEffect(() => {
     if (query.data) setDraft({ ...query.data });
   }, [query.data]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await query.refetch();
+    await Promise.all([query.refetch(), tgQuery.refetch()]);
     setRefreshing(false);
-  }, [query]);
+  }, [query, tgQuery]);
+
+  const connectTgMutation = useMutation({
+    mutationFn: connectBusinessTelegram,
+    onSuccess: async (data) => {
+      queryClient.invalidateQueries({ queryKey: ['business-telegram-status'] });
+      if (data?.deepLink) {
+        try {
+          await Linking.openURL(data.deepLink);
+        } catch {
+          Alert.alert('Telegram', T.tg.cantOpen);
+        }
+      }
+    },
+    onError: (e: Error) => Alert.alert('Ошибка', e.message),
+  });
+
+  const disconnectTgMutation = useMutation({
+    mutationFn: disconnectBusinessTelegram,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['business-telegram-status'] }),
+    onError: (e: Error) => Alert.alert('Ошибка', e.message),
+  });
 
   const saveMutation = useMutation({
     mutationFn: (d: BusinessNotificationSettings) => updateBusinessNotificationSettings(d),
@@ -128,7 +169,7 @@ const queryClient = useQueryClient();
             />
           </View>
 
-          <View style={[styles.switchItem, { borderBottomWidth: 0, borderBottomColor: colors.border }]}>
+          <View style={[styles.switchItem, { borderBottomColor: colors.border }]}>
             <View style={[styles.switchIcon, { backgroundColor: colors.primaryLight }]}>
               <Ionicons name="paper-plane-outline" size={20} color={colors.primary} />
             </View>
@@ -142,6 +183,64 @@ const queryClient = useQueryClient();
               trackColor={{ false: colors.border, true: colors.primaryLight }}
               thumbColor={draft.telegram ? colors.primary : colors.backgroundTertiary}
             />
+          </View>
+
+          {/* Подключение к Telegram-боту (per-user) */}
+          <View style={{ paddingHorizontal: 14, paddingTop: 12, paddingBottom: 14 }}>
+            <Text style={[styles.switchLabel, { color: colors.text, marginBottom: 4 }]}>
+              {T.tg.title}
+            </Text>
+            <Text style={[styles.switchDesc, { color: colors.textSecondary, marginBottom: 10 }]}>
+              {tgQuery.isLoading
+                ? '…'
+                : tgQuery.data?.connected
+                  ? T.tg.connectedAs(tgQuery.data?.username)
+                  : tgQuery.data?.botConfigured
+                    ? T.tg.notConnected
+                    : T.tg.notConfigured}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {tgQuery.data?.connected ? (
+                <TouchableOpacity
+                  onPress={() => disconnectTgMutation.mutate()}
+                  disabled={disconnectTgMutation.isPending}
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 9,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    backgroundColor: 'transparent',
+                    opacity: disconnectTgMutation.isPending ? 0.6 : 1,
+                  }}
+                >
+                  <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
+                    {T.tg.disconnect}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => connectTgMutation.mutate()}
+                  disabled={connectTgMutation.isPending || !tgQuery.data?.botConfigured}
+                  style={{
+                    paddingHorizontal: 14,
+                    paddingVertical: 9,
+                    borderRadius: 8,
+                    backgroundColor: tgQuery.data?.botConfigured ? colors.primary : colors.border,
+                    opacity: connectTgMutation.isPending ? 0.6 : 1,
+                  }}
+                >
+                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>
+                    {T.tg.connect}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            <Text
+              style={[styles.switchDesc, { color: colors.textSecondary, marginTop: 10, fontSize: 12 }]}
+            >
+              {T.tg.staffHint}
+            </Text>
           </View>
         </View>
 

@@ -221,6 +221,7 @@ const navigationIcon = {
     reports: <PiChartBarDuotone />,
     billing: <PiCreditCardDuotone />,
     subscription: <PiCrownDuotone />,
+    code: <PiCodeDuotone />,
     routes: <PiMapTrifoldDuotone />,
     activityLog: <PiClockCounterClockwiseDuotone />,
     inventory: <PiPackageDuotone />,
