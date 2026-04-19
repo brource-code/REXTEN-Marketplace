@@ -48,3 +48,10 @@ translations_review*.xlsx
 frontend/*.zip
 frontend/*.tar.gz
 !frontend/logo-complete.tar.gz
+
+# PHPUnit (локальный кэш)
+backend/.phpunit.cache/
+
+# Тяжёлые рабочие каталоги в storage (не коммитить)
+backend/storage/app/backups/work/
+backend/storage/app/partner-export-tmp/
