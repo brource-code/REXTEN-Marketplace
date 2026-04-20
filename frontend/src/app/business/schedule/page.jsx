@@ -58,9 +58,11 @@ function SchedulePageContent() {
 
     return (
         <Container>
-            <div data-tour="page-main" className="w-full min-h-[320px]">
-                <ScheduleCalendar initialSlots={slots || []} initialOpenBookingId={openBookingId} />
-            </div>
+            <AdaptiveCard className="overflow-visible">
+                <div data-tour="page-main" className="w-full min-h-[320px] overflow-visible">
+                    <ScheduleCalendar initialSlots={slots || []} initialOpenBookingId={openBookingId} />
+                </div>
+            </AdaptiveCard>
         </Container>
     )
 }

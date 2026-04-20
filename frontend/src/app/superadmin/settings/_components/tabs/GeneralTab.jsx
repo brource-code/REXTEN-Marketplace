@@ -214,7 +214,7 @@ const GeneralTab = () => {
                                 <Input
                                     value={formData.companyName}
                                     onChange={(e) => handleChange('companyName', e.target.value)}
-                                    placeholder="Rexten Marketplace LLC"
+                                    placeholder="REXTEN Marketplace LLC"
                                 />
                             </FormItem>
                             <FormItem label="ИНН / Tax ID">

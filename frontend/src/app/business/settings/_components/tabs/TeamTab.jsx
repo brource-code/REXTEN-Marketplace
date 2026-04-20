@@ -29,12 +29,14 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
+import Switcher from '@/components/ui/Switcher'
 
 const TeamTab = () => {
     const t = useTranslations('business.settings.team')
     const tCommon = useTranslations('business.common')
     const queryClient = useQueryClient()
     const { canCreate } = useSubscriptionLimits()
+    const [togglingMemberId, setTogglingMemberId] = useState(null)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [editingMember, setEditingMember] = useState(null)
     const [isSalarySettingsModalOpen, setIsSalarySettingsModalOpen] = useState(false)
@@ -61,6 +63,7 @@ const TeamTab = () => {
             queryClient.invalidateQueries({ queryKey: ['business-team'] })
             queryClient.invalidateQueries({ queryKey: ['business-route'] })
             queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-over-limit'] })
             setIsAddModalOpen(false)
             toast.push(
                 <Notification title={tCommon('success')} type="success">
@@ -82,6 +85,8 @@ const TeamTab = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-team'] })
             queryClient.invalidateQueries({ queryKey: ['business-route'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-over-limit'] })
             setIsAddModalOpen(false)
             setEditingMember(null)
             toast.push(
@@ -92,10 +97,15 @@ const TeamTab = () => {
         },
         onError: (error) => {
             const code = error?.response?.data?.code
-            const msg =
-                code === 'HOME_ADDRESS_GEOCODE_FAILED'
-                    ? t('notifications.geocodeFailed')
-                    : t('notifications.updateError')
+            const errPayload = error?.response?.data
+            const isLimit =
+                errPayload?.error === 'subscription_limit_reached' ||
+                code === 'subscription_limit_reached'
+            const msg = isLimit
+                ? t('notifications.activateLimitReached')
+                : code === 'HOME_ADDRESS_GEOCODE_FAILED'
+                  ? t('notifications.geocodeFailed')
+                  : t('notifications.updateError')
             toast.push(
                 <Notification title={tCommon('error')} type="danger">
                     {msg}
@@ -109,6 +119,7 @@ const TeamTab = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['business-team'] })
             queryClient.invalidateQueries({ queryKey: ['subscription-usage'] })
+            queryClient.invalidateQueries({ queryKey: ['subscription-over-limit'] })
             toast.push(
                 <Notification title={tCommon('success')} type="success">
                     {t('notifications.deleted')}
@@ -166,6 +177,31 @@ const TeamTab = () => {
         }
     }
 
+    const handleToggleMemberActive = (member, nextActive) => {
+        const isActive = member.status === 'active'
+        if (nextActive === isActive) {
+            return
+        }
+        if (nextActive && !canCreate('team_members')) {
+            toast.push(
+                <Notification title={tCommon('error')} type="danger">
+                    {t('notifications.activateLimitReached')}
+                </Notification>,
+            )
+            return
+        }
+        setTogglingMemberId(member.id)
+        updateMemberMutation.mutate(
+            {
+                id: member.id,
+                data: { status: nextActive ? 'active' : 'inactive' },
+            },
+            {
+                onSettled: () => setTogglingMemberId(null),
+            },
+        )
+    }
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-12">
@@ -183,6 +219,9 @@ const TeamTab = () => {
                         <h4>{t('title')}</h4>
                         <p className="text-sm text-gray-500 mt-1">
                             {t('description')}
+                        </p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2">
+                            {t('seatLimitHint')}
                         </p>
                     </div>
                     <Button
@@ -246,7 +285,28 @@ const TeamTab = () => {
                                     </Tooltip>
                                 </div>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                            {t('activeOnRoster')}
+                                        </p>
+                                    </div>
+                                    <Switcher
+                                        checked={member.status === 'active'}
+                                        disabled={
+                                            updateMemberMutation.isPending &&
+                                            togglingMemberId === member.id
+                                        }
+                                        isLoading={
+                                            updateMemberMutation.isPending &&
+                                            togglingMemberId === member.id
+                                        }
+                                        onChange={(checked) =>
+                                            handleToggleMemberActive(member, checked)
+                                        }
+                                    />
+                                </div>
                                 <Tag
                                     className={
                                         member.status === 'active'

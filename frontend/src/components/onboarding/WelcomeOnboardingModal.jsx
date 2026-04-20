@@ -30,7 +30,7 @@ export default function WelcomeOnboardingModal({ isOpen, onStart, onSkip, isSubm
             <div className="w-full max-w-full mx-auto">
                 <div className="px-6 sm:px-8 pt-6 pb-2 border-b border-gray-200 dark:border-gray-700">
                     <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
-                        Rexten
+                        REXTEN
                     </p>
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('welcomeTitle')}</h4>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2">{t('welcomeSubtitle')}</p>

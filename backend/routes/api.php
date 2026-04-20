@@ -66,7 +66,10 @@ use App\Http\Controllers\UserPresenceController;
 use App\Http\Controllers\Api\V1\BookingsController as ApiV1BookingsController;
 use App\Http\Controllers\Api\V1\ClientsController as ApiV1ClientsController;
 use App\Http\Controllers\Api\V1\MeController as ApiV1MeController;
+use App\Http\Controllers\Api\V1\ReviewsController as ApiV1ReviewsController;
+use App\Http\Controllers\Api\V1\ScheduleController as ApiV1ScheduleController;
 use App\Http\Controllers\Api\V1\ServicesController as ApiV1ServicesController;
+use App\Http\Controllers\Api\V1\TeamMembersController as ApiV1TeamMembersController;
 use App\Http\Controllers\Business\ApiTokensController;
 
 /*
@@ -91,6 +94,9 @@ Route::prefix('v1')->middleware([
     Route::get('/clients/{id}', [ApiV1ClientsController::class, 'show'])->whereNumber('id');
     Route::get('/bookings', [ApiV1BookingsController::class, 'index']);
     Route::get('/bookings/{id}', [ApiV1BookingsController::class, 'show'])->whereNumber('id');
+    Route::get('/team-members', [ApiV1TeamMembersController::class, 'index']);
+    Route::get('/reviews', [ApiV1ReviewsController::class, 'index']);
+    Route::get('/schedule', [ApiV1ScheduleController::class, 'index']);
 });
 
 // Public routes

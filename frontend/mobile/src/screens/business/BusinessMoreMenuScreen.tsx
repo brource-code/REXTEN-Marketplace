@@ -473,7 +473,7 @@ export function BusinessMoreMenuScreen() {
 
         {/* Версия */}
         <View style={dynamicStyles.versionBlock}>
-          <Text style={dynamicStyles.versionText}>Rexten Business v1.0.0</Text>
+          <Text style={dynamicStyles.versionText}>REXTEN Business v1.0.0</Text>
         </View>
       </ScrollView>
     </ScreenContainer>

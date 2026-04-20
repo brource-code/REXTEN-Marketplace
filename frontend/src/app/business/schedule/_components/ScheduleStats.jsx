@@ -118,16 +118,13 @@ const ScheduleStats = ({ slots = [], dateRange, statsMode = 'visibleRange' }) =>
 
     return (
         <div className="mb-4 md:mb-6">
-            <div className="space-y-1 mb-2 md:mb-3">
-                {rangeStart && rangeEnd ? (
+            {rangeStart && rangeEnd ? (
+                <div className="mb-2 md:mb-3">
                     <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {t('periodRangeLabel', { start: rangeStart, end: rangeEnd })}
                     </p>
-                ) : null}
-                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                    {statsMode === 'calendarMonth' ? t('periodGridNoteMonth') : t('periodGridNote')}
-                </p>
-            </div>
+                </div>
+            ) : null}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2 md:gap-3">
                 {statsList.map((stat, index) => {
                     const Icon = stat.icon
@@ -158,9 +155,9 @@ const ScheduleStats = ({ slots = [], dateRange, statsMode = 'visibleRange' }) =>
                                     )}
                                 </div>
                                 <div
-                                    className={`hidden sm:flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${stat.color}`}
+                                    className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${stat.color}`}
                                 >
-                                    <Icon className="text-xl md:text-2xl" />
+                                    <Icon className="text-base sm:text-xl md:text-2xl" />
                                 </div>
                             </div>
                         </Card>

@@ -22,7 +22,7 @@ export default function RextenMarketplaceIconLight(
       aria-labelledby="rextenMarketplaceIconLight"
     >
       <title id="rextenMarketplaceIconLight">
-        Rexten Icon Light
+        REXTEN Icon Light
       </title>
       <defs>
         <linearGradient id="icon-light-gradient1" x1="0%" y1="0%" x2="100%" y2="100%">

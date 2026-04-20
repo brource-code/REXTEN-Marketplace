@@ -51,7 +51,23 @@ class StripeController extends Controller
             'package_id' => 'required|in:basic,standard,premium',
         ]);
 
-        $user = auth('api')->user();
+        $user = auth('api')->user() ?? auth()->user();
+        if (! $user) {
+            return response()->json([
+                'error' => 'Unauthenticated',
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $stripeSecret = config('services.stripe.secret');
+        if (! is_string($stripeSecret) || trim($stripeSecret) === '') {
+            Log::error('Stripe Checkout Session: secret key missing');
+
+            return response()->json([
+                'error' => 'stripe_not_configured',
+                'message' => 'Stripe is not configured on the server.',
+            ], 503);
+        }
         
         // Получаем company_id из request (устанавливается в TenantMiddleware)
         // или из первой компании владельца
@@ -98,15 +114,23 @@ class StripeController extends Controller
         // Получаем URL фронтенда
         $frontendUrl = $this->getFrontendUrl($request);
 
+        $adTitle = is_string($advertisement->title) && trim($advertisement->title) !== ''
+            ? $advertisement->title
+            : 'Advertisement #'.$advertisement->id;
+
+        // Stripe metadata: только строки; null запрещён — для вебхуков всегда берём company из объявления
+        $companyIdForMeta = (string) ($advertisement->company_id ?? '');
+
         try {
             $session = Session::create([
-                'automatic_payment_methods' => ['enabled' => true],
+                // Не смешивать с automatic_payment_methods — как в subscription checkout
+                'payment_method_types' => ['card'],
                 'line_items' => [[
                     'price_data' => [
                         'currency' => 'usd',
                         'product_data' => [
                             'name' => "Реклама: {$package['name']} ({$package['duration']} дней)",
-                            'description' => "Рекламное размещение для: {$advertisement->title}",
+                            'description' => 'Рекламное размещение для: '.$adTitle,
                         ],
                         'unit_amount' => $package['price'],
                     ],
@@ -116,11 +140,11 @@ class StripeController extends Controller
                 'success_url' => $frontendUrl . '/business/advertisements/purchase?payment=success&session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => $frontendUrl . '/business/advertisements/purchase?payment=cancelled',
                 'metadata' => [
-                    'advertisement_id' => $advertisement->id,
-                    'package_id' => $validated['package_id'],
-                    'duration' => $package['duration'],
-                    'user_id' => $user->id,
-                    'company_id' => $companyId,
+                    'advertisement_id' => (string) $advertisement->id,
+                    'package_id' => (string) $validated['package_id'],
+                    'duration' => (string) $package['duration'],
+                    'user_id' => (string) $user->id,
+                    'company_id' => $companyIdForMeta,
                 ],
             ]);
 

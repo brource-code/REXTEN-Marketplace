@@ -244,6 +244,34 @@ const ProfileTab = () => {
                         </div>
                     </div>
 
+                    {/* Ссылка на публичный профиль — сразу под логотипом */}
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">
+                                    {t('publicProfile')}
+                                </p>
+                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                    {t('viewOnPlatform')}
+                                </p>
+                            </div>
+                            <Link
+                                href={`/marketplace/company/${profile?.slug || formData.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="shrink-0"
+                            >
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    icon={<PiArrowSquareOut />}
+                                >
+                                    {t('openProfile')}
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+
                     {/* Основная информация */}
                     <FormItem label={t('companyName')}>
                         <Input
@@ -348,31 +376,6 @@ const ProfileTab = () => {
                                 {t('monthlyBookingsGoalHint')}
                             </p>
                         </FormItem>
-                    </div>
-
-                    {/* Ссылка на публичный профиль */}
-                    <div className="border-t pt-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">{t('publicProfile')}</p>
-                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                    {t('viewOnPlatform')}
-                                </p>
-                            </div>
-                            <Link 
-                                href={`/marketplace/company/${profile?.slug || formData.name.toLowerCase().replace(/\s+/g, '-')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    icon={<PiArrowSquareOut />}
-                                >
-                                    {t('openProfile')}
-                                </Button>
-                            </Link>
-                        </div>
                     </div>
                 </div>
         </FormContainer>

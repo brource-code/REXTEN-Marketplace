@@ -20,7 +20,7 @@ export default function RextenLogoIcon({
       role="img"
       aria-labelledby="rextenLogoIcon"
     >
-      <title id="rextenLogoIcon">Rexten Logo Icon</title>
+      <title id="rextenLogoIcon">REXTEN Logo Icon</title>
       <defs>
         <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style={{ stopColor: color, stopOpacity: 1 }} />

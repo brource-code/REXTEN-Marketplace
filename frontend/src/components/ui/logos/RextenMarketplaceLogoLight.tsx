@@ -27,7 +27,7 @@ export default function RextenMarketplaceLogoLight(
       aria-labelledby="rextenMarketplaceLogoLight"
       style={{ width: '100%', height: 'auto', ...props.style }}
     >
-      <title id="rextenMarketplaceLogoLight">Rexten Logo</title>
+      <title id="rextenMarketplaceLogoLight">REXTEN Logo</title>
       <defs>
         <linearGradient id={`logo-gradient1-${gradientId}`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style={{ stopColor: customIconColor, stopOpacity: 1 }} />

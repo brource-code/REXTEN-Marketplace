@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Container from '@/components/shared/Container'
@@ -37,10 +38,15 @@ function RoutesPageInner() {
     const t = useTranslations('business.routes')
     const tSchedule = useTranslations('business.schedule')
     const queryClient = useQueryClient()
+    const searchParams = useSearchParams()
     const canManageSchedule = usePermission('manage_schedule')
     const canManageRoutes = usePermission(['manage_routes', 'manage_schedule'])
-    const [specialistId, setSpecialistId] = useState(null)
-    const [date, setDate] = useState(localTodayYmd)
+    const initialSpecialistFromUrl = searchParams?.get('specialist')
+    const initialDateFromUrl = searchParams?.get('date')
+    const [specialistId, setSpecialistId] = useState(() =>
+        initialSpecialistFromUrl ? Number(initialSpecialistFromUrl) || null : null,
+    )
+    const [date, setDate] = useState(() => initialDateFromUrl || localTodayYmd())
     const [preview, setPreview] = useState(null)
     const [previewOpen, setPreviewOpen] = useState(false)
     const [includeReturnLeg, setIncludeReturnLeg] = useState(true)

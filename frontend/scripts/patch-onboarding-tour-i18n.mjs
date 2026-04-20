@@ -32,7 +32,7 @@ const stepsEn = {
     },
     nav_advertisements: {
         title: 'Advertisements',
-        text: 'Marketplace listings for your services—photos, prices, and visibility on Rexten.',
+        text: 'Marketplace listings for your services—photos, prices, and visibility on REXTEN.',
     },
     nav_billing: {
         title: 'Billing',
@@ -75,7 +75,7 @@ const stepsRu = {
     },
     nav_advertisements: {
         title: 'Объявления',
-        text: 'Карточки услуг на маркетплейсе — фото, цены и видимость на Rexten.',
+        text: 'Карточки услуг на маркетплейсе — фото, цены и видимость на REXTEN.',
     },
     nav_billing: {
         title: 'Биллинг',

@@ -24,7 +24,7 @@ export default function RextenLogoSimple({
       role="img"
       aria-labelledby="rextenLogoSimple"
     >
-      <title id="rextenLogoSimple">Rexten Logo</title>
+      <title id="rextenLogoSimple">REXTEN Logo</title>
       <g>
         <circle cx={26} cy={30} r={24} fill="#2563EB" />
         <rect x={10} y={16} width={32} height={28} rx={8} fill="#FFFFFF" />

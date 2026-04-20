@@ -136,8 +136,8 @@ const openUrl = useCallback(async (path: string) => {
 
         {/* Версия */}
         <View style={[styles.versionBlock, { borderTopColor: colors.border }]}>
-          <Text style={[styles.versionText, { color: colors.textMuted }]}>Rexten Business v1.0.0</Text>
-          <Text style={[styles.copyrightText, { color: colors.textMuted }]}>© 2024 Rexten. Все права защищены.</Text>
+          <Text style={[styles.versionText, { color: colors.textMuted }]}>REXTEN Business v1.0.0</Text>
+          <Text style={[styles.copyrightText, { color: colors.textMuted }]}>© 2024 REXTEN. Все права защищены.</Text>
         </View>
       </ScrollView>
     </ScreenContainer>

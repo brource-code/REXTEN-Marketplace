@@ -9,10 +9,32 @@ const SECTION_IDS = {
     auth: 'api-docs-auth',
     endpoints: 'api-docs-endpoints',
     query: 'api-docs-query',
+    response: 'api-docs-response',
     limits: 'api-docs-limits',
     errors: 'api-docs-errors',
     example: 'api-docs-example',
 }
+
+/** Production v1 base URL for docs copy-paste (same host as public API). */
+const DOCS_V1_PUBLIC_BASE = 'https://api.rexten.live/api/v1'
+
+const RESPONSE_PAGINATED_EXAMPLE = `{
+  "data": [
+    { "id": 1 }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 25,
+    "total": 120,
+    "last_page": 5
+  }
+}`
+
+const RESPONSE_SINGLE_EXAMPLE = `{
+  "data": {
+    "id": 42
+  }
+}`
 
 function CodePanel({ title, children, action }) {
     return (
@@ -50,24 +72,23 @@ function MethodRow({ path, description }) {
 
 export default function DocsTab() {
     const t = useTranslations('business.api.docs')
-    const tPh = useTranslations('business.api.placeholders')
     const base = getLaravelApiUrl().replace(/\/$/, '')
-    const v1 = `${base}/v1`
+    const resolvedV1 = `${base}/v1`
+    const sameV1AsPublicDocs = resolvedV1 === DOCS_V1_PUBLIC_BASE
 
     const [copied, setCopied] = useState(false)
-    const curlExample = `curl -sS -H "Authorization: Bearer ${tPh('token')}" \\\n  "${base}/v1/me"`
+    const curlOneLine = `curl -sS -H "Authorization: Bearer YOUR_TOKEN" ${DOCS_V1_PUBLIC_BASE}/me`
+    const curlExample = `curl -sS -H "Authorization: Bearer YOUR_TOKEN" \\\n  ${DOCS_V1_PUBLIC_BASE}/me`
 
     const copyCurl = useCallback(async () => {
         try {
-            await navigator.clipboard.writeText(
-                `curl -sS -H "Authorization: Bearer ${tPh('token')}" "${base}/v1/me"`,
-            )
+            await navigator.clipboard.writeText(curlOneLine)
             setCopied(true)
             window.setTimeout(() => setCopied(false), 2000)
         } catch {
             setCopied(false)
         }
-    }, [base, tPh])
+    }, [])
 
     const navItems = useMemo(
         () => [
@@ -75,6 +96,7 @@ export default function DocsTab() {
             { id: SECTION_IDS.auth, label: t('nav.auth') },
             { id: SECTION_IDS.endpoints, label: t('nav.endpoints') },
             { id: SECTION_IDS.query, label: t('nav.query') },
+            { id: SECTION_IDS.response, label: t('nav.response') },
             { id: SECTION_IDS.limits, label: t('nav.limits') },
             { id: SECTION_IDS.errors, label: t('nav.errors') },
             { id: SECTION_IDS.example, label: t('nav.example') },
@@ -84,15 +106,18 @@ export default function DocsTab() {
 
     const lines = useMemo(
         () => [
-            `GET ${base}/v1/me`,
-            `GET ${base}/v1/services`,
-            `GET ${base}/v1/services/{id}`,
-            `GET ${base}/v1/clients`,
-            `GET ${base}/v1/clients/{id}`,
-            `GET ${base}/v1/bookings`,
-            `GET ${base}/v1/bookings/{id}`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/me`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/services`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/services/{id}`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/clients`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/clients/{id}`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/bookings`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/bookings/{id}`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/team-members`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/reviews`,
+            `GET ${DOCS_V1_PUBLIC_BASE}/schedule`,
         ],
-        [base],
+        [],
     )
 
     const navLinkClass =
@@ -142,17 +167,30 @@ export default function DocsTab() {
 
                 <section id={SECTION_IDS.base} className="scroll-mt-24 space-y-3">
                     <h5 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('baseUrl')}</h5>
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('baseUrlHint')}</p>
-                    <CodePanel>
-                        <code className="text-primary-mild">{v1}</code>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('baseUrlIntro')}</p>
+                    <CodePanel title={t('baseUrlPatternTitle')}>
+                        <code className="text-primary-mild">{'{BASE_URL}/v1'}</code>
                     </CodePanel>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('baseUrlPatternHint')}</p>
+                    <CodePanel title={t('baseUrlProductionTitle')}>
+                        <code className="text-primary-mild">{DOCS_V1_PUBLIC_BASE}</code>
+                    </CodePanel>
+                    {!sameV1AsPublicDocs && (
+                        <div className="space-y-2">
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('baseUrlThisAppTitle')}</p>
+                            <CodePanel>
+                                <code className="text-primary-mild">{resolvedV1}</code>
+                            </CodePanel>
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('baseUrlThisAppHint')}</p>
+                        </div>
+                    )}
                 </section>
 
                 <section id={SECTION_IDS.auth} className="scroll-mt-24 space-y-3">
                     <h5 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('auth')}</h5>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('authHint')}</p>
                     <CodePanel>
-                        <code>{`Authorization: Bearer ${tPh('token')}`}</code>
+                        <code>Authorization: Bearer YOUR_TOKEN</code>
                     </CodePanel>
                 </section>
 
@@ -168,6 +206,14 @@ export default function DocsTab() {
                         <MethodRow path="/v1/clients/{id}" description={t('endpointClientById')} />
                         <MethodRow path="/v1/bookings" description={t('endpointBookings')} />
                         <MethodRow path="/v1/bookings/{id}" description={t('endpointBookingById')} />
+                        <div className="border-t border-gray-100 dark:border-gray-700/90 pt-3 mt-1">
+                            <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                                {t('endpointsR11Title')}
+                            </p>
+                            <MethodRow path="/v1/team-members" description={t('endpointTeamMembers')} />
+                            <MethodRow path="/v1/reviews" description={t('endpointReviews')} />
+                            <MethodRow path="/v1/schedule" description={t('endpointSchedule')} />
+                        </div>
                     </div>
                     <CodePanel title={t('pathsBlockTitle')}>
                         <code className="text-slate-200">{lines.join('\n')}</code>
@@ -180,7 +226,23 @@ export default function DocsTab() {
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('pagination')}</p>
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('filtersBookings')}</p>
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('filtersClients')}</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('filtersTeamMembers')}</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('filtersReviews')}</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('filtersSchedule')}</p>
                     </div>
+                </section>
+
+                <section id={SECTION_IDS.response} className="scroll-mt-24 space-y-3">
+                    <h5 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('responseSectionTitle')}</h5>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('responseListIntro')}</p>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('responseSingleIntro')}</p>
+                    <CodePanel title={t('responsePaginatedExampleTitle')}>
+                        <code className="whitespace-pre text-slate-200">{RESPONSE_PAGINATED_EXAMPLE}</code>
+                    </CodePanel>
+                    <CodePanel title={t('responseSingleExampleTitle')}>
+                        <code className="whitespace-pre text-slate-200">{RESPONSE_SINGLE_EXAMPLE}</code>
+                    </CodePanel>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('responseMeNote')}</p>
                 </section>
 
                 <section id={SECTION_IDS.limits} className="scroll-mt-24 space-y-3">
@@ -204,6 +266,7 @@ export default function DocsTab() {
                 <section id={SECTION_IDS.example} className="scroll-mt-24 space-y-3">
                     <h5 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('exampleTitle')}</h5>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('exampleHint')}</p>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('exampleTokenHint')}</p>
                     <CodePanel
                         title="cURL"
                         action={

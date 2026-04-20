@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import Button from '@/components/ui/Button'
+import Dialog from '@/components/ui/Dialog'
 import Loading from '@/components/shared/Loading'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { formatDateLocalized } from '@/utils/dateTime'
 import useBusinessStore from '@/store/businessStore'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
@@ -34,17 +36,36 @@ export default function TokensTab() {
     const { data: tokens, isLoading, isError, refetch } = useBusinessApiTokensQuery(apiAllowed)
     const revokeMutation = useRevokeBusinessApiTokenMutation()
     const [createOpen, setCreateOpen] = useState(false)
+    const [keyDialogRow, setKeyDialogRow] = useState(null)
+    const [revokeTarget, setRevokeTarget] = useState(null)
 
-    const onRevoke = async (id) => {
-        if (!window.confirm(t('revokeConfirm'))) {
-            return
-        }
+    const handleRevokeConfirm = async () => {
+        if (!revokeTarget) return
         try {
-            await revokeMutation.mutateAsync(id)
+            await revokeMutation.mutateAsync(revokeTarget.id)
+            setRevokeTarget(null)
         } catch {
             toast.push(
                 <Notification type="danger" duration={4000}>
                     {t('errors.revokeFailed')}
+                </Notification>,
+            )
+        }
+    }
+
+    const handleCopyPrefix = async (prefix) => {
+        if (!prefix) return
+        try {
+            await navigator.clipboard.writeText(prefix)
+            toast.push(
+                <Notification type="success" duration={2500}>
+                    {t('keyDialog.prefixCopied')}
+                </Notification>,
+            )
+        } catch {
+            toast.push(
+                <Notification type="warning" duration={4000}>
+                    {t('keyDialog.prefixCopied')}
                 </Notification>,
             )
         }
@@ -89,7 +110,7 @@ export default function TokensTab() {
                                     <th className="text-left py-2 px-3 font-bold text-gray-500 dark:text-gray-400">{t('prefix')}</th>
                                     <th className="text-left py-2 px-3 font-bold text-gray-500 dark:text-gray-400">{t('lastUsed')}</th>
                                     <th className="text-left py-2 px-3 font-bold text-gray-500 dark:text-gray-400">{t('expiresAt')}</th>
-                                    <th className="text-right py-2 px-3 font-bold text-gray-500 dark:text-gray-400" />
+                                    <th className="text-right py-2 px-3 font-bold text-gray-500 dark:text-gray-400">{t('actions')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,15 +127,22 @@ export default function TokensTab() {
                                             {row.expires_at ? formatDateLocalized(row.expires_at, tz, locale) : t('never')}
                                         </td>
                                         <td className="py-2 px-3 text-right">
-                                            <Button
-                                                size="sm"
-                                                variant="plain"
-                                                className="text-red-600 dark:text-red-400"
-                                                loading={revokeMutation.isPending}
-                                                onClick={() => onRevoke(row.id)}
-                                            >
-                                                {t('revoke')}
-                                            </Button>
+                                            <div className="flex flex-wrap items-center justify-end gap-2">
+                                                <Button size="sm" variant="plain" onClick={() => setKeyDialogRow(row)}>
+                                                    {t('showKey')}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="plain"
+                                                    className="text-red-600 dark:text-red-400"
+                                                    loading={
+                                                        revokeMutation.isPending && revokeMutation.variables === row.id
+                                                    }
+                                                    onClick={() => setRevokeTarget({ id: row.id, name: row.name })}
+                                                >
+                                                    {t('revoke')}
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -144,6 +172,45 @@ export default function TokensTab() {
                     refetch()
                 }}
             />
+
+            <Dialog isOpen={Boolean(keyDialogRow)} onClose={() => setKeyDialogRow(null)} width={520}>
+                <div className="p-6 flex flex-col gap-4">
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('keyDialog.title')}</h4>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('keyDialog.intro')}</p>
+                    {keyDialogRow?.prefix ? (
+                        <textarea
+                            readOnly
+                            className="w-full min-h-[72px] rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 p-3 text-sm font-bold text-gray-900 dark:text-gray-100 font-mono"
+                            value={keyDialogRow.prefix}
+                        />
+                    ) : (
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('keyDialog.noPrefix')}</p>
+                    )}
+                    <div className="flex flex-wrap justify-end gap-2">
+                        {keyDialogRow?.prefix ? (
+                            <Button variant="plain" onClick={() => handleCopyPrefix(keyDialogRow.prefix)}>
+                                {t('copyPrefix')}
+                            </Button>
+                        ) : null}
+                        <Button variant="solid" onClick={() => setKeyDialogRow(null)}>
+                            {t('cancel')}
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
+
+            <ConfirmDialog
+                isOpen={Boolean(revokeTarget)}
+                type="danger"
+                title={t('revokeDialog.title')}
+                onCancel={() => setRevokeTarget(null)}
+                onConfirm={handleRevokeConfirm}
+                confirmText={t('revokeDialog.confirm')}
+                cancelText={t('cancel')}
+                confirmButtonProps={{ loading: revokeMutation.isPending }}
+            >
+                <p>{t('revokeDialog.message', { name: revokeTarget?.name ?? '' })}</p>
+            </ConfirmDialog>
         </div>
     )
 }

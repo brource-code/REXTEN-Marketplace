@@ -44,6 +44,7 @@ const CalendarView = (props) => {
         dateClick,
         select,
         firstDay = 1, // 0 = воскресенье, 1 = понедельник (по умолчанию)
+        calendarRef,
         ...rest
     } = props
 
@@ -183,6 +184,7 @@ const CalendarView = (props) => {
     return (
         <div className={classNames('calendar', wrapperClass)}>
             <FullCalendar
+                ref={calendarRef}
                 initialView="dayGridMonth"
                 firstDay={firstDay}
                 headerToolbar={{

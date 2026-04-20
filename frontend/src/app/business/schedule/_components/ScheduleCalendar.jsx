@@ -1,91 +1,320 @@
 'use client'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import CalendarView from '@/components/shared/CalendarView'
-import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import Badge from '@/components/ui/Badge'
 import Dialog from '@/components/ui/Dialog'
-import { PiCalendarPlus, PiClock, PiUser, PiRepeat } from 'react-icons/pi'
+import { PiCalendarPlus } from 'react-icons/pi'
 import dayjs from 'dayjs'
-import cloneDeep from 'lodash/cloneDeep'
 import ScheduleSlotModal from './ScheduleSlotModal'
 import RecurringBookingModal from './RecurringBookingModal'
 import RecurringBookingsList from './RecurringBookingsList'
 import ScheduleStats from './ScheduleStats'
+import ScheduleToolbar from './ScheduleToolbar'
+import ScheduleEventContent from './ScheduleEventContent'
+import ScheduleAgendaView from './ScheduleAgendaView'
+import ScheduleRouteBanner from './ScheduleRouteBanner'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getScheduleSlots, getBusinessServices, getScheduleSettings } from '@/lib/api/business'
-import toast from '@/components/ui/toast'
-import Notification from '@/components/ui/Notification'
+import {
+    getScheduleSlots,
+    getBusinessServices,
+    getScheduleSettings,
+    getTeamMembers,
+    getBusinessRoute,
+    getRecurringBookings,
+} from '@/lib/api/business'
 import Loading from '@/components/shared/Loading'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useTranslations } from 'next-intl'
 import useBusinessStore from '@/store/businessStore'
 import { usePermission } from '@/hooks/usePermission'
+import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
 import { useBusinessScheduleSlotModalController } from '@/hooks/useBusinessScheduleSlotModalController'
 import { getScheduleSlotMonetaryTotal } from '@/utils/schedule/slotMonetaryTotal'
 import { resolveSlotServiceName } from '@/utils/schedule/resolveSlotServiceName'
 
-const getBookingStatusColor = (t) => ({
-    new: {
-        label: t('statuses.new'),
-        color: 'blue',
-        badgeClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    },
-    pending: {
-        label: t('statuses.pending'),
-        color: 'yellow',
-        badgeClass: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    },
-    confirmed: {
-        label: t('statuses.confirmed'),
-        color: 'orange',
-        badgeClass: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-    },
-    completed: {
-        label: t('statuses.completed'),
-        color: 'green',
-        badgeClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-    },
-    cancelled: {
-        label: t('statuses.cancelled'),
-        color: 'red',
-        badgeClass: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-    },
-})
+const STATS_VISIBLE_LS_KEY = 'business.schedule.statsVisible'
+const COLOR_MODE_LS_KEY = 'business.schedule.colorMode'
+
+const VIEW_TYPES = ['timeGridDay', 'timeGridWeek', 'dayGridMonth', 'agenda']
 
 const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) => {
     const t = useTranslations('business.schedule')
-    const tCommon = useTranslations('business.common')
-    const bookingStatusColor = getBookingStatusColor(t)
+    const tBadges = useTranslations('business.schedule.badges')
     const queryClient = useQueryClient()
     const router = useRouter()
-    const [recurringModalOpen, setRecurringModalOpen] = useState(false)
-    const [recurringModalTab, setRecurringModalTab] = useState('list') // 'list' или 'create'
-    const [selectedChain, setSelectedChain] = useState(null)
-    const [dateRange, setDateRange] = useState(null)
-    /** Статистика: календарный месяц (по умолчанию) или видимый диапазон сетки */
-    const [statsMode, setStatsMode] = useState('calendarMonth')
+    const searchParams = useSearchParams()
+    const calendarRef = useRef(null)
 
-    const statsDateRange = useMemo(() => {
-        if (statsMode === 'calendarMonth') {
-            const start = dayjs().startOf('month').startOf('day')
-            const endExclusive = dayjs().add(1, 'month').startOf('month')
-            return { start: start.toDate(), end: endExclusive.toDate(), view: 'month' }
-        }
-        return dateRange
-    }, [statsMode, dateRange])
-    
-    // Проверка прав на управление расписанием
     const canManageSchedule = usePermission('manage_schedule')
-    
-    // Обновление диапазона дат при изменении вида календаря
+    const { hasFeature } = useSubscriptionLimits()
+    const hasRoutesFeature = hasFeature('routes')
+    const { settings } = useBusinessStore()
+    const currency = settings?.currency || 'USD'
+    const currencyFormatter = useMemo(() => {
+        try {
+            const fmt = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency,
+                minimumFractionDigits: 2,
+            })
+            return (val) => fmt.format(Number(val) || 0)
+        } catch {
+            return (val) => `$${Number(val || 0).toFixed(2)}`
+        }
+    }, [currency])
+
+    const [recurringModalOpen, setRecurringModalOpen] = useState(false)
+    const [recurringModalTab, setRecurringModalTab] = useState('list')
+    const [selectedChain, setSelectedChain] = useState(null)
+
+    const initialView = useMemo(() => {
+        const v = searchParams?.get('view')
+        return VIEW_TYPES.includes(v) ? v : 'dayGridMonth'
+    }, [searchParams])
+    const initialSpecialist = useMemo(() => {
+        const v = searchParams?.get('specialist')
+        return v && v !== 'all' ? v : null
+    }, [searchParams])
+
+    const [currentView, setCurrentView] = useState(initialView)
+    const [selectedSpecialistId, setSelectedSpecialistId] = useState(initialSpecialist)
+    const [colorMode, setColorMode] = useState('status')
+    const [statsVisible, setStatsVisible] = useState(true)
+    const [statsMode, setStatsMode] = useState('calendarMonth')
+    const [dateRange, setDateRange] = useState(null)
+    const [currentDate, setCurrentDate] = useState(() => new Date())
+    const [agendaWindowStart, setAgendaWindowStart] = useState(() => dayjs().startOf('day').toDate())
+    const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const sv = window.localStorage.getItem(STATS_VISIBLE_LS_KEY)
+        if (sv != null) setStatsVisible(sv === '1')
+        const cm = window.localStorage.getItem(COLOR_MODE_LS_KEY)
+        if (cm === 'specialist' || cm === 'status') setColorMode(cm)
+    }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return undefined
+        const mq = window.matchMedia('(hover: none) and (pointer: coarse), (max-width: 768px)')
+        const sync = () => setIsTouchDevice(mq.matches)
+        sync()
+        mq.addEventListener?.('change', sync)
+        return () => mq.removeEventListener?.('change', sync)
+    }, [])
+
+    useEffect(() => {
+        if (typeof document === 'undefined') return undefined
+        const styleId = 'schedule-modern-calendar-styles'
+        if (document.getElementById(styleId)) return undefined
+        const style = document.createElement('style')
+        style.id = styleId
+        style.textContent = `
+            .schedule-modern-calendar .fc {
+                --fc-border-color: rgba(229, 231, 235, 0.7);
+                --fc-today-bg-color: rgba(42, 133, 255, 0.06);
+                --fc-now-indicator-color: var(--primary);
+                --fc-event-border-color: transparent;
+                --fc-event-bg-color: transparent;
+                font-family: inherit;
+            }
+            .dark .schedule-modern-calendar .fc {
+                --fc-border-color: rgba(75, 85, 99, 0.45);
+                --fc-today-bg-color: rgba(42, 133, 255, 0.10);
+                --fc-page-bg-color: transparent;
+            }
+            .schedule-modern-calendar .fc-event {
+                background: transparent !important;
+                border: 0 !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            /* МЕСЯЦ: плитки занимают всю ширину ячейки, плотно стоят друг под другом */
+            .schedule-modern-calendar .fc-daygrid-event {
+                margin: 2px 3px 0 3px !important;
+                min-height: 32px;
+            }
+            .schedule-modern-calendar .fc-daygrid-day-frame {
+                min-height: 120px;
+            }
+            .schedule-modern-calendar .fc-daygrid-day-events {
+                min-height: 0 !important;
+            }
+            .schedule-modern-calendar .fc-daygrid-more-link {
+                font-weight: 700;
+                font-size: 11px;
+                color: var(--primary);
+                padding: 2px 8px;
+                border-radius: 6px;
+                background: var(--primary-subtle);
+                margin: 4px 6px 2px 6px;
+                display: inline-block;
+            }
+            .schedule-modern-calendar .fc-popover {
+                border-radius: 12px !important;
+                border-color: var(--fc-border-color) !important;
+                box-shadow: 0 10px 30px -10px rgba(0,0,0,0.18) !important;
+                overflow: hidden;
+                background-color: #fff !important;
+            }
+            .schedule-modern-calendar .fc-popover-header {
+                background: rgba(0,0,0,0.03) !important;
+                padding: 8px 12px !important;
+                font-weight: 700;
+            }
+            /* --fc-page-bg-color в тёмной теме = transparent → поповер «+N ещё» сливался с фоном */
+            .dark .schedule-modern-calendar .fc-popover,
+            .dark .schedule-modern-calendar .fc-more-popover {
+                --fc-page-bg-color: rgb(31 41 55);
+                background-color: rgb(31 41 55) !important;
+                border: 1px solid rgb(55 65 81) !important;
+                box-shadow: 0 20px 40px -12px rgba(0,0,0,0.55) !important;
+                color: #e5e7eb !important;
+            }
+            .dark .schedule-modern-calendar .fc-popover-header {
+                background: rgb(17 24 39) !important;
+                border-bottom: 1px solid rgb(55 65 81) !important;
+                color: #f9fafb !important;
+            }
+            .dark .schedule-modern-calendar .fc-popover-title {
+                color: #f9fafb !important;
+            }
+            .dark .schedule-modern-calendar .fc-popover-close {
+                color: #9ca3af !important;
+                opacity: 1 !important;
+            }
+            .dark .schedule-modern-calendar .fc-popover-close:hover {
+                color: #f3f4f6 !important;
+            }
+            .dark .schedule-modern-calendar .fc-popover-body {
+                background: rgb(31 41 55) !important;
+                color: #e5e7eb !important;
+            }
+            /* DAY/WEEK: лёгкий зазор между событиями вместо «обводки» */
+            .schedule-modern-calendar .fc-timegrid-event {
+                margin: 0 2px !important;
+                border: 0 !important;
+                box-shadow: none !important;
+            }
+            .schedule-modern-calendar .fc-timegrid-event .fc-event-main {
+                padding: 0 !important;
+            }
+            /* Шаг сетки 30 мин = ~80px. 1 час = ~160px. Внутрь карточки помещается
+               клиент, услуга·спец и сумма без обрезки. */
+            .schedule-modern-calendar .fc-timegrid-slot {
+                height: 5em;
+            }
+            .schedule-modern-calendar .fc-timegrid-event {
+                transition: box-shadow 0.15s ease, transform 0.15s ease;
+            }
+            .schedule-modern-calendar .fc-timegrid-event:hover {
+                z-index: 10 !important;
+                box-shadow: 0 6px 18px -6px rgba(0,0,0,0.25) !important;
+            }
+            /* Кнопка "+N more" в день/неделя — поверх других событий, заметная */
+            .schedule-modern-calendar .fc-timegrid-more-link {
+                background: rgba(15, 23, 42, 0.85) !important;
+                color: #fff !important;
+                border-radius: 6px !important;
+                padding: 2px 8px !important;
+                font-size: 11px !important;
+                font-weight: 700 !important;
+                z-index: 6 !important;
+                box-shadow: 0 2px 6px -2px rgba(0,0,0,0.35) !important;
+            }
+            .dark .schedule-modern-calendar .fc-timegrid-more-link {
+                background: rgba(255, 255, 255, 0.18) !important;
+            }
+            .schedule-modern-calendar .fc-timegrid-more-link:hover {
+                background: var(--primary) !important;
+            }
+            /* Подписи времени — мягкие, по часам */
+            .schedule-modern-calendar .fc-timegrid-slot-label-cushion {
+                font-weight: 700;
+                color: #6b7280;
+                font-size: 11px;
+            }
+            .dark .schedule-modern-calendar .fc-timegrid-slot-label-cushion {
+                color: #9ca3af;
+            }
+            .schedule-modern-calendar .fc-col-header-cell-cushion,
+            .schedule-modern-calendar .fc-daygrid-day-number {
+                font-weight: 700;
+                color: #6b7280;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                padding: 6px;
+            }
+            .dark .schedule-modern-calendar .fc-col-header-cell-cushion,
+            .dark .schedule-modern-calendar .fc-daygrid-day-number {
+                color: #9ca3af;
+            }
+            .schedule-modern-calendar .fc-day-today .fc-daygrid-day-number {
+                color: var(--primary);
+                background: var(--primary-subtle);
+                border-radius: 999px;
+                padding: 2px 8px;
+            }
+            .dark .schedule-modern-calendar .fc-day-today .fc-daygrid-day-number {
+                color: var(--primary-mild);
+                background: var(--primary-subtle);
+            }
+            .schedule-modern-calendar .fc-scrollgrid {
+                border-radius: 12px;
+                overflow: hidden;
+                border-color: var(--fc-border-color);
+            }
+            /* События выше линии «сейчас», чтобы текст не пересекался с индикатором */
+            .schedule-modern-calendar .fc-timegrid-event,
+            .schedule-modern-calendar .fc-timegrid-event-harness {
+                z-index: 5 !important;
+            }
+            .schedule-modern-calendar .fc-timegrid-now-indicator-container {
+                z-index: 4 !important;
+            }
+            .schedule-modern-calendar .fc-timegrid-now-indicator-line {
+                z-index: 4 !important;
+                border-color: var(--fc-now-indicator-color);
+                border-width: 2px 0 0 0;
+            }
+            .schedule-modern-calendar .fc-timegrid-now-indicator-arrow {
+                z-index: 4 !important;
+                border-color: var(--fc-now-indicator-color);
+            }
+        `
+        document.head.appendChild(style)
+        return () => {
+            const el = document.getElementById(styleId)
+            if (el) el.remove()
+        }
+    }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        window.localStorage.setItem(STATS_VISIBLE_LS_KEY, statsVisible ? '1' : '0')
+    }, [statsVisible])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        window.localStorage.setItem(COLOR_MODE_LS_KEY, colorMode)
+    }, [colorMode])
+
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams?.toString() || '')
+        if (currentView !== 'dayGridMonth') params.set('view', currentView)
+        else params.delete('view')
+        if (selectedSpecialistId) params.set('specialist', String(selectedSpecialistId))
+        else params.delete('specialist')
+        const qs = params.toString()
+        const next = qs ? `/business/schedule?${qs}` : '/business/schedule'
+        router.replace(next, { scroll: false })
+    }, [currentView, selectedSpecialistId, router, searchParams])
+
     const handleDatesSet = useCallback((dateInfo) => {
-        setDateRange({
-            start: dateInfo.start,
-            end: dateInfo.end,
-            view: dateInfo.view.type
-        })
+        setDateRange({ start: dateInfo.start, end: dateInfo.end, view: dateInfo.view.type })
+        setCurrentDate(dateInfo.view.currentStart)
     }, [])
 
     const { data: slots = [], isLoading, refetch: refetchSlots } = useQuery({
@@ -94,17 +323,87 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         initialData: initialSlots,
     })
 
-    // Загружаем список услуг для получения цен
     const { data: services = [] } = useQuery({
         queryKey: ['business-services'],
         queryFn: getBusinessServices,
     })
 
-    // Загружаем настройки расписания для получения weekStartsOn
     const { data: scheduleSettings } = useQuery({
         queryKey: ['business-schedule-settings'],
         queryFn: getScheduleSettings,
     })
+
+    const { data: teamMembers = [] } = useQuery({
+        queryKey: ['business-team'],
+        queryFn: () => getTeamMembers({ includeInactive: false }),
+    })
+
+    const { data: recurringChains = [] } = useQuery({
+        queryKey: ['recurring-bookings'],
+        queryFn: getRecurringBookings,
+        staleTime: 60 * 1000,
+    })
+
+    const recurringSlotIds = useMemo(() => {
+        const ids = new Set()
+        for (const chain of recurringChains || []) {
+            const bookings = chain.upcoming_bookings || chain.bookings || []
+            for (const b of bookings) {
+                if (b?.id != null) ids.add(String(b.id))
+            }
+        }
+        return ids
+    }, [recurringChains])
+
+    const isDayView = currentView === 'timeGridDay'
+    const isAgendaView = currentView === 'agenda'
+
+    const dayDateYmd = useMemo(() => {
+        if (!isDayView || !dateRange?.start) return null
+        return dayjs(dateRange.start).format('YYYY-MM-DD')
+    }, [isDayView, dateRange])
+
+    const dayRouteQuery = useQuery({
+        queryKey: ['business-route', selectedSpecialistId, dayDateYmd],
+        queryFn: () => getBusinessRoute(Number(selectedSpecialistId), dayDateYmd),
+        enabled: Boolean(isDayView && selectedSpecialistId && dayDateYmd && hasRoutesFeature),
+    })
+
+    const dayRouteBookingIds = useMemo(() => {
+        const ids = new Set()
+        const r = dayRouteQuery.data
+        if (!r) return ids
+        if (Array.isArray(r.included_booking_ids)) {
+            for (const id of r.included_booking_ids) ids.add(String(id))
+        } else if (Array.isArray(r.stops)) {
+            for (const s of r.stops) {
+                if (s.booking_id != null) ids.add(String(s.booking_id))
+            }
+        }
+        return ids
+    }, [dayRouteQuery.data])
+
+    const filteredSlots = useMemo(() => {
+        if (!selectedSpecialistId) return slots
+        const sid = String(selectedSpecialistId)
+        return slots.filter((s) => String(s.specialist_id ?? s.specialist?.id ?? '') === sid)
+    }, [slots, selectedSpecialistId])
+
+    const statsDateRange = useMemo(() => {
+        if (statsMode === 'calendarMonth') {
+            const start = dayjs(currentDate).startOf('month').startOf('day')
+            const endExclusive = start.add(1, 'month')
+            return { start: start.toDate(), end: endExclusive.toDate(), view: 'month' }
+        }
+        if (isAgendaView) {
+            return {
+                start: agendaWindowStart,
+                end: dayjs(agendaWindowStart).add(14, 'day').toDate(),
+                view: 'list',
+            }
+        }
+        return dateRange
+    }, [statsMode, dateRange, currentDate, isAgendaView, agendaWindowStart])
 
     const {
         dialogOpen,
@@ -137,96 +436,100 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         }
     }, [initialOpenBookingId, slots, router, setSelectedSlot, setDialogOpen])
 
-    const handleCellSelect = (event) => {
-        // Если нет прав на управление расписанием - не открываем модалку создания
+    const handleViewChange = useCallback((nextView) => {
+        setCurrentView(nextView)
+        const api = calendarRef.current?.getApi?.()
+        if (api && nextView !== 'agenda') {
+            api.changeView(nextView)
+        }
+        if (nextView === 'agenda') {
+            setAgendaWindowStart(dayjs(currentDate).startOf('day').toDate())
+        }
+    }, [currentDate])
+
+    const handlePrev = useCallback(() => {
+        if (isAgendaView) {
+            setAgendaWindowStart((d) => dayjs(d).subtract(14, 'day').toDate())
+            return
+        }
+        calendarRef.current?.getApi?.().prev?.()
+    }, [isAgendaView])
+
+    const handleNext = useCallback(() => {
+        if (isAgendaView) {
+            setAgendaWindowStart((d) => dayjs(d).add(14, 'day').toDate())
+            return
+        }
+        calendarRef.current?.getApi?.().next?.()
+    }, [isAgendaView])
+
+    const handleToday = useCallback(() => {
+        if (isAgendaView) {
+            setAgendaWindowStart(dayjs().startOf('day').toDate())
+            return
+        }
+        calendarRef.current?.getApi?.().today?.()
+    }, [isAgendaView])
+
+    const openNewBookingModal = useCallback(() => {
         if (!canManageSchedule) return
-        
-        const { start, end, allDay } = event
-        
-        // Проверяем, не занят ли этот слот
-        const selectedStart = dayjs(start)
-        let selectedEnd = dayjs(end)
-        
-        // Если время не указано (allDay или время 00:00), используем текущее время или время начала рабочего дня
-        let finalStart = selectedStart
-        if (allDay || selectedStart.format('HH:mm') === '00:00') {
-            // Если это весь день или время не указано, используем текущее время или 00:00 (12 am)
-            const now = dayjs()
-            if (selectedStart.isSame(now, 'day')) {
-                // Если выбран сегодня, используем текущее время (округленное до ближайшего часа)
-                finalStart = now.minute(0).second(0).millisecond(0)
-            } else {
-                // Если выбран другой день, используем 00:00 (12 am)
-                finalStart = selectedStart.hour(0).minute(0).second(0).millisecond(0)
-            }
-        }
-        
-        // Если end равен start или не указан (простой клик без перетаскивания), устанавливаем дефолтную длительность 1 час
-        if (selectedEnd.isSame(selectedStart) || selectedEnd.diff(selectedStart, 'minute') < 1) {
-            selectedEnd = finalStart.add(1, 'hour')
-        }
-        
-        // Проверяем пересечение только если выбранный интервал действительно пересекается с существующими
-        // Используем строгую проверку: начало выбранного < конец существующего И конец выбранного > начало существующего
-        // И проверяем, что это не одно и то же время (не касается границ)
-        const isOccupied = slots.some((slot) => {
-            const slotStart = dayjs(slot.start)
-            const slotEnd = dayjs(slot.end)
-            
-            // Проверяем пересечение: начало выбранного < конец существующего И конец выбранного > начало существующего
-            // Но разрешаем касание границ (когда одно бронирование заканчивается, а другое начинается)
-            const hasOverlap = finalStart.isBefore(slotEnd) && selectedEnd.isAfter(slotStart)
-            
-            // Если есть пересечение, проверяем, что это не просто касание границ
-            if (hasOverlap) {
-                // Разрешаем, если выбранное время начинается ровно когда заканчивается существующее
-                // или заканчивается ровно когда начинается существующее
-                const touchesStart = finalStart.isSame(slotEnd)
-                const touchesEnd = selectedEnd.isSame(slotStart)
-                
-                // Если это просто касание границ, разрешаем
-                if (touchesStart || touchesEnd) {
-                    return false
-                }
-                
-                // Иначе это реальное пересечение
-                return true
-            }
-            
-            return false
-        })
-        
-        // Всегда открываем модалку, даже если время занято
-        // Пользователь увидит предупреждение в модалке и сможет решить, хочет ли он продолжить
-        if (isOccupied) {
-            // Показываем предупреждение, но все равно открываем модалку
-            toast.push(
-                <Notification title={tCommon('warning')} type="warning">
-                    {t('notifications.timeOverlap')}
-                </Notification>,
-            )
-        }
-        
         setSelectedSlot({
             type: 'NEW',
-            start: finalStart.format(),
-            end: selectedEnd.format(),
-            isOccupied: isOccupied, // Передаем информацию о занятости в модалку
+            specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
         })
         setDialogOpen(true)
+    }, [canManageSchedule, selectedSpecialistId, setSelectedSlot, setDialogOpen])
+
+    const handleDateClick = (arg) => {
+        if (!canManageSchedule) return
+
+        const target = arg?.jsEvent?.target
+        if (target && target.closest) {
+            if (target.closest('.fc-event')) return
+            if (target.closest('.fc-more-link') || target.closest('.fc-popover')) return
+        }
+
+        const isTimeGrid = currentView === 'timeGridDay' || currentView === 'timeGridWeek'
+        if (isTimeGrid && arg?.date) {
+            const clicked = dayjs(arg.date)
+            const hit = filteredSlots.find((slot) => {
+                const sStart = dayjs(slot.start)
+                const sEnd = dayjs(slot.end)
+                return clicked.isSame(sStart) || (clicked.isAfter(sStart) && clicked.isBefore(sEnd))
+            })
+            if (hit) {
+                setSelectedSlot({ type: 'EDIT', ...hit })
+                setDialogOpen(true)
+                return
+            }
+        }
+
+        openNewBookingModal()
     }
 
-    const handleEventClick = (arg) => {
-        const slot = slots.find((s) => s.id === arg.event.id)
+    const closeMorePopover = useCallback(() => {
+        if (typeof document === 'undefined') return
+        const popovers = document.querySelectorAll('.fc-popover')
+        popovers.forEach((el) => {
+            const closeBtn = el.querySelector('.fc-popover-close')
+            if (closeBtn) closeBtn.click()
+            else el.remove()
+        })
+    }, [])
+
+    const openSlotById = useCallback((slotId) => {
+        const slot = slots.find((s) => String(s.id) === String(slotId))
         if (slot) {
-            // Передаем все данные слота, включая service, client, specialist и т.д.
-            // slot уже содержит все данные из API, включая specialist и specialist_id
-            setSelectedSlot({
-                type: 'EDIT',
-                ...slot, // Передаем все данные слота напрямую
-            })
+            setSelectedSlot({ type: 'EDIT', ...slot })
             setDialogOpen(true)
+            closeMorePopover()
         }
+    }, [slots, setSelectedSlot, setDialogOpen, closeMorePopover])
+
+    const handleEventClick = (arg) => {
+        const target = arg?.jsEvent?.target
+        if (target && target.closest && target.closest('.fc-more-link')) return
+        openSlotById(arg.event.id)
     }
 
     const handleEventChange = (arg) => {
@@ -237,36 +540,167 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         }
 
         const startDate = dayjs(arg.event.start)
-        const endDate = arg.event.end ? dayjs(arg.event.end) : startDate.add(slot.duration_minutes || 60, 'minute')
-        
+        const endDate = arg.event.end
+            ? dayjs(arg.event.end)
+            : startDate.add(slot.duration_minutes || 60, 'minute')
+
         if (!startDate.isValid()) {
             arg.revert()
             return
         }
 
-        const durationMinutes = endDate.isValid() 
-            ? Math.max(15, endDate.diff(startDate, 'minute')) 
+        const durationMinutes = endDate.isValid()
+            ? Math.max(15, endDate.diff(startDate, 'minute'))
             : (slot.duration_minutes || 60)
 
-        // Используем тот же формат, что и в модалке (handleSubmit EDIT)
+        const slotSpecialistId = slot.specialist_id || slot.specialist?.id || null
+        const slotDateBefore = dayjs(slot.start).format('YYYY-MM-DD')
+        const slotDateAfter = startDate.format('YYYY-MM-DD')
+
         updateSlotMutation.mutate(
             {
                 id: slot.id,
                 data: {
-                    booking_date: startDate.format('YYYY-MM-DD'),
+                    booking_date: slotDateAfter,
                     booking_time: startDate.format('HH:mm'),
                     duration_minutes: durationMinutes,
                     status: slot.status,
                     title: slot.title || null,
                     notes: slot.notes || null,
-                    specialist_id: slot.specialist_id || null,
+                    specialist_id: slotSpecialistId,
                 },
             },
             {
+                onSuccess: () => {
+                    if (slotSpecialistId && hasRoutesFeature) {
+                        queryClient.invalidateQueries({
+                            queryKey: ['business-route', String(slotSpecialistId), slotDateBefore],
+                        })
+                        queryClient.invalidateQueries({
+                            queryKey: ['business-route', String(slotSpecialistId), slotDateAfter],
+                        })
+                        queryClient.invalidateQueries({
+                            queryKey: ['business-route', Number(slotSpecialistId), slotDateBefore],
+                        })
+                        queryClient.invalidateQueries({
+                            queryKey: ['business-route', Number(slotSpecialistId), slotDateAfter],
+                        })
+                        queryClient.invalidateQueries({
+                            queryKey: ['business-route-saved', slotSpecialistId],
+                        })
+                    }
+                },
                 onError: () => arg.revert(),
             },
         )
     }
+
+    const isPlaceholderServiceTitle = (title) =>
+        !title || ['Услуга', 'Service', 'Servicio', 'Ծառայություն', 'Послуга'].some((p) =>
+            String(title).includes(p),
+        )
+
+    const clientFallback = t('modal.labels.client')
+
+    const events = useMemo(() => filteredSlots.map((slot) => {
+        const status = slot.status || 'new'
+        const isCustomEvent = !!(slot.title && !slot.service_id && !slot.service?.id)
+        const isInRoute = isDayView && selectedSpecialistId && dayRouteBookingIds.has(String(slot.id))
+        const isRecurring = recurringSlotIds.has(String(slot.id)) || !!slot.recurring_chain_id
+
+        const serviceName = isCustomEvent
+            ? null
+            : (resolveSlotServiceName(slot, services) || (isPlaceholderServiceTitle(slot.title) ? null : slot.title))
+        const clientName = slot.client?.name || slot.client_name || ''
+
+        let eventTitle = slot.title || ''
+        if (!isCustomEvent) {
+            if (clientName && serviceName) eventTitle = `${clientName} - ${serviceName}`
+            else if (clientName) eventTitle = clientName
+            else if (serviceName) eventTitle = serviceName
+            else if (!eventTitle) eventTitle = clientFallback
+        }
+
+        const totalAmount = getScheduleSlotMonetaryTotal(slot)
+        const amountLabel = totalAmount > 0 ? currencyFormatter(totalAmount) : null
+
+        return {
+            id: slot.id,
+            title: eventTitle,
+            start: slot.start,
+            end: slot.end,
+            extendedProps: {
+                status,
+                clientName,
+                serviceName: serviceName || (isCustomEvent ? slot.title : null),
+                specialist: slot.specialist,
+                specialistName: slot.specialist?.name || slot.specialistName || null,
+                specialist_id: slot.specialist_id || slot.specialist?.id || null,
+                amountLabel,
+                payment_status: slot.payment_status,
+                isCustom: isCustomEvent,
+                isRecurring,
+                isInRoute,
+            },
+        }
+    }), [filteredSlots, services, currencyFormatter, clientFallback, isDayView, selectedSpecialistId, dayRouteBookingIds, recurringSlotIds])
+
+    const enrichedSlotsForAgenda = useMemo(() => filteredSlots.map((slot) => ({
+        ...slot,
+        included_in_route: isDayView && selectedSpecialistId
+            ? dayRouteBookingIds.has(String(slot.id))
+            : false,
+        recurring_chain_id: recurringSlotIds.has(String(slot.id)) ? true : (slot.recurring_chain_id || null),
+    })), [filteredSlots, isDayView, selectedSpecialistId, dayRouteBookingIds, recurringSlotIds])
+
+    const badgeLabels = useMemo(() => ({
+        paidOnline: tBadges('paidOnline'),
+        cardReserved: tBadges('cardReserved'),
+        inRoute: tBadges('inRoute'),
+        recurring: tBadges('recurring'),
+        customEvent: tBadges('customEvent'),
+    }), [tBadges])
+
+    const statusLabels = useMemo(() => ({
+        new: t('statuses.new'),
+        pending: t('statuses.pending'),
+        confirmed: t('statuses.confirmed'),
+        completed: t('statuses.completed'),
+        cancelled: t('statuses.cancelled'),
+    }), [t])
+
+    const rangeLabel = useMemo(() => {
+        if (isAgendaView) {
+            const start = dayjs(agendaWindowStart)
+            const end = start.add(13, 'day')
+            return `${start.format('MMM D')} – ${end.format('MMM D')}`
+        }
+        if (!dateRange?.start) return null
+        const start = dayjs(dateRange.start)
+        const end = dayjs(dateRange.end).subtract(1, 'millisecond')
+        if (currentView === 'timeGridDay') return start.format('dddd, MMM D')
+        if (currentView === 'timeGridWeek') return `${start.format('MMM D')} – ${end.format('MMM D')}`
+        return start.format('MMMM YYYY')
+    }, [dateRange, currentView, isAgendaView, agendaWindowStart])
+
+    const dayBookingsCount = useMemo(() => {
+        if (!isDayView || !selectedSpecialistId || !dayDateYmd) return 0
+        return filteredSlots.filter((s) => dayjs(s.start).format('YYYY-MM-DD') === dayDateYmd).length
+    }, [isDayView, selectedSpecialistId, dayDateYmd, filteredSlots])
+
+    const openRouteForDay = useCallback(() => {
+        if (!hasRoutesFeature) {
+            router.push('/business/routes')
+            return
+        }
+        const sid = selectedSpecialistId
+        const date = dayDateYmd || dayjs(currentDate).format('YYYY-MM-DD')
+        const params = new URLSearchParams()
+        if (sid) params.set('specialist', String(sid))
+        if (date) params.set('date', date)
+        const qs = params.toString()
+        router.push(qs ? `/business/routes?${qs}` : '/business/routes')
+    }, [hasRoutesFeature, selectedSpecialistId, dayDateYmd, currentDate, router])
 
     if (isLoading) {
         return (
@@ -276,175 +710,159 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         )
     }
 
-    const clientFallback = t('modal.labels.client')
-    const isPlaceholderServiceTitle = (title) =>
-        !title || ['Услуга', 'Service', 'Servicio', 'Ծառայություն', 'Послуга'].some((p) =>
-            String(title).includes(p),
-        )
-
-    // Преобразуем слоты в формат для FullCalendar
-    const events = slots.map((slot) => {
-        // Цвет определяется только по статусу
-        const status = slot.status || 'new'
-        const statusConfig = bookingStatusColor[status]
-        const eventColor = statusConfig ? statusConfig.color : 'blue'
-        
-        // Формируем title из данных услуги и клиента
-        let eventTitle = slot.title
-        const isCustomEvent = !!(slot.title && !slot.service_id && !slot.service?.id)
-
-        if (isCustomEvent) {
-            eventTitle = slot.title
-        } else {
-            const serviceName = resolveSlotServiceName(slot, services)
-            if (serviceName && (isPlaceholderServiceTitle(slot.title) || !slot.title)) {
-                const clientName = slot.client?.name || slot.client_name || clientFallback
-                eventTitle = `${clientName} - ${serviceName}`
-            } else if (!eventTitle && serviceName) {
-                const clientName = slot.client?.name || slot.client_name || clientFallback
-                eventTitle = `${clientName} - ${serviceName}`
-            }
-        }
-        
-        const totalAmount = getScheduleSlotMonetaryTotal(slot)
-        const amountLabel = totalAmount > 0
-            ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(totalAmount)
-            : null
-
-        const isPaidOnline = slot.payment_status === 'authorized' || slot.payment_status === 'paid'
-        if (isPaidOnline) {
-            eventTitle = `${t('paidOnlineShort')} · ${eventTitle}`
-        }
-
-        return {
-            id: slot.id,
-            title: eventTitle,
-            start: slot.start,
-            end: slot.end,
-            extendedProps: {
-                eventColor: eventColor,
-                status: status,
-                specialist: slot.specialist,
-                specialistName: slot.specialist?.name || slot.specialistName || null,
-                specialist_id: slot.specialist_id || slot.specialist?.id || null,
-                amountLabel,
-                payment_status: slot.payment_status,
-            },
-        }
-    })
+    const selectedSpecialistObj = teamMembers.find(
+        (m) => String(m.id) === String(selectedSpecialistId),
+    )
 
     return (
-        <div className="flex flex-col gap-4">
-            <Card>
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                        <div>
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                {t('description')}
-                            </p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="flex-1 sm:flex-none"
-                                onClick={() => {
-                                    setRecurringModalTab('list')
-                                    setRecurringModalOpen(true)
-                                }}
-                                icon={<PiRepeat />}
-                            >
-                                {t('recurringBookings')}
-                            </Button>
-                            {canManageSchedule && (
-                                <Button
-                                    variant="solid"
-                                    size="sm"
-                                    className="flex-1 sm:flex-none"
-                                    onClick={() => {
-                                        setSelectedSlot({ type: 'NEW' })
-                                        setDialogOpen(true)
-                                    }}
-                                    icon={<PiCalendarPlus />}
-                                >
-                                    {t('newBooking')}
-                                </Button>
-                            )}
-                        </div>
-                    </div>
+        <div className="flex flex-col">
+            <ScheduleToolbar
+                title={t('title')}
+                description={t('description')}
+                currentView={currentView}
+                onViewChange={handleViewChange}
+                rangeLabel={rangeLabel}
+                onPrev={handlePrev}
+                onNext={handleNext}
+                onToday={handleToday}
+                teamMembers={teamMembers}
+                selectedSpecialistId={selectedSpecialistId}
+                onSpecialistChange={setSelectedSpecialistId}
+                colorMode={colorMode}
+                onColorModeChange={setColorMode}
+                statsVisible={statsVisible}
+                onToggleStats={() => setStatsVisible((v) => !v)}
+                canManageSchedule={canManageSchedule}
+                onNewBooking={() => {
+                    setSelectedSlot({
+                        type: 'NEW',
+                        specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
+                    })
+                    setDialogOpen(true)
+                }}
+                onOpenRecurring={() => {
+                    setRecurringModalTab('list')
+                    setRecurringModalOpen(true)
+                }}
+                canShowRouteCta={isDayView && Boolean(selectedSpecialistId)}
+                onOpenRouteForDay={openRouteForDay}
+                routeCtaLocked={!hasRoutesFeature}
+            />
 
-                {/* Статистика: период / календарный месяц */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 md:mb-4 pb-3 border-b border-gray-100 dark:border-gray-800">
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                        {t('stats.statsModeLabel')}
-                    </p>
-                    <div
-                        className="inline-flex self-start sm:self-auto rounded-lg border border-gray-200 dark:border-gray-600 p-0.5 bg-gray-50 dark:bg-gray-800/60"
-                        role="group"
-                        aria-label={t('stats.statsModeLabel')}
-                    >
-                        <button
-                            type="button"
-                            onClick={() => setStatsMode('calendarMonth')}
-                            className={`px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-md transition-colors ${
-                                statsMode === 'calendarMonth'
-                                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                            }`}
-                        >
-                            {t('stats.modeCalendarMonth')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setStatsMode('visibleRange')}
-                            className={`px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-md transition-colors ${
-                                statsMode === 'visibleRange'
-                                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                            }`}
-                        >
-                            {t('stats.modeVisibleRange')}
-                        </button>
-                    </div>
-                </div>
-
-                <ScheduleStats slots={slots} dateRange={statsDateRange} statsMode={statsMode} />
-
-                {/* Легенда статусов */}
-                <div className="flex flex-wrap gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                    {Object.entries(bookingStatusColor).map(([status, config]) => (
-                        <div key={status} className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.badgeClass}`}>
-                                {config.label}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Календарь */}
-                <div className="calendar-wrapper min-h-[600px] md:min-h-[700px] w-full max-w-full overflow-x-auto">
-                    <CalendarView
-                        editable
-                        selectable
-                        eventResize={handleEventChange}
-                        selectOverlap={true} // Разрешаем выбор даже если есть события - проверку делаем в handleCellSelect
-                        events={events}
-                        eventClick={handleEventClick}
-                        select={handleCellSelect}
-                        eventDrop={handleEventChange}
-                        slotMinTime="00:00:00" // Начинаем календарь с 00:00 (12 am)
-                        firstDay={scheduleSettings?.weekStartsOn ?? 1} // Начало недели из настроек (по умолчанию понедельник)
-                        datesSet={handleDatesSet} // Отслеживаем изменение периода для статистики
-                        selectAllow={() => {
-                            // Всегда разрешаем выбор - проверку пересечений делаем в handleCellSelect
-                            // Это позволяет открыть модалку даже если время занято, чтобы пользователь мог увидеть предупреждение
-                            return true
-                        }}
+            {isDayView && selectedSpecialistId && (
+                <div className="mb-3">
+                    <ScheduleRouteBanner
+                        specialistName={selectedSpecialistObj?.name}
+                        route={hasRoutesFeature ? dayRouteQuery.data : null}
+                        bookingsCount={dayBookingsCount}
+                        locked={!hasRoutesFeature}
+                        onOpen={openRouteForDay}
                     />
                 </div>
-            </Card>
+            )}
 
-            {/* Модалка для создания/редактирования бронирования */}
+            {statsVisible && (
+                <div className="mb-3">
+                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {t('stats.statsModeLabel')}
+                        </p>
+                        <div
+                            className="inline-flex self-start sm:self-auto rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800/60"
+                            role="group"
+                        >
+                            <button
+                                type="button"
+                                onClick={() => setStatsMode('calendarMonth')}
+                                className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${
+                                    statsMode === 'calendarMonth'
+                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                {t('stats.modeCalendarMonth')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setStatsMode('visibleRange')}
+                                className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${
+                                    statsMode === 'visibleRange'
+                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                {t('stats.modeVisibleRange')}
+                            </button>
+                        </div>
+                    </div>
+                    <ScheduleStats
+                        slots={filteredSlots}
+                        dateRange={statsDateRange}
+                        statsMode={statsMode}
+                    />
+                </div>
+            )}
+
+            {isAgendaView ? (
+                <ScheduleAgendaView
+                    slots={enrichedSlotsForAgenda}
+                    dateRange={statsDateRange}
+                    services={services}
+                    onEventClick={(slot) => openSlotById(slot.id)}
+                    statusLabels={statusLabels}
+                    badgeLabels={badgeLabels}
+                    colorMode={colorMode}
+                    currencyFormatter={currencyFormatter}
+                    onCreateClick={canManageSchedule ? () => {
+                        setSelectedSlot({
+                            type: 'NEW',
+                            specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
+                        })
+                        setDialogOpen(true)
+                    } : null}
+                />
+            ) : (
+                <div className="calendar-wrapper schedule-modern-calendar min-h-[600px] md:min-h-[700px] w-full max-w-full overflow-x-auto">
+                    <CalendarView
+                        calendarRef={calendarRef}
+                        editable={canManageSchedule}
+                        selectable={false}
+                        initialView={currentView === 'agenda' ? 'dayGridMonth' : currentView}
+                        headerToolbar={false}
+                        height="auto"
+                        nowIndicator
+                        eventResize={handleEventChange}
+                        events={events}
+                        eventClick={handleEventClick}
+                        dateClick={handleDateClick}
+                        eventDrop={handleEventChange}
+                        slotMinTime="00:00:00"
+                        firstDay={scheduleSettings?.weekStartsOn ?? 1}
+                        datesSet={handleDatesSet}
+                        eventMinHeight={80}
+                        eventShortHeight={120}
+                        slotEventOverlap={false}
+                        eventMaxStack={isTouchDevice ? 1 : 2}
+                        slotDuration="00:30:00"
+                        slotLabelInterval="01:00:00"
+                        allDaySlot={false}
+                        expandRows
+                        dayMaxEvents={4}
+                        moreLinkClick="popover"
+                        moreLinkContent={(arg) => t('moreEvents', { count: arg.num })}
+                        longPressDelay={500}
+                        eventLongPressDelay={500}
+                        eventContent={(arg) => (
+                            <ScheduleEventContent
+                                arg={arg}
+                                colorMode={colorMode}
+                                badgeLabels={badgeLabels}
+                            />
+                        )}
+                    />
+                </div>
+            )}
+
             <ScheduleSlotModal
                 isOpen={dialogOpen}
                 onClose={closeModal}
@@ -475,7 +893,6 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 <p>{t('deleteConfirm.message')}</p>
             </ConfirmDialog>
 
-            {/* Модалка регулярных бронирований */}
             <Dialog
                 isOpen={recurringModalOpen}
                 onClose={() => {
@@ -486,7 +903,6 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 width={900}
             >
                 <div className="flex flex-col h-full max-h-[85vh]">
-                    {/* Заголовок */}
                     <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                             {t('recurringBookings')}
@@ -516,7 +932,6 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                         </div>
                     </div>
 
-                    {/* Скроллируемый контент */}
                     <div className="flex-1 overflow-y-auto booking-modal-scroll px-6 py-4">
                         {recurringModalTab === 'list' ? (
                             <RecurringBookingsList
@@ -544,4 +959,3 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
 }
 
 export default ScheduleCalendar
-

@@ -3,6 +3,7 @@ import HorizontalMenuDropdown from './HorizontalMenuDropdown'
 import HorizontalMenuDropdownContent from './HorizontalMenuDropdownContent'
 import AuthorityCheck from '@/components/shared/AuthorityCheck'
 import PermissionCheck from '@/components/shared/PermissionCheck'
+import NavUpgradeBadge from '../NavUpgradeBadge'
 import useTranslation from '@/utils/hooks/useTranslation'
 import useMenuActive from '@/utils/hooks/useMenuActive'
 import { NAV_ITEM_TYPE_DIVIDER, NAV_ITEM_TYPE_TITLE } from '@/constants/navigation.constant'
@@ -78,6 +79,13 @@ const HorizontalMenuContent = (props) => {
                                         >
                                             <div className="flex items-center gap-1">
                                                 <span>{translateNavLabel(t, nav)}</span>
+                                                {nav.meta?.upgradeBadge && (
+                                                    <NavUpgradeBadge
+                                                        label={nav.meta.upgradeBadge}
+                                                        tone={nav.meta.upgradeBadgeTone}
+                                                        feature={nav.meta.requiredFeature}
+                                                    />
+                                                )}
                                                 <TbChevronDown />
                                             </div>
                                         </HorizontalMenuDropdownTrigger>
@@ -104,6 +112,13 @@ const HorizontalMenuContent = (props) => {
                                 >
                                     <div className="flex items-center gap-1">
                                         <span>{translateNavLabel(t, nav)}</span>
+                                        {nav.meta?.upgradeBadge && (
+                                            <NavUpgradeBadge
+                                                label={nav.meta.upgradeBadge}
+                                                tone={nav.meta.upgradeBadgeTone}
+                                                feature={nav.meta.requiredFeature}
+                                            />
+                                        )}
                                     </div>
                                 </HorizontalMenuDropdownTrigger>
                             )}

@@ -27,7 +27,7 @@ export default function RextenMarketplaceIconDark(
       aria-labelledby="rextenMarketplaceIconDark"
     >
       <title id="rextenMarketplaceIconDark">
-        Rexten Icon Dark
+        REXTEN Icon Dark
       </title>
       <defs>
         <linearGradient id="icon-dark-gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
