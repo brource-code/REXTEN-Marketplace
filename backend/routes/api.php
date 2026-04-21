@@ -120,6 +120,11 @@ Route::prefix('auth')->group(function () {
         Route::get('/google/redirect', [GoogleAuthController::class, 'redirect']);
         Route::get('/google/callback', [GoogleAuthController::class, 'callback']);
     });
+
+    Route::get('/google/pending', [GoogleAuthController::class, 'pending'])
+        ->middleware('throttle:30,1');
+    Route::post('/google/complete', [GoogleAuthController::class, 'complete'])
+        ->middleware('throttle:10,1');
 });
 
 // Public location routes

@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Auth\Concerns\IssuesAuthTokens;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Constants\UsTimezones;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
@@ -17,6 +22,14 @@ use App\Services\PlatformSettingsService;
 
 class GoogleAuthController extends Controller
 {
+    use IssuesAuthTokens;
+
+    private const GOOGLE_SIGNUP_PURPOSE = 'google_signup_completion';
+
+    private function googleSignupPendingCacheKey(string $rawToken): string
+    {
+        return 'oauth:google:pending:' . hash('sha256', $rawToken);
+    }
     /**
      * Redirect to Google OAuth
      */
@@ -25,7 +38,11 @@ class GoogleAuthController extends Controller
         // Сохраняем frontend URL в сессии для использования в callback
         $frontendUrl = $this->getFrontendUrl($request);
         $request->session()->put('oauth_frontend_url', $frontendUrl);
-        
+        $request->session()->put(
+            'oauth_locale',
+            $request->getPreferredLanguage() ?: (string) config('app.locale', 'en'),
+        );
+
         // Сохраняем сессию явно
         $request->session()->save();
         
@@ -217,9 +234,10 @@ class GoogleAuthController extends Controller
             // Используем транзакцию для защиты от race condition
             try {
                 $user = null;
-                
+                $googleSignupRawToken = null;
+
                 // Используем транзакцию для атомарности операций
-                DB::transaction(function () use (&$user, $googleUser) {
+                DB::transaction(function () use (&$user, $googleUser, &$googleSignupRawToken) {
                 
                     // 1. Сначала ищем по google_id (самый надежный способ)
                     // Включаем soft deleted записи, чтобы проверить все возможные совпадения
@@ -381,86 +399,41 @@ class GoogleAuthController extends Controller
                                     throw new \Exception('Платформа на обслуживании, создание новых аккаунтов недоступно.');
                                 }
 
-                                \Log::info('Google OAuth: Creating new user', [
+                                // Новый пользователь: не создаём User в callback — выбор роли на фронте + POST /auth/google/complete
+                                $googleSignupRawToken = Str::random(64);
+                                $nameParts = $this->parseName($googleUser->name ?? '');
+                                $cacheKey = $this->googleSignupPendingCacheKey($googleSignupRawToken);
+
+                                Cache::put($cacheKey, [
+                                    'purpose' => self::GOOGLE_SIGNUP_PURPOSE,
                                     'email' => $googleUser->email,
                                     'google_id' => $googleUser->id,
+                                    'first_name' => $nameParts['first_name'] ?? '',
+                                    'last_name' => $nameParts['last_name'] ?? '',
+                                    'avatar' => $googleUser->avatar ?? null,
+                                    'locale' => $request->hasSession()
+                                        ? $request->session()->get('oauth_locale', (string) config('app.locale', 'en'))
+                                        : (string) config('app.locale', 'en'),
+                                    'created_at' => now()->toIso8601String(),
+                                ], now()->addMinutes(10));
+
+                                \Log::info('oauth_google_pending_created', [
+                                    'email' => $googleUser->email,
                                 ]);
-                                
-                                $nameParts = $this->parseName($googleUser->name ?? '');
-                                
-                                try {
-                                    $user = User::create([
-                                        'email' => $googleUser->email,
-                                        'password' => Hash::make(Str::random(32)), // Случайный пароль, т.к. вход через Google
-                                        'role' => 'CLIENT', // По умолчанию CLIENT для новых пользователей
-                                        'google_id' => $googleUser->id,
-                                        'provider' => 'google',
-                                        'is_active' => true,
-                                        'email_verified_at' => now(),
-                                    ]);
-                                    
-                                    // Создаем профиль пользователя
-                                    UserProfile::create([
-                                        'user_id' => $user->id,
-                                        'first_name' => $nameParts['first_name'] ?? '',
-                                        'last_name' => $nameParts['last_name'] ?? '',
-                                    ]);
-                                    
-                                    \Log::info('Google OAuth: User created successfully', [
-                                        'user_id' => $user->id,
-                                        'email' => $user->email,
-                                        'role' => $user->role,
-                                    ]);
-                                } catch (\Illuminate\Database\QueryException $e) {
-                                    // Если произошла ошибка уникальности (race condition),
-                                    // пытаемся найти пользователя снова
-                                    // ВАЖНО: ищем ТОЛЬКО по google_id, чтобы не найти неправильного пользователя!
-                                    if ($e->getCode() == 23000 || strpos($e->getMessage(), 'UNIQUE constraint') !== false) {
-                                        \Log::warning('Google OAuth: Unique constraint violation, retrying to find user', [
-                                            'error' => $e->getMessage(),
-                                            'google_id' => $googleUser->id,
-                                            'email' => $googleUser->email,
-                                        ]);
-                                        
-                                        // КРИТИЧНО: ищем ТОЛЬКО по google_id, не по email!
-                                        // Это гарантирует, что мы найдем правильного пользователя
-                                        $user = User::withTrashed()
-                                            ->where('google_id', $googleUser->id)
-                                            ->lockForUpdate()
-                                            ->first();
-                                        
-                                        if (!$user) {
-                                            // Если не найден по google_id, это критическая ошибка
-                                            \Log::error('Google OAuth: User not found by google_id after unique constraint violation', [
-                                                'google_id' => $googleUser->id,
-                                                'email' => $googleUser->email,
-                                            ]);
-                                            throw new \Exception('Failed to find user after race condition');
-                                        }
-                                        
-                                        // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: убеждаемся, что email совпадает
-                                        if (strtolower(trim($user->email ?? '')) !== strtolower(trim($googleUser->email))) {
-                                            \Log::error('Google OAuth: Email mismatch after race condition recovery', [
-                                                'user_id' => $user->id,
-                                                'db_email' => $user->email,
-                                                'google_email' => $googleUser->email,
-                                                'google_id' => $googleUser->id,
-                                            ]);
-                                            throw new \Exception('Email mismatch after race condition recovery');
-                                        }
-                                        
-                                        if ($user->trashed()) {
-                                            $user->restore();
-                                        }
-                                    } else {
-                                        throw $e; // Другие ошибки пробрасываем дальше
-                                    }
-                                }
+
+                                $user = null;
                             }
                         }
                     }
                 });
-                
+
+                // Новый Google-пользователь: редирект на выбор роли (User ещё не создан)
+                if ($googleSignupRawToken !== null && $user === null) {
+                    $frontendUrl = $this->getFrontendUrl($request);
+
+                    return redirect($frontendUrl . '/auth/google/choose-role?pending=' . urlencode($googleSignupRawToken));
+                }
+
                 // КРИТИЧЕСКАЯ ПРОВЕРКА: Убеждаемся, что пользователь был найден или создан
                 if (!$user) {
                     \Log::error('Google OAuth: User is null after transaction', [
@@ -678,7 +651,234 @@ class GoogleAuthController extends Controller
             return redirect($frontendUrl . '/sign-in?error=oauth_failed&message=' . urlencode($errorMessage));
         }
     }
-    
+
+    /**
+     * Данные ожидающего Google sign-up (минимальный набор для UI выбора роли).
+     */
+    public function pending(Request $request)
+    {
+        $token = $request->query('token');
+        if (! is_string($token) || $token === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token is required',
+            ], 422);
+        }
+
+        $cacheKey = $this->googleSignupPendingCacheKey($token);
+        $payload = Cache::get($cacheKey);
+
+        if (! is_array($payload) || ($payload['purpose'] ?? '') !== self::GOOGLE_SIGNUP_PURPOSE) {
+            \Log::info('oauth_google_pending_expired', [
+                'reason' => 'cache_miss_or_invalid',
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'code' => 'pending_expired',
+                'message' => 'This sign-up session has expired. Please sign in with Google again.',
+            ], 410);
+        }
+
+        return response()->json([
+            'email' => $payload['email'],
+            'first_name' => $payload['first_name'] ?? '',
+            'last_name' => $payload['last_name'] ?? '',
+            'avatar' => $payload['avatar'] ?? null,
+        ]);
+    }
+
+    /**
+     * Завершение регистрации после выбора роли (и данных компании для BUSINESS_OWNER).
+     */
+    public function complete(Request $request)
+    {
+        if (! PlatformSettingsService::isRegistrationEnabled()) {
+            return response()->json([
+                'success' => false,
+                'code' => 'registration_disabled',
+                'message' => 'Регистрация новых пользователей временно отключена администратором.',
+            ], 403);
+        }
+
+        if (PlatformSettingsService::isMaintenanceMode()) {
+            return response()->json([
+                'success' => false,
+                'code' => 'maintenance',
+                'message' => 'Платформа на обслуживании, создание новых аккаунтов недоступно.',
+            ], 503);
+        }
+
+        $input = $request->all();
+        if (isset($input['company']) && is_array($input['company'])) {
+            $w = $input['company']['website'] ?? null;
+            if (is_string($w) && trim($w) === '') {
+                $input['company']['website'] = null;
+            }
+        }
+
+        $validator = Validator::make($input, [
+            'token' => 'required|string',
+            'role' => 'required|in:CLIENT,BUSINESS_OWNER',
+            'company' => 'nullable|array',
+            'company.name' => 'required_if:role,BUSINESS_OWNER|string|max:255',
+            'company.address' => 'required_if:role,BUSINESS_OWNER|string|max:2000',
+            'company.phone' => 'required_if:role,BUSINESS_OWNER|string|max:30',
+            'company.description' => 'nullable|string|max:10000',
+            'company.email' => 'nullable|email|max:255',
+            'company.website' => 'nullable|url|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $token = $input['token'];
+        $cacheKey = $this->googleSignupPendingCacheKey($token);
+        $payload = Cache::get($cacheKey);
+
+        if (! is_array($payload) || ($payload['purpose'] ?? '') !== self::GOOGLE_SIGNUP_PURPOSE) {
+            \Log::info('oauth_google_pending_expired', [
+                'reason' => 'complete_cache_miss',
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'code' => 'pending_expired',
+                'message' => 'This sign-up session has expired. Please sign in with Google again.',
+            ], 410);
+        }
+
+        $role = $input['role'];
+        $companyInput = is_array($input['company'] ?? null) ? $input['company'] : [];
+
+        if ($role === 'BUSINESS_OWNER' && $companyInput === []) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company data is required for a business account.',
+            ], 422);
+        }
+
+        $conflict = false;
+
+        try {
+            $user = DB::transaction(function () use ($payload, $role, $companyInput, $cacheKey, &$conflict) {
+                $exists = User::query()
+                    ->where(function ($q) use ($payload) {
+                        $q->where('email', $payload['email'])
+                            ->orWhere('google_id', (string) $payload['google_id']);
+                    })
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($exists) {
+                    Cache::forget($cacheKey);
+                    $conflict = true;
+
+                    return null;
+                }
+
+                $user = User::create([
+                    'email' => $payload['email'],
+                    'password' => Hash::make(Str::random(32)),
+                    'role' => $role,
+                    'google_id' => (string) $payload['google_id'],
+                    'provider' => 'google',
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                    'locale' => is_string($payload['locale'] ?? null) ? $payload['locale'] : null,
+                ]);
+
+                UserProfile::create([
+                    'user_id' => $user->id,
+                    'first_name' => $payload['first_name'] ?? '',
+                    'last_name' => $payload['last_name'] ?? '',
+                    'avatar' => is_string($payload['avatar'] ?? null) ? $payload['avatar'] : null,
+                ]);
+
+                if ($role === 'BUSINESS_OWNER') {
+                    $slug = $this->generateCompanySlug((string) $companyInput['name']);
+                    Company::create([
+                        'owner_id' => $user->id,
+                        'name' => $companyInput['name'],
+                        'slug' => $slug,
+                        'description' => $companyInput['description'] ?? null,
+                        'address' => $companyInput['address'],
+                        'phone' => $companyInput['phone'],
+                        'email' => $companyInput['email'] ?? $user->email,
+                        'website' => $companyInput['website'] ?? null,
+                        'timezone' => UsTimezones::getByState(''),
+                        'status' => 'pending',
+                    ]);
+                }
+
+                Cache::forget($cacheKey);
+
+                return $user;
+            });
+        } catch (\Illuminate\Database\QueryException $e) {
+            $msg = $e->getMessage();
+            if ($e->getCode() == 23000 || strpos($msg, 'UNIQUE') !== false || strpos($msg, 'unique') !== false) {
+                Cache::forget($cacheKey);
+
+                return response()->json([
+                    'success' => false,
+                    'code' => 'account_exists',
+                    'message' => 'An account with this email or Google profile already exists. Continue with Google sign-in.',
+                ], 409);
+            }
+            throw $e;
+        }
+
+        if ($conflict || ! $user) {
+            return response()->json([
+                'success' => false,
+                'code' => 'account_exists',
+                'message' => 'An account with this email or Google profile already exists. Continue with Google sign-in.',
+            ], 409);
+        }
+
+        if ($role === 'CLIENT') {
+            \Log::info('oauth_google_completed_client', ['user_id' => $user->id]);
+        } else {
+            \Log::info('oauth_google_completed_business', ['user_id' => $user->id]);
+        }
+
+        try {
+            ActivityService::logRegister($user->fresh());
+        } catch (\Throwable $e) {
+            \Log::warning('Google complete register activity: '.$e->getMessage());
+        }
+
+        try {
+            $user->last_login_at = now();
+            $user->saveQuietly();
+            ActivityService::logLogin($user->fresh());
+        } catch (\Throwable $e) {
+            \Log::warning('Google complete login activity: '.$e->getMessage());
+        }
+
+        return $this->tokenJsonResponse($user->fresh()->load('profile'))->setStatusCode(201);
+    }
+
+    private function generateCompanySlug(string $name): string
+    {
+        $base = Str::slug($name);
+        if ($base === '') {
+            $base = 'business';
+        }
+        $attempts = 0;
+        do {
+            $slug = $base.'-'.Str::lower(Str::random(6));
+            $attempts++;
+        } while (Company::where('slug', $slug)->exists() && $attempts < 25);
+
+        return $slug;
+    }
+
     /**
      * Parse full name into first and last name
      */
