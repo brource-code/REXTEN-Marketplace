@@ -13,6 +13,7 @@ import { NumericFormat } from 'react-number-format'
 import Dialog from '@/components/ui/Dialog'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
+import Checkbox from '@/components/ui/Checkbox'
 import { Radio } from '@/components/ui/Radio'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { 
@@ -874,17 +875,14 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
                         </FormItem>
 
                         <FormItem label={t('form.active')}>
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.is_active}
-                                    onChange={(e) => setFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
-                                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                                />
-                                <label className="ml-2 text-sm text-gray-600">
-                                    {t('form.showInBooking')}
-                                </label>
-                            </div>
+                            <Checkbox
+                                checked={formData.is_active}
+                                onChange={(v) => setFormData((prev) => ({ ...prev, is_active: v }))}
+                                checkboxClass="shrink-0 !m-0"
+                                className="text-sm font-bold text-gray-500 dark:text-gray-400"
+                            >
+                                <span>{t('form.showInBooking')}</span>
+                            </Checkbox>
                         </FormItem>
                     </form>
                 </div>

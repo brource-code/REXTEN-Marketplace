@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import Checkbox from '@/components/ui/Checkbox'
 
 /**
  * @param {{
@@ -99,20 +100,17 @@ export default function RouteDayBookingsPanel({
                     const checked = isIncluded(b.id)
                     return (
                         <li key={b.id} className="flex gap-2 items-stretch rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-white dark:bg-gray-900">
-                            <label
-                                className={`flex gap-3 flex-1 min-w-0 px-3 py-2.5 ${
+                            <Checkbox
+                                className={`flex-1 min-w-0 !items-start gap-3 px-3 py-2.5 ${
                                     selectionReadOnly || updatingSelection
                                         ? 'cursor-default pointer-events-none opacity-70'
                                         : 'cursor-pointer'
                                 } ${updatingSelection ? 'opacity-60' : ''}`}
+                                checkboxClass="shrink-0 mt-1 !m-0"
+                                checked={checked}
+                                disabled={updatingSelection || selectionReadOnly}
+                                onChange={(next) => handleCheck(b.id, next)}
                             >
-                                <input
-                                    type="checkbox"
-                                    className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                    checked={checked}
-                                    disabled={updatingSelection || selectionReadOnly}
-                                    onChange={(e) => handleCheck(b.id, e.target.checked)}
-                                />
                                 <div className="min-w-0 flex-1">
                                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
@@ -152,7 +150,7 @@ export default function RouteDayBookingsPanel({
                                         </p>
                                     ) : null}
                                 </div>
-                            </label>
+                            </Checkbox>
                             {typeof onOpenBooking === 'function' ? (
                                 <button
                                     type="button"

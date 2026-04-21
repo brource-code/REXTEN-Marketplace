@@ -484,13 +484,6 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         calendarRef.current?.getApi?.().today?.()
     }, [isAgendaView])
 
-    const openNewBookingModal = useCallback(() => {
-        if (!canManageSchedule) return
-        openNewBooking({
-            specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
-        })
-    }, [canManageSchedule, selectedSpecialistId, openNewBooking])
-
     const handleDateClick = (arg) => {
         if (!canManageSchedule) return
 
@@ -500,6 +493,7 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
             if (target.closest('.fc-more-link') || target.closest('.fc-popover')) return
         }
 
+        const specialistId = selectedSpecialistId ? Number(selectedSpecialistId) : undefined
         const isTimeGrid = currentView === 'timeGridDay' || currentView === 'timeGridWeek'
         if (isTimeGrid && arg?.date) {
             const clicked = dayjs(arg.date)
@@ -512,9 +506,19 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 openSlot(hit)
                 return
             }
+            openNewBooking({
+                specialist_id: specialistId,
+                booking_date: clicked.format('YYYY-MM-DD'),
+                booking_time: clicked.format('HH:mm'),
+            })
+            return
         }
 
-        openNewBookingModal()
+        const seed = { specialist_id: specialistId }
+        if (arg?.date) {
+            seed.booking_date = dayjs(arg.date).format('YYYY-MM-DD')
+        }
+        openNewBooking(seed)
     }
 
     const closeMorePopover = useCallback(() => {

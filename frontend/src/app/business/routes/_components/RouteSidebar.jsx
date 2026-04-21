@@ -9,6 +9,7 @@ import RouteDayBookingsPanel from './RouteDayBookingsPanel'
 import RouteSavedRoutesPanel from './RouteSavedRoutesPanel'
 import RouteTimeline from './RouteTimeline'
 import SpecialistHomeCard from './SpecialistHomeCard'
+import Checkbox from '@/components/ui/Checkbox'
 
 /**
  * Левая панель страницы «Маршруты» в духе ServiceTitan:
@@ -126,19 +127,23 @@ export default function RouteSidebar({
 
                                     {canShowReturnLegToggle ? (
                                         <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                            <label className="flex items-center gap-2 cursor-pointer select-none">
-                                                <input
-                                                    type="checkbox"
-                                                    className="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
-                                                    checked={includeReturnLeg}
-                                                    disabled={updatingReturnLeg || !canManageRoutes}
-                                                    onChange={(e) => onIncludeReturnLegChange(e.target.checked)}
-                                                />
+                                            <Checkbox
+                                                variant="card"
+                                                checked={includeReturnLeg}
+                                                disabled={updatingReturnLeg || !canManageRoutes}
+                                                onChange={(v) => onIncludeReturnLegChange(v)}
+                                                checkboxClass="shrink-0 !m-0"
+                                                className={
+                                                    updatingReturnLeg || !canManageRoutes
+                                                        ? 'opacity-70 pointer-events-none select-none'
+                                                        : 'select-none'
+                                                }
+                                            >
                                                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                     {t('routeIncludeReturnLeg')}
                                                     {updatingReturnLeg ? ' …' : ''}
                                                 </span>
-                                            </label>
+                                            </Checkbox>
                                         </div>
                                     ) : null}
 
