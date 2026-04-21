@@ -12,6 +12,17 @@ return [
         'footer' => 'Este mensaje fue enviado por :app.',
         'plain' => "Restablecer contraseña:\n:url\n\nEl enlace caduca en :count minutos.\n\nSi no lo solicitaste, ignora este correo.",
     ],
+    'verify_email' => [
+        'subject' => 'Confirma tu correo — :app',
+        'preheader' => 'Tu código de confirmación para :app.',
+        'title' => 'Confirma tu correo',
+        'intro' => 'Gracias por registrarte. Introduce el código de abajo en la página de verificación para confirmar tu correo.',
+        'expires' => 'Este código caduca en :count minutos.',
+        'ignore' => 'Si no creaste una cuenta, puedes ignorar este correo.',
+        'footer' => 'Este mensaje fue enviado por :app.',
+        'code_intro' => 'Tu código de confirmación:',
+        'plain_code' => "Tu código de confirmación: :code\n\nEl código caduca en :count minutos.\n\nSi no te registraste, ignora este correo.",
+    ],
     'business_owner' => [
         'preheader' => 'Notificación: :title',
         'open_dashboard' => 'Abrir el panel',

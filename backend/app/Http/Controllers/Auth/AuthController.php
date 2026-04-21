@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Auth\Concerns\IssuesAuthTokens;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserPresenceSession;
@@ -12,29 +13,13 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Services\ActivityService;
+use App\Services\EmailOtpService;
 use App\Services\PlatformSettingsService;
 use App\Support\PasswordResetMailLocale;
 
 class AuthController extends Controller
 {
-    /**
-     * Публичный относительный путь аватара (как в /auth/me) — единый формат для login/register/me.
-     */
-    private function publicAvatarPathFromProfile(?UserProfile $profile): ?string
-    {
-        if (! $profile || ! $profile->avatar) {
-            return null;
-        }
-
-        $avatarPath = \Illuminate\Support\Facades\Storage::disk('public')->url($profile->avatar);
-        if (str_starts_with($avatarPath, 'http://') || str_starts_with($avatarPath, 'https://')) {
-            $parsedUrl = parse_url($avatarPath);
-
-            return $parsedUrl['path'] ?? $avatarPath;
-        }
-
-        return $avatarPath;
-    }
+    use IssuesAuthTokens;
 
     /**
      * Register a new user.
@@ -62,6 +47,7 @@ class AuthController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
+            'locale' => 'nullable|string|in:en,ru,es-MX,hy-AM,uk-UA',
         ], [
             'email.unique' => 'Пользователь с таким email уже зарегистрирован',
             'email.email' => 'Введите корректный email адрес',
@@ -84,10 +70,13 @@ class AuthController extends Controller
 
         $verifyRequired = PlatformSettingsService::isEmailVerificationRequired();
 
+        $uiLocale = PasswordResetMailLocale::normalizeUiLocale($request->input('locale'));
+
         $user = User::create([
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'locale' => $uiLocale,
             'email_verified_at' => $verifyRequired ? null : now(),
         ]);
 
@@ -104,49 +93,32 @@ class AuthController extends Controller
             \Illuminate\Support\Facades\Log::warning('Register activity: '.$e->getMessage());
         }
 
-        // Генерируем access token (короткоживущий)
-        $accessToken = JWTAuth::fromUser($user);
-        
-        // Генерируем refresh token (долгоживущий) с увеличенным TTL
-        $refreshToken = JWTAuth::customClaims([
-            'type' => 'refresh',
-            'exp' => now()->addMinutes(config('jwt.refresh_ttl'))->timestamp,
-        ])->fromUser($user);
+        if ($verifyRequired) {
+            $otpResult = app(EmailOtpService::class)->issueAndSend($user, $request->input('locale'));
+            $userData = $user->load('profile');
+            $avatarPublic = $this->publicAvatarPathFromProfile($userData->profile);
 
-        $userData = $user->load('profile');
-        
-        // Возвращаем access token в ответе, refresh token в httpOnly cookie
-        $avatarPublic = $this->publicAvatarPathFromProfile($userData->profile);
-
-        $response = response()->json([
-            'access_token' => $accessToken,
-            'user' => [
-                'id' => $userData->id,
+            return response()->json([
+                'requires_email_verification' => true,
+                'code_sent' => (bool) ($otpResult['sent'] ?? false),
                 'email' => $userData->email,
-                'role' => $userData->role,
-                'locale' => $userData->locale,
-                'name' => $userData->profile ? ($userData->profile->first_name . ' ' . $userData->profile->last_name) : null,
-                'firstName' => $userData->profile->first_name ?? null,
-                'lastName' => $userData->profile->last_name ?? null,
-                'phone' => $userData->profile->phone ?? null,
-                'avatar' => $avatarPublic,
-                'image' => $avatarPublic,
-            ],
-        ], 201);
-        
-        // Устанавливаем refresh token в httpOnly cookie
-        // Используем cookie() helper с явными параметрами
-        return $response->cookie(
-            'refresh_token',
-            $refreshToken,
-            config('jwt.refresh_ttl'), // Время жизни в минутах
-            '/',
-            config('cookie.domain'), // Domain из конфига
-            config('cookie.secure'), // Secure flag из конфига
-            true, // httpOnly = true (критично для безопасности)
-            false, // raw = false (Laravel зашифрует через EncryptCookies middleware)
-            config('cookie.same_site') // SameSite из конфига ('lax')
-        );
+                'email_verified_at' => null,
+                'user' => [
+                    'id' => $userData->id,
+                    'email' => $userData->email,
+                    'role' => $userData->role,
+                    'locale' => $userData->locale,
+                    'name' => $userData->profile ? ($userData->profile->first_name.' '.$userData->profile->last_name) : null,
+                    'firstName' => $userData->profile->first_name ?? null,
+                    'lastName' => $userData->profile->last_name ?? null,
+                    'phone' => $userData->profile->phone ?? null,
+                    'avatar' => $avatarPublic,
+                    'image' => $avatarPublic,
+                ],
+            ], 201);
+        }
+
+        return $this->tokenJsonResponse($user->fresh()->load('profile'))->setStatusCode(201);
     }
 
     /**
@@ -157,6 +129,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required|string',
+            'locale' => 'nullable|string|in:en,ru,es-MX,hy-AM,uk-UA',
         ]);
 
         if ($validator->fails()) {
@@ -185,10 +158,15 @@ class AuthController extends Controller
                 // ignore
             }
 
+            $otpResult = app(EmailOtpService::class)->issueAndSend($user, $request->input('locale'));
+
             return response()->json([
                 'success' => false,
                 'code' => 'email_not_verified',
-                'message' => 'Подтвердите email, чтобы войти. Письмо можно запросить повторно (когда будет настроена рассылка).',
+                'message' => 'Аккаунт не активирован. Введите 6-значный код из письма на странице подтверждения.',
+                'email' => $user->email,
+                'user_id' => $user->id,
+                'code_sent' => (bool) ($otpResult['sent'] ?? false),
             ], 403);
         }
 
@@ -232,48 +210,7 @@ class AuthController extends Controller
             \Illuminate\Support\Facades\Log::warning('Login activity/log failed: '.$e->getMessage());
         }
 
-        // Генерируем access token (короткоживущий)
-        $accessToken = $token;
-        
-        // Генерируем refresh token (долгоживущий) с увеличенным TTL
-        $refreshToken = JWTAuth::customClaims([
-            'type' => 'refresh',
-            'exp' => now()->addMinutes(config('jwt.refresh_ttl'))->timestamp,
-        ])->fromUser($user);
-
-        $userData = $user->load('profile');
-
-        $avatarPublic = $this->publicAvatarPathFromProfile($userData->profile);
-
-        // Возвращаем access token в ответе, refresh token в httpOnly cookie
-        $response = response()->json([
-            'access_token' => $accessToken,
-            'user' => [
-                'id' => $userData->id,
-                'email' => $userData->email,
-                'role' => $userData->role,
-                'locale' => $userData->locale,
-                'name' => $userData->profile ? ($userData->profile->first_name . ' ' . $userData->profile->last_name) : null,
-                'firstName' => $userData->profile->first_name ?? null,
-                'lastName' => $userData->profile->last_name ?? null,
-                'phone' => $userData->profile->phone ?? null,
-                'avatar' => $avatarPublic,
-                'image' => $avatarPublic,
-            ],
-        ]);
-        
-        // Устанавливаем refresh token в httpOnly cookie
-        return $response->cookie(
-            'refresh_token',
-            $refreshToken,
-            config('jwt.refresh_ttl'), // Время жизни в минутах
-            '/',
-            config('cookie.domain'), // Domain из конфига
-            config('cookie.secure'), // Secure flag из конфига
-            true, // httpOnly = true (критично для безопасности)
-            false, // raw = false (Laravel зашифрует через EncryptCookies middleware)
-            config('cookie.same_site') // SameSite из конфига ('lax')
-        );
+        return $this->tokenJsonResponse($user->load('profile'), $token);
     }
 
     /**
@@ -343,6 +280,7 @@ class AuthController extends Controller
             'email' => $userData->email,
             'role' => $userData->role,
             'locale' => $userData->locale,
+            'email_verified_at' => $userData->email_verified_at?->toIso8601String(),
             'name' => $fullName,
             'firstName' => $userData->profile->first_name ?? null,
             'lastName' => $userData->profile->last_name ?? null,

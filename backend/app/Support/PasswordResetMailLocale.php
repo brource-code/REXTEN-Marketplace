@@ -15,6 +15,28 @@ final class PasswordResetMailLocale
         'hy-AM' => 'hy',
     ];
 
+    /** Локали UI (next-intl / профиль), как в `ProfileController`. */
+    public const UI_LOCALES = ['en', 'ru', 'es-MX', 'hy-AM', 'uk-UA'];
+
+    /**
+     * Нормализация локали из запроса/профиля для поля users.locale.
+     */
+    public static function normalizeUiLocale(?string $raw): ?string
+    {
+        if ($raw === null || trim((string) $raw) === '') {
+            return null;
+        }
+
+        $t = trim((string) $raw);
+        foreach (self::UI_LOCALES as $loc) {
+            if (strcasecmp($loc, $t) === 0) {
+                return $loc;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Строка из users.locale или с фронта (next-intl) → код для mail-переводов или null, если пусто/неизвестно.
      */

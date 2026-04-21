@@ -12,6 +12,17 @@ return [
         'footer' => 'This message was sent by :app.',
         'plain' => "Reset your password:\n:url\n\nThis link expires in :count minutes.\n\nIf you did not request this, ignore this email.",
     ],
+    'verify_email' => [
+        'subject' => 'Confirm your email — :app',
+        'preheader' => 'Use your confirmation code for :app.',
+        'title' => 'Confirm your email',
+        'intro' => 'Thanks for signing up. Enter the code below on the verification page to confirm your email address.',
+        'expires' => 'This code expires in :count minutes.',
+        'ignore' => 'If you did not create an account, you can ignore this email.',
+        'footer' => 'This message was sent by :app.',
+        'code_intro' => 'Your confirmation code:',
+        'plain_code' => "Your confirmation code: :code\n\nThe code expires in :count minutes.\n\nIf you did not sign up, ignore this email.",
+    ],
     'business_owner' => [
         'preheader' => 'Notification: :title',
         'open_dashboard' => 'Open dashboard',

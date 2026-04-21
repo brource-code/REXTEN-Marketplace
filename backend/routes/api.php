@@ -107,7 +107,11 @@ Route::prefix('auth')->group(function () {
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('throttle:10,1');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
-    
+    Route::post('/email/verify-code', [\App\Http\Controllers\Auth\EmailOtpController::class, 'verify'])
+        ->middleware('throttle:15,1');
+    Route::post('/email/resend-code', [\App\Http\Controllers\Auth\EmailOtpController::class, 'resend'])
+        ->middleware('throttle:8,1');
+
     // Google OAuth routes - требуют сессии для Socialite
     Route::middleware([
         \Illuminate\Session\Middleware\StartSession::class,

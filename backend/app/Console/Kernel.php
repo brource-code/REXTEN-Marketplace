@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Services\EmailOtpService;
 use App\Services\PlatformBackupService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -31,6 +32,10 @@ class Kernel extends ConsoleKernel
 
         // Cancel bookings with pending_payment older than 30 minutes
         $schedule->command('booking:cancel-unpaid')->everyMinute();
+
+        $schedule->call(function () {
+            app(EmailOtpService::class)->deleteExpired();
+        })->hourly();
     }
 
     protected function commands(): void
