@@ -6,13 +6,16 @@ import { getSubscriptionUsage } from '@/lib/api/stripe'
 
 /**
  * Лимиты и фичи подписки (GET /business/subscription/usage).
+ * @param {{ enabled?: boolean }} [options]
  */
-export default function useSubscriptionLimits() {
+export default function useSubscriptionLimits(options = {}) {
+    const { enabled = true } = options
     const { data: usage, isLoading, isError, refetch } = useQuery({
         queryKey: ['subscription-usage'],
         queryFn: getSubscriptionUsage,
         staleTime: 60 * 1000,
         retry: 1,
+        enabled,
     })
 
     const canCreate = useCallback(

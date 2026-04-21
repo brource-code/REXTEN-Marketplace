@@ -8,12 +8,14 @@ import { TITLE_CLS, MUTED_CLS } from '@/components/business/booking/shared/booki
 
 function statusTagClass(status) {
     switch (status) {
-        case 'confirmed':
-            return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+        case 'new':
+            return 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300'
         case 'pending':
+            return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
+        case 'confirmed':
             return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
         case 'completed':
-            return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+            return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
         case 'cancelled':
             return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
         default:
@@ -33,12 +35,16 @@ export default function BookingDrawerHeader({
         ? slot?.title || t('blockEvent')
         : slot?.service?.name || slot?.title || t('booking')
 
-    const dateLabel = slot?.booking_date
-        ? dayjs(slot.booking_date).format('ddd, DD MMM')
-        : ''
-    const timeLabel = slot?.booking_time
-        ? slot.booking_time.substring(0, 5)
-        : ''
+    const start = slot?.start ? dayjs(slot.start) : null
+    let dateLabel = ''
+    let timeLabel = ''
+    if (start?.isValid()) {
+        dateLabel = start.format('ddd, DD MMM')
+        timeLabel = start.format('HH:mm')
+    } else {
+        if (slot?.booking_date) dateLabel = dayjs(slot.booking_date).format('ddd, DD MMM')
+        if (slot?.booking_time) timeLabel = String(slot.booking_time).substring(0, 5)
+    }
     const status = slot?.status || 'new'
 
     const clientName = slot?.client?.name || slot?.client_name

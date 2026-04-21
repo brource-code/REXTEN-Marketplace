@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import dayjs from 'dayjs'
 import Drawer from '@/components/ui/Drawer'
 import Tabs from '@/components/ui/Tabs'
 import Button from '@/components/ui/Button'
@@ -21,22 +22,41 @@ import { LABEL_CLS } from '@/components/business/booking/shared/bookingTypograph
 import { FormItem } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 
-function buildInitialValues(slot) {
-    if (!slot) return {}
-    const eventType =
-        slot.event_type ||
-        (slot.title && !slot.service_id ? 'block' : 'booking')
+/** Дата/время как у FullCalendar: из `start`, иначе из полей брони. */
+function slotDateParts(slot) {
+    if (!slot) return { booking_date: null, booking_time: null }
+    if (slot.start) {
+        const d = dayjs(slot.start)
+        if (d.isValid()) {
+            return {
+                booking_date: d.format('YYYY-MM-DD'),
+                booking_time: d.format('HH:mm'),
+            }
+        }
+    }
     return {
-        id: slot.id,
-        event_type: eventType,
-        service_id: slot.service_id ?? null,
-        title: slot.title ?? null,
         booking_date: slot.booking_date
             ? String(slot.booking_date).substring(0, 10)
             : null,
         booking_time: slot.booking_time
             ? String(slot.booking_time).substring(0, 5)
             : null,
+    }
+}
+
+function buildInitialValues(slot) {
+    if (!slot) return {}
+    const eventType =
+        slot.event_type ||
+        (slot.title && !slot.service_id ? 'block' : 'booking')
+    const { booking_date, booking_time } = slotDateParts(slot)
+    return {
+        id: slot.id,
+        event_type: eventType,
+        service_id: slot.service_id ?? null,
+        title: slot.title ?? null,
+        booking_date,
+        booking_time,
         duration_minutes: Number(slot.duration_minutes) || 60,
         specialist_id: slot.specialist_id ?? slot.specialist?.id ?? null,
         execution_type: slot.execution_type || 'onsite',

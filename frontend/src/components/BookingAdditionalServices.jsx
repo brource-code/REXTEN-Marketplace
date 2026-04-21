@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getAdditionalServices, getAdditionalServicesByAdvertisement } from '@/lib/api/additionalServices';
 import { formatDuration } from '@/utils/formatDuration';
 import { formatCurrency } from '@/utils/formatCurrency';
+import Checkbox from '@/components/ui/Checkbox';
 
 /**
  * Компонент для отображения и выбора дополнительных услуг в букинге
@@ -145,36 +146,33 @@ export default function BookingAdditionalServices({
               >
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleToggleService(service)}
-                          className="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                        />
-                        <div className="flex-1">
-                          <h5 className="text-sm font-medium text-gray-900 dark:text-white">
-                            {service.name}
-                          </h5>
-                          {service.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {service.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 mt-2">
-                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {formatCurrency(parseFloat(service.price) || 0, service.currency || currency)}
+                    <Checkbox
+                      className="flex-1 !items-start"
+                      checkboxClass="shrink-0 mt-1 !m-0"
+                      checked={isSelected}
+                      onChange={() => handleToggleService(service)}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <h5 className="text-sm font-medium text-gray-900 dark:text-white">
+                          {service.name}
+                        </h5>
+                        {service.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {service.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2">
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {formatCurrency(parseFloat(service.price) || 0, service.currency || currency)}
+                          </span>
+                          {service.duration && service.duration > 0 && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {formatDuration(service.duration, 'minutes')}
                             </span>
-                            {service.duration && service.duration > 0 && (
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {formatDuration(service.duration, 'minutes')}
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
-                    </div>
+                    </Checkbox>
 
                     {isSelected && (
                       <div className="flex items-center gap-3 shrink-0 flex-wrap">

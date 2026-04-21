@@ -48,6 +48,7 @@ const BusinessNotification = () => {
     const { data: notifications = [], isLoading } = useQuery({
         queryKey,
         queryFn: isSuperadminArea ? getAdminNotifications : getBusinessNotifications,
+        enabled: true,
     })
 
     const markAsReadMutation = useMutation({
