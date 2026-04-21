@@ -1,3 +1,5 @@
+'use client'
+
 import {
     useMemo,
     useRef,
@@ -5,6 +7,8 @@ import {
     useState,
     useImperativeHandle,
 } from 'react'
+import { useTranslations } from 'next-intl'
+import { PiTable } from 'react-icons/pi'
 import classNames from 'classnames'
 import Table from '@/components/ui/Table'
 import Pagination from '@/components/ui/Pagination'
@@ -12,7 +16,7 @@ import Select from '@/components/ui/Select'
 import Checkbox from '@/components/ui/Checkbox'
 import TableRowSkeleton from './loaders/TableRowSkeleton'
 import Loading from './Loading'
-import FileNotFound from '@/assets/svg/FileNotFound'
+import EmptyStatePanel from './EmptyStatePanel'
 import {
     useReactTable,
     getCoreRowModel,
@@ -64,6 +68,7 @@ function DataTable(props) {
         columns: columnsProp = [],
         data = [],
         customNoDataIcon,
+        emptyState,
         loading,
         noData,
         onCheckBoxChange,
@@ -86,6 +91,8 @@ function DataTable(props) {
         onRowClick,
         ...rest
     } = props
+
+    const tEmpty = useTranslations('components.dataTable')
 
     const { pageSize, pageIndex, total } = pagingData
 
@@ -270,21 +277,22 @@ function DataTable(props) {
                         {noData ? (
                             <Tr>
                                 <Td
-                                    className="hover:bg-transparent"
+                                    className="hover:bg-transparent p-4"
                                     colSpan={finalColumns.length}
                                 >
-                                    <div className="flex flex-col items-center gap-4">
-                                        {customNoDataIcon ? (
-                                            customNoDataIcon
-                                        ) : (
-                                            <>
-                                                <FileNotFound />
-                                                <span className="font-semibold">
-                                                    No data found!
-                                                </span>
-                                            </>
-                                        )}
-                                    </div>
+                                    {emptyState ? (
+                                        emptyState
+                                    ) : customNoDataIcon ? (
+                                        <div className="flex flex-col items-center gap-4 py-8">
+                                            {customNoDataIcon}
+                                        </div>
+                                    ) : (
+                                        <EmptyStatePanel
+                                            icon={PiTable}
+                                            title={tEmpty('emptyTitle')}
+                                            hint={tEmpty('emptyHint')}
+                                        />
+                                    )}
                                 </Td>
                             </Tr>
                         ) : (
