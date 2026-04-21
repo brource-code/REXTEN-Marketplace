@@ -160,9 +160,13 @@ export interface RecentBooking {
     customer: string
     service: string
     amount: number
-    status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+    status: 'new' | 'pending' | 'confirmed' | 'completed' | 'cancelled'
     payment_status?: string
     execution_type?: 'onsite' | 'offsite'
+    service_id?: string | number | null
+    title?: string | null
+    event_type?: string
+    specialist_name?: string | null
 }
 
 export async function getBusinessStats(): Promise<BusinessStats> {
@@ -246,7 +250,22 @@ export async function getRecentBookings(limit: number = 5): Promise<RecentBookin
         params: { limit },
     })
     const data = response.data.data || response.data
-    return Array.isArray(data) ? data : []
+    if (!Array.isArray(data)) return []
+    return data.map((row: Record<string, unknown>) => ({
+        id: String(row.id ?? ''),
+        date: String(row.date ?? ''),
+        time: String(row.time ?? '00:00:00'),
+        customer: String(row.customer ?? ''),
+        service: String(row.service ?? ''),
+        amount: Number(row.amount) || 0,
+        status: (row.status ?? 'new') as RecentBooking['status'],
+        payment_status: row.payment_status != null ? String(row.payment_status) : undefined,
+        execution_type: (row.execution_type as RecentBooking['execution_type']) ?? 'onsite',
+        service_id: row.service_id ?? null,
+        title: row.title != null ? String(row.title) : null,
+        event_type: row.event_type != null ? String(row.event_type) : 'booking',
+        specialist_name: row.specialist_name != null ? String(row.specialist_name) : null,
+    }))
 }
 
 export interface ChartDataPoint {
@@ -494,6 +513,9 @@ export interface ClientBooking {
     duration_minutes: number
     price: number
     total_price: number
+    payment_status?: string
+    included_in_route?: boolean
+    recurring_chain_id?: string | number | null
     status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'new'
     notes: string | null
     client_notes: string | null
