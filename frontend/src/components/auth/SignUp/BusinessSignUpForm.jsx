@@ -10,17 +10,29 @@ import { PiArrowLeft, PiArrowRight, PiCheck } from 'react-icons/pi'
 import { HiOutlineEyeOff, HiOutlineEye } from 'react-icons/hi'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import { useTranslations } from 'next-intl'
+import { formatUsPhoneDisplay, stripToNanpDigits } from '@/utils/usPhone'
 
 const getBusinessValidationSchema = (t, tSignUp) => z.object({
     email: z.string().email({ message: tSignUp('validation.emailRequired') }),
     firstName: z.string().min(1, { message: tSignUp('validation.firstNameRequired') }),
     lastName: z.string().min(1, { message: tSignUp('validation.lastNameRequired') }),
-    phone: z.string().optional(),
+    phone: z
+        .string()
+        .optional()
+        .refine((val) => {
+            const d = stripToNanpDigits(val || '')
+            return d.length === 0 || d.length === 10
+        }, { message: tSignUp('validation.phoneUsInvalid') }),
     password: z.string().min(8, { message: tSignUp('validation.passwordMinLength') }),
     confirmPassword: z.string().min(1, { message: tSignUp('validation.confirmPasswordRequired') }),
     businessName: z.string().min(1, { message: t('validation.businessNameRequired') }),
     businessAddress: z.string().min(1, { message: t('validation.businessAddressRequired') }),
-    businessPhone: z.string().min(1, { message: t('validation.businessPhoneRequired') }),
+    businessPhone: z
+        .string()
+        .min(1, { message: t('validation.businessPhoneRequired') })
+        .refine((val) => stripToNanpDigits(val || '').length === 10, {
+            message: t('validation.businessPhoneInvalid'),
+        }),
     businessEmail: z.string().email({ message: t('validation.businessEmailInvalid') }).optional().or(z.literal('')),
     businessWebsite: z.string().optional(),
     businessDescription: z.string().optional(),
@@ -28,6 +40,25 @@ const getBusinessValidationSchema = (t, tSignUp) => z.object({
     message: tSignUp('validation.passwordsNotMatch'),
     path: ['confirmPassword'],
 })
+
+const getCompanyOnlyValidationSchema = (t) =>
+    z.object({
+        businessName: z.string().min(1, { message: t('validation.businessNameRequired') }),
+        businessAddress: z.string().min(1, { message: t('validation.businessAddressRequired') }),
+        businessPhone: z
+            .string()
+            .min(1, { message: t('validation.businessPhoneRequired') })
+            .refine((val) => stripToNanpDigits(val || '').length === 10, {
+                message: t('validation.businessPhoneInvalid'),
+            }),
+        businessEmail: z
+            .string()
+            .email({ message: t('validation.businessEmailInvalid') })
+            .optional()
+            .or(z.literal('')),
+        businessWebsite: z.string().optional(),
+        businessDescription: z.string().optional(),
+    })
 
 const getSteps = (t) => [
     {
@@ -48,13 +79,14 @@ const getSteps = (t) => [
 ]
 
 const BusinessSignUpForm = (props) => {
-    const { onSignUp, className, setMessage } = props
+    const { onSignUp, className, setMessage, mode = 'full', submitButtonLabel } = props
     const t = useTranslations('auth.businessSignUp')
     const tSignUp = useTranslations('auth.signUp')
+    const isCompanyOnly = mode === 'company-only'
 
     const [isSubmitting, setSubmitting] = useState(false)
-    const [currentStep, setCurrentStep] = useState(1)
-    const [touchedSteps, setTouchedSteps] = useState(new Set())
+    const [currentStep, setCurrentStep] = useState(isCompanyOnly ? 3 : 1)
+    const [touchedSteps, setTouchedSteps] = useState(() => (isCompanyOnly ? new Set([3]) : new Set()))
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -66,29 +98,40 @@ const BusinessSignUpForm = (props) => {
         control,
         trigger,
     } = useForm({
-        resolver: zodResolver(getBusinessValidationSchema(t, tSignUp)),
+        resolver: zodResolver(
+            isCompanyOnly ? getCompanyOnlyValidationSchema(t) : getBusinessValidationSchema(t, tSignUp),
+        ),
         mode: 'onSubmit', // Валидация только при отправке, не при изменении
-        defaultValues: {
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            password: '',
-            confirmPassword: '',
-            businessName: '',
-            businessAddress: '',
-            businessPhone: '',
-            businessEmail: '',
-            businessWebsite: '',
-            businessDescription: '',
-        },
+        defaultValues: isCompanyOnly
+            ? {
+                  businessName: '',
+                  businessAddress: '',
+                  businessPhone: '+1',
+                  businessEmail: '',
+                  businessWebsite: '',
+                  businessDescription: '',
+              }
+            : {
+                  firstName: '',
+                  lastName: '',
+                  email: '',
+                  phone: '+1',
+                  password: '',
+                  confirmPassword: '',
+                  businessName: '',
+                  businessAddress: '',
+                  businessPhone: '+1',
+                  businessEmail: '',
+                  businessWebsite: '',
+                  businessDescription: '',
+              },
     })
 
     const handleNext = async () => {
         let fieldsToValidate = []
         
         if (currentStep === 1) {
-            fieldsToValidate = ['firstName', 'lastName', 'email']
+            fieldsToValidate = ['firstName', 'lastName', 'email', 'phone']
         } else if (currentStep === 2) {
             fieldsToValidate = ['password', 'confirmPassword']
         } else if (currentStep === 3) {
@@ -190,9 +233,16 @@ const BusinessSignUpForm = (props) => {
                         render={({ field }) => (
                             <Input
                                 type="tel"
+                                inputMode="tel"
                                 placeholder={tSignUp('phonePlaceholder')}
-                                autoComplete="off"
-                                {...field}
+                                autoComplete="tel-national"
+                                value={field.value}
+                                onChange={(e) =>
+                                    field.onChange(formatUsPhoneDisplay(e.target.value))
+                                }
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
                             />
                         )}
                     />
@@ -342,9 +392,16 @@ const BusinessSignUpForm = (props) => {
                             render={({ field }) => (
                                 <Input
                                     type="tel"
+                                    inputMode="tel"
                                     placeholder={tSignUp('phonePlaceholder')}
-                                    autoComplete="off"
-                                    {...field}
+                                    autoComplete="tel-national"
+                                    value={field.value}
+                                    onChange={(e) =>
+                                        field.onChange(formatUsPhoneDisplay(e.target.value))
+                                    }
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
                                 />
                             )}
                         />
@@ -386,6 +443,19 @@ const BusinessSignUpForm = (props) => {
                         )}
                     />
                 </FormItem>
+            </div>
+        )
+    }
+
+    if (isCompanyOnly) {
+        return (
+            <div className={className}>
+                <Form onSubmit={handleSubmit(handleSignUp)}>
+                    <div className="min-h-[320px] mb-6">{renderStep3()}</div>
+                    <Button type="submit" variant="solid" loading={isSubmitting} className="w-full">
+                        {submitButtonLabel || t('buttons.register')}
+                    </Button>
+                </Form>
             </div>
         )
     }

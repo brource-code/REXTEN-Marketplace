@@ -12,7 +12,10 @@ import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import useTheme from '@/utils/hooks/useTheme'
 import Alert from '@/components/ui/Alert'
 import { PiArrowLeft } from 'react-icons/pi'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
+import { usPhoneToE164 } from '@/utils/usPhone'
+
+const PENDING_BUSINESS_PROFILE_KEY = 'rexten_pending_business_profile'
 
 const BusinessSignUpClient = () => {
     const router = useRouter()
@@ -21,170 +24,156 @@ const BusinessSignUpClient = () => {
     const mode = useTheme((state) => state.mode)
     const t = useTranslations('auth.businessSignUp')
     const tSignUp = useTranslations('auth.signUp')
+    const locale = useLocale()
 
-    const handleSignUp = async ({ values, setSubmitting, setMessage }) => {
+    const handleSignUp = async ({ values, setSubmitting, setMessage: setFormMessage }) => {
         setSubmitting(true)
-        setMessage('')
+        setFormMessage('')
 
-        // Преобразуем данные формы в формат API
         const registerData = {
             first_name: values.firstName,
             last_name: values.lastName,
             email: values.email,
-            phone: values.phone || '',
+            phone: usPhoneToE164(values.phone) || '',
             password: values.password,
             password_confirmation: values.confirmPassword,
             role: 'BUSINESS_OWNER',
+            locale,
         }
 
-        registerMutation.mutate(registerData, {
-            onSuccess: async (data) => {
-                // Сохраняем данные бизнеса после успешной регистрации
-                if (data?.user?.id && data?.user?.role === 'BUSINESS_OWNER') {
-                    try {
-                        // Ждем, чтобы токены точно сохранились в localStorage
-                        // setAuth выполняется синхронно, но даем время для обновления состояния
-                        await new Promise(resolve => setTimeout(resolve, 100))
-                        
-                        // Проверяем, что токен доступен
-                        const { getAccessToken } = await import('@/utils/auth/tokenStorage')
-                        const token = getAccessToken()
-                        
+        const companyData = {
+            name: values.businessName,
+            description: values.businessDescription || '',
+            address: values.businessAddress,
+            phone: usPhoneToE164(values.businessPhone),
+            email: values.businessEmail || values.email,
+            website: values.businessWebsite || '',
+        }
+
+        const goAfterSignup = (requiresVerify, emailForVerify) => {
+            if (requiresVerify) {
+                router.push(`/verify-code?email=${encodeURIComponent(emailForVerify || values.email)}`)
+            } else {
+                router.push('/business/dashboard')
+            }
+        }
+
+        try {
+            if (typeof window !== 'undefined') {
+                sessionStorage.setItem(PENDING_BUSINESS_PROFILE_KEY, JSON.stringify(companyData))
+            }
+
+            const data = await registerMutation.mutateAsync(registerData)
+            const requiresVerify = Boolean(data.requires_email_verification)
+            const hasToken = Boolean(data.access_token)
+
+            if (!hasToken && requiresVerify) {
+                toast.push(
+                    <Notification title={t('messages.accountCreated')} type="success">
+                        {t('messages.welcomeRedirect')}
+                    </Notification>,
+                )
+                setTimeout(() => goAfterSignup(true, data.email || data.user?.email || values.email), 400)
+                return
+            }
+
+            if (data?.user?.id && data?.user?.role === 'BUSINESS_OWNER') {
+                try {
+                    await new Promise((resolve) => setTimeout(resolve, 100))
+
+                    const { getAccessToken } = await import('@/utils/auth/tokenStorage')
+                    let token = getAccessToken()
+                    if (!token) {
+                        await new Promise((resolve) => setTimeout(resolve, 500))
+                        token = getAccessToken()
                         if (!token) {
-                            console.warn('Token not found after registration, retrying in 500ms')
-                            await new Promise(resolve => setTimeout(resolve, 500))
-                            const retryToken = getAccessToken()
-                            if (!retryToken) {
-                                console.error('Token not found after retry')
-                                throw new Error('Token not available')
-                            }
+                            throw new Error('Token not available')
                         }
-                        
-                        const LaravelAxios = (await import('@/services/axios/LaravelAxios')).default
-                        
-                        // Подготавливаем данные для отправки
-                        const companyData = {
-                            name: values.businessName,
-                            description: values.businessDescription || '',
-                            address: values.businessAddress,
-                            phone: values.businessPhone,
-                            email: values.businessEmail || values.email,
-                            website: values.businessWebsite || '',
-                        }
-                        
-                        console.log('📤 Отправка данных компании на сервер:', companyData)
-                        console.log('📤 URL:', '/business/settings/profile')
-                        console.log('📤 Метод: PUT')
-                        
-                        // Создаем/обновляем профиль компании через бизнес API
-                        const response = await LaravelAxios.put('/business/settings/profile', companyData)
-                        
-                        console.log('✅ Ответ от сервера:', response.status, response.data)
-                        
-                        if (response?.data?.data) {
-                            console.log('✅ Данные компании успешно сохранены:', {
-                                name: response.data.data.name,
-                                address: response.data.data.address,
-                                phone: response.data.data.phone,
-                            })
-                            
-                            // После успешного сохранения данных компании выполняем редирект
-                            toast.push(
-                                <Notification title={t('messages.accountCreated')} type="success">
-                                    {t('messages.welcomeRedirect')}
-                                </Notification>,
-                            )
-                            
-                            // Редирект в дашборд бизнеса
-                            setTimeout(() => {
-                                router.push('/business/dashboard')
-                            }, 500)
-                        } else {
-                            console.warn('⚠️ Ответ от сервера не содержит данных компании')
-                            // Даже если ответ не содержит данных, выполняем редирект
-                            toast.push(
-                                <Notification title={t('messages.accountCreated')} type="success">
-                                    {t('messages.welcomeRedirect')}
-                                </Notification>,
-                            )
-                            setTimeout(() => {
-                                router.push('/business/dashboard')
-                            }, 500)
-                        }
-                    } catch (error) {
-                        console.error('❌ Ошибка при сохранении данных компании:', error)
-                        console.error('Детали ошибки:', {
-                            message: error?.message,
-                            response: error?.response?.data,
-                            status: error?.response?.status,
-                            url: error?.config?.url,
-                        })
-                        // Не блокируем регистрацию, если не удалось создать компанию
-                        // Пользователь сможет заполнить данные позже в настройках
+                    }
+
+                    const LaravelAxios = (await import('@/services/axios/LaravelAxios')).default
+
+                    const response = await LaravelAxios.put('/business/settings/profile', companyData)
+
+                    if (response?.data?.data) {
                         toast.push(
-                            <Notification title={t('messages.warning')} type="warning">
-                                {t('messages.accountCreatedButNotSaved')}
+                            <Notification title={t('messages.accountCreated')} type="success">
+                                {t('messages.welcomeRedirect')}
                             </Notification>,
                         )
-                        // Выполняем редирект даже при ошибке
-                        setTimeout(() => {
-                            router.push('/business/dashboard')
-                        }, 1000)
+                    } else {
+                        toast.push(
+                            <Notification title={t('messages.accountCreated')} type="success">
+                                {t('messages.welcomeRedirect')}
+                            </Notification>,
+                        )
                     }
-                } else {
-                    // Если не BUSINESS_OWNER, редирект уже выполнен в useRegister
+                    if (typeof window !== 'undefined') {
+                        sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
+                    }
+                    setTimeout(() => goAfterSignup(requiresVerify, data.email || data.user?.email), 500)
+                } catch (error) {
+                    if (typeof window !== 'undefined') {
+                        sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
+                    }
                     toast.push(
-                        <Notification title={t('messages.accountCreated')} type="success">
-                            {t('messages.welcomeRedirect')}
+                        <Notification title={t('messages.warning')} type="warning">
+                            {t('messages.accountCreatedButNotSaved')}
                         </Notification>,
                     )
+                    setTimeout(() => goAfterSignup(requiresVerify, data.email || data.user?.email), 1000)
                 }
-            },
-            onError: (error) => {
-                // Обработка ошибок валидации Laravel
-                if (error?.response?.data?.errors) {
-                    const validationErrors = error.response.data.errors
-                    // Собираем все ошибки валидации
-                    const allErrors = []
-                    Object.keys(validationErrors).forEach(field => {
-                        validationErrors[field].forEach(msg => {
-                            allErrors.push(msg)
-                        })
+            } else {
+                if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
+                }
+                toast.push(
+                    <Notification title={t('messages.accountCreated')} type="success">
+                        {t('messages.welcomeRedirect')}
+                    </Notification>,
+                )
+            }
+        } catch (error) {
+            if (typeof window !== 'undefined') {
+                sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
+            }
+            if (error?.response?.data?.errors) {
+                const validationErrors = error.response.data.errors
+                const allErrors = []
+                Object.keys(validationErrors).forEach((field) => {
+                    validationErrors[field].forEach((msg) => {
+                        allErrors.push(msg)
                     })
-                    
-                    // Показываем первую ошибку в сообщении
-                    const firstError = allErrors[0] || t('messages.validationError')
-                    setMessage(firstError)
-                    
-                    // Показываем все ошибки в toast
-                    const errorText = allErrors.length > 1 
-                        ? allErrors.join('. ') 
-                        : firstError
-                    
-                    toast.push(
-                        <Notification title={t('messages.registrationError')} type="danger">
-                            {errorText}
-                        </Notification>,
-                    )
-                } else {
-                    const errorMessage =
-                        error?.response?.data?.message ||
-                        error?.response?.data?.error ||
-                        error?.message ||
-                        t('messages.tryAgain')
-                    
-                    setMessage(errorMessage)
-                    
-                    toast.push(
-                        <Notification title={t('messages.registrationError')} type="danger">
-                            {errorMessage}
-                        </Notification>,
-                    )
-                }
-                
-                setSubmitting(false)
-            },
-        })
+                })
+
+                const firstError = allErrors[0] || t('messages.validationError')
+                setMessage(firstError)
+
+                const errorText = allErrors.length > 1 ? allErrors.join('. ') : firstError
+
+                toast.push(
+                    <Notification title={t('messages.registrationError')} type="danger">
+                        {errorText}
+                    </Notification>,
+                )
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    error?.response?.data?.error ||
+                    error?.message ||
+                    t('messages.tryAgain')
+
+                setMessage(errorMessage)
+
+                toast.push(
+                    <Notification title={t('messages.registrationError')} type="danger">
+                        {errorMessage}
+                    </Notification>,
+                )
+            }
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     return (
@@ -238,4 +227,3 @@ const BusinessSignUpClient = () => {
 }
 
 export default BusinessSignUpClient
-
