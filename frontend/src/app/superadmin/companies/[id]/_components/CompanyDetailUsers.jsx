@@ -11,6 +11,7 @@ import Dialog from '@/components/ui/Dialog/Dialog'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import FormItem from '@/components/ui/Form/FormItem'
+import Checkbox from '@/components/ui/Checkbox'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     getCompanyUsers,
@@ -388,22 +389,22 @@ export default function CompanyDetailUsers({ companyId }) {
                             </FormItem>
                         )}
                         {editing?.role !== 'owner' && (
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={form.is_blocked}
-                                    onChange={(e) =>
-                                        setForm((f) => ({
-                                            ...f,
-                                            is_blocked: e.target.checked,
-                                        }))
-                                    }
-                                    className="rounded border-gray-300"
-                                />
+                            <Checkbox
+                                variant="card"
+                                checked={form.is_blocked}
+                                onChange={(v) =>
+                                    setForm((f) => ({
+                                        ...f,
+                                        is_blocked: v,
+                                    }))
+                                }
+                                checkboxClass="shrink-0 !m-0"
+                                className="text-sm font-bold text-gray-500 dark:text-gray-400"
+                            >
                                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                     {t('blockedLabel')}
                                 </span>
-                            </label>
+                            </Checkbox>
                         )}
                     </div>
                     <div className="flex justify-end gap-2 mt-6">

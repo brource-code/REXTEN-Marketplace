@@ -5,8 +5,10 @@ import Avatar from '@/components/ui/Avatar'
 import Tag from '@/components/ui/Tag'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { useRouter } from 'next/navigation'
+import { PiUsers } from 'react-icons/pi'
 import { TbPencil, TbEye, TbPhone, TbChevronRight } from 'react-icons/tb'
 import { NumericFormat } from 'react-number-format'
 import ClientEditModal from './ClientEditModal'
@@ -85,6 +87,14 @@ const ClientsTable = ({
     pageSize = 10,
 }) => {
     const t = useTranslations('business.clients')
+
+    const clientsEmptyState = (
+        <EmptyStatePanel
+            icon={PiUsers}
+            title={t('emptyTitle')}
+            hint={t('emptyHint')}
+        />
+    )
     const tStatuses = useTranslations('business.clients.statuses')
     const locale = useLocale()
     const router = useRouter()
@@ -291,9 +301,7 @@ const ClientsTable = ({
                         <MobileCard key={client.id} client={client} />
                     ))
                 ) : (
-                    <div className="text-center py-12">
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('noClients')}</p>
-                    </div>
+                    clientsEmptyState
                 )}
             </div>
 
@@ -302,6 +310,7 @@ const ClientsTable = ({
                 <DataTable
                     columns={columns}
                     data={clientsList}
+                    emptyState={clientsEmptyState}
                     noData={clientsList.length === 0}
                     skeletonAvatarColumns={[0]}
                     skeletonAvatarProps={{ width: 40, height: 40 }}
