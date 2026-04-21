@@ -330,7 +330,7 @@ class DashboardController extends Controller
             $bookings = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->whereNotNull('booking_date')
                 ->whereIn('status', ['new', 'pending', 'confirmed', 'completed', 'cancelled']) // Включаем все статусы
-                ->with(['service:id,name', 'user.profile'])
+                ->with(['service:id,name', 'user.profile', 'specialist:id,name'])
                 ->orderBy('booking_date', 'desc')
                 ->orderBy('booking_time', 'desc')
                 ->limit($limit)
@@ -388,6 +388,10 @@ class DashboardController extends Controller
                     'time' => $booking->booking_time ?? '00:00:00',
                     'customer' => $customerName,
                     'service' => $serviceName,
+                    'service_id' => $booking->service_id,
+                    'title' => $booking->title,
+                    'event_type' => $booking->event_type ?? 'booking',
+                    'specialist_name' => $booking->specialist?->name,
                     // Используем total_price вместо price, чтобы учесть дополнительные услуги
                     'amount' => (float) ($booking->total_price ?? $booking->price ?? 0),
                     'status' => $booking->status ?? 'new', // Используем 'new' как дефолт вместо 'pending'
