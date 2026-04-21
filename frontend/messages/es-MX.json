@@ -1094,7 +1094,71 @@
                 "emailRequired": "Ingresa tu correo",
                 "passwordRequired": "Ingresa tu contraseña"
             },
-            "registrationClosedNotice": "El administrador desactivó temporalmente el registro de cuentas nuevas."
+            "registrationClosedNotice": "El administrador desactivó temporalmente el registro de cuentas nuevas.",
+            "emailVerifiedNotice": "Tu correo está confirmado. Ya puedes iniciar sesión.",
+            "emailNotVerifiedRedirect": "Enviamos un código de 6 dígitos a tu correo. Ingresa en la página de confirmación para activar tu cuenta; no hay enlace de activación."
+        },
+        "verifyCode": {
+            "title": "Confirma tu correo",
+            "subtitle": "Ingresa el código de 6 dígitos que enviamos a tu bandeja. Si no lo ves, revisa spam y promociones.",
+            "emailLabel": "Correo",
+            "emailPlaceholder": "tu@ejemplo.com",
+            "codeLabel": "Código",
+            "digitAria": "Dígito {n} de 6",
+            "codeHint": "Solo números. El código es válido unos 15 minutos.",
+            "submit": "Confirmar",
+            "submitting": "Confirmando…",
+            "resend": "Reenviar código",
+            "resendWait": "Reenviar en {seconds} s",
+            "backToSignIn": "Volver al inicio de sesión",
+            "toastResentTitle": "Correo enviado",
+            "toastResentDescription": "Si existe una cuenta y no está verificada, enviamos un código nuevo.",
+            "toastVerifiedTitle": "Bienvenido",
+            "toastVerifiedDescription": "Tu correo está confirmado.",
+            "errors": {
+                "generic": "Algo salió mal. Inténtalo de nuevo.",
+                "invalid": "Código no válido.",
+                "expired": "Este código expiró. Solicita uno nuevo.",
+                "tooManyAttempts": "Demasiados intentos incorrectos. Solicita un código nuevo.",
+                "alreadyVerified": "Este correo ya está verificado. Inicia sesión con tu contraseña.",
+                "resendCooldown": "Espera antes de solicitar otro código.",
+                "hourlyLimit": "Demasiados correos enviados. Inténtalo más tarde.",
+                "emailRequired": "Ingresa tu correo.",
+                "mailFailed": "No pudimos enviar el correo. Es posible que el servidor de correo esté mal configurado: inténtalo más tarde o contacta a soporte."
+            }
+        },
+        "googleSignup": {
+            "chooseRole": {
+                "title": "¿Cómo usarás Rexten?",
+                "subtitle": "Elige una opción para terminar de crear tu cuenta.",
+                "signedInAs": "Iniciaste sesión con Google como",
+                "client": {
+                    "title": "Cliente",
+                    "description": "Reserva servicios, administra tus citas y usa el marketplace como cliente.",
+                    "cta": "Continuar como cliente"
+                },
+                "business": {
+                    "title": "Dueño de negocio",
+                    "description": "Administra tu empresa en Rexten: agenda, clientes y perfil en el marketplace.",
+                    "cta": "Continuar como negocio"
+                },
+                "expired": {
+                    "title": "Esta sesión de registro expiró",
+                    "message": "Por tu seguridad, vuelve a iniciar con Google.",
+                    "retry": "Iniciar sesión con Google de nuevo"
+                }
+            },
+            "business": {
+                "title": "Datos de tu negocio",
+                "subtitle": "Necesitamos algunos datos de tu empresa para crear tu espacio de trabajo.",
+                "submit": "Crear cuenta de negocio"
+            },
+            "completeBusiness": "Crear cuenta de negocio",
+            "errors": {
+                "generic": "Algo salió mal. Inténtalo de nuevo.",
+                "accountExists": "Ya existe una cuenta con este correo o perfil de Google. Inicia sesión con Google en la página de acceso.",
+                "phoneInvalid": "Ingresa un número de teléfono comercial válido en EE. UU. (10 dígitos)."
+            }
         },
         "signUp": {
             "title": "Registro",
@@ -1106,7 +1170,7 @@
             "lastName": "Apellido",
             "email": "Correo electrónico",
             "phone": "Teléfono",
-            "phonePlaceholder": "+1 (555) 123-4567",
+            "phonePlaceholder": "(555) 123-4567",
             "password": "Contraseña",
             "passwordPlaceholder": "Contraseña (mín. 8 caracteres)",
             "confirmPassword": "Confirmar contraseña",
@@ -1127,7 +1191,8 @@
                 "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
                 "confirmPasswordRequired": "Confirma tu contraseña",
                 "passwordsNotMatch": "Las contraseñas no coinciden",
-                "agreeTermsRequired": "Debes aceptar los términos del servicio"
+                "agreeTermsRequired": "Debes aceptar los términos del servicio",
+                "phoneUsInvalid": "Ingresa un número completo de EE. UU. (10 dígitos) o deja el campo vacío."
             },
             "oauth": {
                 "agreeTerms": "Al hacer clic aceptas los",
@@ -1220,6 +1285,7 @@
                 "businessNameRequired": "Ingresa el nombre del negocio",
                 "businessAddressRequired": "Ingresa la dirección del negocio",
                 "businessPhoneRequired": "Ingresa el teléfono del negocio",
+                "businessPhoneInvalid": "Ingresa un teléfono de negocio válido de EE. UU. (10 dígitos).",
                 "businessEmailInvalid": "Ingresa un correo de negocio válido"
             },
             "messages": {
@@ -1235,6 +1301,15 @@
         "checkingAccess": "Verificando acceso…"
     },
     "business": {
+        "verifyEmail": {
+            "title": "Confirma tu correo",
+            "description": "Te enviamos un enlace por correo. Ábrelo para activar tu cuenta. Puedes seguir configurando tu negocio; el acceso completo quedará disponible después de confirmar.",
+            "resend": "Reenviar correo",
+            "resending": "Enviando…",
+            "resendSuccess": "Revisa tu bandeja de entrada para un nuevo enlace.",
+            "resendError": "No se pudo enviar el correo. Intenta más tarde.",
+            "goToSignIn": "Volver al inicio de sesión"
+        },
         "dashboard": {
             "title": "Panel",
             "overview": "Resumen del negocio",
@@ -1329,6 +1404,7 @@
             "feeLine": "Comisión de plataforma {fee} · Usted recibe {net}",
             "scheduleCalendar": "Calendario",
             "empty": "No hay reservas que coincidan con los filtros.",
+            "openDrawerError": "No se pudo abrir esta reserva. Actualiza la página e inténtalo de nuevo.",
             "booking": "Reserva",
             "perPage": "{count} / pág.",
             "columns": {
@@ -2242,6 +2318,8 @@
             },
             "addClient": "Agregar cliente",
             "searchPlaceholder": "Buscar por nombre, correo o teléfono...",
+            "emptyTitle": "Aún no hay clientes",
+            "emptyHint": "Los clientes aparecen aquí después de reservar contigo o al agregarlos manualmente.",
             "columns": {
                 "client": "Cliente",
                 "email": "Correo",
@@ -3863,6 +3941,10 @@
         }
     },
     "components": {
+        "dataTable": {
+            "emptyTitle": "Aún no hay datos",
+            "emptyHint": "Prueba ajustar los filtros o añade un registro."
+        },
         "navbar": {
             "signIn": "Iniciar sesión",
             "signUp": "Registrarse",

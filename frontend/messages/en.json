@@ -1094,7 +1094,71 @@
                 "emailRequired": "Enter your email",
                 "passwordRequired": "Enter your password"
             },
-            "registrationClosedNotice": "New account registration is temporarily disabled by the administrator."
+            "registrationClosedNotice": "New account registration is temporarily disabled by the administrator.",
+            "emailVerifiedNotice": "Your email is confirmed. You can sign in.",
+            "emailNotVerifiedRedirect": "We sent a 6-digit code to your email. Enter it on the confirmation page to activate your account — there is no activation link."
+        },
+        "verifyCode": {
+            "title": "Confirm your email",
+            "subtitle": "Enter the 6-digit code we sent to your inbox. Check spam and promotions if you do not see it.",
+            "emailLabel": "Email",
+            "emailPlaceholder": "you@example.com",
+            "codeLabel": "Code",
+            "digitAria": "Digit {n} of 6",
+            "codeHint": "Digits only. The code is valid for about 15 minutes.",
+            "submit": "Confirm",
+            "submitting": "Confirming…",
+            "resend": "Resend code",
+            "resendWait": "Resend in {seconds}s",
+            "backToSignIn": "Back to sign in",
+            "toastResentTitle": "Email sent",
+            "toastResentDescription": "If an account exists and is not verified, we sent a new code.",
+            "toastVerifiedTitle": "Welcome",
+            "toastVerifiedDescription": "Your email is confirmed.",
+            "errors": {
+                "generic": "Something went wrong. Try again.",
+                "invalid": "Invalid code.",
+                "expired": "This code has expired. Request a new one.",
+                "tooManyAttempts": "Too many wrong attempts. Request a new code.",
+                "alreadyVerified": "This email is already verified. Sign in with your password.",
+                "resendCooldown": "Please wait before requesting another code.",
+                "hourlyLimit": "Too many emails sent. Try again later.",
+                "emailRequired": "Enter your email.",
+                "mailFailed": "We could not send the email. The mail server may be misconfigured — try again later or contact support."
+            }
+        },
+        "googleSignup": {
+            "chooseRole": {
+                "title": "How will you use Rexten?",
+                "subtitle": "Choose one option to finish creating your account.",
+                "signedInAs": "Signed in with Google as",
+                "client": {
+                    "title": "Client",
+                    "description": "Book services, manage bookings, and use the marketplace as a customer.",
+                    "cta": "Continue as client"
+                },
+                "business": {
+                    "title": "Business owner",
+                    "description": "Run your company on Rexten: schedule, clients, and marketplace profile.",
+                    "cta": "Continue as business"
+                },
+                "expired": {
+                    "title": "This sign-up session has expired",
+                    "message": "For your security, start again with Google sign-in.",
+                    "retry": "Sign in with Google again"
+                }
+            },
+            "business": {
+                "title": "Your business details",
+                "subtitle": "We need a few details about your company to create your business workspace.",
+                "submit": "Create business account"
+            },
+            "completeBusiness": "Create business account",
+            "errors": {
+                "generic": "Something went wrong. Please try again.",
+                "accountExists": "An account with this email or Google profile already exists. Sign in with Google on the login page.",
+                "phoneInvalid": "Enter a valid US business phone number (10 digits)."
+            }
         },
         "signUp": {
             "title": "Sign Up",
@@ -1106,7 +1170,7 @@
             "lastName": "Last Name",
             "email": "Email",
             "phone": "Phone",
-            "phonePlaceholder": "+1 (555) 123-4567",
+            "phonePlaceholder": "(555) 123-4567",
             "password": "Password",
             "passwordPlaceholder": "Password (min. 8 characters)",
             "confirmPassword": "Confirm Password",
@@ -1127,7 +1191,8 @@
                 "passwordMinLength": "Password must be at least 8 characters",
                 "confirmPasswordRequired": "Confirm your password",
                 "passwordsNotMatch": "Passwords do not match",
-                "agreeTermsRequired": "You must agree to the terms of service"
+                "agreeTermsRequired": "You must agree to the terms of service",
+                "phoneUsInvalid": "Enter a full US phone number (10 digits) or leave this field empty."
             },
             "oauth": {
                 "agreeTerms": "By clicking the button, you agree to the",
@@ -1220,6 +1285,7 @@
                 "businessNameRequired": "Enter business name",
                 "businessAddressRequired": "Enter business address",
                 "businessPhoneRequired": "Enter business phone",
+                "businessPhoneInvalid": "Enter a valid US business phone (10 digits).",
                 "businessEmailInvalid": "Enter a valid business email"
             },
             "messages": {
@@ -1235,6 +1301,15 @@
         "checkingAccess": "Checking access..."
     },
     "business": {
+        "verifyEmail": {
+            "title": "Confirm your email",
+            "description": "We sent a link to your email. Open it to activate your account. You can continue setting up your business; full access opens after confirmation.",
+            "resend": "Resend email",
+            "resending": "Sending…",
+            "resendSuccess": "Check your inbox for a new link.",
+            "resendError": "Could not send the email. Try again later.",
+            "goToSignIn": "Back to sign in"
+        },
         "dashboard": {
             "title": "Dashboard",
             "overview": "Business Overview",
@@ -1329,6 +1404,7 @@
             "feeLine": "Platform fee {fee} · You receive {net}",
             "scheduleCalendar": "Calendar",
             "empty": "No bookings match your filters.",
+            "openDrawerError": "Could not open this booking. Refresh the page and try again.",
             "booking": "Booking",
             "perPage": "{count} / page",
             "columns": {
@@ -2242,6 +2318,8 @@
             },
             "addClient": "Add Client",
             "searchPlaceholder": "Search by name, email or phone...",
+            "emptyTitle": "No clients yet",
+            "emptyHint": "Clients appear here after they book with you or when you add them manually.",
             "columns": {
                 "client": "Client",
                 "email": "Email",
@@ -3863,6 +3941,10 @@
         }
     },
     "components": {
+        "dataTable": {
+            "emptyTitle": "Nothing here yet",
+            "emptyHint": "Try adjusting filters or add a record."
+        },
         "navbar": {
             "signIn": "Sign In",
             "signUp": "Sign Up",
