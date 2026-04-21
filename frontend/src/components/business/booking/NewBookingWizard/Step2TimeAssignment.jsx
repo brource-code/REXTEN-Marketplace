@@ -1,0 +1,203 @@
+'use client'
+
+import { useMemo } from 'react'
+import { useTranslations } from 'next-intl'
+import dayjs from 'dayjs'
+import Select from '@/components/ui/Select'
+import DatePicker from '@/components/ui/DatePicker'
+import Input from '@/components/ui/Input'
+import { FormItem } from '@/components/ui/Form'
+import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
+import BookingConflictHint from '@/components/business/booking/parts/BookingConflictHint'
+import BookingTimeSuggestions from '@/components/business/booking/parts/BookingTimeSuggestions'
+import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
+import { useBookingConflicts } from '@/components/business/booking/hooks/useBookingConflicts'
+import { useBookingTimeSuggestions } from '@/components/business/booking/hooks/useBookingTimeSuggestions'
+import { LABEL_CLS } from '@/components/business/booking/shared/bookingTypography'
+import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
+import { TIME_FORMAT_12H } from '@/utils/timeFormat'
+
+const DURATIONS = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300]
+
+export default function Step2TimeAssignment({
+    values,
+    setField,
+    setFields,
+    errors,
+    teamMembers = [],
+    scheduleSettings,
+}) {
+    const t = useTranslations('business.schedule.wizard.step2')
+    const err = useBookingFormErrorMessage()
+
+    const stepMin = scheduleSettings?.slot_step_minutes || 15
+    const timeFormat = scheduleSettings?.time_format || TIME_FORMAT_12H
+    const durationOptions = useMemo(
+        () => DURATIONS.map((m) => ({ value: m, label: `${m} min` })),
+        [],
+    )
+    const teamOptions = useMemo(
+        () => [
+            { value: '', label: t('anySpecialist') },
+            ...(teamMembers || []).map((m) => ({ value: m.id, label: m.name })),
+        ],
+        [teamMembers, t],
+    )
+
+    const dateValue = values.booking_date
+        ? new Date(`${values.booking_date}T00:00:00`)
+        : null
+
+    const conflict = useBookingConflicts({
+        bookingDate: values.booking_date,
+        bookingTime: values.booking_time,
+        durationMinutes: values.duration_minutes,
+        specialistId: values.specialist_id,
+    })
+
+    const suggestions = useBookingTimeSuggestions({
+        bookingDate: values.booking_date,
+        durationMinutes: values.duration_minutes,
+        specialistId: values.specialist_id,
+        scheduleSettings,
+    })
+
+    const isOffsite = (values.execution_type || 'onsite') === 'offsite'
+
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <FormItem
+                    label={<span className={LABEL_CLS}>{t('date')}</span>}
+                    invalid={Boolean(errors.booking_date)}
+                    errorMessage={err(errors.booking_date)}
+                >
+                    <DatePicker
+                        value={dateValue}
+                        onChange={(d) =>
+                            d && setField('booking_date', dayjs(d).format('YYYY-MM-DD'))
+                        }
+                    />
+                </FormItem>
+                <FormItem
+                    label={<span className={LABEL_CLS}>{t('time')}</span>}
+                    invalid={Boolean(errors.booking_time)}
+                    errorMessage={err(errors.booking_time)}
+                >
+                    <BookingTimePicker
+                        value={values.booking_time}
+                        onChange={(v) => setField('booking_time', v)}
+                        stepMinutes={stepMin}
+                        format={timeFormat}
+                        invalid={Boolean(errors.booking_time)}
+                    />
+                </FormItem>
+                <FormItem
+                    label={<span className={LABEL_CLS}>{t('duration')}</span>}
+                    invalid={Boolean(errors.duration_minutes)}
+                    errorMessage={err(errors.duration_minutes)}
+                >
+                    <Select
+                        options={durationOptions}
+                        value={
+                            durationOptions.find(
+                                (o) => o.value === Number(values.duration_minutes),
+                            ) || null
+                        }
+                        onChange={(opt) =>
+                            setField('duration_minutes', Number(opt?.value) || 60)
+                        }
+                        isSearchable={false}
+                    />
+                </FormItem>
+            </div>
+
+            <BookingConflictHint conflicts={conflict.conflicts} />
+            {suggestions.length > 0 && (
+                <BookingTimeSuggestions
+                    suggestions={suggestions}
+                    onPick={(s) =>
+                        setFields({ booking_date: s.date, booking_time: s.time })
+                    }
+                    hint={conflict.hasConflict ? t('conflictPickHint') : t('quickPickHint')}
+                    format={timeFormat}
+                />
+            )}
+
+            <FormItem label={<span className={LABEL_CLS}>{t('specialist')}</span>}>
+                <Select
+                    options={teamOptions}
+                    value={
+                        teamOptions.find(
+                            (o) => String(o.value) === String(values.specialist_id || ''),
+                        ) || teamOptions[0]
+                    }
+                    onChange={(opt) =>
+                        setField('specialist_id', opt?.value === '' ? null : opt?.value)
+                    }
+                    isSearchable={false}
+                />
+            </FormItem>
+
+            <FormItem label={<span className={LABEL_CLS}>{t('executionType')}</span>}>
+                <Select
+                    options={[
+                        { value: 'onsite', label: t('onsite') },
+                        { value: 'offsite', label: t('offsite') },
+                    ]}
+                    value={
+                        (values.execution_type || 'onsite') === 'offsite'
+                            ? { value: 'offsite', label: t('offsite') }
+                            : { value: 'onsite', label: t('onsite') }
+                    }
+                    onChange={(opt) => setField('execution_type', opt?.value || 'onsite')}
+                    isSearchable={false}
+                />
+            </FormItem>
+
+            {isOffsite && (
+                <div className="rounded-md border border-gray-200 dark:border-gray-700 p-3 flex flex-col gap-3">
+                    <div className={LABEL_CLS}>{t('addressBlock')}</div>
+                    <FormItem label={<span className={LABEL_CLS}>{t('addressLine1')}</span>}>
+                        <AddressAutocomplete
+                            value={values.address_line1 || ''}
+                            onChange={(v) => setField('address_line1', v)}
+                            onAddressParsed={(parsed) => {
+                                setFields({
+                                    address_line1: parsed.address_line1 || values.address_line1,
+                                    city: parsed.city || values.city,
+                                    state: parsed.state || values.state,
+                                    zip: parsed.zip || values.zip,
+                                })
+                            }}
+                            placeholder={t('addressPlaceholder')}
+                        />
+                    </FormItem>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <FormItem label={<span className={LABEL_CLS}>{t('city')}</span>}>
+                            <Input
+                                size="sm"
+                                value={values.city || ''}
+                                onChange={(e) => setField('city', e.target.value)}
+                            />
+                        </FormItem>
+                        <FormItem label={<span className={LABEL_CLS}>{t('state')}</span>}>
+                            <Input
+                                size="sm"
+                                value={values.state || ''}
+                                onChange={(e) => setField('state', e.target.value)}
+                            />
+                        </FormItem>
+                        <FormItem label={<span className={LABEL_CLS}>{t('zip')}</span>}>
+                            <Input
+                                size="sm"
+                                value={values.zip || ''}
+                                onChange={(e) => setField('zip', e.target.value)}
+                            />
+                        </FormItem>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}

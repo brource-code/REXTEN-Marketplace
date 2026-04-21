@@ -97,6 +97,13 @@
             "notifications": "Уведомления",
             "support": "Поддержка",
             "api": "API",
+            "sections": {
+                "overview": "Обзор",
+                "operations": "Расписание и заявки",
+                "clientsAndSales": "Клиенты и продажи",
+                "account": "Подписка и настройки",
+                "help": "Справка и инструменты"
+            },
             "groups": {
                 "work": "Работа",
                 "crm": "Клиенты",
@@ -1608,7 +1615,8 @@
                     "clicks": "Клики",
                     "startDate": "Дата начала",
                     "endDate": "Дата окончания",
-                    "link": "Ссылка"
+                    "link": "Ссылка",
+                    "ctr": "CTR"
                 },
                 "notifications": {
                     "deleteSuccess": "Рекламное объявление успешно удалено",
@@ -2288,7 +2296,8 @@
                 "authorized": "Авторизовано",
                 "pending": "В обработке",
                 "failed": "Ошибка",
-                "canceled": "Отменено"
+                "canceled": "Отменено",
+                "expired": "Истёк"
             },
             "filters": {
                 "type": "Тип транзакции",
@@ -2716,6 +2725,231 @@
                     "confirm": "Удалить",
                     "cancel": "Отмена"
                 }
+            },
+            "newBookingItem": "Новое бронирование",
+            "newBlockTime": "Произвольное событие",
+            "newRecurring": "Повторяющееся бронирование",
+            "block": {
+                "title": "Произвольное событие",
+                "subtitle": "Добавьте в календарь произвольное событие без записи клиента",
+                "eventTitle": "Название события",
+                "eventTitlePlaceholder": "Обед, обучение, выходной…",
+                "date": "Дата",
+                "time": "Время",
+                "duration": "Длительность",
+                "specialist": "Специалист",
+                "anySpecialist": "Вся команда",
+                "notes": "Заметка",
+                "notesPlaceholder": "Необязательный комментарий",
+                "createSuccess": "Произвольное событие создано",
+                "updateSuccess": "Произвольное событие обновлено",
+                "createError": "Не удалось создать произвольное событие",
+                "updateError": "Не удалось обновить произвольное событие"
+            },
+            "payment": {
+                "statusLabel": "Статус оплаты",
+                "amountLabel": "Сумма",
+                "captureNow": "Списать сейчас",
+                "captureSuccess": "Оплата списана",
+                "captureError": "Не удалось списать оплату",
+                "refund": {
+                    "title": "Возврат платежа",
+                    "amountLabel": "Сумма возврата",
+                    "amountPlaceholder": "Сумма в {currency}",
+                    "amountHint": "Списано всего: {total} {currency}. Пусто — полный возврат.",
+                    "amountInvalid": "Введите положительное число",
+                    "reasonLabel": "Причина",
+                    "reasonPlaceholder": "Почему делаете возврат?",
+                    "reasonRequired": "Укажите причину",
+                    "full": "Полный",
+                    "half": "50%",
+                    "quarter": "25%",
+                    "confirm": "Подтвердить возврат",
+                    "success": "Возврат выполнен",
+                    "error": "Не удалось вернуть оплату"
+                },
+                "noneHint": "Онлайн-оплата по этой брони пока не запрошена.",
+                "statuses": {
+                    "none": "Без оплаты",
+                    "authorized": "Захолдировано",
+                    "paid": "Оплачено",
+                    "refunded": "Возвращено",
+                    "cancelled": "Отменено",
+                    "unpaid": "Не оплачено",
+                    "pending_payment": "Ожидает оплаты",
+                    "pending": "В обработке",
+                    "expired": "Истекло",
+                    "partially_refunded": "Частичный возврат",
+                    "disputed": "Спор",
+                    "transfer_reversed": "Перевод отменён",
+                    "reserved": "Карта привязана",
+                    "requires_capture": "Готово к списанию"
+                },
+                "refundAction": "Возврат"
+            },
+            "activity": {
+                "comment": "Добавить комментарий",
+                "placeholder": "Заметка для команды или аудита…",
+                "post": "Отправить",
+                "empty": "Активности пока нет",
+                "emptyForNew": "Журнал активности появится после сохранения.",
+                "loadError": "Не удалось загрузить журнал",
+                "systemActor": "Система",
+                "typeCreated": "Бронирование создано",
+                "typeDeleted": "Бронирование удалено",
+                "typeStatusChanged": "Статус изменён: {from} → {to}",
+                "typeRescheduled": "Бронирование перенесено",
+                "typePriceChanged": "Цена изменена: {from} → {to}",
+                "typePaymentAuthorized": "Оплата захолдирована",
+                "typePaymentCaptured": "Оплата списана: {amount}",
+                "typePaymentRefunded": "Оплата возвращена"
+            },
+            "drawer": {
+                "header": {
+                    "booking": "Бронирование",
+                    "blockEvent": "Произвольное событие",
+                    "blockTag": "СВОЁ"
+                },
+                "tabs": {
+                    "details": "Детали",
+                    "pricing": "Цена",
+                    "payment": "Оплата",
+                    "activity": "Активность"
+                },
+                "actionsSectionTitle": "Действия с записью",
+                "actions": {
+                    "edit": "Редактировать",
+                    "reschedule": "Перенести",
+                    "confirm": "Подтвердить",
+                    "complete": "Завершить",
+                    "cancelBooking": "Отменить запись",
+                    "deleteBooking": "Удалить запись"
+                },
+                "details": {
+                    "service": "Услуга",
+                    "eventTitle": "Название события",
+                    "eventTitlePlaceholder": "Название блока времени",
+                    "date": "Дата",
+                    "time": "Время",
+                    "duration": "Длительность",
+                    "specialist": "Специалист",
+                    "anySpecialist": "Любой специалист",
+                    "status": "Статус",
+                    "executionType": "Где",
+                    "onsite": "У вас",
+                    "offsite": "У клиента",
+                    "addressBlock": "Адрес выезда",
+                    "addressLine1": "Адрес",
+                    "addressPlaceholder": "Начните вводить адрес…",
+                    "city": "Город",
+                    "state": "Регион",
+                    "zip": "Индекс",
+                    "notes": "Внутренние заметки",
+                    "notesPlaceholder": "Видны только команде",
+                    "client": "Клиент",
+                    "guestName": "Имя гостя",
+                    "guestEmail": "Email",
+                    "guestPhone": "Телефон",
+                    "conflictPickHint": "Выберите свободный слот:"
+                },
+                "reschedule": {
+                    "title": "Перенести",
+                    "dateLabel": "Новая дата",
+                    "timeLabel": "Новое время",
+                    "durationLabel": "Длительность",
+                    "apply": "Применить",
+                    "cancel": "Отмена"
+                },
+                "conflict": {
+                    "title": "{count, plural, one {Найден # конфликт} few {Найдено # конфликта} many {Найдено # конфликтов} other {Найдено # конфликтов}}",
+                    "withSpecialist": "{name}: {count, plural, one {# пересечение} few {# пересечения} many {# пересечений} other {# пересечений}}"
+                },
+                "suggestions": {
+                    "today": "Сегодня",
+                    "tomorrow": "Завтра",
+                    "dayShort": {
+                        "sunday": "Вс",
+                        "monday": "Пн",
+                        "tuesday": "Вт",
+                        "wednesday": "Ср",
+                        "thursday": "Чт",
+                        "friday": "Пт",
+                        "saturday": "Сб"
+                    }
+                },
+                "pricing": {
+                    "basePrice": "Базовая цена",
+                    "basePriceHint": "Можно изменить цену именно для этой брони.",
+                    "additionalServices": "Доп. услуги",
+                    "subtotal": "Подытог",
+                    "discount": "Скидка",
+                    "total": "Итого",
+                    "discountRecalculateHint": "После изменения цен скидка пересчитается при сохранении (лояльность или промокод — что выгоднее)."
+                },
+                "guest": "Гость (без клиента)",
+                "newClient": "Новый клиент",
+                "clientPlaceholder": "Найти клиента…",
+                "servicePlaceholder": "Выберите услугу",
+                "serviceHint": "Длительность {duration} · Цена {price}",
+                "deleteConfirm": {
+                    "title": "Удалить бронирование?",
+                    "body": "Это действие нельзя отменить."
+                }
+            },
+            "wizard": {
+                "title": "Новое бронирование",
+                "subtitle": "Создайте бронирование для клиента",
+                "create": "Создать бронирование",
+                "saveAsDraft": "Сохранить как черновик",
+                "steps": {
+                    "clientService": "Клиент и услуга",
+                    "timeAssignment": "Время и специалист"
+                },
+                "step1": {
+                    "client": "Клиент",
+                    "guestName": "Имя гостя",
+                    "guestEmail": "Email",
+                    "guestPhone": "Телефон",
+                    "service": "Услуга",
+                    "notes": "Заметка",
+                    "notesPlaceholder": "Дополнительные детали"
+                },
+                "step2": {
+                    "date": "Дата",
+                    "time": "Время",
+                    "duration": "Длительность",
+                    "specialist": "Специалист",
+                    "anySpecialist": "Любой специалист",
+                    "executionType": "Где",
+                    "onsite": "У вас",
+                    "offsite": "У клиента",
+                    "addressBlock": "Адрес выезда",
+                    "addressLine1": "Адрес",
+                    "addressPlaceholder": "Начните вводить адрес…",
+                    "city": "Город",
+                    "state": "Регион",
+                    "zip": "Индекс",
+                    "conflictPickHint": "Выберите свободный слот:",
+                    "quickPickHint": "Быстрые варианты:"
+                },
+                "draftBanner": {
+                    "title": "Черновик сохранён в {time}",
+                    "subtitle": "Продолжить с того же места?",
+                    "subtitleRestored": "Поля заполнены из черновика. «Сбросить» — очистить и оставить только выбранный слот.",
+                    "continue": "Продолжить",
+                    "discard": "Сбросить"
+                }
+            },
+            "validation": {
+                "service_required": "Выберите услугу",
+                "title_required": "Введите название",
+                "invalid_date": "Некорректная дата",
+                "invalid_time": "Некорректное время",
+                "invalid_duration": "Некорректная длительность",
+                "duration_too_short": "Минимум 15 минут",
+                "invalid_generic": "Некорректное значение",
+                "invalid_email": "Введите корректный email",
+                "price_negative": "Цена не может быть отрицательной"
             }
         },
         "reviews": {
@@ -3519,7 +3753,20 @@
             "delete": "Удалить",
             "cancel": "Отмена",
             "save": "Сохранить",
-            "done": "Готово"
+            "done": "Готово",
+            "close": "Закрыть",
+            "back": "Назад",
+            "next": "Далее",
+            "timePicker": {
+                "now": "Сейчас",
+                "done": "Готово",
+                "am": "AM",
+                "pm": "PM",
+                "hours": "Часы",
+                "minutes": "Минуты",
+                "period": "AM/PM",
+                "time": "Время"
+            }
         },
         "salarySettings": {
             "title": "Настройка оплаты",

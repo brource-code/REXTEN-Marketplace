@@ -641,6 +641,7 @@ class BookingService
                 'user_id' => $resolvedClientUserId,
                 'service_id' => $data['service_id'] ?? null, // Может быть null для произвольных событий
                 'title' => $data['title'] ?? null, // Название для кастомных событий
+                'event_type' => $data['event_type'] ?? ($isCustomEvent ? 'block' : 'booking'),
                 'advertisement_id' => $data['advertisement_id'] ?? null, // Сохраняем ID объявления для правильного отображения
                 'execution_type' => $data['execution_type'] ?? 'onsite',
                 'specialist_id' => $data['specialist_id'] ?? null,

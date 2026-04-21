@@ -16,6 +16,7 @@ use App\Http\Controllers\Business\RecurringBookingController;
 use App\Http\Controllers\Business\ClientsController;
 use App\Http\Controllers\Business\SettingsController;
 use App\Http\Controllers\Business\BookingsController as BusinessBookingsController;
+use App\Http\Controllers\Business\BookingActivitiesController as BusinessBookingActivitiesController;
 use App\Http\Controllers\Business\ReviewsController as BusinessReviewsController;
 use App\Http\Controllers\Business\ReportsController;
 use App\Http\Controllers\Business\SalaryController;
@@ -104,8 +105,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('throttle:10,1');
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
     
     // Google OAuth routes - требуют сессии для Socialite
     Route::middleware([
@@ -376,6 +377,10 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::put('/bookings/{id}', [BusinessBookingsController::class, 'update']);
         Route::patch('/bookings/{id}', [BusinessBookingsController::class, 'update']); // Добавлено для совместимости
         Route::delete('/bookings/{id}', [BusinessBookingsController::class, 'destroy']);
+
+        // Booking activity log (Activity tab in BookingDrawer)
+        Route::get('/bookings/{id}/activities', [BusinessBookingActivitiesController::class, 'index']);
+        Route::post('/bookings/{id}/activities', [BusinessBookingActivitiesController::class, 'store']);
 
         // Reviews
         Route::get('/reviews', [BusinessReviewsController::class, 'index']);

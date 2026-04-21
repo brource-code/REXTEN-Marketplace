@@ -44,11 +44,7 @@ tar czf "$OUT" \
   --exclude="$NAME/frontend/ECME-*.tar.gz" \
   --exclude="$NAME/frontend/ecme-marketplace-*.zip" \
   --exclude="$NAME/frontend/mobile.zip" \
-  --exclude="$NAME/backend/storage/logs/*" \
-  --exclude="$NAME/backend/storage/framework/cache/*" \
-  --exclude="$NAME/backend/storage/framework/sessions/*" \
-  --exclude="$NAME/backend/storage/framework/views/*" \
-  --exclude="$NAME/backend/storage/app/partner-export-tmp" \
+  --exclude="$NAME/backend/storage" \
   "$NAME"
 
 echo "Готово: $OUT ($(du -h "$OUT" | cut -f1))"

@@ -86,8 +86,9 @@ class BackupsController extends Controller
      */
     public function partnerExport()
     {
-        @set_time_limit(600);
-        @ini_set('max_execution_time', '600');
+        // Синхронно с nginx fastcgi (до 3600s); раньше 600s совпадало с типичным обрывом на 300s nginx.
+        @set_time_limit(3600);
+        @ini_set('max_execution_time', '3600');
 
         $root = rtrim((string) config('backups.project_root'), '/');
         $script = $root.'/scripts/make-partner-archive.sh';
@@ -111,7 +112,7 @@ class BackupsController extends Controller
         $filename = 'rexten-source-partners-'.now()->format('Y-m-d-His').'.tar.gz';
         $outPath = $tmpDir.'/rexten-partner-'.bin2hex(random_bytes(8)).'.tar.gz';
 
-        $process = new Process(['/bin/bash', $script, $outPath], null, null, null, 600.0);
+        $process = new Process(['/bin/bash', $script, $outPath], null, null, null, 3600.0);
         $process->run();
 
         if (! $process->isSuccessful()) {

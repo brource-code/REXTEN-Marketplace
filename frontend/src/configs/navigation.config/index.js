@@ -12,12 +12,22 @@ import {
 } from '@/constants/navigation.constant'
 import { BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 
-// Бизнес - для бизнеса (без папки, плоский список элементов)
-// Видно только для BUSINESS_OWNER
-const businessNavigationFlatConfig = (businessNavigationConfig[0]?.subMenu || []).map(item => ({
-    ...item,
-    authority: [BUSINESS_OWNER],
-}))
+/** Рекурсивно задаёт authority для дерева бизнес-меню (в т.ч. группы NAV_ITEM_TYPE_TITLE). */
+function withBusinessAuthority(items) {
+    return (items || []).map((item) => ({
+        ...item,
+        authority: [BUSINESS_OWNER],
+        subMenu:
+            item.subMenu && item.subMenu.length > 0
+                ? withBusinessAuthority(item.subMenu)
+                : item.subMenu,
+    }))
+}
+
+// Бизнес — группы с подписями (см. business.navigation.config.js)
+const businessNavigationFlatConfig = withBusinessAuthority(
+    businessNavigationConfig[0]?.subMenu || [],
+)
 
 // Суперадмин - без папки "Суперадмин", каждый пункт отдельно со своей иконкой (как в бизнесе)
 // "Объявления" остаётся collapse с подпунктами (list, ads)

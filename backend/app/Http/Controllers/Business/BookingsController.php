@@ -220,7 +220,9 @@ class BookingsController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'service_id' => 'required|exists:services,id',
+            'service_id' => 'nullable|exists:services,id',
+            'title' => 'nullable|string|max:255',
+            'event_type' => 'nullable|in:booking,block,task',
             'user_id' => ['nullable', Rule::exists('users', 'id')->where(fn ($q) => $q->where('role', 'CLIENT'))],
             'booking_date' => 'required|date',
             'booking_time' => 'required|date_format:H:i',
@@ -232,6 +234,21 @@ class BookingsController extends Controller
             'client_notes' => 'nullable|string|max:1000',
         ]);
 
+        // Для обычных бронирований (event_type=booking, дефолт) обязательно либо service_id, либо title (custom event).
+        // Для блок-времени (event_type=block) — обязателен только title.
+        $eventType = $request->input('event_type', 'booking');
+        if ($eventType === 'block') {
+            if (! $request->filled('title')) {
+                $validator->after(function ($v) {
+                    $v->errors()->add('title', 'Title is required for block-time events');
+                });
+            }
+        } elseif (! $request->filled('service_id') && ! $request->filled('title')) {
+            $validator->after(function ($v) {
+                $v->errors()->add('service_id', 'Either service_id or title is required');
+            });
+        }
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -240,27 +257,33 @@ class BookingsController extends Controller
         }
 
         try {
-            // Проверяем доступность
-            $isAvailable = $this->bookingService->isSlotAvailable(
-                $companyId,
-                $request->service_id,
-                $request->booking_date,
-                $request->booking_time,
-                $request->duration_minutes ?? 60
-            );
+            // Для custom/block событий доступность не проверяем — допускаем оверлап.
+            $isCustomOrBlock = ! $request->filled('service_id') || $eventType === 'block';
 
-            if (!$isAvailable) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Это время уже занято. Выберите другое время.',
-                    'error' => 'slot_occupied',
-                ], 400);
+            if (! $isCustomOrBlock) {
+                $isAvailable = $this->bookingService->isSlotAvailable(
+                    $companyId,
+                    $request->service_id,
+                    $request->booking_date,
+                    $request->booking_time,
+                    $request->duration_minutes ?? 60
+                );
+
+                if (!$isAvailable) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Это время уже занято. Выберите другое время.',
+                        'error' => 'slot_occupied',
+                    ], 400);
+                }
             }
 
             $booking = $this->bookingService->createBooking([
                 'company_id' => $companyId,
                 'user_id' => $request->user_id,
                 'service_id' => $request->service_id,
+                'title' => $request->title,
+                'event_type' => $eventType,
                 'specialist_id' => $request->specialist_id,
                 'booking_date' => $request->booking_date,
                 'booking_time' => $request->booking_time,
@@ -313,7 +336,9 @@ class BookingsController extends Controller
             ->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'service_id' => 'sometimes|exists:services,id',
+            'service_id' => 'sometimes|nullable|exists:services,id',
+            'title' => 'sometimes|nullable|string|max:255',
+            'event_type' => 'sometimes|in:booking,block,task',
             'booking_date' => 'sometimes|date',
             'booking_time' => 'sometimes|date_format:H:i',
             'duration_minutes' => 'nullable|integer|min:15',
@@ -332,8 +357,13 @@ class BookingsController extends Controller
         }
 
         try {
-            // Если изменяется дата/время, проверяем доступность
-            if ($request->has('booking_date') || $request->has('booking_time')) {
+            // Если изменяется дата/время, проверяем доступность.
+            // Для блок-времени и custom событий (без service_id) пропускаем проверку — допускаем оверлап.
+            $isBlockOrCustom = ($booking->event_type === 'block')
+                || ($request->input('event_type') === 'block')
+                || (! ($request->service_id ?? $booking->service_id));
+
+            if (! $isBlockOrCustom && ($request->has('booking_date') || $request->has('booking_time'))) {
                 $bookingDate = $request->booking_date ?? $booking->booking_date->format('Y-m-d');
                 $bookingTime = $request->booking_time ?? $booking->booking_time;
                 $duration = $request->duration_minutes ?? $booking->duration_minutes ?? 60;
@@ -368,6 +398,8 @@ class BookingsController extends Controller
             // user_id не обновляем массово: иначе при PATCH можно подменить клиента и увести чужие клиентские уведомления в inbox владельца.
             $booking->update($request->only([
                 'service_id',
+                'title',
+                'event_type',
                 'booking_date',
                 'booking_time',
                 'duration_minutes',

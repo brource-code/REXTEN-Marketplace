@@ -336,6 +336,13 @@
             "notifications": "Сповіщення",
             "support": "Підтримка",
             "api": "API",
+            "sections": {
+                "overview": "Огляд",
+                "operations": "Розклад і записи",
+                "clientsAndSales": "Клієнти та продажі",
+                "account": "Підписка та налаштування",
+                "help": "Довідка та інструменти"
+            },
             "groups": {
                 "work": "Робота",
                 "crm": "Клієнти",
@@ -1785,6 +1792,231 @@
                     "confirm": "Видалити",
                     "cancel": "Скасувати"
                 }
+            },
+            "newBookingItem": "Нове бронювання",
+            "newBlockTime": "Довільна подія",
+            "newRecurring": "Повторюване бронювання",
+            "block": {
+                "title": "Довільна подія",
+                "subtitle": "Додайте в календар довільну подію без запису клієнта",
+                "eventTitle": "Назва події",
+                "eventTitlePlaceholder": "Обід, навчання, вихідний…",
+                "date": "Дата",
+                "time": "Час",
+                "duration": "Тривалість",
+                "specialist": "Спеціаліст",
+                "anySpecialist": "Уся команда",
+                "notes": "Нотатка",
+                "notesPlaceholder": "Необовʼязковий коментар",
+                "createSuccess": "Довільну подію створено",
+                "updateSuccess": "Довільну подію оновлено",
+                "createError": "Не вдалося створити довільну подію",
+                "updateError": "Не вдалося оновити довільну подію"
+            },
+            "payment": {
+                "statusLabel": "Статус оплати",
+                "amountLabel": "Сума",
+                "captureNow": "Списати зараз",
+                "captureSuccess": "Оплату списано",
+                "captureError": "Не вдалося списати",
+                "refund": {
+                    "title": "Повернення оплати",
+                    "amountLabel": "Сума повернення",
+                    "amountPlaceholder": "Сума у {currency}",
+                    "amountHint": "Списано загалом: {total} {currency}. Порожньо — повне повернення.",
+                    "amountInvalid": "Введіть додатнє число",
+                    "reasonLabel": "Причина",
+                    "reasonPlaceholder": "Чому повертаєте?",
+                    "reasonRequired": "Вкажіть причину",
+                    "full": "Повне",
+                    "half": "50%",
+                    "quarter": "25%",
+                    "confirm": "Підтвердити повернення",
+                    "success": "Повернення виконано",
+                    "error": "Не вдалося повернути"
+                },
+                "noneHint": "Онлайн-оплата для цього бронювання ще не запитана.",
+                "statuses": {
+                    "none": "Без оплати",
+                    "authorized": "Зарезервовано",
+                    "paid": "Оплачено",
+                    "refunded": "Повернено",
+                    "cancelled": "Скасовано",
+                    "unpaid": "Не сплачено",
+                    "pending_payment": "Очікує оплати",
+                    "pending": "В обробці",
+                    "expired": "Прострочено",
+                    "partially_refunded": "Часткове повернення",
+                    "disputed": "Спір",
+                    "transfer_reversed": "Переказ скасовано",
+                    "reserved": "Карта збережена",
+                    "requires_capture": "Готово до списання"
+                },
+                "refundAction": "Повернення"
+            },
+            "activity": {
+                "comment": "Додати коментар",
+                "placeholder": "Нотатка для команди або аудиту…",
+                "post": "Надіслати",
+                "empty": "Активності поки немає",
+                "emptyForNew": "Журнал зʼявиться після збереження бронювання.",
+                "loadError": "Не вдалося завантажити журнал",
+                "systemActor": "Система",
+                "typeCreated": "Бронювання створено",
+                "typeDeleted": "Бронювання видалено",
+                "typeStatusChanged": "Статус змінено: {from} → {to}",
+                "typeRescheduled": "Бронювання перенесено",
+                "typePriceChanged": "Ціну змінено: {from} → {to}",
+                "typePaymentAuthorized": "Оплату авторизовано",
+                "typePaymentCaptured": "Оплату списано: {amount}",
+                "typePaymentRefunded": "Оплату повернено"
+            },
+            "drawer": {
+                "header": {
+                    "booking": "Бронювання",
+                    "blockEvent": "Довільна подія",
+                    "blockTag": "ДОВІЛЬНА"
+                },
+                "tabs": {
+                    "details": "Деталі",
+                    "pricing": "Ціна",
+                    "payment": "Оплата",
+                    "activity": "Активність"
+                },
+                "actionsSectionTitle": "Дії з бронюванням",
+                "actions": {
+                    "edit": "Редагувати",
+                    "reschedule": "Перенести",
+                    "confirm": "Підтвердити",
+                    "complete": "Завершити",
+                    "cancelBooking": "Скасувати бронювання",
+                    "deleteBooking": "Видалити бронювання"
+                },
+                "details": {
+                    "service": "Послуга",
+                    "eventTitle": "Назва події",
+                    "eventTitlePlaceholder": "Назва блоку часу",
+                    "date": "Дата",
+                    "time": "Час",
+                    "duration": "Тривалість",
+                    "specialist": "Спеціаліст",
+                    "anySpecialist": "Будь-який",
+                    "status": "Статус",
+                    "executionType": "Виконання",
+                    "onsite": "У вас",
+                    "offsite": "У клієнта",
+                    "addressBlock": "Адреса виїзду",
+                    "addressLine1": "Адреса",
+                    "addressPlaceholder": "Почніть вводити адресу…",
+                    "city": "Місто",
+                    "state": "Регіон",
+                    "zip": "Поштовий індекс",
+                    "notes": "Внутрішні нотатки",
+                    "notesPlaceholder": "Видно лише команді",
+                    "client": "Клієнт",
+                    "guestName": "Імʼя гостя",
+                    "guestEmail": "Email",
+                    "guestPhone": "Телефон",
+                    "conflictPickHint": "Оберіть вільний слот:"
+                },
+                "reschedule": {
+                    "title": "Перенести",
+                    "dateLabel": "Нова дата",
+                    "timeLabel": "Новий час",
+                    "durationLabel": "Тривалість",
+                    "apply": "Застосувати",
+                    "cancel": "Скасувати"
+                },
+                "conflict": {
+                    "title": "{count, plural, one {Знайдено # конфлікт} few {Знайдено # конфлікти} many {Знайдено # конфліктів} other {Знайдено # конфліктів}}",
+                    "withSpecialist": "{name}: {count, plural, one {# перетин} few {# перетини} many {# перетинів} other {# перетинів}}"
+                },
+                "suggestions": {
+                    "today": "Сьогодні",
+                    "tomorrow": "Завтра",
+                    "dayShort": {
+                        "sunday": "Нд",
+                        "monday": "Пн",
+                        "tuesday": "Вт",
+                        "wednesday": "Ср",
+                        "thursday": "Чт",
+                        "friday": "Пт",
+                        "saturday": "Сб"
+                    }
+                },
+                "pricing": {
+                    "basePrice": "Базова ціна",
+                    "basePriceHint": "Можна змінити ціну саме для цього бронювання.",
+                    "additionalServices": "Додаткові послуги",
+                    "subtotal": "Проміжний підсумок",
+                    "discount": "Знижка",
+                    "total": "Разом",
+                    "discountRecalculateHint": "Після зміни цін знижка перераховується під час збереження (лояльність або промокод — що вигідніше)."
+                },
+                "guest": "Гість (без клієнта)",
+                "newClient": "Новий клієнт",
+                "clientPlaceholder": "Знайти клієнта…",
+                "servicePlaceholder": "Оберіть послугу",
+                "serviceHint": "Тривалість {duration} · Ціна {price}",
+                "deleteConfirm": {
+                    "title": "Видалити це бронювання?",
+                    "body": "Цю дію не можна скасувати."
+                }
+            },
+            "wizard": {
+                "title": "Нове бронювання",
+                "subtitle": "Створіть бронювання для клієнта",
+                "create": "Створити бронювання",
+                "saveAsDraft": "Зберегти як чернетку",
+                "steps": {
+                    "clientService": "Клієнт і послуга",
+                    "timeAssignment": "Час і спеціаліст"
+                },
+                "step1": {
+                    "client": "Клієнт",
+                    "guestName": "Імʼя гостя",
+                    "guestEmail": "Email",
+                    "guestPhone": "Телефон",
+                    "service": "Послуга",
+                    "notes": "Нотатки",
+                    "notesPlaceholder": "Додаткові деталі"
+                },
+                "step2": {
+                    "date": "Дата",
+                    "time": "Час",
+                    "duration": "Тривалість",
+                    "specialist": "Спеціаліст",
+                    "anySpecialist": "Будь-який",
+                    "executionType": "Виконання",
+                    "onsite": "У вас",
+                    "offsite": "У клієнта",
+                    "addressBlock": "Адреса виїзду",
+                    "addressLine1": "Адреса",
+                    "addressPlaceholder": "Почніть вводити адресу…",
+                    "city": "Місто",
+                    "state": "Регіон",
+                    "zip": "Поштовий індекс",
+                    "conflictPickHint": "Оберіть вільний слот:",
+                    "quickPickHint": "Швидкі варіанти:"
+                },
+                "draftBanner": {
+                    "title": "Чернетку збережено о {time}",
+                    "subtitle": "Продовжити з того ж місця?",
+                    "subtitleRestored": "Поля заповнено з чернетки. «Скинути» — очистити й залишити лише обраний слот.",
+                    "continue": "Продовжити",
+                    "discard": "Скинути"
+                }
+            },
+            "validation": {
+                "service_required": "Оберіть послугу",
+                "title_required": "Введіть назву",
+                "invalid_date": "Некоректна дата",
+                "invalid_time": "Некоректний час",
+                "invalid_duration": "Некоректна тривалість",
+                "duration_too_short": "Мінімум 15 хвилин",
+                "invalid_generic": "Некоректне значення",
+                "invalid_email": "Введіть коректний email",
+                "price_negative": "Ціна не може бути від'ємною"
             }
         },
         "reviews": {
@@ -2342,7 +2574,8 @@
                     "clicks": "Кліки",
                     "startDate": "Дата початку",
                     "endDate": "Кінцева дата",
-                    "link": "Посилання"
+                    "link": "Посилання",
+                    "ctr": "CTR"
                 },
                 "notifications": {
                     "deleteSuccess": "Оголошення успішно видалено",
@@ -2830,7 +3063,8 @@
                 "authorized": "Авторизовано",
                 "pending": "Очікує",
                 "failed": "Не вдалося",
-                "canceled": "Скасовано"
+                "canceled": "Скасовано",
+                "expired": "Закінчився строк"
             },
             "filters": {
                 "type": "Тип транзакції",
@@ -3509,7 +3743,20 @@
             "delete": "Видалити",
             "cancel": "Скасувати",
             "save": "Зберегти",
-            "done": "Готово"
+            "done": "Готово",
+            "close": "Закрити",
+            "back": "Назад",
+            "next": "Далі",
+            "timePicker": {
+                "now": "Зараз",
+                "done": "Готово",
+                "am": "AM",
+                "pm": "PM",
+                "hours": "Години",
+                "minutes": "Хвилини",
+                "period": "AM/PM",
+                "time": "Час"
+            }
         },
         "salarySettings": {
             "title": "Налаштування оплати",

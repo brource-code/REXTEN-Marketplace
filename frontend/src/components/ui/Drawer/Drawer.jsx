@@ -45,10 +45,14 @@ const Drawer = (props) => {
     // Стили панели + анимация через transform (x/y), без left/top в px — меньше layout thrashing на мобильных
     const { dimensionClass, panelStyle, motionInitial, motionAnimate } = useMemo(() => {
         if (placement === 'left' || placement === 'right') {
+            const widthCss =
+                typeof width === 'number' ? `min(100vw, ${width}px)` : width
             const base = {
-                width,
+                width: widthCss,
+                maxWidth: '100vw',
                 top: 0,
                 height: '100%',
+                maxHeight: '100dvh',
             }
             if (placement === 'left') {
                 return {

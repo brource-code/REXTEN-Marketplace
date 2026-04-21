@@ -21,6 +21,7 @@ export default function RextenMarketplaceLogoLight(
     <svg
       {...svgProps}
       viewBox="0 0 180 60"
+      preserveAspectRatio="xMinYMid meet"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       role="img"

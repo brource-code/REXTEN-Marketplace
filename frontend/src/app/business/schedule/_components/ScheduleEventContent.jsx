@@ -124,20 +124,34 @@ const ScheduleEventContent = ({
     const isCardReserved = ext.payment_status === 'reserved' || ext.payment_status === 'requires_capture'
     const isInRoute = !!ext.isInRoute
     const isRecurring = !!ext.isRecurring
+    const isCustom = !!ext.isCustom
     const amountLabel = ext.amountLabel
     const continuation = isEnd && !isStart
 
-    const primaryLine = clientName || serviceName || event.title
-    const subLineParts = [serviceName, specialistName].filter(Boolean)
+    const primaryLine = isCustom
+        ? (event.title || serviceName || '')
+        : (clientName || serviceName || event.title)
+    const subLineParts = isCustom
+        ? [specialistName].filter(Boolean)
+        : [serviceName, specialistName].filter(Boolean)
     const subLine = subLineParts.join(' · ')
 
-    const detailTitle = [
-        formatTimeText(arg.timeText),
-        clientName || undefined,
-        serviceName || undefined,
-        specialistName || undefined,
-        amountLabel || undefined,
-    ]
+    const detailTitle = (
+        isCustom
+            ? [
+                  formatTimeText(arg.timeText),
+                  event.title || undefined,
+                  specialistName || undefined,
+                  amountLabel || undefined,
+              ]
+            : [
+                  formatTimeText(arg.timeText),
+                  clientName || undefined,
+                  serviceName || undefined,
+                  specialistName || undefined,
+                  amountLabel || undefined,
+              ]
+    )
         .filter(Boolean)
         .join(' · ')
 

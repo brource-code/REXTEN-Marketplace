@@ -19,7 +19,7 @@ import Loading from '@/components/shared/Loading'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import { PiPlus, PiPencil, PiTrash, PiMegaphone, PiEye, PiCursorClick } from 'react-icons/pi'
+import { PiPlus, PiPencil, PiTrash, PiMegaphone, PiEye, PiCursorClick, PiArrowRight } from 'react-icons/pi'
 import Link from 'next/link'
 import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
 import Pagination from '@/components/ui/Pagination'
@@ -619,84 +619,152 @@ function AdvertisementsAdsPageContent() {
                 </div>
             </AdaptiveCard>
 
-            {/* Модалка просмотра */}
-            <Dialog 
-                isOpen={isViewModalOpen} 
+            {/* Модалка просмотра (как у обычных объявлений) */}
+            <Dialog
+                isOpen={isViewModalOpen}
                 onClose={() => {
                     setIsViewModalOpen(false)
                     setSelectedAd(null)
                 }}
-                width={800}
+                width={700}
             >
                 {selectedAd && (
                     <div className="flex flex-col h-full max-h-[85vh]">
                         <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Просмотр рекламного объявления</h4>
+                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{tAds('viewModal.title')}</h4>
                         </div>
-                        
-                        <div className="flex-1 overflow-y-auto booking-modal-scroll px-6 py-4">
-                            <div className="space-y-4">
-                                {selectedAd.image && (
-                                    <div className="relative w-full h-80 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                        <img
-                                            src={normalizeImageUrl(selectedAd.image)}
-                                            alt={selectedAd.title}
-                                            className="w-full h-full object-contain"
-                                            onError={(e) => {
-                                                e.target.src = FALLBACK_IMAGE
-                                                e.target.onerror = null
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                                <div>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">{selectedAd.title}</h4>
-                                    {selectedAd.description && (
-                                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-4">{selectedAd.description}</p>
-                                    )}
+
+                        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+                            {selectedAd.image && (
+                                <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                    <img
+                                        src={normalizeImageUrl(selectedAd.image)}
+                                        alt={selectedAd.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.src = FALLBACK_IMAGE
+                                            e.target.onerror = null
+                                        }}
+                                    />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <div>
-                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Размещение</div>
-                                        <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{getPlacementLabel(selectedAd.placement) || selectedAd.placement}</div>
+                            )}
+
+                            <div>
+                                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">{selectedAd.title}</h4>
+                                {selectedAd.description && (
+                                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{selectedAd.description}</p>
+                                )}
+                            </div>
+
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <Tag className={statusColors[selectedAd.status] || statusColors.inactive}>
+                                    {getStatusLabel(selectedAd.status)}
+                                </Tag>
+                                <span className={`text-xs font-bold px-2 py-1 rounded-full ${selectedAd.is_active ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
+                                    {selectedAd.is_active ? tAds('viewModal.visible') : tAds('viewModal.hidden')}
+                                </span>
+                                {selectedAd.category_slug && (
+                                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
+                                        {selectedAd.category_slug}
+                                    </span>
+                                )}
+                            </div>
+
+                            {selectedAd.status === 'rejected' && selectedAd.moderation_reason && (
+                                <div className="p-3 bg-red-50 dark:bg-red-500/10 rounded-lg border border-red-200 dark:border-red-800">
+                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-0.5">
+                                        {tAds('viewModal.rejectionReason')}
                                     </div>
-                                    <div>
-                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Статус</div>
-                                        <Tag className={statusColors[selectedAd.status] || statusColors.inactive}>
-                                            {getStatusLabel(selectedAd.status)}
-                                        </Tag>
+                                    <div className="text-sm text-red-600 dark:text-red-400">
+                                        {selectedAd.moderation_reason}
                                     </div>
+                                </div>
+                            )}
+
+                            {selectedAd.services && selectedAd.services.length > 0 && (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{tAds('viewModal.services')}</div>
+                                    <div className="space-y-2">
+                                        {selectedAd.services.map((service, idx) => (
+                                            <div key={service.id || idx} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{service.name}</div>
+                                                    {service.description && (
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{service.description}</div>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+                                                    {service.duration && (
+                                                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                            {service.duration} {tAds('viewModal.min')}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                        ${Number(service.price || 0).toFixed(2)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedAd.portfolio && selectedAd.portfolio.length > 0 && (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{tAds('viewModal.portfolio')}</div>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                        {selectedAd.portfolio.map((item, idx) => (
+                                            <div key={item.id || idx} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                                <img
+                                                    src={normalizeImageUrl(item.image || item.url || item)}
+                                                    alt=""
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.target.src = FALLBACK_IMAGE
+                                                        e.target.onerror = null
+                                                    }}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {selectedAd.city && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Город</div>
-                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedAd.city}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.city')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.city}</div>
                                         </div>
                                     )}
                                     {selectedAd.state && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Штат</div>
-                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedAd.state}</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.state')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.state}</div>
                                         </div>
                                     )}
-                                    <div>
-                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Показы</div>
-                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{(selectedAd.impressions || 0).toLocaleString()}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Клики</div>
-                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.clicks || 0}</div>
-                                    </div>
-                                    {selectedAd.impressions > 0 && (
+                                    {selectedAd.placement && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">CTR</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.placement')}</div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                {((selectedAd.clicks / selectedAd.impressions) * 100).toFixed(2)}%
+                                                {getPlacementLabel(selectedAd.placement) || selectedAd.placement}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {(selectedAd.price_from || selectedAd.price_to) && (
+                                        <div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.priceFrom')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {selectedAd.price_from && `$${selectedAd.price_from}`}
+                                                {selectedAd.price_from && selectedAd.price_to && ' — '}
+                                                {selectedAd.price_to && `$${selectedAd.price_to}`}
                                             </div>
                                         </div>
                                     )}
                                     {selectedAd.start_date && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Дата начала</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.startDate')}</div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {formatDate(selectedAd.start_date, businessTz, 'short')}
                                             </div>
@@ -704,20 +772,78 @@ function AdvertisementsAdsPageContent() {
                                     )}
                                     {selectedAd.end_date && (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Дата окончания</div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.endDate')}</div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {formatDate(selectedAd.end_date, businessTz, 'short')}
                                             </div>
                                         </div>
                                     )}
-                                    {selectedAd.link && (
-                                        <div className="col-span-2">
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Ссылка</div>
-                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 break-all">{selectedAd.link}</div>
+                                    {(selectedAd.impressions > 0 || selectedAd.clicks > 0) && (
+                                        <>
+                                            <div>
+                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.impressions')}</div>
+                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.impressions || 0}</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.clicks')}</div>
+                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.clicks || 0}</div>
+                                            </div>
+                                        </>
+                                    )}
+                                    {selectedAd.impressions > 0 && (
+                                        <div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.ctr')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {((selectedAd.clicks / selectedAd.impressions) * 100).toFixed(2)}%
+                                            </div>
+                                        </div>
+                                    )}
+                                    {selectedAd.created_at && (
+                                        <div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.createdAt')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {formatDate(selectedAd.created_at, businessTz, 'short')}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {selectedAd.updated_at && (
+                                        <div>
+                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.updatedAt')}</div>
+                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {formatDate(selectedAd.updated_at, businessTz, 'short')}
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
+
+                            {selectedAd.link && (
+                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.link')}</div>
+                                    <Link
+                                        href={`/marketplace/${selectedAd.link}`}
+                                        target="_blank"
+                                        className="text-sm font-bold text-primary hover:underline break-all"
+                                    >
+                                        /marketplace/{selectedAd.link}
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end gap-2">
+                            {selectedAd.link && (
+                                <Link href={`/marketplace/${selectedAd.link}`} target="_blank">
+                                    <Button variant="outline" size="sm" icon={<PiArrowRight />}>
+                                        {tAds('viewModal.link')}
+                                    </Button>
+                                </Link>
+                            )}
+                            <Link href={`/business/settings/advertisements/create?edit=${selectedAd.id}`}>
+                                <Button variant="solid" size="sm" icon={<PiPencil />}>
+                                    {tAds('viewModal.editAd')}
+                                </Button>
+                            </Link>
                         </div>
                     </div>
                 )}

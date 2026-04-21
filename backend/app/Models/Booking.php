@@ -44,6 +44,7 @@ class Booking extends Model
         'user_id',
         'service_id',
         'title',
+        'event_type',
         'advertisement_id',
         'execution_type',
         'specialist_id',
@@ -131,6 +132,14 @@ class Booking extends Model
     public function specialist()
     {
         return $this->belongsTo(TeamMember::class, 'specialist_id');
+    }
+
+    /**
+     * Activity log entries (status changes, reschedules, payments, comments).
+     */
+    public function activities()
+    {
+        return $this->hasMany(BookingActivity::class)->orderBy('created_at', 'desc');
     }
 
     /**

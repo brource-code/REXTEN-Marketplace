@@ -48,15 +48,23 @@ return [
         '*.log',
         /* Laravel / Next — восстанавливаются через composer/npm build */
         'backend/storage/app/backups',
+        /* Временные файлы партнёрского экспорта (могут накапливаться, не в .git) */
+        'backend/storage/app/partner-export-tmp',
         'backend/storage/logs',
         'backend/storage/framework/cache',
         'backend/storage/framework/sessions',
         'backend/storage/framework/views',
         'frontend/.next',
+        /* Expo / мобильная сборка (как в scripts/make-partner-archive.sh) */
+        'frontend/mobile/.expo',
+        'frontend/mobile/dist',
+        'frontend/mobile.zip',
         /* Тяжёлые артефакты в корне репозитория (~2 ГБ+) */
         'ecme-admin.zip',
-        /* Старые снимки ECME Marketplace в frontend (сотни МБ + дубликаты) */
+        /* Снимки/деплой-пакеты ECME в frontend (сотни МБ; tar — регистрозависимый) */
         'frontend/ecme-marketplace-*',
+        'frontend/ECME-*',
+        'rexten-backup-*.tar.gz',
     ],
 
     /*

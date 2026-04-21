@@ -397,6 +397,7 @@ export async function updateClientStatus(
 // ========== Schedule (слоты = бронирования в календаре) ==========
 export interface ScheduleSlot {
   id: string;
+  event_type?: string;
   title: string;
   start: string;
   end: string;

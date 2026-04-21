@@ -45,6 +45,7 @@ const ScheduleToolbar = ({
     onToggleStats,
     canManageSchedule,
     onNewBooking,
+    onNewBlock,
     onOpenRecurring,
     canShowRouteCta,
     onOpenRouteForDay,
@@ -118,14 +119,39 @@ const ScheduleToolbar = ({
                         <span className="truncate">{tSchedule('recurringBookings')}</span>
                     </button>
                     {canManageSchedule && (
-                        <button
-                            type="button"
-                            onClick={onNewBooking}
-                            className="inline-flex flex-1 basis-0 min-w-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary-deep shadow-sm transition-colors sm:flex-none sm:py-1.5"
+                        <Dropdown
+                            placement="bottom-end"
+                            renderTitle={
+                                <button
+                                    type="button"
+                                    className="inline-flex flex-1 basis-0 min-w-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary-deep shadow-sm transition-colors sm:flex-none sm:py-1.5"
+                                >
+                                    <PiCalendarPlus className="text-base shrink-0" />
+                                    <span className="truncate">{tSchedule('newBooking')}</span>
+                                    <PiCaretDownBold className="text-xs shrink-0" />
+                                </button>
+                            }
                         >
-                            <PiCalendarPlus className="text-base shrink-0" />
-                            <span className="truncate">{tSchedule('newBooking')}</span>
-                        </button>
+                            <Dropdown.Item onClick={onNewBooking}>
+                                {tSchedule('newBookingItem', {
+                                    defaultValue: tSchedule('newBooking'),
+                                })}
+                            </Dropdown.Item>
+                            {onNewBlock && (
+                                <Dropdown.Item onClick={onNewBlock}>
+                                    {tSchedule('newBlockTime', {
+                                        defaultValue: 'Block time',
+                                    })}
+                                </Dropdown.Item>
+                            )}
+                            {onOpenRecurring && (
+                                <Dropdown.Item onClick={onOpenRecurring}>
+                                    {tSchedule('newRecurring', {
+                                        defaultValue: tSchedule('recurringBookings'),
+                                    })}
+                                </Dropdown.Item>
+                            )}
+                        </Dropdown>
                     )}
                 </div>
 

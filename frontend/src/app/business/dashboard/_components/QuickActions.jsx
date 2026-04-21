@@ -4,7 +4,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getBusinessProfile, getScheduleSlots } from '@/lib/api/business'
 import {
     PiCalendarPlus,
@@ -15,39 +15,25 @@ import {
 } from 'react-icons/pi'
 import { useTranslations } from 'next-intl'
 import { usePermission } from '@/hooks/usePermission'
-import { useBusinessScheduleSlotModalController } from '@/hooks/useBusinessScheduleSlotModalController'
 import ClientCreateModal from '@/app/business/clients/_components/ClientCreateModal'
-import ScheduleSlotModal from '@/app/business/schedule/_components/ScheduleSlotModal'
-import ConfirmDialog from '@/components/shared/ConfirmDialog'
+import NewBookingWizard from '@/components/business/booking/NewBookingWizard'
+import { useNewBookingController } from '@/components/business/booking/hooks/useNewBookingController'
 
 const QuickActions = () => {
     const router = useRouter()
     const t = useTranslations('business.dashboard.quickActions')
-    const tScheduleRoot = useTranslations('business.schedule')
 
     const canManageClients = usePermission('manage_clients')
     const canManageSchedule = usePermission('manage_schedule')
 
     const [isClientModalOpen, setIsClientModalOpen] = useState(false)
-    const queryClient = useQueryClient()
 
     const { refetch: refetchSlots } = useQuery({
         queryKey: ['business-schedule-slots'],
         queryFn: getScheduleSlots,
     })
 
-    const {
-        dialogOpen,
-        setDialogOpen,
-        selectedSlot,
-        setSelectedSlot,
-        isDeleteDialogOpen,
-        handleSubmit,
-        handleDelete,
-        handleConfirmDelete,
-        cancelDelete,
-        closeModal,
-    } = useBusinessScheduleSlotModalController({ refetchSlots })
+    const wizard = useNewBookingController({ refetchSlots })
 
     const { data: profile } = useQuery({
         queryKey: ['business-profile'],
@@ -59,9 +45,8 @@ const QuickActions = () => {
             router.push('/business/schedule')
             return
         }
-        setSelectedSlot({ type: 'NEW' })
-        setDialogOpen(true)
-    }, [canManageSchedule, router, setSelectedSlot, setDialogOpen])
+        wizard.openWizard()
+    }, [canManageSchedule, router, wizard])
 
     const openAddClient = useCallback(() => {
         if (!canManageClients) {
@@ -157,40 +142,13 @@ const QuickActions = () => {
                 onClose={() => setIsClientModalOpen(false)}
             />
 
-            <ScheduleSlotModal
-                key={selectedSlot?.id ? `slot-${selectedSlot.id}` : 'slot-new'}
-                isOpen={dialogOpen}
-                onClose={closeModal}
-                slot={selectedSlot}
-                onSave={canManageSchedule ? handleSubmit : null}
-                onDelete={
-                    canManageSchedule && selectedSlot?.id
-                        ? () => handleDelete(selectedSlot.id)
-                        : null
-                }
-                readOnly={!canManageSchedule}
-                onPaymentUpdated={async () => {
-                    const result = await refetchSlots()
-                    const list = result.data ?? queryClient.getQueryData(['business-schedule-slots']) ?? []
-                    const id = selectedSlot?.id
-                    if (!id) return
-                    const upd = list.find((s) => String(s.id) === String(id))
-                    if (upd) {
-                        setSelectedSlot({ ...upd, type: 'EDIT' })
-                    }
-                }}
+            <NewBookingWizard
+                open={wizard.open}
+                seed={wizard.seed}
+                onClose={wizard.closeWizard}
+                onSubmit={wizard.submit}
+                saving={wizard.creating}
             />
-            <ConfirmDialog
-                isOpen={isDeleteDialogOpen}
-                type="danger"
-                title={tScheduleRoot('deleteConfirm.title')}
-                onCancel={cancelDelete}
-                onConfirm={handleConfirmDelete}
-                confirmText={tScheduleRoot('deleteConfirm.confirm')}
-                cancelText={tScheduleRoot('deleteConfirm.cancel')}
-            >
-                <p>{tScheduleRoot('deleteConfirm.message')}</p>
-            </ConfirmDialog>
         </>
     )
 }

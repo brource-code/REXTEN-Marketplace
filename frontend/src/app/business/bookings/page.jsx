@@ -34,9 +34,9 @@ export default function Page() {
 function BookingsPageContent() {
     return (
         <Container>
-            <AdaptiveCard>
-                <BookingsList />
-            </AdaptiveCard>
-        </Container>
+                <AdaptiveCard className="overflow-visible">
+                    <BookingsList />
+                </AdaptiveCard>
+            </Container>
     )
 }

@@ -6,7 +6,12 @@ import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import { PiCalendarPlus } from 'react-icons/pi'
 import dayjs from 'dayjs'
-import ScheduleSlotModal from './ScheduleSlotModal'
+import BookingDrawer from '@/components/business/booking/BookingDrawer'
+import NewBookingWizard from '@/components/business/booking/NewBookingWizard'
+import BlockTimeModal from '@/components/business/booking/BlockTimeModal'
+import { useBookingDrawerController } from '@/components/business/booking/hooks/useBookingDrawerController'
+import { useNewBookingController } from '@/components/business/booking/hooks/useNewBookingController'
+import { useBlockTimeController } from '@/components/business/booking/hooks/useBlockTimeController'
 import RecurringBookingModal from './RecurringBookingModal'
 import RecurringBookingsList from './RecurringBookingsList'
 import ScheduleStats from './ScheduleStats'
@@ -22,16 +27,16 @@ import {
     getTeamMembers,
     getBusinessRoute,
     getRecurringBookings,
+    updateScheduleSlot,
 } from '@/lib/api/business'
 import Loading from '@/components/shared/Loading'
-import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useTranslations } from 'next-intl'
 import useBusinessStore from '@/store/businessStore'
 import { usePermission } from '@/hooks/usePermission'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
-import { useBusinessScheduleSlotModalController } from '@/hooks/useBusinessScheduleSlotModalController'
 import { getScheduleSlotMonetaryTotal } from '@/utils/schedule/slotMonetaryTotal'
 import { resolveSlotServiceName } from '@/utils/schedule/resolveSlotServiceName'
+import { isScheduleBlockOrCustomSlot } from '@/utils/schedule/isScheduleBlockOrCustomSlot'
 
 const STATS_VISIBLE_LS_KEY = 'business.schedule.statsVisible'
 const COLOR_MODE_LS_KEY = 'business.schedule.colorMode'
@@ -405,19 +410,28 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         return dateRange
     }, [statsMode, dateRange, currentDate, isAgendaView, agendaWindowStart])
 
-    const {
-        dialogOpen,
-        setDialogOpen,
-        selectedSlot,
-        setSelectedSlot,
-        isDeleteDialogOpen,
-        handleSubmit,
-        handleDelete,
-        handleConfirmDelete,
-        cancelDelete,
-        closeModal,
-        updateSlotMutation,
-    } = useBusinessScheduleSlotModalController({ refetchSlots })
+    const drawer = useBookingDrawerController({ refetchSlots })
+    const wizard = useNewBookingController({ refetchSlots })
+    const block = useBlockTimeController({ refetchSlots })
+
+    const openSlot = useCallback((slot) => {
+        const isBlock =
+            slot?.event_type === 'block' ||
+            (slot?.title && !slot?.service_id)
+        if (isBlock) {
+            block.openModal(slot)
+            return
+        }
+        drawer.openForSlot(slot)
+    }, [drawer, block])
+
+    const openNewBooking = useCallback((seed) => {
+        wizard.openWizard(seed)
+    }, [wizard])
+
+    const openBlockTime = useCallback((seed) => {
+        block.openModal(seed)
+    }, [block])
 
     const scheduleOpenFromUrlHandled = useRef(false)
     useEffect(() => {
@@ -430,11 +444,10 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         const slot = slots.find((s) => String(s.id) === id)
         if (slot) {
             scheduleOpenFromUrlHandled.current = true
-            setSelectedSlot({ type: 'EDIT', ...slot })
-            setDialogOpen(true)
+            openSlot(slot)
             router.replace('/business/schedule', { scroll: false })
         }
-    }, [initialOpenBookingId, slots, router, setSelectedSlot, setDialogOpen])
+    }, [initialOpenBookingId, slots, router, openSlot])
 
     const handleViewChange = useCallback((nextView) => {
         setCurrentView(nextView)
@@ -473,12 +486,10 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
 
     const openNewBookingModal = useCallback(() => {
         if (!canManageSchedule) return
-        setSelectedSlot({
-            type: 'NEW',
+        openNewBooking({
             specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
         })
-        setDialogOpen(true)
-    }, [canManageSchedule, selectedSpecialistId, setSelectedSlot, setDialogOpen])
+    }, [canManageSchedule, selectedSpecialistId, openNewBooking])
 
     const handleDateClick = (arg) => {
         if (!canManageSchedule) return
@@ -498,8 +509,7 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 return clicked.isSame(sStart) || (clicked.isAfter(sStart) && clicked.isBefore(sEnd))
             })
             if (hit) {
-                setSelectedSlot({ type: 'EDIT', ...hit })
-                setDialogOpen(true)
+                openSlot(hit)
                 return
             }
         }
@@ -520,11 +530,10 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
     const openSlotById = useCallback((slotId) => {
         const slot = slots.find((s) => String(s.id) === String(slotId))
         if (slot) {
-            setSelectedSlot({ type: 'EDIT', ...slot })
-            setDialogOpen(true)
+            openSlot(slot)
             closeMorePopover()
         }
-    }, [slots, setSelectedSlot, setDialogOpen, closeMorePopover])
+    }, [slots, openSlot, closeMorePopover])
 
     const handleEventClick = (arg) => {
         const target = arg?.jsEvent?.target
@@ -557,42 +566,37 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         const slotDateBefore = dayjs(slot.start).format('YYYY-MM-DD')
         const slotDateAfter = startDate.format('YYYY-MM-DD')
 
-        updateSlotMutation.mutate(
-            {
-                id: slot.id,
-                data: {
-                    booking_date: slotDateAfter,
-                    booking_time: startDate.format('HH:mm'),
-                    duration_minutes: durationMinutes,
-                    status: slot.status,
-                    title: slot.title || null,
-                    notes: slot.notes || null,
-                    specialist_id: slotSpecialistId,
-                },
-            },
-            {
-                onSuccess: () => {
-                    if (slotSpecialistId && hasRoutesFeature) {
-                        queryClient.invalidateQueries({
-                            queryKey: ['business-route', String(slotSpecialistId), slotDateBefore],
-                        })
-                        queryClient.invalidateQueries({
-                            queryKey: ['business-route', String(slotSpecialistId), slotDateAfter],
-                        })
-                        queryClient.invalidateQueries({
-                            queryKey: ['business-route', Number(slotSpecialistId), slotDateBefore],
-                        })
-                        queryClient.invalidateQueries({
-                            queryKey: ['business-route', Number(slotSpecialistId), slotDateAfter],
-                        })
-                        queryClient.invalidateQueries({
-                            queryKey: ['business-route-saved', slotSpecialistId],
-                        })
-                    }
-                },
-                onError: () => arg.revert(),
-            },
-        )
+        updateScheduleSlot(slot.id, {
+            booking_date: slotDateAfter,
+            booking_time: startDate.format('HH:mm'),
+            duration_minutes: durationMinutes,
+            status: slot.status,
+            title: slot.title || null,
+            notes: slot.notes || null,
+            specialist_id: slotSpecialistId,
+        })
+            .then(async () => {
+                await refetchSlots()
+                queryClient.invalidateQueries({ queryKey: ['business-schedule-slots'] })
+                if (slotSpecialistId && hasRoutesFeature) {
+                    queryClient.invalidateQueries({
+                        queryKey: ['business-route', String(slotSpecialistId), slotDateBefore],
+                    })
+                    queryClient.invalidateQueries({
+                        queryKey: ['business-route', String(slotSpecialistId), slotDateAfter],
+                    })
+                    queryClient.invalidateQueries({
+                        queryKey: ['business-route', Number(slotSpecialistId), slotDateBefore],
+                    })
+                    queryClient.invalidateQueries({
+                        queryKey: ['business-route', Number(slotSpecialistId), slotDateAfter],
+                    })
+                    queryClient.invalidateQueries({
+                        queryKey: ['business-route-saved', slotSpecialistId],
+                    })
+                }
+            })
+            .catch(() => arg.revert())
     }
 
     const isPlaceholderServiceTitle = (title) =>
@@ -604,14 +608,15 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
 
     const events = useMemo(() => filteredSlots.map((slot) => {
         const status = slot.status || 'new'
-        const isCustomEvent = !!(slot.title && !slot.service_id && !slot.service?.id)
+        const isCustomEvent = isScheduleBlockOrCustomSlot(slot)
         const isInRoute = isDayView && selectedSpecialistId && dayRouteBookingIds.has(String(slot.id))
         const isRecurring = recurringSlotIds.has(String(slot.id)) || !!slot.recurring_chain_id
 
         const serviceName = isCustomEvent
             ? null
             : (resolveSlotServiceName(slot, services) || (isPlaceholderServiceTitle(slot.title) ? null : slot.title))
-        const clientName = slot.client?.name || slot.client_name || ''
+        const rawClientName = slot.client?.name || slot.client_name || ''
+        const clientName = isCustomEvent ? '' : rawClientName
 
         let eventTitle = slot.title || ''
         if (!isCustomEvent) {
@@ -675,13 +680,18 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
             const end = start.add(13, 'day')
             return `${start.format('MMM D')} – ${end.format('MMM D')}`
         }
+        // Месяц: FullCalendar даёт dateRange.start как первый день *сетки* (часто конец прошлого месяца),
+        // а «текущий» месяц — это view.currentStart, он же в state как currentDate (см. handleDatesSet).
+        if (currentView === 'dayGridMonth') {
+            return dayjs(currentDate).format('MMMM YYYY')
+        }
         if (!dateRange?.start) return null
         const start = dayjs(dateRange.start)
         const end = dayjs(dateRange.end).subtract(1, 'millisecond')
         if (currentView === 'timeGridDay') return start.format('dddd, MMM D')
         if (currentView === 'timeGridWeek') return `${start.format('MMM D')} – ${end.format('MMM D')}`
         return start.format('MMMM YYYY')
-    }, [dateRange, currentView, isAgendaView, agendaWindowStart])
+    }, [dateRange, currentView, isAgendaView, agendaWindowStart, currentDate])
 
     const dayBookingsCount = useMemo(() => {
         if (!isDayView || !selectedSpecialistId || !dayDateYmd) return 0
@@ -734,11 +744,14 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 onToggleStats={() => setStatsVisible((v) => !v)}
                 canManageSchedule={canManageSchedule}
                 onNewBooking={() => {
-                    setSelectedSlot({
-                        type: 'NEW',
+                    openNewBooking({
                         specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
                     })
-                    setDialogOpen(true)
+                }}
+                onNewBlock={() => {
+                    openBlockTime({
+                        specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
+                    })
                 }}
                 onOpenRecurring={() => {
                     setRecurringModalTab('list')
@@ -814,11 +827,9 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                     colorMode={colorMode}
                     currencyFormatter={currencyFormatter}
                     onCreateClick={canManageSchedule ? () => {
-                        setSelectedSlot({
-                            type: 'NEW',
+                        openNewBooking({
                             specialist_id: selectedSpecialistId ? Number(selectedSpecialistId) : undefined,
                         })
-                        setDialogOpen(true)
                     } : null}
                 />
             ) : (
@@ -863,35 +874,34 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 </div>
             )}
 
-            <ScheduleSlotModal
-                isOpen={dialogOpen}
-                onClose={closeModal}
-                slot={selectedSlot}
-                onSave={canManageSchedule ? handleSubmit : null}
-                onDelete={canManageSchedule && selectedSlot?.id ? () => handleDelete(selectedSlot.id) : null}
-                readOnly={!canManageSchedule}
-                onPaymentUpdated={async () => {
-                    const result = await refetchSlots()
-                    const list = result.data ?? queryClient.getQueryData(['business-schedule-slots']) ?? []
-                    const id = selectedSlot?.id
-                    if (!id) return
-                    const upd = list.find((s) => String(s.id) === String(id))
-                    if (upd) {
-                        setSelectedSlot({ ...upd, type: 'EDIT' })
-                    }
-                }}
+            <BookingDrawer
+                open={drawer.open}
+                slot={drawer.slot}
+                onClose={drawer.closeDrawer}
+                onSubmit={canManageSchedule ? drawer.submitUpdate : undefined}
+                onRequestDelete={canManageSchedule ? drawer.requestDelete : undefined}
+                saving={drawer.updating}
+                pendingDelete={drawer.pendingDelete}
+                onConfirmDelete={drawer.confirmDelete}
+                onCancelDelete={drawer.cancelDelete}
+                deleting={drawer.deleting}
             />
-            <ConfirmDialog
-                isOpen={isDeleteDialogOpen}
-                type="danger"
-                title={t('deleteConfirm.title')}
-                onCancel={cancelDelete}
-                onConfirm={handleConfirmDelete}
-                confirmText={t('deleteConfirm.confirm')}
-                cancelText={t('deleteConfirm.cancel')}
-            >
-                <p>{t('deleteConfirm.message')}</p>
-            </ConfirmDialog>
+
+            <NewBookingWizard
+                open={wizard.open}
+                seed={wizard.seed}
+                onClose={wizard.closeWizard}
+                onSubmit={wizard.submit}
+                saving={wizard.creating}
+            />
+
+            <BlockTimeModal
+                open={block.open}
+                seed={block.seed}
+                onClose={block.closeModal}
+                onSubmit={block.submit}
+                saving={block.saving}
+            />
 
             <Dialog
                 isOpen={recurringModalOpen}

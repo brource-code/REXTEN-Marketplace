@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { PiCreditCardFill, PiMapPinFill, PiArrowsClockwise, PiUser, PiClock, PiCurrencyDollar, PiCalendarBlank } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
+import { isScheduleBlockOrCustomSlot } from '@/utils/schedule/isScheduleBlockOrCustomSlot'
 import { getStatusPalette, getSpecialistPalette } from './ScheduleEventContent'
 
 const formatRangeLabel = (slot, locale) => {
@@ -126,10 +127,11 @@ const ScheduleAgendaView = ({
                             const isCardReserved = slot.payment_status === 'reserved' || slot.payment_status === 'requires_capture'
                             const isInRoute = !!slot.included_in_route
                             const isRecurring = !!slot.recurring_chain_id
-                            const isCustom = !!(slot.title && !slot.service_id && !slot.service?.id)
-                            const clientName = slot.client?.name || slot.client_name || ''
+                            const isCustom = isScheduleBlockOrCustomSlot(slot)
+                            const rawClientName = slot.client?.name || slot.client_name || ''
+                            const clientName = isCustom ? '' : rawClientName
                             const serviceName = (() => {
-                                if (isCustom) return slot.title
+                                if (isCustom) return ''
                                 if (slot.service?.name) return slot.service.name
                                 const found = services.find((s) => String(s.id) === String(slot.service_id))
                                 return found?.name || t('noService')
@@ -169,7 +171,9 @@ const ScheduleAgendaView = ({
                                                         isCancelled && 'line-through',
                                                     )}
                                                 >
-                                                    {clientName || serviceName || t('noService')}
+                                                    {isCustom
+                                                        ? (slot.title || serviceName || t('noService'))
+                                                        : (clientName || serviceName || t('noService'))}
                                                 </span>
                                                 <div className="flex shrink-0 items-center gap-1">
                                                     {isPaidOnline && (

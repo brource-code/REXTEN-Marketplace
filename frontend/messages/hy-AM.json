@@ -336,6 +336,13 @@
             "notifications": "Ծանուցումներ",
             "support": "Աջակցություն",
             "api": "API",
+            "sections": {
+                "overview": "Ակնարկ",
+                "operations": "Ժամանակացույց և ամրագրումներ",
+                "clientsAndSales": "Հաճախորդներ և վաճառք",
+                "account": "Բաժանորդագրություն և կարգավորումներ",
+                "help": "Օգնություն և գործիքներ"
+            },
             "groups": {
                 "work": "Աշխատանք",
                 "crm": "Հաճախորդներ",
@@ -1786,7 +1793,231 @@
                     "cancel": "Չեղարկել"
                 }
             },
-            "paidOnlineShort": "Առցանց"
+            "newBookingItem": "Նոր ամրագրում",
+            "newBlockTime": "Պատվերով իրադարձություն",
+            "newRecurring": "Կրկնվող ամրագրում",
+            "block": {
+                "title": "Պատվերով իրադարձություն",
+                "subtitle": "Ավելացրեք օրացույցում ներքին իրադարձություն առանց հաճախորդի ամրագրման",
+                "eventTitle": "Իրադարձության անվանումը",
+                "eventTitlePlaceholder": "Ընդմիջում, ուսուցում, հանգստյան…",
+                "date": "Ամսաթիվ",
+                "time": "Ժամ",
+                "duration": "Տևողություն",
+                "specialist": "Մասնագետ",
+                "anySpecialist": "Ամբողջ թիմը",
+                "notes": "Նշումներ",
+                "notesPlaceholder": "Կամավոր մեկնաբանություն",
+                "createSuccess": "Պատվերով իրադարձությունը ստեղծված է",
+                "updateSuccess": "Պատվերով իրադարձությունը թարմացված է",
+                "createError": "Չհաջողվեց ստեղծել պատվերով իրադարձություն",
+                "updateError": "Չհաջողվեց թարմացնել պատվերով իրադարձությունը"
+            },
+            "payment": {
+                "statusLabel": "Վճարման կարգավիճակ",
+                "amountLabel": "Գումար",
+                "captureNow": "Գանձել հիմա",
+                "captureSuccess": "Վճարումը գանձված է",
+                "captureError": "Գանձումը ձախողվեց",
+                "refund": {
+                    "title": "Վճարի վերադարձ",
+                    "amountLabel": "Վերադարձի գումար",
+                    "amountPlaceholder": "Գումար {currency}-ով",
+                    "amountHint": "Ընդամենը գանձված է՝ {total} {currency}: Դատարկ՝ ամբողջական վերադարձ։",
+                    "amountInvalid": "Մուտքագրեք դրական թիվ",
+                    "reasonLabel": "Պատճառ",
+                    "reasonPlaceholder": "Ինչու եք վերադարձնում?",
+                    "reasonRequired": "Պատճառն անհրաժեշտ է",
+                    "full": "Ամբողջական",
+                    "half": "50%",
+                    "quarter": "25%",
+                    "confirm": "Հաստատել վերադարձը",
+                    "success": "Վերադարձը կատարված է",
+                    "error": "Չհաջողվեց վերադարձնել"
+                },
+                "noneHint": "Այս ամրագրման համար դեռ առցանց վճարում չի պահանջվել։",
+                "statuses": {
+                    "none": "Առանց վճարման",
+                    "authorized": "Պահված",
+                    "paid": "Վճարված",
+                    "refunded": "Վերադարձված",
+                    "cancelled": "Չեղարկված",
+                    "unpaid": "Չվճարված",
+                    "pending_payment": "Սպասում է վճարման",
+                    "pending": "Ընթացքում",
+                    "expired": "Ժամկետանց",
+                    "partially_refunded": "Մասնակի վերադարձ",
+                    "disputed": "Վեճ",
+                    "transfer_reversed": "Փոխանցումը չեղարկված է",
+                    "reserved": "Քարտը պահված է",
+                    "requires_capture": "Պատրաստ է գանձման"
+                },
+                "refundAction": "Վերադարձ"
+            },
+            "activity": {
+                "comment": "Ավելացնել մեկնաբանություն",
+                "placeholder": "Նշում թիմի կամ աուդիտի համար…",
+                "post": "Հրապարակել",
+                "empty": "Դեռ ակտիվություն չկա",
+                "emptyForNew": "Մատյանը կհայտնվի ամրագրումը պահելուց հետո։",
+                "loadError": "Չհաջողվեց բեռնել մատյանը",
+                "systemActor": "Համակարգ",
+                "typeCreated": "Ամրագրումը ստեղծվեց",
+                "typeDeleted": "Ամրագրումը ջնջվեց",
+                "typeStatusChanged": "Կարգավիճակը փոխվեց՝ {from} → {to}",
+                "typeRescheduled": "Ամրագրումը տեղափոխվեց",
+                "typePriceChanged": "Գինը փոխվեց՝ {from} → {to}",
+                "typePaymentAuthorized": "Վճարումը պահվեց",
+                "typePaymentCaptured": "Վճարումը գանձվեց՝ {amount}",
+                "typePaymentRefunded": "Վճարումը վերադարձվեց"
+            },
+            "drawer": {
+                "header": {
+                    "booking": "Ամրագրում",
+                    "blockEvent": "Պատվերով իրադարձություն",
+                    "blockTag": "ԱՆՀԱՏ"
+                },
+                "tabs": {
+                    "details": "Մանրամասներ",
+                    "pricing": "Գին",
+                    "payment": "Վճարում",
+                    "activity": "Ակտիվություն"
+                },
+                "actionsSectionTitle": "Գործողություններ ամրագրման հետ",
+                "actions": {
+                    "edit": "Խմբագրել",
+                    "reschedule": "Տեղափոխել",
+                    "confirm": "Հաստատել",
+                    "complete": "Ավարտել",
+                    "cancelBooking": "Չեղարկել ամրագրումը",
+                    "deleteBooking": "Ջնջել ամրագրումը"
+                },
+                "details": {
+                    "service": "Ծառայություն",
+                    "eventTitle": "Իրադարձության անվանումը",
+                    "eventTitlePlaceholder": "Արգելափակման անվանումը",
+                    "date": "Ամսաթիվ",
+                    "time": "Ժամ",
+                    "duration": "Տևողություն",
+                    "specialist": "Մասնագետ",
+                    "anySpecialist": "Ցանկացած",
+                    "status": "Կարգավիճակ",
+                    "executionType": "Կատարում",
+                    "onsite": "Տեղում",
+                    "offsite": "Հաճախորդի մոտ",
+                    "addressBlock": "Ծառայության հասցե",
+                    "addressLine1": "Հասցե",
+                    "addressPlaceholder": "Սկսեք մուտքագրել հասցեն…",
+                    "city": "Քաղաք",
+                    "state": "Մարզ",
+                    "zip": "Փոստային ինդեքս",
+                    "notes": "Ներքին նշումներ",
+                    "notesPlaceholder": "Տեսանելի են միայն թիմին",
+                    "client": "Հաճախորդ",
+                    "guestName": "Հյուրի անունը",
+                    "guestEmail": "Email",
+                    "guestPhone": "Հեռախոս",
+                    "conflictPickHint": "Ընտրեք ազատ ինտերվալ՝"
+                },
+                "reschedule": {
+                    "title": "Տեղափոխել",
+                    "dateLabel": "Նոր ամսաթիվ",
+                    "timeLabel": "Նոր ժամ",
+                    "durationLabel": "Տևողություն",
+                    "apply": "Կիրառել",
+                    "cancel": "Չեղարկել"
+                },
+                "conflict": {
+                    "title": "{count, plural, one {Գտնվեց # հակասություն} other {Գտնվեց # հակասություն}}",
+                    "withSpecialist": "{name}՝ {count, plural, one {# համընկնում} other {# համընկնում}}"
+                },
+                "suggestions": {
+                    "today": "Այսօր",
+                    "tomorrow": "Վաղը",
+                    "dayShort": {
+                        "sunday": "Կիր",
+                        "monday": "Երկ",
+                        "tuesday": "Երք",
+                        "wednesday": "Չոր",
+                        "thursday": "Հնգ",
+                        "friday": "Ուրբ",
+                        "saturday": "Շաբ"
+                    }
+                },
+                "pricing": {
+                    "basePrice": "Հիմնական գին",
+                    "basePriceHint": "Կարող եք փոխել գինը այս ամրագրման համար։",
+                    "additionalServices": "Հավելյալ ծառայություններ",
+                    "subtotal": "Ենթագումար",
+                    "discount": "Զեղչ",
+                    "total": "Ընդամենը",
+                    "discountRecalculateHint": "Գները փոխելուց հետո զեղչը վերահաշվարկվում է պահպանելիս (հավատարիմություն կամ պրոմո՝ ինչն ավելի շահավետ է)։"
+                },
+                "guest": "Հյուր (առանց հաճախորդի)",
+                "newClient": "Նոր հաճախորդ",
+                "clientPlaceholder": "Որոնել հաճախորդ…",
+                "servicePlaceholder": "Ընտրեք ծառայություն",
+                "serviceHint": "Տևողություն {duration} · Գին {price}",
+                "deleteConfirm": {
+                    "title": "Ջնջել այս ամրագրումը?",
+                    "body": "Այս գործողությունը հնարավոր չէ չեղարկել։"
+                }
+            },
+            "wizard": {
+                "title": "Նոր ամրագրում",
+                "subtitle": "Ստեղծեք ամրագրում հաճախորդի համար",
+                "create": "Ստեղծել ամրագրումը",
+                "saveAsDraft": "Պահել որպես սևագիր",
+                "steps": {
+                    "clientService": "Հաճախորդ և ծառայություն",
+                    "timeAssignment": "Ժամ և մասնագետ"
+                },
+                "step1": {
+                    "client": "Հաճախորդ",
+                    "guestName": "Հյուրի անունը",
+                    "guestEmail": "Email",
+                    "guestPhone": "Հեռախոս",
+                    "service": "Ծառայություն",
+                    "notes": "Նշումներ",
+                    "notesPlaceholder": "Կամավոր մանրամասներ"
+                },
+                "step2": {
+                    "date": "Ամսաթիվ",
+                    "time": "Ժամ",
+                    "duration": "Տևողություն",
+                    "specialist": "Մասնագետ",
+                    "anySpecialist": "Ցանկացած",
+                    "executionType": "Կատարում",
+                    "onsite": "Տեղում",
+                    "offsite": "Հաճախորդի մոտ",
+                    "addressBlock": "Ծառայության հասցե",
+                    "addressLine1": "Հասցե",
+                    "addressPlaceholder": "Սկսեք մուտքագրել հասցեն…",
+                    "city": "Քաղաք",
+                    "state": "Մարզ",
+                    "zip": "Փոստային ինդեքս",
+                    "conflictPickHint": "Ընտրեք ազատ ինտերվալ՝",
+                    "quickPickHint": "Արագ տարբերակներ՝"
+                },
+                "draftBanner": {
+                    "title": "Սևագիր պահված է {time}-ին",
+                    "subtitle": "Շարունակե՞լ նույն տեղից",
+                    "subtitleRestored": "Դաշտերը լրացվել են սևագրից։ «Չեղարկել»՝ մաքրել և թողնել միայն ընտրված միջակայքը։",
+                    "continue": "Շարունակել",
+                    "discard": "Չեղարկել"
+                }
+            },
+            "validation": {
+                "service_required": "Ընտրեք ծառայությունը",
+                "title_required": "Մուտքագրեք վերնագիրը",
+                "invalid_date": "Անվավեր ամսաթիվ",
+                "invalid_time": "Անվավեր ժամ",
+                "invalid_duration": "Անվավեր տևողություն",
+                "duration_too_short": "Նվազագույնը 15 րոպե",
+                "invalid_generic": "Անվավեր արժեք",
+                "invalid_email": "Մուտքագրեք վավեր էլ․ փոստ",
+                "price_negative": "Գինը չի կարող բացասական լինել"
+            }
         },
         "reviews": {
             "title": "Կարծիքներ",
@@ -2343,7 +2574,8 @@
                     "clicks": "Սեղմումներ",
                     "startDate": "Սկզբի ամսաթիվ",
                     "endDate": "Ավարտի ամսաթիվ",
-                    "link": "Հղում"
+                    "link": "Հղում",
+                    "ctr": "CTR"
                 },
                 "notifications": {
                     "deleteSuccess": "Հայտարարությունը հաջողությամբ ջնջվել է",
@@ -2831,7 +3063,8 @@
                 "pending": "Սպասում",
                 "failed": "Ձախողված",
                 "canceled": "Չեղարկված",
-                "authorized": "Թույլատրված"
+                "authorized": "Թույլատրված",
+                "expired": "Ժամկետանց"
             },
             "filters": {
                 "type": "Գործարքի տեսակ",
@@ -3510,7 +3743,20 @@
             "delete": "Ջնջել",
             "cancel": "Չեղարկել",
             "save": "Պահել",
-            "done": "Պատրաստ է"
+            "done": "Պատրաստ է",
+            "close": "Փակել",
+            "back": "Հետ",
+            "next": "Հաջորդ",
+            "timePicker": {
+                "now": "Հիմա",
+                "done": "Պատրաստ է",
+                "am": "AM",
+                "pm": "PM",
+                "hours": "Ժամեր",
+                "minutes": "Րոպեներ",
+                "period": "AM/PM",
+                "time": "Ժամ"
+            }
         },
         "salarySettings": {
             "title": "Վճարման կարգավորումներ",

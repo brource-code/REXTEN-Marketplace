@@ -45,6 +45,7 @@ const statusColors = {
     pending: 'bg-yellow-200 dark:bg-yellow-700 text-yellow-900 dark:text-yellow-100',
     failed: 'bg-red-200 dark:bg-red-700 text-red-900 dark:text-red-100',
     canceled: 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100',
+    expired: 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100',
     paid: 'bg-emerald-200 dark:bg-emerald-700 text-emerald-900 dark:text-emerald-100',
 }
 

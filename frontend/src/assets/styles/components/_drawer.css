@@ -1,8 +1,24 @@
 @layer components {
+  /*
+   * Оболочка react-modal (props className → base: "drawer").
+   * Без inset:0 дочерняя панель с height:100% не получает корректную высоту на мобильных.
+   */
+  .drawer {
+    @apply absolute inset-0 p-0 m-0 overflow-hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+  }
+
   .drawer-content {
     /* translate — композитный слой; не добавлять filter/backdrop-blur на панель — тяжело на мобильных */
     @apply bg-white dark:bg-gray-800 shadow-xl absolute flex flex-col;
     backface-visibility: hidden;
+    /* ограничиваем панель по высоте экрана */
+    max-height: 100vh;
+    max-height: 100dvh;
+    min-height: 0;
   
     &.vertical {
       @apply h-full;
@@ -18,7 +34,8 @@
   }
   
   .drawer-body {
-    @apply p-6 h-full overflow-y-auto;
+    /* flex-1 + min-h-0 — скролл внутри тела, а не «вылезание» за экран */
+    @apply flex-1 min-h-0 overflow-y-auto p-6;
   }
   
   .drawer-footer {
@@ -36,6 +53,10 @@
     /* z выше фиксированного навбара (z-40 / z-60), иначе клик по «затемнению» попадает в навбар */
     transition: opacity 0.2s ease-out;
     @apply bg-black/80 inset-0 fixed z-[100];
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
   }
   
   .drawer-overlay-after-open {

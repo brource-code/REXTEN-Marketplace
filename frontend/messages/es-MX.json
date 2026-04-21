@@ -336,6 +336,13 @@
             "notifications": "Notificaciones",
             "support": "Soporte",
             "api": "API",
+            "sections": {
+                "overview": "Resumen",
+                "operations": "Agenda y citas",
+                "clientsAndSales": "Clientes y ventas",
+                "account": "Plan y ajustes",
+                "help": "Ayuda y herramientas"
+            },
             "groups": {
                 "work": "Trabajo",
                 "crm": "Clientes",
@@ -1785,6 +1792,231 @@
                     "confirm": "Eliminar",
                     "cancel": "Cancelar"
                 }
+            },
+            "newBookingItem": "Nueva reserva",
+            "newBlockTime": "Evento personalizado",
+            "newRecurring": "Reserva recurrente",
+            "block": {
+                "title": "Evento personalizado",
+                "subtitle": "Agrega al calendario un evento interno sin cita de cliente",
+                "eventTitle": "Nombre del evento",
+                "eventTitlePlaceholder": "Almuerzo, capacitación, día libre…",
+                "date": "Fecha",
+                "time": "Hora",
+                "duration": "Duración",
+                "specialist": "Especialista",
+                "anySpecialist": "Todo el equipo",
+                "notes": "Notas",
+                "notesPlaceholder": "Comentario opcional",
+                "createSuccess": "Evento personalizado creado",
+                "updateSuccess": "Evento personalizado actualizado",
+                "createError": "No se pudo crear el evento personalizado",
+                "updateError": "No se pudo actualizar el evento personalizado"
+            },
+            "payment": {
+                "statusLabel": "Estado del pago",
+                "amountLabel": "Monto",
+                "captureNow": "Cobrar ahora",
+                "captureSuccess": "Pago cobrado",
+                "captureError": "No se pudo cobrar",
+                "refund": {
+                    "title": "Reembolsar pago",
+                    "amountLabel": "Monto del reembolso",
+                    "amountPlaceholder": "Monto en {currency}",
+                    "amountHint": "Total cobrado: {total} {currency}. Vacío para reembolso completo.",
+                    "amountInvalid": "Introduce un número positivo",
+                    "reasonLabel": "Motivo",
+                    "reasonPlaceholder": "¿Por qué reembolsas?",
+                    "reasonRequired": "El motivo es obligatorio",
+                    "full": "Completo",
+                    "half": "50%",
+                    "quarter": "25%",
+                    "confirm": "Confirmar reembolso",
+                    "success": "Reembolso emitido",
+                    "error": "No se pudo reembolsar"
+                },
+                "noneHint": "Aún no se ha solicitado pago en línea para esta reserva.",
+                "statuses": {
+                    "none": "Sin pago",
+                    "authorized": "Autorizado",
+                    "paid": "Pagado",
+                    "refunded": "Reembolsado",
+                    "cancelled": "Cancelado",
+                    "unpaid": "Sin pagar",
+                    "pending_payment": "Esperando pago",
+                    "pending": "Pendiente",
+                    "expired": "Vencido",
+                    "partially_refunded": "Reembolso parcial",
+                    "disputed": "En disputa",
+                    "transfer_reversed": "Transferencia revertida",
+                    "reserved": "Tarjeta guardada",
+                    "requires_capture": "Listo para cobrar"
+                },
+                "refundAction": "Reembolsar"
+            },
+            "activity": {
+                "comment": "Agregar comentario",
+                "placeholder": "Nota para tu equipo o auditoría…",
+                "post": "Publicar",
+                "empty": "Aún no hay actividad",
+                "emptyForNew": "El registro aparecerá tras guardar la reserva.",
+                "loadError": "No se pudo cargar el registro",
+                "systemActor": "Sistema",
+                "typeCreated": "Reserva creada",
+                "typeDeleted": "Reserva eliminada",
+                "typeStatusChanged": "Estado cambiado: {from} → {to}",
+                "typeRescheduled": "Reserva reprogramada",
+                "typePriceChanged": "Precio cambiado: {from} → {to}",
+                "typePaymentAuthorized": "Pago autorizado",
+                "typePaymentCaptured": "Pago cobrado: {amount}",
+                "typePaymentRefunded": "Pago reembolsado"
+            },
+            "drawer": {
+                "header": {
+                    "booking": "Reserva",
+                    "blockEvent": "Evento personalizado",
+                    "blockTag": "PROPIO"
+                },
+                "tabs": {
+                    "details": "Detalles",
+                    "pricing": "Precio",
+                    "payment": "Pago",
+                    "activity": "Actividad"
+                },
+                "actionsSectionTitle": "Acciones de la reserva",
+                "actions": {
+                    "edit": "Editar",
+                    "reschedule": "Reprogramar",
+                    "confirm": "Confirmar",
+                    "complete": "Completar",
+                    "cancelBooking": "Cancelar reserva",
+                    "deleteBooking": "Eliminar reserva"
+                },
+                "details": {
+                    "service": "Servicio",
+                    "eventTitle": "Título del evento",
+                    "eventTitlePlaceholder": "Nombre del bloqueo",
+                    "date": "Fecha",
+                    "time": "Hora",
+                    "duration": "Duración",
+                    "specialist": "Especialista",
+                    "anySpecialist": "Cualquiera",
+                    "status": "Estado",
+                    "executionType": "Modalidad",
+                    "onsite": "En sitio",
+                    "offsite": "A domicilio",
+                    "addressBlock": "Dirección del servicio",
+                    "addressLine1": "Dirección",
+                    "addressPlaceholder": "Empieza a escribir la dirección…",
+                    "city": "Ciudad",
+                    "state": "Estado",
+                    "zip": "Código postal",
+                    "notes": "Notas internas",
+                    "notesPlaceholder": "Visibles solo para tu equipo",
+                    "client": "Cliente",
+                    "guestName": "Nombre del invitado",
+                    "guestEmail": "Email",
+                    "guestPhone": "Teléfono",
+                    "conflictPickHint": "Elige un horario libre:"
+                },
+                "reschedule": {
+                    "title": "Reprogramar",
+                    "dateLabel": "Nueva fecha",
+                    "timeLabel": "Nueva hora",
+                    "durationLabel": "Duración",
+                    "apply": "Aplicar",
+                    "cancel": "Cancelar"
+                },
+                "conflict": {
+                    "title": "{count, plural, one {# conflicto encontrado} other {# conflictos encontrados}}",
+                    "withSpecialist": "{name}: {count, plural, one {# traslape} other {# traslapes}}"
+                },
+                "suggestions": {
+                    "today": "Hoy",
+                    "tomorrow": "Mañana",
+                    "dayShort": {
+                        "sunday": "Dom",
+                        "monday": "Lun",
+                        "tuesday": "Mar",
+                        "wednesday": "Mié",
+                        "thursday": "Jue",
+                        "friday": "Vie",
+                        "saturday": "Sáb"
+                    }
+                },
+                "pricing": {
+                    "basePrice": "Precio base",
+                    "basePriceHint": "Puedes ajustar el precio para esta reserva.",
+                    "additionalServices": "Servicios adicionales",
+                    "subtotal": "Subtotal",
+                    "discount": "Descuento",
+                    "total": "Total",
+                    "discountRecalculateHint": "Si cambias los precios, el descuento se recalcula al guardar (lealtad o promoción, el que sea mejor)."
+                },
+                "guest": "Invitado (sin cliente)",
+                "newClient": "Nuevo cliente",
+                "clientPlaceholder": "Buscar cliente…",
+                "servicePlaceholder": "Selecciona un servicio",
+                "serviceHint": "Duración {duration} · Precio {price}",
+                "deleteConfirm": {
+                    "title": "¿Eliminar esta reserva?",
+                    "body": "Esta acción no se puede deshacer."
+                }
+            },
+            "wizard": {
+                "title": "Nueva reserva",
+                "subtitle": "Crea una reserva para tu cliente",
+                "create": "Crear reserva",
+                "saveAsDraft": "Guardar borrador",
+                "steps": {
+                    "clientService": "Cliente y servicio",
+                    "timeAssignment": "Hora y especialista"
+                },
+                "step1": {
+                    "client": "Cliente",
+                    "guestName": "Nombre del invitado",
+                    "guestEmail": "Email",
+                    "guestPhone": "Teléfono",
+                    "service": "Servicio",
+                    "notes": "Notas",
+                    "notesPlaceholder": "Detalles opcionales"
+                },
+                "step2": {
+                    "date": "Fecha",
+                    "time": "Hora",
+                    "duration": "Duración",
+                    "specialist": "Especialista",
+                    "anySpecialist": "Cualquiera",
+                    "executionType": "Modalidad",
+                    "onsite": "En sitio",
+                    "offsite": "A domicilio",
+                    "addressBlock": "Dirección del servicio",
+                    "addressLine1": "Dirección",
+                    "addressPlaceholder": "Empieza a escribir la dirección…",
+                    "city": "Ciudad",
+                    "state": "Estado",
+                    "zip": "Código postal",
+                    "conflictPickHint": "Elige un horario libre:",
+                    "quickPickHint": "Sugerencias rápidas:"
+                },
+                "draftBanner": {
+                    "title": "Borrador guardado a las {time}",
+                    "subtitle": "¿Continuar desde donde quedaste?",
+                    "subtitleRestored": "El formulario se rellenó con tu borrador. Descartar para limpiar y usar solo el horario seleccionado.",
+                    "continue": "Continuar",
+                    "discard": "Descartar"
+                }
+            },
+            "validation": {
+                "service_required": "Selecciona un servicio",
+                "title_required": "Ingresa un título",
+                "invalid_date": "Fecha no válida",
+                "invalid_time": "Hora no válida",
+                "invalid_duration": "Duración no válida",
+                "duration_too_short": "Mínimo 15 minutos",
+                "invalid_generic": "Valor no válido",
+                "invalid_email": "Introduce un correo válido",
+                "price_negative": "El precio no puede ser negativo"
             }
         },
         "reviews": {
@@ -2342,7 +2574,8 @@
                     "clicks": "Clics",
                     "startDate": "Fecha de inicio",
                     "endDate": "Fecha de fin",
-                    "link": "Enlace"
+                    "link": "Enlace",
+                    "ctr": "CTR"
                 },
                 "notifications": {
                     "deleteSuccess": "Anuncio eliminado correctamente",
@@ -2830,7 +3063,8 @@
                 "authorized": "Autorizado",
                 "pending": "Pendiente",
                 "failed": "Error",
-                "canceled": "Cancelado"
+                "canceled": "Cancelado",
+                "expired": "Vencido"
             },
             "filters": {
                 "type": "Tipo de transacción",
@@ -3509,7 +3743,20 @@
             "delete": "Eliminar",
             "cancel": "Cancelar",
             "save": "Guardar",
-            "done": "Listo"
+            "done": "Listo",
+            "close": "Cerrar",
+            "back": "Atrás",
+            "next": "Siguiente",
+            "timePicker": {
+                "now": "Ahora",
+                "done": "Listo",
+                "am": "a. m.",
+                "pm": "p. m.",
+                "hours": "Horas",
+                "minutes": "Minutos",
+                "period": "a. m./p. m.",
+                "time": "Hora"
+            }
         },
         "salarySettings": {
             "title": "Configuración de pagos",

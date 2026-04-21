@@ -336,6 +336,13 @@
             "notifications": "Notifications",
             "support": "Support",
             "api": "API",
+            "sections": {
+                "overview": "Overview",
+                "operations": "Schedule & bookings",
+                "clientsAndSales": "Clients & sales",
+                "account": "Plan & settings",
+                "help": "Help & tools"
+            },
             "groups": {
                 "work": "Work",
                 "crm": "Clients",
@@ -1785,6 +1792,231 @@
                     "confirm": "Delete",
                     "cancel": "Cancel"
                 }
+            },
+            "newBookingItem": "New booking",
+            "newBlockTime": "Custom event",
+            "newRecurring": "Recurring booking",
+            "block": {
+                "title": "Custom event",
+                "subtitle": "Add an internal calendar event without a client booking",
+                "eventTitle": "Event name",
+                "eventTitlePlaceholder": "Lunch break, training, day off…",
+                "date": "Date",
+                "time": "Time",
+                "duration": "Duration",
+                "specialist": "Specialist",
+                "anySpecialist": "Whole team",
+                "notes": "Notes",
+                "notesPlaceholder": "Optional comment",
+                "createSuccess": "Custom event created",
+                "updateSuccess": "Custom event updated",
+                "createError": "Could not create custom event",
+                "updateError": "Could not update custom event"
+            },
+            "payment": {
+                "statusLabel": "Payment status",
+                "amountLabel": "Amount",
+                "captureNow": "Capture now",
+                "captureSuccess": "Payment captured",
+                "captureError": "Capture failed",
+                "refund": {
+                    "title": "Refund payment",
+                    "amountLabel": "Refund amount",
+                    "amountPlaceholder": "Amount in {currency}",
+                    "amountHint": "Charged total: {total} {currency}. Leave empty for full refund.",
+                    "amountInvalid": "Enter a positive number",
+                    "reasonLabel": "Reason",
+                    "reasonPlaceholder": "Why are you refunding?",
+                    "reasonRequired": "Reason is required",
+                    "full": "Full",
+                    "half": "50%",
+                    "quarter": "25%",
+                    "confirm": "Confirm refund",
+                    "success": "Refund issued",
+                    "error": "Refund failed"
+                },
+                "noneHint": "Online payment is not requested for this booking yet.",
+                "statuses": {
+                    "none": "No payment",
+                    "authorized": "Authorized",
+                    "paid": "Paid",
+                    "refunded": "Refunded",
+                    "cancelled": "Cancelled",
+                    "unpaid": "Unpaid",
+                    "pending_payment": "Awaiting payment",
+                    "pending": "Pending",
+                    "expired": "Expired",
+                    "partially_refunded": "Partially refunded",
+                    "disputed": "Disputed",
+                    "transfer_reversed": "Transfer reversed",
+                    "reserved": "Card on file",
+                    "requires_capture": "Ready to capture"
+                },
+                "refundAction": "Refund"
+            },
+            "activity": {
+                "comment": "Add a comment",
+                "placeholder": "Note for your team or audit trail…",
+                "post": "Post",
+                "empty": "No activity yet",
+                "emptyForNew": "Activity log will appear after the booking is saved.",
+                "loadError": "Failed to load activity log",
+                "systemActor": "System",
+                "typeCreated": "Booking created",
+                "typeDeleted": "Booking deleted",
+                "typeStatusChanged": "Status changed: {from} → {to}",
+                "typeRescheduled": "Booking rescheduled",
+                "typePriceChanged": "Price changed: {from} → {to}",
+                "typePaymentAuthorized": "Payment authorized",
+                "typePaymentCaptured": "Payment captured: {amount}",
+                "typePaymentRefunded": "Payment refunded"
+            },
+            "drawer": {
+                "header": {
+                    "booking": "Booking",
+                    "blockEvent": "Custom event",
+                    "blockTag": "CUSTOM"
+                },
+                "tabs": {
+                    "details": "Details",
+                    "pricing": "Pricing",
+                    "payment": "Payment",
+                    "activity": "Activity"
+                },
+                "actionsSectionTitle": "Booking actions",
+                "actions": {
+                    "edit": "Edit",
+                    "reschedule": "Reschedule",
+                    "confirm": "Confirm",
+                    "complete": "Complete",
+                    "cancelBooking": "Cancel booking",
+                    "deleteBooking": "Delete booking"
+                },
+                "details": {
+                    "service": "Service",
+                    "eventTitle": "Event title",
+                    "eventTitlePlaceholder": "Block time event name",
+                    "date": "Date",
+                    "time": "Time",
+                    "duration": "Duration",
+                    "specialist": "Specialist",
+                    "anySpecialist": "Any specialist",
+                    "status": "Status",
+                    "executionType": "Execution",
+                    "onsite": "On-site",
+                    "offsite": "Off-site",
+                    "addressBlock": "Service address",
+                    "addressLine1": "Address",
+                    "addressPlaceholder": "Start typing the address…",
+                    "city": "City",
+                    "state": "State / Region",
+                    "zip": "ZIP / Postal code",
+                    "notes": "Internal notes",
+                    "notesPlaceholder": "Visible only to your team",
+                    "client": "Client",
+                    "guestName": "Guest name",
+                    "guestEmail": "Email",
+                    "guestPhone": "Phone",
+                    "conflictPickHint": "Pick a free slot:"
+                },
+                "reschedule": {
+                    "title": "Reschedule",
+                    "dateLabel": "New date",
+                    "timeLabel": "New time",
+                    "durationLabel": "Duration",
+                    "apply": "Apply",
+                    "cancel": "Cancel"
+                },
+                "conflict": {
+                    "title": "{count, plural, one {# conflict found} other {# conflicts found}}",
+                    "withSpecialist": "{name}: {count, plural, one {# overlap} other {# overlaps}}"
+                },
+                "suggestions": {
+                    "today": "Today",
+                    "tomorrow": "Tomorrow",
+                    "dayShort": {
+                        "sunday": "Sun",
+                        "monday": "Mon",
+                        "tuesday": "Tue",
+                        "wednesday": "Wed",
+                        "thursday": "Thu",
+                        "friday": "Fri",
+                        "saturday": "Sat"
+                    }
+                },
+                "pricing": {
+                    "basePrice": "Base price",
+                    "basePriceHint": "You can override the service price for this booking.",
+                    "additionalServices": "Additional services",
+                    "subtotal": "Subtotal",
+                    "discount": "Discount",
+                    "total": "Total",
+                    "discountRecalculateHint": "After you change prices, the discount is recalculated when you save (loyalty or promo, whichever is better)."
+                },
+                "guest": "Guest (no client)",
+                "newClient": "New client",
+                "clientPlaceholder": "Search a client…",
+                "servicePlaceholder": "Select a service",
+                "serviceHint": "Duration {duration} · Price {price}",
+                "deleteConfirm": {
+                    "title": "Delete this booking?",
+                    "body": "This action cannot be undone."
+                }
+            },
+            "wizard": {
+                "title": "New booking",
+                "subtitle": "Create a booking for your customer",
+                "create": "Create booking",
+                "saveAsDraft": "Save as draft",
+                "steps": {
+                    "clientService": "Client & Service",
+                    "timeAssignment": "Time & Specialist"
+                },
+                "step1": {
+                    "client": "Client",
+                    "guestName": "Guest name",
+                    "guestEmail": "Email",
+                    "guestPhone": "Phone",
+                    "service": "Service",
+                    "notes": "Notes",
+                    "notesPlaceholder": "Optional details"
+                },
+                "step2": {
+                    "date": "Date",
+                    "time": "Time",
+                    "duration": "Duration",
+                    "specialist": "Specialist",
+                    "anySpecialist": "Any specialist",
+                    "executionType": "Execution",
+                    "onsite": "On-site",
+                    "offsite": "Off-site",
+                    "addressBlock": "Service address",
+                    "addressLine1": "Address",
+                    "addressPlaceholder": "Start typing the address…",
+                    "city": "City",
+                    "state": "State / Region",
+                    "zip": "ZIP / Postal code",
+                    "conflictPickHint": "Pick a free slot:",
+                    "quickPickHint": "Quick suggestions:"
+                },
+                "draftBanner": {
+                    "title": "Draft saved at {time}",
+                    "subtitle": "Continue from where you left off?",
+                    "subtitleRestored": "The form was filled from your saved draft. Discard to clear it and use only the selected slot.",
+                    "continue": "Continue",
+                    "discard": "Discard"
+                }
+            },
+            "validation": {
+                "service_required": "Select a service",
+                "title_required": "Enter a title",
+                "invalid_date": "Invalid date",
+                "invalid_time": "Invalid time",
+                "invalid_duration": "Invalid duration",
+                "duration_too_short": "Duration must be at least 15 minutes",
+                "invalid_generic": "Invalid value",
+                "invalid_email": "Enter a valid email address",
+                "price_negative": "Price cannot be negative"
             }
         },
         "reviews": {
@@ -2342,7 +2574,8 @@
                     "clicks": "Clicks",
                     "startDate": "Start Date",
                     "endDate": "End Date",
-                    "link": "Link"
+                    "link": "Link",
+                    "ctr": "CTR"
                 },
                 "notifications": {
                     "deleteSuccess": "Advertisement successfully deleted",
@@ -2843,7 +3076,8 @@
                 "authorized": "Authorized",
                 "pending": "Pending",
                 "failed": "Failed",
-                "canceled": "Canceled"
+                "canceled": "Canceled",
+                "expired": "Expired"
             },
             "filters": {
                 "type": "Transaction Type",
@@ -3509,7 +3743,20 @@
             "delete": "Delete",
             "cancel": "Cancel",
             "save": "Save",
-            "done": "Done"
+            "done": "Done",
+            "close": "Close",
+            "back": "Back",
+            "next": "Next",
+            "timePicker": {
+                "now": "Now",
+                "done": "Done",
+                "am": "AM",
+                "pm": "PM",
+                "hours": "Hours",
+                "minutes": "Minutes",
+                "period": "AM/PM",
+                "time": "Time"
+            }
         },
         "salarySettings": {
             "title": "Payment Settings",

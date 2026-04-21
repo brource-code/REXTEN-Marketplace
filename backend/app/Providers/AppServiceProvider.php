@@ -8,6 +8,7 @@ use App\Models\BookingLocation;
 use App\Models\UserProfile;
 use App\Models\Company;
 use App\Observers\AdvertisementEventObserver;
+use App\Observers\BookingActivityObserver;
 use App\Observers\BookingEventObserver;
 use App\Observers\BookingLocationRouteObserver;
 use App\Observers\BookingRouteObserver;
@@ -95,6 +96,7 @@ class AppServiceProvider extends ServiceProvider
         Company::observe(CompanyObserver::class);
         Booking::observe(BookingEventObserver::class);
         Booking::observe(BookingRouteObserver::class);
+        Booking::observe(BookingActivityObserver::class);
         BookingLocation::observe(BookingLocationRouteObserver::class);
         UserProfile::observe(UserProfileRouteObserver::class);
         Advertisement::observe(AdvertisementEventObserver::class);

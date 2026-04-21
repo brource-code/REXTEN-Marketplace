@@ -7,10 +7,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import PermissionGuard from '@/components/shared/PermissionGuard'
-import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import FeatureLockOverlay from '@/components/shared/FeatureLockOverlay'
 import RouteContent from './_components/RouteContent'
-import ScheduleSlotModal from '@/app/business/schedule/_components/ScheduleSlotModal'
+import BookingDrawer from '@/components/business/booking/BookingDrawer'
 import {
     getTeamMembers,
     getBusinessRoute,
@@ -24,7 +23,7 @@ import {
 } from '@/lib/api/business'
 import toast from '@/components/ui/toast'
 import { usePermission } from '@/hooks/usePermission'
-import { useBusinessScheduleSlotModalController } from '@/hooks/useBusinessScheduleSlotModalController'
+import { useBookingDrawerController } from '@/components/business/booking/hooks/useBookingDrawerController'
 
 function localTodayYmd() {
     const d = new Date()
@@ -36,7 +35,6 @@ function localTodayYmd() {
 
 function RoutesPageInner() {
     const t = useTranslations('business.routes')
-    const tSchedule = useTranslations('business.schedule')
     const queryClient = useQueryClient()
     const searchParams = useSearchParams()
     const canManageSchedule = usePermission('manage_schedule')
@@ -87,18 +85,7 @@ function RoutesPageInner() {
         enabled: !!resolvedSpecialistId,
     })
 
-    const {
-        dialogOpen,
-        setDialogOpen,
-        selectedSlot,
-        setSelectedSlot,
-        isDeleteDialogOpen,
-        handleSubmit,
-        handleDelete,
-        handleConfirmDelete,
-        cancelDelete,
-        closeModal,
-    } = useBusinessScheduleSlotModalController({ refetchSlots })
+    const drawer = useBookingDrawerController({ refetchSlots })
 
     const openBookingModal = useCallback(
         async (bookingId) => {
@@ -110,13 +97,12 @@ function RoutesPageInner() {
                 slot = list.find((s) => String(s.id) === idStr)
             }
             if (slot) {
-                setSelectedSlot({ type: 'EDIT', ...slot })
-                setDialogOpen(true)
+                drawer.openForSlot(slot)
             } else {
                 toast.push(t('errors.bookingModalLoadFailed'))
             }
         },
-        [scheduleSlots, refetchScheduleSlotsQuery, setSelectedSlot, setDialogOpen, t],
+        [scheduleSlots, refetchScheduleSlotsQuery, drawer, t],
     )
 
     const applyMutation = useMutation({
@@ -262,39 +248,18 @@ function RoutesPageInner() {
                         canManageRoutes={canManageRoutes}
                     />
 
-                    <ScheduleSlotModal
-                        isOpen={dialogOpen}
-                        onClose={closeModal}
-                        slot={selectedSlot}
-                        onSave={canManageSchedule ? handleSubmit : null}
-                        onDelete={
-                            canManageSchedule && selectedSlot?.id
-                                ? () => handleDelete(selectedSlot.id)
-                                : null
-                        }
-                        readOnly={!canManageSchedule}
-                        onPaymentUpdated={async () => {
-                            const result = await refetchSlots()
-                            const list = result.data ?? queryClient.getQueryData(['business-schedule-slots']) ?? []
-                            const id = selectedSlot?.id
-                            if (!id) return
-                            const upd = list.find((s) => String(s.id) === String(id))
-                            if (upd) {
-                                setSelectedSlot({ ...upd, type: 'EDIT' })
-                            }
-                        }}
+                    <BookingDrawer
+                        open={drawer.open}
+                        slot={drawer.slot}
+                        onClose={drawer.closeDrawer}
+                        onSubmit={canManageSchedule ? drawer.submitUpdate : undefined}
+                        onRequestDelete={canManageSchedule ? drawer.requestDelete : undefined}
+                        saving={drawer.updating}
+                        pendingDelete={drawer.pendingDelete}
+                        onConfirmDelete={drawer.confirmDelete}
+                        onCancelDelete={drawer.cancelDelete}
+                        deleting={drawer.deleting}
                     />
-                    <ConfirmDialog
-                        isOpen={isDeleteDialogOpen}
-                        type="danger"
-                        title={tSchedule('deleteConfirm.title')}
-                        onCancel={cancelDelete}
-                        onConfirm={handleConfirmDelete}
-                        confirmText={tSchedule('deleteConfirm.confirm')}
-                        cancelText={tSchedule('deleteConfirm.cancel')}
-                    >
-                        <p>{tSchedule('deleteConfirm.message')}</p>
-                    </ConfirmDialog>
                 </div>
             </AdaptiveCard>
         </Container>

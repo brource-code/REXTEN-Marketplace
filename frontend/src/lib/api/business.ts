@@ -309,6 +309,8 @@ export async function getChartData(
 // ========== Schedule ==========
 export interface ScheduleSlot {
     id: string
+    /** booking | block | task — с бэкенда GET /business/schedule/slots */
+    event_type?: string
     title: string
     start: string
     end: string
@@ -1909,4 +1911,41 @@ export async function createBusinessApiToken(payload: {
 
 export async function revokeBusinessApiToken(id: number): Promise<void> {
     await LaravelAxios.delete(`/business/api/tokens/${id}`)
+}
+
+// ========== Booking Activities (Activity tab in BookingDrawer) ==========
+export type BookingActivityType =
+    | 'created'
+    | 'deleted'
+    | 'status_changed'
+    | 'rescheduled'
+    | 'price_changed'
+    | 'payment_authorized'
+    | 'payment_captured'
+    | 'payment_refunded'
+    | 'comment'
+
+export interface BookingActivity {
+    id: number
+    type: BookingActivityType
+    payload: Record<string, unknown> | null
+    actor: { id: number; name: string } | null
+    created_at: string
+}
+
+export async function getBookingActivities(bookingId: number | string): Promise<BookingActivity[]> {
+    const response = await LaravelAxios.get(`/business/bookings/${bookingId}/activities`)
+    const items = response?.data?.data
+    return Array.isArray(items) ? (items as BookingActivity[]) : []
+}
+
+export async function addBookingComment(
+    bookingId: number | string,
+    text: string,
+): Promise<BookingActivity> {
+    const response = await LaravelAxios.post(`/business/bookings/${bookingId}/activities`, {
+        type: 'comment',
+        payload: { text },
+    })
+    return response.data?.data as BookingActivity
 }

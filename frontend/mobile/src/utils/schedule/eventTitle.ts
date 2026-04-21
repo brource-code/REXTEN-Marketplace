@@ -18,10 +18,13 @@ export function buildScheduleEventTitle(
   clientFallback: string
 ): string {
   let eventTitle = slot.title;
-  const isCustomEvent = !!(slot.title && !slot.service_id && !slot.service?.id);
+  const isCustomEvent =
+    slot.event_type === 'block' ||
+    slot.event_type === 'task' ||
+    !!(slot.title && !slot.service_id && !slot.service?.id);
 
   if (isCustomEvent) {
-    return slot.title;
+    return slot.title || '—';
   }
 
   let serviceName: string | null = null;

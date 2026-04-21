@@ -3,37 +3,38 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import dayjs from 'dayjs'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getScheduleSlots, getBusinessServices } from '@/lib/api/business'
 import { useTranslations } from 'next-intl'
 import { usePermission } from '@/hooks/usePermission'
-import { useBusinessScheduleSlotModalController } from '@/hooks/useBusinessScheduleSlotModalController'
-import ScheduleSlotModal from '@/app/business/schedule/_components/ScheduleSlotModal'
-import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import Card from '@/components/ui/Card'
+import BookingDrawer from '@/components/business/booking/BookingDrawer'
+import { useBookingDrawerController } from '@/components/business/booking/hooks/useBookingDrawerController'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
-import Table from '@/components/ui/Table'
-import Tag from '@/components/ui/Tag'
 import Select from '@/components/ui/Select'
 import Pagination from '@/components/ui/Pagination'
-import { PiCalendar, PiClock } from 'react-icons/pi'
+import {
+    PiCalendar,
+    PiCalendarBlank,
+    PiClock,
+    PiCreditCardFill,
+    PiCurrencyDollar,
+    PiMagnifyingGlass,
+    PiMapPinFill,
+    PiArrowsClockwise,
+    PiPackage,
+    PiSlidersHorizontal,
+    PiUser,
+} from 'react-icons/pi'
+import classNames from '@/utils/classNames'
+import { getStatusPalette } from '@/app/business/schedule/_components/ScheduleEventContent'
 import { formatDate, formatTime } from '@/utils/dateTime'
 import useBusinessStore from '@/store/businessStore'
 import { resolveSlotServiceName } from '@/utils/schedule/resolveSlotServiceName'
+import { isScheduleBlockOrCustomSlot } from '@/utils/schedule/isScheduleBlockOrCustomSlot'
 import { getScheduleSlotMonetaryTotal } from '@/utils/schedule/slotMonetaryTotal'
 import Loading from '@/components/shared/Loading'
 import OffsiteExecutionBadge from '@/components/shared/OffsiteExecutionBadge'
-
-const { Tr, Td, TBody, THead, Th } = Table
-
-const bookingStatusColor = {
-    new: 'bg-blue-200 dark:bg-blue-700 text-blue-900 dark:text-blue-100',
-    pending: 'bg-amber-200 dark:bg-amber-700 text-amber-900 dark:text-amber-100',
-    confirmed: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-    completed: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-    cancelled: 'bg-red-200 dark:bg-red-700 text-red-900 dark:text-red-100',
-}
 
 const STATUS_KEYS = ['new', 'pending', 'confirmed', 'completed', 'cancelled']
 const PAGE_SIZE_OPTIONS = [10, 25, 50]
@@ -46,6 +47,7 @@ export default function BookingsList() {
     const tCommon = useTranslations('business.common')
     const tSchedule = useTranslations('business.schedule.statuses')
     const tScheduleRoot = useTranslations('business.schedule')
+    const tScheduleBadges = useTranslations('business.schedule.badges')
     const { settings } = useBusinessStore()
     const timezone = settings?.timezone || 'America/Los_Angeles'
     const canManageSchedule = usePermission('manage_schedule')
@@ -55,7 +57,6 @@ export default function BookingsList() {
     const [pageIndex, setPageIndex] = useState(1)
     const [pageSize, setPageSize] = useState(10)
 
-    const queryClient = useQueryClient()
     const { data: slots = [], isLoading, refetch: refetchSlots } = useQuery({
         queryKey: ['business-schedule-slots'],
         queryFn: getScheduleSlots,
@@ -66,18 +67,7 @@ export default function BookingsList() {
         queryFn: getBusinessServices,
     })
 
-    const {
-        dialogOpen,
-        setDialogOpen,
-        selectedSlot,
-        setSelectedSlot,
-        isDeleteDialogOpen,
-        handleSubmit,
-        handleDelete,
-        handleConfirmDelete,
-        cancelDelete,
-        closeModal,
-    } = useBusinessScheduleSlotModalController({ refetchSlots })
+    const drawer = useBookingDrawerController({ refetchSlots })
 
     const statusFilterOptions = useMemo(
         () => [
@@ -117,11 +107,10 @@ export default function BookingsList() {
         const slot = slots.find((s) => String(s.id) === id)
         if (slot) {
             openedFromUrl.current = true
-            setSelectedSlot({ type: 'EDIT', ...slot })
-            setDialogOpen(true)
+            drawer.openForSlot(slot)
             router.replace('/business/bookings', { scroll: false })
         }
-    }, [urlBookingId, slots, router, setSelectedSlot, setDialogOpen])
+    }, [urlBookingId, slots, router, drawer])
 
     useEffect(() => {
         setPageIndex(1)
@@ -184,8 +173,7 @@ export default function BookingsList() {
     }, [filteredSlots, pageIndex, pageSize])
 
     const openSlot = (slot) => {
-        setSelectedSlot({ type: 'EDIT', ...slot })
-        setDialogOpen(true)
+        drawer.openForSlot(slot)
     }
 
     const goToScheduleDay = (slot, e) => {
@@ -209,21 +197,31 @@ export default function BookingsList() {
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{t('description')}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" onClick={() => router.push('/business/schedule')}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="inline-flex items-center gap-1.5"
+                        onClick={() => router.push('/business/schedule')}
+                    >
+                        <PiCalendarBlank className="text-base shrink-0 text-gray-500 dark:text-gray-400" />
                         {t('scheduleCalendar')}
                     </Button>
                 </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-3 lg:items-end">
+            <div className="flex flex-col lg:flex-row gap-2.5 lg:items-end">
                 <Input
                     className="lg:flex-1"
                     placeholder={t('searchPlaceholder')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    prefix={<PiMagnifyingGlass className="text-lg text-gray-400 dark:text-gray-500" aria-hidden />}
                 />
                 <div className="flex flex-col gap-1.5 w-full lg:w-72 shrink-0">
-                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('statusLabel')}</span>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
+                        <PiSlidersHorizontal className="text-base shrink-0 text-gray-400 dark:text-gray-500" aria-hidden />
+                        {t('statusLabel')}
+                    </span>
                     <Select
                         size="sm"
                         isSearchable={false}
@@ -239,141 +237,12 @@ export default function BookingsList() {
                 <div className="text-center py-12 text-sm font-bold text-gray-500 dark:text-gray-400">{t('empty')}</div>
             ) : (
                 <>
-                    <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                        <Table>
-                            <THead>
-                                <Tr>
-                                    <Th>{t('columns.id')}</Th>
-                                    <Th>{t('columns.dateTime')}</Th>
-                                    <Th>{t('columns.client')}</Th>
-                                    <Th>{t('columns.service')}</Th>
-                                    <Th>{t('columns.status')}</Th>
-                                    <Th>{t('columns.specialist')}</Th>
-                                    <Th>{t('columns.amount')}</Th>
-                                    <Th>{t('openInSchedule')}</Th>
-                                </Tr>
-                            </THead>
-                            <TBody>
-                                {paginatedSlots.map((slot) => {
-                                    const st = slot.status || 'new'
-                                    const total = getScheduleSlotMonetaryTotal(slot)
-                                    const currency = slot.currency || 'USD'
-                                    const amountLabel =
-                                        total > 0
-                                            ? new Intl.NumberFormat('en-US', {
-                                                  style: 'currency',
-                                                  currency,
-                                                  minimumFractionDigits: 2,
-                                              }).format(total)
-                                            : '—'
-                                    const clientName = slot.client?.name || slot.client_name || clientFallback
-                                    const serviceLabel = resolveSlotServiceName(slot, services) || '—'
-                                    const spec =
-                                        slot.specialist?.name || slot.specialistName || '—'
-
-                                    return (
-                                        <Tr
-                                            key={slot.id}
-                                            className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/60"
-                                            onClick={() => openSlot(slot)}
-                                        >
-                                            <Td>
-                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                    #{slot.id}
-                                                </span>
-                                            </Td>
-                                            <Td>
-                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                                    <span className="inline-flex items-center gap-1 text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                        <PiCalendar className="text-gray-400 shrink-0" />
-                                                        {formatDate(slot.start, timezone, 'short')}
-                                                    </span>
-                                                    <span className="inline-flex items-center gap-1 text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                        <PiClock className="text-gray-400 shrink-0" />
-                                                        {formatTime(slot.start, timezone)}
-                                                    </span>
-                                                </div>
-                                            </Td>
-                                            <Td>
-                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                    {clientName}
-                                                </span>
-                                            </Td>
-                                            <Td>
-                                                <div className="flex flex-col items-start gap-1.5 max-w-[20rem]">
-                                                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                        {serviceLabel}
-                                                    </span>
-                                                    {(slot.execution_type || 'onsite') === 'offsite' && (
-                                                        <OffsiteExecutionBadge label={tCommon('offsite')} />
-                                                    )}
-                                                </div>
-                                            </Td>
-                                            <Td>
-                                                <div className="flex flex-col gap-1 items-start max-w-[16rem]">
-                                                    <div className="flex flex-wrap items-center gap-1.5">
-                                                        <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
-                                                            {getStatusLabel(st)}
-                                                        </Tag>
-                                                        {(slot.payment_status === 'authorized' ||
-                                                            slot.payment_status === 'paid') && (
-                                                            <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
-                                                                {t('paidOnline')}
-                                                            </Tag>
-                                                        )}
-                                                    </div>
-                                                    {(slot.payment_status === 'authorized' ||
-                                                        slot.payment_status === 'paid') &&
-                                                        slot.platform_fee != null &&
-                                                        slot.net_amount != null && (
-                                                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                                                                {t('feeLine', {
-                                                                    fee: new Intl.NumberFormat('en-US', {
-                                                                        style: 'currency',
-                                                                        currency,
-                                                                        minimumFractionDigits: 2,
-                                                                    }).format(slot.platform_fee),
-                                                                    net: new Intl.NumberFormat('en-US', {
-                                                                        style: 'currency',
-                                                                        currency,
-                                                                        minimumFractionDigits: 2,
-                                                                    }).format(slot.net_amount),
-                                                                })}
-                                                            </span>
-                                                        )}
-                                                </div>
-                                            </Td>
-                                            <Td>
-                                                <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                                    {spec}
-                                                </span>
-                                            </Td>
-                                            <Td>
-                                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                    {amountLabel}
-                                                </span>
-                                            </Td>
-                                            <Td>
-                                                <Button
-                                                    type="button"
-                                                    size="xs"
-                                                    variant="plain"
-                                                    className="whitespace-nowrap"
-                                                    onClick={(e) => goToScheduleDay(slot, e)}
-                                                >
-                                                    {t('openInSchedule')}
-                                                </Button>
-                                            </Td>
-                                        </Tr>
-                                    )
-                                })}
-                            </TBody>
-                        </Table>
-                    </div>
-
-                    <div className="md:hidden space-y-3">
+                    {/* Тот же визуальный язык, что у списка «Агенда» в расписании: полоска статуса, карточка, hover */}
+                    <div className="grid gap-1.5 sm:gap-2">
                         {paginatedSlots.map((slot) => {
                             const st = slot.status || 'new'
+                            const palette = getStatusPalette(st)
+                            const isCancelled = st === 'cancelled'
                             const total = getScheduleSlotMonetaryTotal(slot)
                             const currency = slot.currency || 'USD'
                             const amountLabel =
@@ -384,76 +253,211 @@ export default function BookingsList() {
                                           minimumFractionDigits: 2,
                                       }).format(total)
                                     : '—'
-                            const clientName = slot.client?.name || slot.client_name || clientFallback
-                            const serviceLabel = resolveSlotServiceName(slot, services) || '—'
+                            const isBlockLike = isScheduleBlockOrCustomSlot(slot)
+                            const clientName = isBlockLike
+                                ? '—'
+                                : (slot.client?.name || slot.client_name || clientFallback)
+                            const serviceLabel = isBlockLike
+                                ? (slot.title || '—')
+                                : (resolveSlotServiceName(slot, services) || '—')
+                            const spec = slot.specialist?.name || slot.specialistName || '—'
+                            const headline = isBlockLike
+                                ? (slot.title || serviceLabel || '—')
+                                : (clientName || serviceLabel || '—')
+
+                            const isPaidOnline =
+                                slot.payment_status === 'paid' ||
+                                slot.payment_status === 'authorized'
+                            const isCardReserved =
+                                slot.payment_status === 'reserved' ||
+                                slot.payment_status === 'requires_capture'
+                            const isInRoute = !!slot.included_in_route
+                            const isRecurring = !!slot.recurring_chain_id
+
+                            const feeLine =
+                                isPaidOnline &&
+                                slot.platform_fee != null &&
+                                slot.net_amount != null ? (
+                                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                        {t('feeLine', {
+                                            fee: new Intl.NumberFormat('en-US', {
+                                                style: 'currency',
+                                                currency,
+                                                minimumFractionDigits: 2,
+                                            }).format(slot.platform_fee),
+                                            net: new Intl.NumberFormat('en-US', {
+                                                style: 'currency',
+                                                currency,
+                                                minimumFractionDigits: 2,
+                                            }).format(slot.net_amount),
+                                        })}
+                                    </span>
+                                ) : null
 
                             return (
-                                <Card
+                                <button
+                                    type="button"
                                     key={slot.id}
-                                    className="p-4 cursor-pointer border border-gray-200 dark:border-gray-700"
                                     onClick={() => openSlot(slot)}
+                                    className={classNames(
+                                        'group relative flex w-full items-stretch overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 text-left transition-all hover:shadow-md sm:rounded-xl sm:hover:-translate-y-0.5',
+                                        isCancelled && 'opacity-60',
+                                    )}
                                 >
-                                    <div className="flex items-start justify-between gap-2 mb-2">
-                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                            #{slot.id}
-                                        </span>
-                                        <div className="flex flex-col items-end gap-1 max-w-[12rem]">
-                                            <div className="flex flex-wrap items-center justify-end gap-1.5">
-                                                <Tag className={bookingStatusColor[st] || bookingStatusColor.new}>
-                                                    {getStatusLabel(st)}
-                                                </Tag>
-                                                {(slot.payment_status === 'authorized' ||
-                                                    slot.payment_status === 'paid') && (
-                                                    <Tag className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 !text-xs !px-1.5 !py-0 font-bold">
-                                                        {t('paidOnline')}
-                                                    </Tag>
+                                    <span
+                                        className={classNames('w-1 shrink-0 sm:w-1.5', palette.accent)}
+                                        aria-hidden
+                                    />
+                                    <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-2 sm:flex-row sm:items-center sm:gap-4 sm:p-3">
+                                        <div className="flex items-center gap-2 min-w-0 sm:hidden">
+                                            <span className="inline-flex min-w-0 items-center gap-1 text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                                                <PiCalendar className="text-sm shrink-0 text-gray-400 dark:text-gray-500" />
+                                                <span className="truncate">
+                                                    {formatDate(slot.start, timezone, 'numeric')}
+                                                </span>
+                                            </span>
+                                            <span
+                                                className="shrink-0 text-[11px] font-bold text-gray-300 dark:text-gray-600"
+                                                aria-hidden
+                                            >
+                                                ·
+                                            </span>
+                                            <span
+                                                className={classNames(
+                                                    'inline-flex shrink-0 items-center gap-1 text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100',
+                                                    isCancelled && 'line-through',
                                                 )}
+                                            >
+                                                <PiClock className="text-sm shrink-0 text-gray-400 dark:text-gray-500" />
+                                                {formatTime(slot.start, timezone)}
+                                            </span>
+                                        </div>
+
+                                        <div className="hidden w-full shrink-0 flex-col gap-1 sm:flex sm:w-48">
+                                            <span className="inline-flex items-center gap-1.5 text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                                                <PiCalendar className="text-base shrink-0 text-gray-400 dark:text-gray-500" />
+                                                {formatDate(slot.start, timezone, 'short')}
+                                            </span>
+                                            <span
+                                                className={classNames(
+                                                    'inline-flex items-center gap-1.5 text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100',
+                                                    isCancelled && 'line-through',
+                                                )}
+                                            >
+                                                <PiClock className="text-base shrink-0 text-gray-400 dark:text-gray-500" />
+                                                {formatTime(slot.start, timezone)}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                            <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:gap-2">
+                                                <span className="shrink-0 text-[11px] font-bold tabular-nums text-gray-500 dark:text-gray-400 sm:text-xs">
+                                                    #{slot.id}
+                                                </span>
+                                                <span
+                                                    className={classNames(
+                                                        'min-w-0 truncate text-sm font-bold text-gray-900 dark:text-gray-100 max-sm:leading-tight',
+                                                        isCancelled && 'line-through',
+                                                    )}
+                                                >
+                                                    {headline}
+                                                </span>
+                                                <div className="flex shrink-0 items-center gap-1">
+                                                    {isPaidOnline && (
+                                                        <span
+                                                            title={t('paidOnline')}
+                                                            className="flex h-4 w-4 items-center justify-center rounded bg-emerald-500 text-white"
+                                                            aria-label={t('paidOnline')}
+                                                        >
+                                                            <PiCreditCardFill className="text-[10px]" />
+                                                        </span>
+                                                    )}
+                                                    {!isPaidOnline && isCardReserved && (
+                                                        <span
+                                                            title={tScheduleBadges('cardReserved')}
+                                                            className="flex h-4 w-4 items-center justify-center rounded bg-amber-500 text-white"
+                                                            aria-label={tScheduleBadges('cardReserved')}
+                                                        >
+                                                            <PiCreditCardFill className="text-[10px]" />
+                                                        </span>
+                                                    )}
+                                                    {isInRoute && (
+                                                        <span
+                                                            title={tScheduleBadges('inRoute')}
+                                                            className="flex h-4 w-4 items-center justify-center rounded bg-primary text-white"
+                                                            aria-hidden
+                                                        >
+                                                            <PiMapPinFill className="text-[10px]" />
+                                                        </span>
+                                                    )}
+                                                    {isRecurring && (
+                                                        <span
+                                                            title={tScheduleBadges('recurring')}
+                                                            className="flex h-4 w-4 items-center justify-center rounded bg-purple-500 text-white"
+                                                            aria-hidden
+                                                        >
+                                                            <PiArrowsClockwise className="text-[10px]" />
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
-                                            {(slot.payment_status === 'authorized' ||
-                                                slot.payment_status === 'paid') &&
-                                                slot.platform_fee != null &&
-                                                slot.net_amount != null && (
-                                                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 text-right">
-                                                        {t('feeLine', {
-                                                            fee: new Intl.NumberFormat('en-US', {
-                                                                style: 'currency',
-                                                                currency,
-                                                                minimumFractionDigits: 2,
-                                                            }).format(slot.platform_fee),
-                                                            net: new Intl.NumberFormat('en-US', {
-                                                                style: 'currency',
-                                                                currency,
-                                                                minimumFractionDigits: 2,
-                                                            }).format(slot.net_amount),
-                                                        })}
+                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-bold text-gray-500 dark:text-gray-400 sm:text-xs">
+                                                {!isBlockLike && (
+                                                    <span className="inline-flex min-w-0 items-center gap-1 truncate">
+                                                        <PiPackage className="shrink-0 text-sm text-gray-400 dark:text-gray-500" aria-hidden />
+                                                        <span className="truncate">{serviceLabel}</span>
                                                     </span>
                                                 )}
+                                                {(slot.execution_type || 'onsite') === 'offsite' && (
+                                                    <OffsiteExecutionBadge label={tCommon('offsite')} />
+                                                )}
+                                                <span className="inline-flex shrink-0 items-center gap-1">
+                                                    <PiUser className="text-sm text-gray-400 dark:text-gray-500" aria-hidden />
+                                                    {spec}
+                                                </span>
+                                            </div>
+                                            {feeLine ? <div className="pt-0.5 max-sm:leading-snug">{feeLine}</div> : null}
+                                        </div>
+
+                                        <div className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-1.5 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-3">
+                                            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 sm:justify-end">
+                                                {total > 0 ? (
+                                                    <span className="inline-flex items-center gap-0.5 text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100 sm:text-sm sm:gap-1">
+                                                        <PiCurrencyDollar className="text-sm text-emerald-500 sm:text-base" />
+                                                        {amountLabel}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs font-bold tabular-nums text-gray-400 dark:text-gray-500 sm:text-sm">
+                                                        —
+                                                    </span>
+                                                )}
+                                                <span
+                                                    className={classNames(
+                                                        'inline-flex shrink-0 items-center rounded-full px-2 py-px text-[10px] font-bold sm:px-2.5 sm:py-0.5 sm:text-[11px]',
+                                                        palette.bg,
+                                                        palette.text,
+                                                    )}
+                                                >
+                                                    {getStatusLabel(st)}
+                                                </span>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                size="xs"
+                                                variant="plain"
+                                                title={t('openInSchedule')}
+                                                aria-label={t('openInSchedule')}
+                                                className="inline-flex shrink-0 items-center gap-1 self-end sm:self-center max-sm:px-1.5 max-sm:py-1"
+                                                onClick={(e) => goToScheduleDay(slot, e)}
+                                            >
+                                                <PiCalendarBlank className="text-base text-gray-500 dark:text-gray-400 sm:hidden" aria-hidden />
+                                                <span className="hidden sm:inline whitespace-nowrap">
+                                                    {t('openInSchedule')}
+                                                </span>
+                                            </Button>
                                         </div>
                                     </div>
-                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">
-                                        {formatDate(slot.start, timezone, 'short')} · {formatTime(slot.start, timezone)}
-                                    </div>
-                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">{clientName}</div>
-                                    <div className="mb-2 flex flex-col items-start gap-1.5">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                            {serviceLabel}
-                                        </span>
-                                        {(slot.execution_type || 'onsite') === 'offsite' && (
-                                            <OffsiteExecutionBadge label={tCommon('offsite')} />
-                                        )}
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{amountLabel}</span>
-                                        <Button
-                                            type="button"
-                                            size="xs"
-                                            variant="plain"
-                                            onClick={(e) => goToScheduleDay(slot, e)}
-                                        >
-                                            {t('openInSchedule')}
-                                        </Button>
-                                    </div>
-                                </Card>
+                                </button>
                             )
                         })}
                     </div>
@@ -480,36 +484,18 @@ export default function BookingsList() {
                 </>
             )}
 
-            <ScheduleSlotModal
-                key={selectedSlot?.id ? `slot-${selectedSlot.id}` : 'slot-new'}
-                isOpen={dialogOpen}
-                onClose={closeModal}
-                slot={selectedSlot}
-                onSave={canManageSchedule ? handleSubmit : null}
-                onDelete={canManageSchedule && selectedSlot?.id ? () => handleDelete(selectedSlot.id) : null}
-                readOnly={!canManageSchedule}
-                onPaymentUpdated={async () => {
-                    const result = await refetchSlots()
-                    const list = result.data ?? queryClient.getQueryData(['business-schedule-slots']) ?? []
-                    const id = selectedSlot?.id
-                    if (!id) return
-                    const upd = list.find((s) => String(s.id) === String(id))
-                    if (upd) {
-                        setSelectedSlot({ ...upd, type: 'EDIT' })
-                    }
-                }}
+            <BookingDrawer
+                open={drawer.open}
+                slot={drawer.slot}
+                onClose={drawer.closeDrawer}
+                onSubmit={canManageSchedule ? drawer.submitUpdate : undefined}
+                onRequestDelete={canManageSchedule ? drawer.requestDelete : undefined}
+                saving={drawer.updating}
+                pendingDelete={drawer.pendingDelete}
+                onConfirmDelete={drawer.confirmDelete}
+                onCancelDelete={drawer.cancelDelete}
+                deleting={drawer.deleting}
             />
-            <ConfirmDialog
-                isOpen={isDeleteDialogOpen}
-                type="danger"
-                title={tScheduleRoot('deleteConfirm.title')}
-                onCancel={cancelDelete}
-                onConfirm={handleConfirmDelete}
-                confirmText={tScheduleRoot('deleteConfirm.confirm')}
-                cancelText={tScheduleRoot('deleteConfirm.cancel')}
-            >
-                <p>{tScheduleRoot('deleteConfirm.message')}</p>
-            </ConfirmDialog>
         </div>
     )
 }

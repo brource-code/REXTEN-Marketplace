@@ -82,9 +82,15 @@ class ScheduleController extends Controller
 
                     // Определяем название события
                     // Для кастомных событий используем title из поля title, для обычных - формируем из клиента и услуги
-                    $isCustomEvent = empty($booking->service_id) && !empty($booking->title);
-                    if ($isCustomEvent && !empty($booking->title)) {
-                        $title = $booking->title; // Для кастомных событий title сохранен в поле title
+                    $eventType = $booking->event_type ?? 'booking';
+                    $isBlockOrTask = in_array($eventType, ['block', 'task'], true);
+                    // block/task всегда без «Клиент — услуга»; старые кастомные — по пустому service_id и непустому title
+                    $isCustomEvent = $isBlockOrTask
+                        || (empty($booking->service_id) && !empty($booking->title));
+                    if ($isCustomEvent) {
+                        $title = !empty($booking->title)
+                            ? $booking->title
+                            : '';
                         $serviceId = null;
                         $serviceName = null;
                     } else {
@@ -205,6 +211,7 @@ class ScheduleController extends Controller
                     $result = [
                         'id' => (string) $booking->id,
                         'company_id' => $booking->company_id,
+                        'event_type' => $eventType,
                         'title' => $title,
                         'start' => $bookingStart->format('Y-m-d\TH:i:s'),
                         'end' => $endDate->format('Y-m-d\TH:i:s'),
@@ -220,7 +227,9 @@ class ScheduleController extends Controller
                         ],
                         'client' => [
                             'id' => $booking->user->id ?? null,
-                            'name' => $booking->client_name ?? ($booking->user?->profile ? trim(($booking->user->profile?->first_name ?? '') . ' ' . ($booking->user->profile?->last_name ?? '')) : null) ?? 'Гость',
+                            'name' => $isCustomEvent
+                                ? ($booking->client_name ?? ($booking->user?->profile ? trim(($booking->user->profile?->first_name ?? '') . ' ' . ($booking->user->profile?->last_name ?? '')) : null))
+                                : ($booking->client_name ?? ($booking->user?->profile ? trim(($booking->user->profile?->first_name ?? '') . ' ' . ($booking->user->profile?->last_name ?? '')) : null) ?? 'Гость'),
                             'email' => $booking->client_email ?? ($booking->user?->email ?? null),
                             'phone' => $booking->client_phone ?? ($booking->user?->profile?->phone ?? null),
                             // Добавляем адрес клиента для отображения в модалке
@@ -798,6 +807,7 @@ class ScheduleController extends Controller
                 }],
                 'duration_minutes' => 'sometimes|integer|min:15',
                 'notes' => 'nullable|string|max:1000',
+                'client_notes' => 'nullable|string|max:1000',
                 'title' => 'nullable|string|max:255',
                 'specialist_id' => 'nullable|exists:team_members,id',
                 'service_id' => 'sometimes|nullable|integer|exists:services,id',
@@ -944,9 +954,12 @@ class ScheduleController extends Controller
                 }
             }
 
-            // Обновляем примечания
+            // Обновляем примечания (внутренние и клиентские)
             if ($request->has('notes')) {
                 $booking->notes = $request->notes;
+            }
+            if ($request->has('client_notes')) {
+                $booking->client_notes = $request->client_notes;
             }
 
             // Обновляем title для кастомных событий
@@ -1115,6 +1128,8 @@ class ScheduleController extends Controller
                 'review_token' => $booking->review_token, // Токен для отзыва клиентов без клиентского аккаунта
                 'specialist_id' => $booking->specialist_id,
                 'specialist' => $this->getSpecialistFromTeam($booking) ?: null,
+                'notes' => $booking->notes,
+                'client_notes' => $booking->client_notes,
             ]);
         } catch (\Exception $e) {
             Log::error('Error updating schedule slot: ' . $e->getMessage(), [
