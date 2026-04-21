@@ -5,7 +5,9 @@ import { queryClient } from '../lib/queryClient';
 
 const USER_KEY = '@user_data';
 
-export type LoginResult = { success: true; user: User } | { success: false; user?: undefined };
+export type LoginResult =
+  | { success: true; user: User }
+  | { success: false; user?: undefined; emailNotVerified?: boolean; email?: string };
 
 interface AuthContextType {
   user: User | null;
@@ -70,6 +72,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         authSessionRef.current += 1;
         setUser(result.data.user);
         return { success: true, user: result.data.user };
+      }
+      if (
+        !result.success &&
+        result.code === 'email_not_verified' &&
+        typeof result.email === 'string' &&
+        result.email
+      ) {
+        return { success: false, emailNotVerified: true, email: result.email };
       }
       return { success: false };
     } catch (error) {

@@ -20,6 +20,7 @@ import {
   getRecentBookings,
   BusinessStats,
   DashboardPeriodMetric,
+  RecentBooking,
 } from '../../api/business';
 import { useBusiness } from '../../contexts/BusinessContext';
 import { ScreenContainer } from '../../components/ScreenContainer';
@@ -72,6 +73,9 @@ const T = {
     viewAll: 'Все брони',
     noBookings: 'Нет бронирований',
     service: 'Услуга',
+    client: 'Клиент',
+    specialist: 'Специалист',
+    serviceFallback: 'Услуга',
   },
   quick: {
     title: 'Быстрые действия',
@@ -130,6 +134,14 @@ function formatTimeShort(timeStr: string): string {
   return `${h}:${(mm ?? '00').slice(0, 2)}`;
 }
 
+function isRecentBlockLike(b: RecentBooking): boolean {
+  const et = b.event_type;
+  if (et === 'block' || et === 'task') return true;
+  const sid = b.service_id;
+  const hasService = sid != null && String(sid).trim() !== '';
+  return !!(b.title && !hasService);
+}
+
 function shouldShowGrow(gs: number | undefined): boolean {
   return gs != null && Number.isFinite(gs);
 }
@@ -149,20 +161,23 @@ type PeriodKey = 'thisWeek' | 'thisMonth' | 'thisYear';
 type CatKey = 'revenue' | 'bookings' | 'clients';
 
 export function BusinessDashboardScreen() {
-  
   const { colors } = useTheme();
   const chartColors = {
     revenue: colors.success,
     bookings: colors.primary,
     clients: colors.purple,
   };
-  const statusStyle: Record<string, { bg: string; text: string }> = {
-    new: { bg: colors.primaryLight, text: colors.primaryDark },
-    pending: { bg: colors.warningLight, text: colors.warning },
-    confirmed: { bg: colors.warningLight, text: colors.warning },
-    completed: { bg: colors.successLight, text: colors.successDark },
-    cancelled: { bg: colors.errorLight, text: colors.error },
-  };
+  const statusStyle = useMemo(
+    () =>
+      ({
+        new: { bg: colors.primaryLight, text: colors.primaryDark, border: colors.primary },
+        pending: { bg: colors.warningLight, text: colors.warning, border: colors.warning },
+        confirmed: { bg: colors.warningLight, text: colors.warning, border: colors.warning },
+        completed: { bg: colors.successLight, text: colors.successDark, border: colors.success },
+        cancelled: { bg: colors.errorLight, text: colors.error, border: colors.error },
+      }) as Record<string, { bg: string; text: string; border: string }>,
+    [colors],
+  );
   const navigation = useNavigation<Nav>();
   const queryClient = useQueryClient();
   const { isReady, isLoading: bootLoading, error: bootError, profile } = useBusiness();
@@ -448,7 +463,12 @@ export function BusinessDashboardScreen() {
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           <View style={styles.rowBetween}>
             <Text style={[styles.blockTitle, { color: colors.text }]}>{T.recent.title}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('BusinessBookings')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('BusinessBookings')}
+              style={styles.profileBtn}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="list-outline" size={18} color={colors.primary} />
               <Text style={[styles.link, { color: colors.primary }]}>{T.recent.viewAll}</Text>
             </TouchableOpacity>
           </View>
@@ -457,30 +477,64 @@ export function BusinessDashboardScreen() {
               <ActivityIndicator color={colors.primary} />
             </View>
           ) : recentQuery.data?.length === 0 ? (
-            <Text style={[styles.chartMuted, { color: colors.textSecondary }]}>{T.recent.noBookings}</Text>
+            <View style={styles.rbEmptyWrap}>
+              <Ionicons name="calendar-outline" size={40} color={colors.textMuted} />
+              <Text style={[styles.chartMuted, { color: colors.textSecondary, paddingVertical: 12 }]}>
+                {T.recent.noBookings}
+              </Text>
+            </View>
           ) : (
             recentQuery.data?.map((b) => {
               const st = b.status || 'new';
               const stStyle = statusStyle[st] ?? statusStyle.new;
+              const blockLike = isRecentBlockLike(b);
+              const serviceTitle = blockLike
+                ? b.title || b.service || T.recent.serviceFallback
+                : b.service || T.recent.serviceFallback;
+              const clientLine = blockLike ? '—' : b.customer || T.recent.client;
+
               return (
-                <View key={`rb-${b.id}`} style={[styles.bookingCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                  <View style={styles.bookingTop}>
-                    <Text style={[styles.bookingId, { color: colors.text }]}>#{b.id}</Text>
-                    <View style={[styles.statusTag, { backgroundColor: stStyle.bg }]}>
-                      <Text style={[styles.statusTagText, { color: stStyle.text }]}>
+                <TouchableOpacity
+                  key={`rb-${b.id}`}
+                  style={[styles.rbCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
+                  onPress={() => navigation.navigate('BusinessBookingDetail', { bookingId: Number(b.id) })}
+                  activeOpacity={0.75}
+                >
+                  <View style={styles.rbCardHeader}>
+                    <Text style={[styles.rbCardId, { color: colors.text }]}>#{b.id}</Text>
+                    <View style={[styles.rbStatusTag, { backgroundColor: stStyle.bg }]}>
+                      <Text style={[styles.rbStatusTagText, { color: stStyle.text }]}>
                         {T.status[st as keyof typeof T.status] ?? st}
                       </Text>
                     </View>
-                    <Text style={[styles.bookingAmount, { color: colors.text }]}>{fmtUsd(b.amount)}</Text>
+                    <Text style={[styles.rbCardAmount, { color: colors.text }]}>{fmtUsd(b.amount)}</Text>
                   </View>
-                  <Text style={[styles.bookingMeta, { color: colors.textSecondary, borderTopColor: colors.border }]}>
-                    {formatDateRu(b.date)} · {formatTimeShort(b.time)}
+
+                  <Text style={[styles.rbServiceName, { color: colors.primary }]} numberOfLines={2}>
+                    {serviceTitle}
                   </Text>
-                  <Text style={[styles.bookingCustomer, { color: colors.text }]}>{b.customer}</Text>
-                  <Text style={[styles.bookingService, { color: colors.text }]}>
-                    {T.recent.service}: {b.service}
-                  </Text>
-                </View>
+
+                  <View style={styles.rbMetaRow}>
+                    <Ionicons name="calendar-outline" size={15} color={colors.textSecondary} />
+                    <Text style={[styles.rbMetaText, { color: colors.textSecondary }]}>
+                      {formatDateRu(b.date)} · {formatTimeShort(b.time)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.rbMetaRow}>
+                    <Ionicons name="person-outline" size={15} color={colors.textSecondary} />
+                    <Text style={[styles.rbClientName, { color: colors.primary }]} numberOfLines={1}>
+                      {clientLine}
+                    </Text>
+                  </View>
+
+                  {b.specialist_name ? (
+                    <View style={styles.rbMetaRow}>
+                      <Ionicons name="briefcase-outline" size={15} color={colors.textSecondary} />
+                      <Text style={[styles.rbSpecialistName, { color: colors.text }]}>{b.specialist_name}</Text>
+                    </View>
+                  ) : null}
+                </TouchableOpacity>
               );
             })
           )}
@@ -722,20 +776,34 @@ const styles = StyleSheet.create({
   },
   chartLoading: { paddingVertical: 32, alignItems: 'center' },
   chartMuted: { textAlign: 'center', fontWeight: '700', paddingVertical: 24 },
-  bookingCard: {
-    borderWidth: 1,
+  rbEmptyWrap: { alignItems: 'center', paddingVertical: 8 },
+  rbCard: {
     borderRadius: 12,
-    padding: 12,
+    borderWidth: 1,
+    padding: 14,
+    marginBottom: 12,
+  },
+  rbCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: 10,
   },
-  bookingTop: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  bookingId: { fontSize: 14, fontWeight: '700' },
-  statusTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  statusTagText: { fontSize: 12, fontWeight: '700' },
-  bookingAmount: { marginLeft: 'auto', fontSize: 14, fontWeight: '700' },
-  bookingMeta: { fontSize: 13, fontWeight: '700', marginBottom: 4 },
-  bookingCustomer: { fontSize: 14, fontWeight: '700', marginBottom: 2 },
-  bookingService: { fontSize: 13, fontWeight: '700' },
+  rbCardId: { fontSize: 14, fontWeight: '700' },
+  rbStatusTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  rbStatusTagText: { fontSize: 12, fontWeight: '700' },
+  rbCardAmount: { marginLeft: 'auto', fontSize: 15, fontWeight: '700' },
+  rbServiceName: { fontSize: 16, fontWeight: '700', marginBottom: 10 },
+  rbMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  rbMetaText: { fontSize: 13, fontWeight: '700' },
+  rbClientName: { fontSize: 14, fontWeight: '700', flex: 1 },
+  rbSpecialistName: { fontSize: 13, fontWeight: '700' },
   link: { fontSize: 14, fontWeight: '700' },
   profileBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   quickRow: {

@@ -165,6 +165,10 @@ export const RegisterScreen: React.FC = () => {
         phone: phone.trim() || undefined,
       });
       
+      if (result.success && result.requiresEmailVerification && result.email) {
+        navigation.navigate('VerifyEmailOtp', { email: result.email });
+        return;
+      }
       if (result.success && result.data?.user) {
         completeSession(result.data.user);
         navigation.reset({

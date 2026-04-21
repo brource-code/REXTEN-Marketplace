@@ -14,6 +14,7 @@ import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { BookingsListScreen } from '../screens/BookingsListScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import { VerifyEmailOtpScreen } from '../screens/VerifyEmailOtpScreen';
 import { BusinessStackNavigator } from './BusinessStackNavigator';
 import { useAuth } from '../contexts/AuthContext';
 import { isBusinessAppRole } from '../constants/roles';
@@ -37,6 +38,7 @@ export type RootStackParamList = {
   ProfileSettings: undefined;
   Login: undefined;
   Register: undefined;
+  VerifyEmailOtp: { email: string };
 };
 
 export type MainTabParamList = {
@@ -196,6 +198,15 @@ export const RootNavigator: React.FC = () => {
         options={{
           headerShown: true,
           headerTitle: 'Регистрация',
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="VerifyEmailOtp"
+        component={VerifyEmailOtpScreen}
+        options={{
+          headerShown: true,
+          headerTitle: 'Код из письма',
           presentation: 'modal',
         }}
       />

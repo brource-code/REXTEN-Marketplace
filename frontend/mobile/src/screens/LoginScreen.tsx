@@ -153,6 +153,13 @@ export const LoginScreen: React.FC = () => {
           index: 0,
           routes: [{ name: rootRoute }],
         });
+      } else if (
+        !result.success &&
+        'emailNotVerified' in result &&
+        result.emailNotVerified &&
+        result.email
+      ) {
+        navigation.navigate('VerifyEmailOtp', { email: result.email });
       } else {
         Alert.alert('Ошибка входа', 'Неверный email или пароль');
       }

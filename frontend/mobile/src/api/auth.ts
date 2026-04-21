@@ -8,6 +8,30 @@ import { clearPresenceSessionStorage } from '../utils/presenceSessionId';
 const TOKEN_KEY = '@auth_token';
 const REFRESH_TOKEN_KEY = '@refresh_token';
 const USER_KEY = '@user_data';
+const APP_LANGUAGE_KEY = '@app_language';
+
+/**
+ * Локаль UI из AsyncStorage (как в BusinessMoreMenu) → значение для API `locale` (как на вебе).
+ */
+export async function getMailLocaleHintForApi(): Promise<string | undefined> {
+  try {
+    const raw = await AsyncStorage.getItem(APP_LANGUAGE_KEY);
+    if (!raw?.trim()) {
+      return undefined;
+    }
+    const c = raw.trim().toLowerCase();
+    const map: Record<string, string> = {
+      en: 'en',
+      ru: 'ru',
+      es: 'es-MX',
+      hy: 'hy-AM',
+      uk: 'uk-UA',
+    };
+    return map[c];
+  } catch {
+    return undefined;
+  }
+}
 
 // Флаг для предотвращения рекурсии при обновлении токена
 let isRefreshing = false;
@@ -39,7 +63,9 @@ apiClient.interceptors.request.use(
     // Не добавляем токен к публичным маршрутам авторизации
     const isAuthRoute = config.url?.includes('/auth/login') 
       || config.url?.includes('/auth/register') 
-      || config.url?.includes('/auth/refresh');
+      || config.url?.includes('/auth/refresh')
+      || config.url?.includes('/auth/email/verify-code')
+      || config.url?.includes('/auth/email/resend-code');
     
     if (!isAuthRoute) {
       const token = await AsyncStorage.getItem(TOKEN_KEY);
@@ -202,6 +228,8 @@ function readRoleFromJwt(token: string): string | undefined {
 export interface LoginRequest {
   email: string;
   password: string;
+  /** Явная локаль; иначе подставится из @app_language */
+  locale?: string;
 }
 
 export interface RegisterRequest {
@@ -212,11 +240,15 @@ export interface RegisterRequest {
   password_confirmation: string;
   role?: string;
   phone?: string;
+  locale?: string;
 }
 
 export interface AuthResponse {
   success: boolean;
   message?: string;
+  code?: string;
+  email?: string;
+  requiresEmailVerification?: boolean;
   data?: {
     token: string;
     refresh_token?: string;
@@ -235,7 +267,13 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
     console.log('🔐 Attempting login with:', { email: credentials.email, password: '***' });
     console.log('📡 API Base URL:', API_BASE_URL);
     
-    const response = await apiClient.post<any>('/auth/login', credentials);
+    const localeHint = credentials.locale ?? (await getMailLocaleHintForApi());
+    const loginBody = {
+      email: credentials.email,
+      password: credentials.password,
+      ...(localeHint ? { locale: localeHint } : {}),
+    };
+    const response = await apiClient.post<any>('/auth/login', loginBody);
     const data = response.data;
     
     console.log('✅ Login response:', JSON.stringify(data, null, 2));
@@ -276,7 +314,18 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
     console.error('❌ Error response:', error.response?.data);
     console.error('❌ Error status:', error.response?.status);
     console.error('❌ Error headers:', error.response?.headers);
-    
+
+    const status = error.response?.status;
+    const d = error.response?.data;
+    if (status === 403 && d?.code === 'email_not_verified') {
+      return {
+        success: false,
+        message: d.message || 'Подтвердите email',
+        code: 'email_not_verified',
+        email: typeof d.email === 'string' ? d.email : undefined,
+      };
+    }
+
     const errorMessage = error.response?.data?.message 
       || error.response?.data?.error 
       || error.message 
@@ -294,13 +343,28 @@ export async function login(credentials: LoginRequest): Promise<AuthResponse> {
  */
 export async function register(data: RegisterRequest): Promise<AuthResponse> {
   try {
-    const response = await apiClient.post<any>('/auth/register', data);
+    const localeHint = data.locale ?? (await getMailLocaleHintForApi());
+    const registerBody = {
+      ...data,
+      ...(localeHint ? { locale: localeHint } : {}),
+    };
+    const response = await apiClient.post<any>('/auth/register', registerBody);
     const responseData = response.data;
     
     // Laravel возвращает access_token напрямую в корне ответа
     const token = responseData.access_token || responseData.data?.access_token || responseData.data?.token || responseData.token;
     const refreshToken = responseData.refresh_token || responseData.data?.refresh_token;
     const user = responseData.user || responseData.data?.user;
+
+    if (responseData.requires_email_verification && !token && user) {
+      return {
+        success: true,
+        requiresEmailVerification: true,
+        email: responseData.email || user.email,
+        user,
+        message: 'Требуется подтверждение email',
+      };
+    }
     
     if (token && user) {
       await AsyncStorage.setItem(TOKEN_KEY, token);
@@ -319,6 +383,66 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
     return {
       success: false,
       message: error.response?.data?.message || 'Ошибка регистрации',
+    };
+  }
+}
+
+export async function verifyEmailCode(payload: {
+  email: string;
+  code: string;
+}): Promise<AuthResponse> {
+  try {
+    const response = await apiClient.post<any>('/auth/email/verify-code', payload);
+    const data = response.data;
+    const token = data.access_token;
+    const refreshToken = data.refresh_token;
+    const rawUser = data.user;
+    const user =
+      rawUser && token
+        ? { ...rawUser, role: rawUser.role ?? readRoleFromJwt(token) }
+        : rawUser;
+
+    if (token && user) {
+      await AsyncStorage.setItem(TOKEN_KEY, token);
+      if (refreshToken) {
+        await AsyncStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      }
+      await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
+
+    return {
+      success: true,
+      data: { token: token!, refresh_token: refreshToken, user: user! },
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Неверный код',
+      code: error.response?.data?.code,
+    };
+  }
+}
+
+export async function resendEmailCode(payload: {
+  email: string;
+  locale?: string;
+}): Promise<{ success: boolean; message?: string; waitSeconds?: number }> {
+  try {
+    const localeHint = payload.locale ?? (await getMailLocaleHintForApi());
+    const body = {
+      email: payload.email,
+      ...(localeHint ? { locale: localeHint } : {}),
+    };
+    await apiClient.post('/auth/email/resend-code', body);
+    return { success: true };
+  } catch (error: any) {
+    const d = error.response?.data;
+    const waitSeconds =
+      typeof d?.wait_seconds === 'number' ? d.wait_seconds : undefined;
+    return {
+      success: false,
+      message: d?.message || 'Не удалось отправить код',
+      waitSeconds,
     };
   }
 }

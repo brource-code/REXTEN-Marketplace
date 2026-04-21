@@ -166,6 +166,10 @@ export interface RecentBooking {
   status: 'new' | 'pending' | 'confirmed' | 'completed' | 'cancelled';
   execution_type?: string;
   payment_status?: string;
+  service_id?: string | number | null;
+  title?: string | null;
+  event_type?: string;
+  specialist_name?: string | null;
 }
 
 export async function getRecentBookings(limit = 5): Promise<RecentBooking[]> {
@@ -185,6 +189,10 @@ export async function getRecentBookings(limit = 5): Promise<RecentBooking[]> {
       status: (row.status ?? 'new') as RecentBooking['status'],
       execution_type: row.execution_type,
       payment_status: row.payment_status,
+      service_id: row.service_id ?? null,
+      title: row.title != null ? String(row.title) : null,
+      event_type: row.event_type != null ? String(row.event_type) : 'booking',
+      specialist_name: row.specialist_name != null ? String(row.specialist_name) : null,
     }));
   } catch {
     return [];
