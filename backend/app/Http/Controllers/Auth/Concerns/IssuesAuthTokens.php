@@ -48,6 +48,7 @@ trait IssuesAuthTokens
                 'email' => $userData->email,
                 'role' => $userData->role,
                 'locale' => $userData->locale,
+                'email_verified_at' => $userData->email_verified_at?->toIso8601String(),
                 'name' => $userData->profile ? ($userData->profile->first_name.' '.$userData->profile->last_name) : null,
                 'firstName' => $userData->profile->first_name ?? null,
                 'lastName' => $userData->profile->last_name ?? null,

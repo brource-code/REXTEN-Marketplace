@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Models\UserProfile;
 use App\Constants\UsTimezones;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -26,10 +25,44 @@ class GoogleAuthController extends Controller
 
     private const GOOGLE_SIGNUP_PURPOSE = 'google_signup_completion';
 
-    private function googleSignupPendingCacheKey(string $rawToken): string
+    /**
+     * Pending Google sign-up хранится в БД (не в Cache), чтобы запись переживала
+     * следующий HTTP-запрос и была видна всем инстансам API за балансировщиком.
+     */
+    private function putGoogleSignupPending(string $rawToken, array $payload): void
     {
-        return 'oauth:google:pending:' . hash('sha256', $rawToken);
+        $tokenHash = hash('sha256', $rawToken);
+        DB::table('oauth_google_pending_signups')->where('token_hash', $tokenHash)->delete();
+        DB::table('oauth_google_pending_signups')->insert([
+            'token_hash' => $tokenHash,
+            'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+            'expires_at' => now()->addMinutes(10),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
+
+    private function getGoogleSignupPendingPayload(string $rawToken): ?array
+    {
+        $row = DB::table('oauth_google_pending_signups')
+            ->where('token_hash', hash('sha256', $rawToken))
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if ($row === null) {
+            return null;
+        }
+
+        $decoded = json_decode($row->payload, true);
+
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    private function forgetGoogleSignupPending(string $rawToken): void
+    {
+        DB::table('oauth_google_pending_signups')->where('token_hash', hash('sha256', $rawToken))->delete();
+    }
+
     /**
      * Redirect to Google OAuth
      */
@@ -237,7 +270,7 @@ class GoogleAuthController extends Controller
                 $googleSignupRawToken = null;
 
                 // Используем транзакцию для атомарности операций
-                DB::transaction(function () use (&$user, $googleUser, &$googleSignupRawToken) {
+                DB::transaction(function () use (&$user, $googleUser, &$googleSignupRawToken, $request) {
                 
                     // 1. Сначала ищем по google_id (самый надежный способ)
                     // Включаем soft deleted записи, чтобы проверить все возможные совпадения
@@ -402,9 +435,8 @@ class GoogleAuthController extends Controller
                                 // Новый пользователь: не создаём User в callback — выбор роли на фронте + POST /auth/google/complete
                                 $googleSignupRawToken = Str::random(64);
                                 $nameParts = $this->parseName($googleUser->name ?? '');
-                                $cacheKey = $this->googleSignupPendingCacheKey($googleSignupRawToken);
 
-                                Cache::put($cacheKey, [
+                                $this->putGoogleSignupPending($googleSignupRawToken, [
                                     'purpose' => self::GOOGLE_SIGNUP_PURPOSE,
                                     'email' => $googleUser->email,
                                     'google_id' => $googleUser->id,
@@ -415,7 +447,7 @@ class GoogleAuthController extends Controller
                                         ? $request->session()->get('oauth_locale', (string) config('app.locale', 'en'))
                                         : (string) config('app.locale', 'en'),
                                     'created_at' => now()->toIso8601String(),
-                                ], now()->addMinutes(10));
+                                ]);
 
                                 \Log::info('oauth_google_pending_created', [
                                     'email' => $googleUser->email,
@@ -665,12 +697,11 @@ class GoogleAuthController extends Controller
             ], 422);
         }
 
-        $cacheKey = $this->googleSignupPendingCacheKey($token);
-        $payload = Cache::get($cacheKey);
+        $payload = $this->getGoogleSignupPendingPayload($token);
 
         if (! is_array($payload) || ($payload['purpose'] ?? '') !== self::GOOGLE_SIGNUP_PURPOSE) {
             \Log::info('oauth_google_pending_expired', [
-                'reason' => 'cache_miss_or_invalid',
+                'reason' => 'pending_miss_or_invalid',
             ]);
 
             return response()->json([
@@ -737,12 +768,11 @@ class GoogleAuthController extends Controller
         }
 
         $token = $input['token'];
-        $cacheKey = $this->googleSignupPendingCacheKey($token);
-        $payload = Cache::get($cacheKey);
+        $payload = $this->getGoogleSignupPendingPayload($token);
 
         if (! is_array($payload) || ($payload['purpose'] ?? '') !== self::GOOGLE_SIGNUP_PURPOSE) {
             \Log::info('oauth_google_pending_expired', [
-                'reason' => 'complete_cache_miss',
+                'reason' => 'complete_pending_miss',
             ]);
 
             return response()->json([
@@ -765,7 +795,7 @@ class GoogleAuthController extends Controller
         $conflict = false;
 
         try {
-            $user = DB::transaction(function () use ($payload, $role, $companyInput, $cacheKey, &$conflict) {
+            $user = DB::transaction(function () use ($payload, $role, $companyInput, $token, &$conflict) {
                 $exists = User::query()
                     ->where(function ($q) use ($payload) {
                         $q->where('email', $payload['email'])
@@ -775,7 +805,7 @@ class GoogleAuthController extends Controller
                     ->exists();
 
                 if ($exists) {
-                    Cache::forget($cacheKey);
+                    $this->forgetGoogleSignupPending($token);
                     $conflict = true;
 
                     return null;
@@ -815,14 +845,14 @@ class GoogleAuthController extends Controller
                     ]);
                 }
 
-                Cache::forget($cacheKey);
+                $this->forgetGoogleSignupPending($token);
 
                 return $user;
             });
         } catch (\Illuminate\Database\QueryException $e) {
             $msg = $e->getMessage();
             if ($e->getCode() == 23000 || strpos($msg, 'UNIQUE') !== false || strpos($msg, 'unique') !== false) {
-                Cache::forget($cacheKey);
+                $this->forgetGoogleSignupPending($token);
 
                 return response()->json([
                     'success' => false,
