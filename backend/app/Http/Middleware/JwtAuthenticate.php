@@ -12,6 +12,25 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 class JwtAuthenticate
 {
     /**
+     * Разрешённые запросы без подтверждённого email (онбординг).
+     */
+    private function pathAllowsUnverifiedEmailAccess(\Illuminate\Http\Request $request): bool
+    {
+        $path = $request->path();
+        $method = $request->method();
+
+        if ($path === 'api/auth/me' || $path === 'api/auth/logout') {
+            return true;
+        }
+
+        if ($path === 'api/business/settings/profile' && in_array($method, ['GET', 'PUT'], true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
@@ -30,7 +49,8 @@ class JwtAuthenticate
 
             if (! $user->isSuperAdmin()
                 && PlatformSettingsService::isEmailVerificationRequired()
-                && ! $user->email_verified_at) {
+                && ! $user->email_verified_at
+                && ! $this->pathAllowsUnverifiedEmailAccess($request)) {
                 return response()->json([
                     'success' => false,
                     'code' => 'email_not_verified',

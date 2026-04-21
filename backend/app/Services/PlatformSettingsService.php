@@ -44,7 +44,13 @@ class PlatformSettingsService
     {
         $row = self::getRow();
 
-        return $row && (bool) ($row->email_verification ?? true);
+        // Нет строки настроек — считаем, что подтверждение включено (как дефолт миграции),
+        // иначе `$row && …` давало false и все регистрации проходили с email_verified_at сразу.
+        if (! $row) {
+            return true;
+        }
+
+        return (bool) ($row->email_verification ?? true);
     }
 
     public static function isStripePaymentsEnabled(): bool

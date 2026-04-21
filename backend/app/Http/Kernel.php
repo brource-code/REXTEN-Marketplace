@@ -31,6 +31,7 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'tenant' => \App\Http\Middleware\TenantMiddleware::class,
         'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'subscription.feature' => \App\Http\Middleware\CheckSubscriptionFeature::class,
         'tenant.api' => \App\Http\Middleware\TenantApi::class,

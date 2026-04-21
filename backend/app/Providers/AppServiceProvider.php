@@ -18,6 +18,7 @@ use App\Observers\CompanyObserver;
 use App\Support\PasswordResetMailLocale;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 
@@ -37,6 +38,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Sanctum::usePersonalAccessTokenModel(\App\Models\PersonalAccessToken::class);
+
+        // Tymon\JWTAuth LaravelServiceProvider boots after Kernel and перерегистрирует
+        // алиас 'jwt.auth' на свой Authenticate, из-за чего наш JwtAuthenticate
+        // (с проверкой email_verified_at) переставал срабатывать на защищённых роутах.
+        // Перебиваем алиас обратно после загрузки сторонних провайдеров.
+        Route::aliasMiddleware('jwt.auth', \App\Http\Middleware\JwtAuthenticate::class);
 
         ResetPassword::createUrlUsing(function ($user, string $token) {
             $base = rtrim((string) config('app.frontend_url'), '/');
