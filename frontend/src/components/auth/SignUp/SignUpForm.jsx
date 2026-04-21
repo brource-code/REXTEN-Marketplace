@@ -9,12 +9,20 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { HiOutlineEyeOff, HiOutlineEye } from 'react-icons/hi'
 import { useTranslations } from 'next-intl'
+import Checkbox from '@/components/ui/Checkbox'
+import { formatUsPhoneDisplay, stripToNanpDigits } from '@/utils/usPhone'
 
 const getClientValidationSchema = (t) => z.object({
     email: z.string().email({ message: t('validation.emailRequired') }),
     firstName: z.string().min(1, { message: t('validation.firstNameRequired') }),
     lastName: z.string().min(1, { message: t('validation.lastNameRequired') }),
-    phone: z.string().optional(),
+    phone: z
+        .string()
+        .optional()
+        .refine((val) => {
+            const d = stripToNanpDigits(val || '')
+            return d.length === 0 || d.length === 10
+        }, { message: t('validation.phoneUsInvalid') }),
     password: z.string().min(8, { message: t('validation.passwordMinLength') }),
     confirmPassword: z.string().min(1, { message: t('validation.confirmPasswordRequired') }),
     role: z.literal('CLIENT'),
@@ -45,7 +53,7 @@ const SignUpForm = (props) => {
             firstName: '',
             lastName: '',
             email: '',
-            phone: '',
+            phone: '+1',
             password: '',
             confirmPassword: '',
             agreeToTerms: false,
@@ -153,9 +161,16 @@ const SignUpForm = (props) => {
                         render={({ field }) => (
                             <Input
                                 type="tel"
+                                inputMode="tel"
                                 placeholder={t('phonePlaceholder')}
-                                autoComplete="off"
-                                {...field}
+                                autoComplete="tel-national"
+                                value={field.value}
+                                onChange={(e) =>
+                                    field.onChange(formatUsPhoneDisplay(e.target.value))
+                                }
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
                             />
                         )}
                     />
@@ -234,32 +249,48 @@ const SignUpForm = (props) => {
                         name="agreeToTerms"
                         control={control}
                         render={({ field: { value, onChange } }) => (
-                            <div className="flex items-start gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="agreeToTerms"
-                                    checked={value}
-                                    onChange={(e) => onChange(e.target.checked)}
-                                    className="mt-0.5 sm:mt-1 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
-                                />
-                                <label
-                                    htmlFor="agreeToTerms"
-                                    className="text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 leading-snug sm:leading-relaxed"
-                                >
+                            <Checkbox
+                                variant="card"
+                                id="agreeToTerms"
+                                checked={value}
+                                onChange={(checked) => onChange(checked)}
+                                checkboxClass="shrink-0 !m-0 mt-0.5"
+                                className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 leading-snug sm:leading-relaxed"
+                            >
+                                <span className="leading-snug sm:leading-relaxed">
                                     {t('agreeTerms')}{' '}
-                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    <a
+                                        href="/terms"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
                                         {t('termsOfService')}
                                     </a>
                                     ,{' '}
-                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    <a
+                                        href="/privacy"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
                                         {t('privacyPolicy')}
                                     </a>
-                                    {' '}{t('and')}{' '}
-                                    <a href="/cookies" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    {' '}
+                                    {t('and')}{' '}
+                                    <a
+                                        href="/cookies"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
                                         {t('cookiePolicy')}
                                     </a>
-                                </label>
-                            </div>
+                                </span>
+                            </Checkbox>
                         )}
                     />
                 </FormItem>

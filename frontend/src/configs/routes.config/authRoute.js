@@ -15,6 +15,10 @@ const authRoute = {
         key: 'resetPassword',
         authority: [],
     },
+    '/verify-code': {
+        key: 'verifyCode',
+        authority: [],
+    },
     '/otp-verification': {
         key: 'otpVerification',
         authority: [],

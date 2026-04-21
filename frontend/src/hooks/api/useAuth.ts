@@ -2,7 +2,16 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter, usePathname } from 'next/navigation'
-import { login, register, logout, getCurrentUser, forgotPassword, resetPassword } from '@/lib/api/auth'
+import {
+    login,
+    register,
+    logout,
+    getCurrentUser,
+    forgotPassword,
+    resetPassword,
+    verifyEmailCode,
+    resendEmailCode,
+} from '@/lib/api/auth'
 import { useAuthStore, useUserStore, clearAuthPersistStorage } from '@/store'
 
 // Query keys
@@ -104,7 +113,9 @@ export function useRegister() {
     return useMutation({
         mutationFn: register,
         onSuccess: (data) => {
-            // БЕЗОПАСНОСТЬ: Очищаем все данные предыдущего пользователя ПЕРЕД установкой новых
+            const pendingVerify =
+                Boolean(data.requires_email_verification) && !data.access_token
+
             if (typeof window !== 'undefined') {
                 clearAuthPersistStorage()
                 localStorage.removeItem('user-storage')
@@ -112,37 +123,45 @@ export function useRegister() {
             }
             clearUser()
             queryClient.clear()
-            
-            // Сохраняем авторизацию в store
+
+            if (pendingVerify) {
+                if (data.user?.role !== 'BUSINESS_OWNER') {
+                    router.push(
+                        `/verify-code?email=${encodeURIComponent(
+                            data.email || data.user?.email || '',
+                        )}`,
+                    )
+                }
+                return
+            }
+
             setAuth(
                 {
                     access_token: data.access_token,
                     refresh_token: data.refresh_token,
                 },
-                data.user
+                data.user,
             )
-            
-            // Сохраняем пользователя
+
             setUser(data.user)
-            
-            // Инвалидируем кэш пользователя
+
             queryClient.setQueryData(authKeys.user(), data.user)
-            
-            // Для BUSINESS_OWNER редирект будет выполнен в BusinessSignUpClient после сохранения данных компании
-            // Для других ролей выполняем редирект сразу
+
             const role = data.user.role
-            if (role !== 'BUSINESS_OWNER') {
-                const roleEntryPaths: Record<string, string> = {
-                    CLIENT: '/services', // Клиенты идут на публичный сайт
-                    SUPERADMIN: '/superadmin/dashboard',
-                }
-                const entryPath = roleEntryPaths[role]
-                
-                if (entryPath) {
-                    router.push(entryPath)
-                }
+
+            if (role === 'BUSINESS_OWNER') {
+                return
             }
-            // Для BUSINESS_OWNER редирект будет выполнен в компоненте регистрации после сохранения компании
+
+            const roleEntryPaths: Record<string, string> = {
+                CLIENT: '/services',
+                SUPERADMIN: '/superadmin/dashboard',
+            }
+            const entryPath = roleEntryPaths[role]
+
+            if (entryPath) {
+                router.push(entryPath)
+            }
         },
         onError: (error) => {
             console.error('Register error:', error)
@@ -192,6 +211,60 @@ export function useLogout() {
             // Редирект на страницу входа
             router.push('/sign-in')
         },
+    })
+}
+
+export function useVerifyEmailCode() {
+    const queryClient = useQueryClient()
+    const { setAuth } = useAuthStore()
+    const { setUser, clearUser } = useUserStore()
+
+    return useMutation({
+        mutationFn: verifyEmailCode,
+        onSuccess: (data) => {
+            if (typeof window !== 'undefined') {
+                clearAuthPersistStorage()
+                localStorage.removeItem('user-storage')
+                localStorage.removeItem('business-storage')
+            }
+            clearUser()
+            queryClient.clear()
+
+            setAuth(
+                {
+                    access_token: data.access_token,
+                    refresh_token: data.refresh_token,
+                },
+                data.user,
+            )
+
+            setUser(data.user)
+
+            queryClient.setQueryData(authKeys.user(), data.user)
+
+            const role = data.user.role
+            const roleEntryPaths: Record<string, string> = {
+                CLIENT: '/services',
+                BUSINESS_OWNER: '/business/dashboard',
+                SUPERADMIN: '/superadmin/dashboard',
+            }
+            const entryPath = roleEntryPaths[role]
+
+            if (entryPath) {
+                setTimeout(() => {
+                    window.location.href = entryPath
+                }, 100)
+            }
+        },
+        onError: (error) => {
+            console.error('Verify email code error:', error)
+        },
+    })
+}
+
+export function useResendEmailCode() {
+    return useMutation({
+        mutationFn: resendEmailCode,
     })
 }
 

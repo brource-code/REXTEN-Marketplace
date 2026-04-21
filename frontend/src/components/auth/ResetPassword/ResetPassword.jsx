@@ -8,6 +8,7 @@ import ActionLink from '@/components/shared/ActionLink'
 import ResetPasswordForm from './ResetPasswordForm'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useRouter } from 'next/navigation'
+import AuthPageLogo from '@/components/auth/AuthPageLogo'
 
 export const ResetPassword = ({
     signInUrl = '/sign-in',
@@ -26,6 +27,7 @@ export const ResetPassword = ({
     if (invalidLink) {
         return (
             <div>
+                <AuthPageLogo />
                 <div className="mb-6">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         {t('invalidLinkTitle')}
@@ -49,6 +51,7 @@ export const ResetPassword = ({
 
     return (
         <div>
+            <AuthPageLogo />
             <div className="mb-6">
                 {resetComplete ? (
                     <>

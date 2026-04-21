@@ -204,6 +204,48 @@ const MockAuthService = {
             access_token: accessToken,
             refresh_token: refreshToken,
             user: userWithoutPassword,
+            requires_email_verification: false,
+            email_verified_at: new Date().toISOString(),
+        }
+    },
+
+    async verifyEmailCode({ email, code }) {
+        await delay(500)
+        const user = MOCK_USERS.find((u) => u.email === email)
+        if (!user) {
+            const err = new Error('Неверный код')
+            err.response = { status: 422, data: { code: 'invalid_code' } }
+            err.code = 'invalid_code'
+            throw err
+        }
+        if (String(code) !== '123456') {
+            const err = new Error('Неверный код')
+            err.response = { status: 422, data: { code: 'invalid_code' } }
+            err.code = 'invalid_code'
+            throw err
+        }
+        const accessToken = generateToken(
+            {
+                user_id: user.id,
+                email: user.email,
+                role: user.role,
+            },
+            '24h',
+        )
+        const refreshToken = generateToken(
+            {
+                user_id: user.id,
+                type: 'refresh',
+            },
+            '7d',
+        )
+        setAccessToken(accessToken)
+        setRefreshToken(refreshToken)
+        const { password: _, ...userWithoutPassword } = user
+        return {
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            user: userWithoutPassword,
         }
     },
 

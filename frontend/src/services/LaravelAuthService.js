@@ -67,20 +67,64 @@ const LaravelAuthService = {
         const response = await LaravelAxios.post('/auth/register', data)
         // Бэкенд возвращает данные напрямую, без обертки 'data'
         const responseData = response.data
-        
-        // Сохраняем токены через tokenStorage
+
         if (responseData.access_token) {
             setAccessToken(responseData.access_token)
         }
         if (responseData.refresh_token) {
             setRefreshToken(responseData.refresh_token)
         }
-        
+
         return {
             access_token: responseData.access_token,
             refresh_token: responseData.refresh_token || responseData.access_token,
             user: responseData.user,
+            requires_email_verification: Boolean(
+                responseData.requires_email_verification,
+            ),
+            email_verified_at: responseData.email_verified_at ?? null,
+            email: responseData.email,
+            code_sent: Boolean(responseData.code_sent),
         }
+    },
+
+    async verifyEmailCode({ email, code }) {
+        if (USE_MOCK) {
+            return MockAuthService.verifyEmailCode({ email, code })
+        }
+        try {
+            const response = await LaravelAxios.post('/auth/email/verify-code', { email, code })
+            const data = response.data
+            if (data.access_token) {
+                setAccessToken(data.access_token)
+            }
+            if (data.refresh_token) {
+                setRefreshToken(data.refresh_token)
+            }
+            return {
+                access_token: data.access_token,
+                refresh_token: data.refresh_token || data.access_token,
+                user: data.user,
+            }
+        } catch (error) {
+            const msg =
+                error?.response?.data?.message ||
+                error?.message ||
+                'Не удалось подтвердить код'
+            const authError = new Error(msg)
+            authError.code = error?.response?.data?.code
+            authError.response = error.response
+            throw authError
+        }
+    },
+
+    async resendEmailCode({ email, locale }) {
+        if (USE_MOCK) {
+            return { success: true }
+        }
+        const body = locale ? { email, locale } : { email }
+        const response = await LaravelAxios.post('/auth/email/resend-code', body)
+        return response.data
     },
 
     /**

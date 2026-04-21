@@ -2,9 +2,9 @@
 import SignIn from '@/components/auth/SignIn'
 import { useLogin } from '@/hooks/api/useAuth'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { getLaravelApiUrl } from '@/utils/api/getLaravelApiUrl'
@@ -23,11 +23,14 @@ const isPrivateIp = (hostname) => {
 }
 
 const SignInClient = () => {
+    const router = useRouter()
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get(REDIRECT_URL_KEY)
     const loginMutation = useLogin()
     const tSignIn = useTranslations('auth.signIn')
+    const locale = useLocale()
     const registrationNoticeShown = useRef(false)
+    const emailVerifiedNoticeShown = useRef(false)
 
     useEffect(() => {
         if (registrationNoticeShown.current) return
@@ -42,6 +45,19 @@ const SignInClient = () => {
         }
     }, [searchParams, tSignIn])
 
+    useEffect(() => {
+        if (emailVerifiedNoticeShown.current) return
+        if (searchParams.get('verified') === '1') {
+            emailVerifiedNoticeShown.current = true
+            toast.push(
+                <Notification title={tSignIn('title')} type="success" width={350}>
+                    {tSignIn('emailVerifiedNotice')}
+                </Notification>,
+                { placement: 'top-end', offsetY: 30, offsetX: 30 },
+            )
+        }
+    }, [searchParams, tSignIn])
+
     const handleSignIn = ({ values, setSubmitting, setMessage }) => {
         setSubmitting(true)
         setMessage('')
@@ -50,6 +66,7 @@ const SignInClient = () => {
             {
                 email: values.email,
                 password: values.password,
+                locale,
             },
             {
                 onSuccess: () => {
@@ -85,7 +102,9 @@ const SignInClient = () => {
                         window.innerWidth < 768 || 
                         /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
                     )
-                    
+
+                    let skipDuplicateErrorToast = false
+
                     // Извлекаем сообщение об ошибке
                     let errorMessage = 'Ошибка входа. Проверьте email и пароль.'
                     let notificationTitle = 'Ошибка входа'
@@ -117,8 +136,28 @@ const SignInClient = () => {
                         const responseMessageLower = String(responseMessage).toLowerCase()
 
                         if (responseData.code === 'email_not_verified') {
+                            skipDuplicateErrorToast = true
                             errorMessage = responseMessage || 'Подтвердите email, чтобы войти.'
-                            notificationTitle = 'Email не подтверждён'
+                            notificationTitle = tSignIn('title')
+                            const em =
+                                typeof responseData.email === 'string'
+                                    ? responseData.email
+                                    : ''
+                            if (em) {
+                                router.push(`/verify-code?email=${encodeURIComponent(em)}`)
+                            } else {
+                                router.push('/verify-code')
+                            }
+                            toast.push(
+                                <Notification title={tSignIn('title')} type="warning" width={350}>
+                                    {tSignIn('emailNotVerifiedRedirect')}
+                                </Notification>,
+                                {
+                                    placement: 'top-end',
+                                    offsetY: 30,
+                                    offsetX: 30,
+                                },
+                            )
                         } else if (responseData.code === 'registration_disabled') {
                             errorMessage = responseMessage || 'Регистрация отключена.'
                             notificationTitle = 'Регистрация'
@@ -160,28 +199,29 @@ const SignInClient = () => {
                     } else if (error?.message && !error.message.toLowerCase().includes('network error')) {
                         errorMessage = error.message
                     }
-                    
-                    // На мобильных показываем ошибку только в форме, на десктопе - только toast
-                    if (isMobile) {
-                        // На мобильных: показываем ошибку в форме
-                        setMessage(errorMessage)
-                    } else {
-                        // На десктопе: показываем toast
-                        setMessage('') // Очищаем форму на десктопе
-                        toast.push(
-                            <Notification 
-                                title={notificationTitle} 
-                                type="danger"
-                                width={350}
-                            >
-                                {errorMessage}
-                            </Notification>,
-                            {
-                                placement: 'top-end',
-                                offsetY: 30,
-                                offsetX: 30,
-                            }
-                        )
+
+                    if (!skipDuplicateErrorToast) {
+                        if (isMobile) {
+                            setMessage(errorMessage)
+                        } else {
+                            setMessage('')
+                            toast.push(
+                                <Notification
+                                    title={notificationTitle}
+                                    type="danger"
+                                    width={350}
+                                >
+                                    {errorMessage}
+                                </Notification>,
+                                {
+                                    placement: 'top-end',
+                                    offsetY: 30,
+                                    offsetX: 30,
+                                },
+                            )
+                        }
+                    } else if (skipDuplicateErrorToast && isMobile) {
+                        setMessage('')
                     }
                 },
             }

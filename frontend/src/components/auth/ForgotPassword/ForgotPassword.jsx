@@ -8,6 +8,7 @@ import ActionLink from '@/components/shared/ActionLink'
 import ForgotPasswordForm from './ForgotPasswordForm'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useRouter } from 'next/navigation'
+import AuthPageLogo from '@/components/auth/AuthPageLogo'
 
 export const ForgotPassword = ({
     signInUrl = '/sign-in',
@@ -25,6 +26,7 @@ export const ForgotPassword = ({
 
     return (
         <div>
+            <AuthPageLogo />
             <div className="mb-6">
                 {emailSent ? (
                     <>
