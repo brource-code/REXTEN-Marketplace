@@ -6,6 +6,7 @@ import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import DatePicker from '@/components/ui/DatePicker'
 import Button from '@/components/ui/Button'
+import Checkbox from '@/components/ui/Checkbox'
 import dayjs from 'dayjs'
 
 const eventTypeOptions = [
@@ -243,18 +244,15 @@ export default function EventModal({ isOpen, onClose, event, period, onSave }) {
                     </div>
 
                     {/* Гибкий платёж */}
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="flexible"
-                            checked={formData.flexible}
-                            onChange={(e) => setFormData({ ...formData, flexible: e.target.checked })}
-                            className="w-4 h-4"
-                        />
-                        <label htmlFor="flexible" className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                            Гибкий платёж (можно сдвигать)
-                        </label>
-                    </div>
+                    <Checkbox
+                        id="flexible"
+                        checked={formData.flexible}
+                        onChange={(v) => setFormData({ ...formData, flexible: v })}
+                        checkboxClass="shrink-0 !m-0"
+                        className="text-sm font-bold text-gray-500 dark:text-gray-400"
+                    >
+                        <span>Гибкий платёж (можно сдвигать)</span>
+                    </Checkbox>
 
                     {/* Комментарий */}
                     <div>

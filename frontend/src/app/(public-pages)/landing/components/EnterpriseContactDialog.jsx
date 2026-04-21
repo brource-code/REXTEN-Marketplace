@@ -10,6 +10,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import { FormItem } from '@/components/ui/Form'
+import Checkbox from '@/components/ui/Checkbox'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { submitEnterpriseLead } from '@/lib/api/contact'
@@ -273,15 +274,24 @@ const EnterpriseContactDialog = ({ isOpen, onClose }) => {
                             invalid={!!errors.consent}
                             errorMessage={errors.consent?.message}
                         >
-                            <label className="flex items-start gap-2 cursor-pointer text-sm font-bold text-gray-600 dark:text-gray-300">
-                                <input
-                                    type="checkbox"
-                                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                    disabled={submitting}
-                                    {...register('consent')}
-                                />
-                                <span>{t('consent')}</span>
-                            </label>
+                            <Controller
+                                name="consent"
+                                control={control}
+                                render={({ field: { value, onChange, onBlur, name } }) => (
+                                    <Checkbox
+                                        variant="card"
+                                        name={name}
+                                        checked={!!value}
+                                        onChange={(checked) => onChange(checked)}
+                                        onBlur={onBlur}
+                                        disabled={submitting}
+                                        checkboxClass="shrink-0 !m-0 mt-0.5"
+                                        className="text-sm font-bold text-gray-500 dark:text-gray-400"
+                                    >
+                                        <span>{t('consent')}</span>
+                                    </Checkbox>
+                                )}
+                            />
                         </FormItem>
                     </div>
 

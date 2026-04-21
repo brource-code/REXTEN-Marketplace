@@ -33,6 +33,7 @@ import {
 } from 'react-icons/pi'
 import Link from 'next/link'
 import classNames from '@/utils/classNames'
+import Checkbox from '@/components/ui/Checkbox'
 
 // Компонент для отображения дополнительных услуг (только просмотр)
 const ServiceAdditionalServicesView = ({ serviceId }) => {
@@ -693,18 +694,15 @@ export default function CreateAdvertisementPage() {
                                             </FormItem>
 
                                             <FormItem label="Статус">
-                                                <div className="flex items-center gap-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="is_active"
-                                                        checked={formData.is_active}
-                                                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                                                    />
-                                                    <label htmlFor="is_active" className="text-sm text-gray-700 dark:text-gray-300">
-                                                        Активно
-                                                    </label>
-                                                </div>
+                                                <Checkbox
+                                                    id="is_active"
+                                                    checked={formData.is_active}
+                                                    onChange={(v) => setFormData({ ...formData, is_active: v })}
+                                                    checkboxClass="shrink-0 !m-0"
+                                                    className="text-sm font-bold text-gray-500 dark:text-gray-400"
+                                                >
+                                                    <span className="text-gray-900 dark:text-gray-100">Активно</span>
+                                                </Checkbox>
                                             </FormItem>
                                         </div>
                                     )}
@@ -885,15 +883,16 @@ export default function CreateAdvertisementPage() {
                                                         <Card key={day} className="p-4">
                                                             <div className="flex items-center gap-4">
                                                                 <div className="flex items-center gap-2 min-w-[140px]">
-                                                                    <input
-                                                                        type="checkbox"
+                                                                    <Checkbox
                                                                         checked={schedule.enabled}
-                                                                        onChange={(e) => updateSchedule(day, 'enabled', e.target.checked)}
-                                                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                                                                    />
-                                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                                        {dayLabels[day]}
-                                                                    </label>
+                                                                        onChange={(v) => updateSchedule(day, 'enabled', v)}
+                                                                        checkboxClass="shrink-0 !m-0"
+                                                                        className="text-sm font-bold text-gray-500 dark:text-gray-400"
+                                                                    >
+                                                                        <span className="text-gray-900 dark:text-gray-100">
+                                                                            {dayLabels[day]}
+                                                                        </span>
+                                                                    </Checkbox>
                                                                 </div>
                                                                 {schedule.enabled && (
                                                                     <div className="flex items-center gap-2 flex-1">
@@ -966,12 +965,9 @@ export default function CreateAdvertisementPage() {
                                                                         onClick={() => toggleTeamMember(member.id)}
                                                                     >
                                                                         <div className="flex items-center gap-4">
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                checked={isSelected}
-                                                                                onChange={() => toggleTeamMember(member.id)}
-                                                                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                                                                            />
+                                                                            <span className="pointer-events-none shrink-0 inline-flex">
+                                                                                <Checkbox checked={isSelected} readOnly />
+                                                                            </span>
                                                                             {member.img && (
                                                                                 <img
                                                                                     src={member.img}

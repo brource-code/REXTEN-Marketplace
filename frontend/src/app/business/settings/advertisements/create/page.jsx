@@ -15,6 +15,7 @@ import Badge from '@/components/ui/Badge'
 import Dialog from '@/components/ui/Dialog'
 import Tooltip from '@/components/ui/Tooltip'
 import Switcher from '@/components/ui/Switcher'
+import Checkbox from '@/components/ui/Checkbox'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { 
     createBusinessAdvertisement, 
@@ -610,17 +611,14 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
                         </FormItem>
 
                         <FormItem label={tAdd('isActive')}>
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.is_active}
-                                    onChange={(e) => setFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
-                                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                                />
-                                <label className="ml-2 text-sm text-gray-600">
-                                    {tAdd('showInBooking')}
-                                </label>
-                            </div>
+                            <Checkbox
+                                checked={formData.is_active}
+                                onChange={(v) => setFormData((prev) => ({ ...prev, is_active: v }))}
+                                checkboxClass="shrink-0 !m-0"
+                                className="text-sm font-bold text-gray-500 dark:text-gray-400"
+                            >
+                                <span>{tAdd('showInBooking')}</span>
+                            </Checkbox>
                         </FormItem>
                     </form>
                 </div>
