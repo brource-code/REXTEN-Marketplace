@@ -709,6 +709,9 @@
             "tagOnlineBooking": "Online booking",
             "tagOnlinePayment": "Online payment",
             "tagRussianSpeaking": "Russian speaking",
+            "tagPremium": "Premium",
+            "tagOpenNow": "Open now",
+            "tagHasReviews": "Has reviews",
             "tagHasPortfolio": "Has portfolio",
             "foundOffers": "Found {count} offers",
             "showMore": "Show more ({remaining} remaining)",
@@ -1129,7 +1132,7 @@
         },
         "googleSignup": {
             "chooseRole": {
-                "title": "How will you use Rexten?",
+                "title": "How will you use REXTEN?",
                 "subtitle": "Choose one option to finish creating your account.",
                 "signedInAs": "Signed in with Google as",
                 "client": {
@@ -1139,7 +1142,7 @@
                 },
                 "business": {
                     "title": "Business owner",
-                    "description": "Run your company on Rexten: schedule, clients, and marketplace profile.",
+                    "description": "Run your company on REXTEN: schedule, clients, and marketplace profile.",
                     "cta": "Continue as business"
                 },
                 "expired": {
@@ -1366,6 +1369,8 @@
                 "title": "Recent Bookings",
                 "viewAll": "All Bookings",
                 "noBookings": "No bookings",
+                "emptyTitle": "No recent bookings yet",
+                "emptyHint": "Upcoming visits appear here. Open Schedule or Bookings to add one.",
                 "columns": {
                     "booking": "Booking",
                     "dateTime": "Date & Time",
@@ -1403,7 +1408,8 @@
             "paidOnline": "Paid online",
             "feeLine": "Platform fee {fee} · You receive {net}",
             "scheduleCalendar": "Calendar",
-            "empty": "No bookings match your filters.",
+            "emptyTitle": "No bookings match your filters",
+            "emptyHint": "Try different statuses or search. Create visits in the Schedule — they appear here automatically.",
             "openDrawerError": "Could not open this booking. Refresh the page and try again.",
             "booking": "Booking",
             "perPage": "{count} / page",
@@ -2098,6 +2104,8 @@
         "reviews": {
             "title": "Reviews",
             "description": "Manage client reviews",
+            "emptyTitle": "No reviews yet",
+            "emptyHint": "Published client feedback will appear here. Encourage clients to leave a review after a completed visit.",
             "noReviews": "No reviews",
             "columns": {
                 "client": "Client",
@@ -2227,6 +2235,8 @@
                 },
                 "bookings": {
                     "noBookings": "No bookings",
+                    "emptyTitle": "No bookings for this client yet",
+                    "emptyHint": "Visits with this client will show up here after they book or you add them in the Schedule.",
                     "serviceNotSpecified": "Service not specified",
                     "executionTypeOffsite": "Execution type: Offsite",
                     "dateNotSpecified": "Date not specified",
@@ -2554,6 +2564,8 @@
             "buyAds": "Buy Advertising",
             "noAds": "No advertisements",
             "noAdsDescription": "Create your first advertisement to promote your business",
+            "emptyTitle": "No listings yet",
+            "emptyHint": "Create a service listing so clients can find you on the marketplace.",
             "loadError": "Load error",
             "statuses": {
                 "draft": "Draft",
@@ -2620,6 +2632,8 @@
                 "buyAds": "Buy Advertising",
                 "noAds": "No advertisements",
                 "noAdsDescription": "Buy advertising to promote your business",
+                "emptyTitle": "No promoted ads yet",
+                "emptyHint": "Create a regular listing first, then buy placement to reach more clients.",
                 "adBadge": "Ad",
                 "columns": {
                     "photo": "Photo",
@@ -2737,6 +2751,8 @@
             },
             "tiers": {
                 "add": "Add tier",
+                "emptyTitle": "No loyalty tiers yet",
+                "emptyHint": "Add tiers to reward repeat bookings with automatic discounts.",
                 "empty": "No tiers yet",
                 "sequenceHint": "Add tiers in ascending order of the threshold (smaller first, then larger). The customer gets one tier — the highest threshold they have reached. The “upper cap” field is rarely needed; leave it empty in most cases.",
                 "name": "Name",
@@ -2760,6 +2776,8 @@
             },
             "promos": {
                 "add": "Add promo code",
+                "emptyTitle": "No promo codes yet",
+                "emptyHint": "Create a code clients can use when they book with you.",
                 "empty": "No promo codes",
                 "percentage": "Percent",
                 "fixed": "Fixed amount",
@@ -3122,6 +3140,10 @@
             "title": "Billing",
             "description": "View all transactions and payments",
             "noTransactions": "No transactions",
+            "emptyEarningsTitle": "No earnings yet",
+            "emptyEarningsHint": "Successful online payments from bookings will appear here.",
+            "emptyExpensesTitle": "No platform expenses yet",
+            "emptyExpensesHint": "Subscription charges and platform fees will show up when they occur.",
             "noEarnings": "No earnings yet",
             "noExpenses": "No platform expenses yet",
             "earningsDescription": "Booking payment",
@@ -3270,6 +3292,8 @@
             "validationRequired": "Please fill in the subject and description.",
             "listTitle": "Your tickets",
             "empty": "No tickets yet.",
+            "emptyTitle": "No tickets yet",
+            "emptyHint": "Submit the form above — your requests will appear in this list with status updates.",
             "columns": {
                 "id": "ID",
                 "subject": "Subject",

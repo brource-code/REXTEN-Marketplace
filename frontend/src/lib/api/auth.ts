@@ -39,6 +39,8 @@ export interface AuthResponse {
         role: string
         avatar?: string
         locale?: string | null
+        /** Как в ответе /auth/me; после verify-code — не null */
+        email_verified_at?: string | null
     }
 }
 

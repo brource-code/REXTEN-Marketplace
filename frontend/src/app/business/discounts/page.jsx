@@ -31,6 +31,7 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import Dialog from '@/components/ui/Dialog'
 import DatePicker from '@/components/ui/DatePicker'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import { PiSlidersHorizontal, PiStack, PiTicket } from 'react-icons/pi'
 
 /** Как в расписании: без ввода в react-select и без клавиатуры на мобилках */
@@ -408,9 +409,7 @@ function TiersSection({ tiers, onChanged }) {
             </Dialog>
 
             {tiers.length === 0 && (
-                <div className="text-center py-10">
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('empty')}</p>
-                </div>
+                <EmptyStatePanel icon={PiStack} title={t('emptyTitle')} hint={t('emptyHint')} />
             )}
 
             <div className="flex flex-col gap-3">
@@ -749,9 +748,7 @@ function PromosSection({ promos, onChanged }) {
             </Dialog>
 
             {promos.length === 0 && (
-                <div className="text-center py-10">
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('empty')}</p>
-                </div>
+                <EmptyStatePanel icon={PiTicket} title={t('emptyTitle')} hint={t('emptyHint')} />
             )}
 
             <div className="flex flex-col gap-3">

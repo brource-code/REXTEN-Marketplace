@@ -709,6 +709,9 @@
             "tagOnlineBooking": "Reserva en línea",
             "tagOnlinePayment": "Pago en línea",
             "tagRussianSpeaking": "Habla ruso",
+            "tagPremium": "Premium",
+            "tagOpenNow": "Abierto ahora",
+            "tagHasReviews": "Con reseñas",
             "tagHasPortfolio": "Con portafolio",
             "foundOffers": "Se encontraron {count} ofertas",
             "showMore": "Ver más ({remaining} restantes)",
@@ -1129,7 +1132,7 @@
         },
         "googleSignup": {
             "chooseRole": {
-                "title": "¿Cómo usarás Rexten?",
+                "title": "¿Cómo usarás REXTEN?",
                 "subtitle": "Elige una opción para terminar de crear tu cuenta.",
                 "signedInAs": "Iniciaste sesión con Google como",
                 "client": {
@@ -1139,7 +1142,7 @@
                 },
                 "business": {
                     "title": "Dueño de negocio",
-                    "description": "Administra tu empresa en Rexten: agenda, clientes y perfil en el marketplace.",
+                    "description": "Administra tu empresa en REXTEN: agenda, clientes y perfil en el marketplace.",
                     "cta": "Continuar como negocio"
                 },
                 "expired": {
@@ -1366,6 +1369,8 @@
                 "title": "Reservas recientes",
                 "viewAll": "Todas las reservas",
                 "noBookings": "Sin reservas",
+                "emptyTitle": "Aún no hay reservas recientes",
+                "emptyHint": "Aquí verás las próximas visitas. Abre la agenda o Reservas para crear una.",
                 "columns": {
                     "booking": "Reserva",
                     "dateTime": "Fecha y hora",
@@ -1403,7 +1408,8 @@
             "paidOnline": "Pagado en línea",
             "feeLine": "Comisión de plataforma {fee} · Usted recibe {net}",
             "scheduleCalendar": "Calendario",
-            "empty": "No hay reservas que coincidan con los filtros.",
+            "emptyTitle": "No hay reservas que coincidan con los filtros",
+            "emptyHint": "Prueba otros estados o la búsqueda. Crea visitas en la agenda: aparecerán aquí automáticamente.",
             "openDrawerError": "No se pudo abrir esta reserva. Actualiza la página e inténtalo de nuevo.",
             "booking": "Reserva",
             "perPage": "{count} / pág.",
@@ -2098,6 +2104,8 @@
         "reviews": {
             "title": "Reseñas",
             "description": "Administra las reseñas de clientes",
+            "emptyTitle": "Aún no hay reseñas",
+            "emptyHint": "Aquí aparecerán las opiniones publicadas. Pide una reseña después de una visita completada.",
             "noReviews": "Sin reseñas",
             "columns": {
                 "client": "Cliente",
@@ -2227,6 +2235,8 @@
                 },
                 "bookings": {
                     "noBookings": "Sin reservas",
+                    "emptyTitle": "Aún no hay reservas de este cliente",
+                    "emptyHint": "Las visitas aparecerán cuando reserven contigo o las agregues en la agenda.",
                     "serviceNotSpecified": "Servicio sin especificar",
                     "executionTypeOffsite": "Tipo de realización: fuera del local",
                     "dateNotSpecified": "Fecha sin especificar",
@@ -2554,6 +2564,8 @@
             "buyAds": "Comprar publicidad",
             "noAds": "Sin anuncios",
             "noAdsDescription": "Crea tu primer anuncio para promocionar tu negocio",
+            "emptyTitle": "Aún no hay anuncios",
+            "emptyHint": "Crea un anuncio de servicio para que los clientes te encuentren en el marketplace.",
             "loadError": "Error al cargar",
             "statuses": {
                 "draft": "Borrador",
@@ -2620,6 +2632,8 @@
                 "buyAds": "Comprar publicidad",
                 "noAds": "Sin anuncios",
                 "noAdsDescription": "Compra publicidad para promocionar tu negocio",
+                "emptyTitle": "Aún no hay anuncios promocionados",
+                "emptyHint": "Primero crea un anuncio normal y luego compra ubicación para llegar a más clientes.",
                 "adBadge": "Anuncio",
                 "columns": {
                     "photo": "Foto",
@@ -2737,6 +2751,8 @@
             },
             "tiers": {
                 "add": "Agregar nivel",
+                "emptyTitle": "Aún no hay niveles de lealtad",
+                "emptyHint": "Agrega niveles para premiar reservas repetidas con descuentos automáticos.",
                 "empty": "Aún no hay niveles",
                 "sequenceHint": "Agrega niveles en orden ascendente del umbral (el menor primero, luego el mayor). El cliente obtiene un solo nivel: el umbral más alto que alcanzó. El campo de «tope superior» rara vez se usa; en la mayoría de los casos déjalo vacío.",
                 "name": "Nombre",
@@ -2760,6 +2776,8 @@
             },
             "promos": {
                 "add": "Agregar código promocional",
+                "emptyTitle": "Aún no hay códigos promocionales",
+                "emptyHint": "Crea un código que los clientes puedan usar al reservar contigo.",
                 "empty": "Sin códigos promo",
                 "percentage": "Porcentaje",
                 "fixed": "Monto fijo",
@@ -3184,6 +3202,10 @@
                     "currency": "Moneda"
                 }
             },
+            "emptyEarningsTitle": "Aún no hay ingresos",
+            "emptyEarningsHint": "Los pagos en línea exitosos de reservas aparecerán aquí.",
+            "emptyExpensesTitle": "Aún no hay gastos de plataforma",
+            "emptyExpensesHint": "Cargos de suscripción y comisiones aparecerán cuando ocurran.",
             "noEarnings": "Aún no hay ingresos",
             "noExpenses": "Aún no hay gastos de plataforma",
             "earningsDescription": "Pago de reserva",
@@ -3270,6 +3292,8 @@
             "validationRequired": "Completa el asunto y la descripción.",
             "listTitle": "Tus tickets",
             "empty": "Aún no hay tickets.",
+            "emptyTitle": "Aún no hay tickets",
+            "emptyHint": "Envía el formulario de arriba: tus solicitudes aparecerán aquí con el estado.",
             "columns": {
                 "id": "ID",
                 "subject": "Asunto",

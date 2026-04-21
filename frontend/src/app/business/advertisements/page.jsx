@@ -29,6 +29,7 @@ import PermissionGuard from '@/components/shared/PermissionGuard'
 import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
 import useBusinessStore from '@/store/businessStore'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 
 const statusColors = {
     draft: 'bg-yellow-400 dark:bg-yellow-500 text-gray-900 dark:text-gray-900',
@@ -343,14 +344,9 @@ function AdvertisementsPageContent() {
                     </div>
 
                     {advertisements.length === 0 ? (
-                        <div className="text-center py-12">
-                            <PiMegaphone className="text-5xl mx-auto mb-4 text-gray-400" />
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('noAds')}</h4>
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-4">
-                                {t('noAdsDescription')}
-                            </p>
+                        <EmptyStatePanel icon={PiMegaphone} title={t('emptyTitle')} hint={t('emptyHint')}>
                             {error && (
-                                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                                <div className="w-full max-w-md rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
                                     <p className="text-sm font-bold text-red-600 dark:text-red-400">
                                         {t('loadError')}: {error.message}
                                     </p>
@@ -367,7 +363,7 @@ function AdvertisementsPageContent() {
                                     {t('createButton')}
                                 </Button>
                             )}
-                        </div>
+                        </EmptyStatePanel>
                     ) : (
                         <>
                             {/* Мобильная версия - карточки */}
@@ -519,6 +515,8 @@ function AdvertisementsPageContent() {
                                     columns={columns}
                                     data={advertisements}
                                     noData={advertisements.length === 0}
+                                    emptyTranslationNamespace="business.advertisements"
+                                    emptyStateIcon={PiMegaphone}
                                     loading={false}
                                     pagingData={{
                                         pageIndex,

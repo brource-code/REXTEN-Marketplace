@@ -10,6 +10,7 @@ import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import Button from '@/components/ui/Button'
 import Loading from '@/components/shared/Loading'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import { PiBell, PiX } from 'react-icons/pi'
 import {
     getBusinessNotifications,
@@ -130,11 +131,7 @@ export default function BusinessNotificationsPage() {
                             <Loading loading />
                         </div>
                     ) : notifications.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-16 px-4 text-center border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50/50 dark:bg-gray-800/30">
-                            <PiBell className="text-5xl text-gray-400 mb-3" />
-                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('empty')}</p>
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 max-w-md">{t('emptyHint')}</p>
-                        </div>
+                        <EmptyStatePanel icon={PiBell} title={t('empty')} hint={t('emptyHint')} />
                     ) : (
                         <div className="rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 overflow-hidden">
                             {notifications.map((n) => (

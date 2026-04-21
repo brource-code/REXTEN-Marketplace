@@ -16,6 +16,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getRecentBookings, getScheduleSlots } from '@/lib/api/business'
 import Loading from '@/components/shared/Loading'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import BookingDrawer from '@/components/business/booking/BookingDrawer'
 import { useBookingDrawerController } from '@/components/business/booking/hooks/useBookingDrawerController'
 import { usePermission } from '@/hooks/usePermission'
@@ -124,9 +125,11 @@ const RecentBookings = () => {
                 </Button>
             </div>
             {bookings.length === 0 ? (
-                <div className="text-center py-12 text-sm font-bold text-gray-500 dark:text-gray-400">
-                    {t('noBookings')}
-                </div>
+                <EmptyStatePanel
+                    icon={PiCalendarBlank}
+                    title={t('emptyTitle')}
+                    hint={t('emptyHint')}
+                />
             ) : (
                 <div className="grid gap-1.5 sm:gap-2">
                     {bookings.map((booking) => {

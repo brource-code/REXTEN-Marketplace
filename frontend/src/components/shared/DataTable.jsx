@@ -69,6 +69,8 @@ function DataTable(props) {
         data = [],
         customNoDataIcon,
         emptyState,
+        emptyTranslationNamespace,
+        emptyStateIcon: EmptyStateIcon = PiTable,
         loading,
         noData,
         onCheckBoxChange,
@@ -288,7 +290,7 @@ function DataTable(props) {
                                         </div>
                                     ) : (
                                         <EmptyStatePanel
-                                            icon={PiTable}
+                                            icon={EmptyStateIcon}
                                             title={tEmpty('emptyTitle')}
                                             hint={tEmpty('emptyHint')}
                                         />

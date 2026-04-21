@@ -19,7 +19,7 @@ import { flip, offset, shift } from '@floating-ui/dom'
 import { getBusinessProfile, completeOnboarding } from '@/lib/api/business'
 import useBusinessStore from '@/store/businessStore'
 import { useAuthStore } from '@/store'
-import { SUPERADMIN } from '@/constants/roles.constant'
+import { BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 import { ONBOARDING_TOUR_STEPS, type OnboardingStepConfig } from '@/configs/onboardingSteps'
 import WelcomeOnboardingModal from '@/components/onboarding/WelcomeOnboardingModal'
 import OnboardingTourBackdrop from '@/components/onboarding/OnboardingTourBackdrop'
@@ -96,7 +96,7 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const t = useTranslations('business.onboardingTour')
-    const { userRole } = useAuthStore()
+    const { userRole, authReady } = useAuthStore()
     const isSuperAdmin = userRole === SUPERADMIN
 
     const [welcomeOpen, setWelcomeOpen] = useState(false)
@@ -110,20 +110,46 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
         queryKey: ['business-profile'],
         queryFn: getBusinessProfile,
         staleTime: 5 * 60 * 1000,
+        retry: 1,
     })
 
     const setBusiness = useBusinessStore((s) => s.setBusiness)
     const setPermissions = useBusinessStore((s) => s.setPermissions)
     const setIsOwner = useBusinessStore((s) => s.setIsOwner)
 
+    /**
+     * Без компании TenantMiddleware отдаёт 404 на GET profile — тогда profile пустой.
+     * PermissionGuard ждёт isOwner / businessId / permissions и зависал навсегда.
+     * Для владельца и суперадмина снимаем блок: страницы открываются, данные — нули/ошибки API до создания компании.
+     */
     useEffect(() => {
-        if (!profile || isLoading) return
-        if (profile.id) {
-            setBusiness(profile, profile.is_owner || false, profile.permissions || [])
+        if (!authReady || isLoading) {
+            return
         }
-        setIsOwner(profile.is_owner || false)
-        setPermissions(profile.permissions || [])
-    }, [profile, isLoading, setBusiness, setPermissions, setIsOwner])
+        if (profile?.id) {
+            setBusiness(profile, profile.is_owner || false, profile.permissions || [])
+            setIsOwner(profile.is_owner || false)
+            setPermissions(profile.permissions || [])
+            return
+        }
+        if (userRole === BUSINESS_OWNER) {
+            setIsOwner(true)
+            setPermissions(['all'])
+            return
+        }
+        if (userRole === SUPERADMIN) {
+            setIsOwner(false)
+            setPermissions(['all'])
+        }
+    }, [
+        authReady,
+        profile,
+        isLoading,
+        userRole,
+        setBusiness,
+        setPermissions,
+        setIsOwner,
+    ])
 
     const completeMutation = useMutation({
         mutationFn: completeOnboarding,

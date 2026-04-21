@@ -5,12 +5,14 @@ import Avatar from '@/components/ui/Avatar'
 import Tag from '@/components/ui/Tag'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import Dropdown from '@/components/ui/Dropdown'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { HiStar, HiPencil, HiDotsVertical } from 'react-icons/hi'
+import { PiChatCircleDots } from 'react-icons/pi'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateBusinessReviewResponse } from '@/lib/api/business'
 import toast from '@/components/ui/toast'
@@ -126,6 +128,7 @@ export default function ReviewsTable({
     total = 0,
 }) {
     const t = useTranslations('business.reviews.table')
+    const tReviews = useTranslations('business.reviews')
     const { settings } = useBusinessStore()
     const businessTz = settings?.timezone || 'America/Los_Angeles'
     const canManageReviews = usePermission('manage_reviews')
@@ -397,9 +400,11 @@ export default function ReviewsTable({
 
     if (allReviews.length === 0) {
         return (
-            <Card className="p-8 text-center">
-                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('noReviews')}</p>
-            </Card>
+            <EmptyStatePanel
+                icon={PiChatCircleDots}
+                title={tReviews('emptyTitle')}
+                hint={tReviews('emptyHint')}
+            />
         )
     }
 

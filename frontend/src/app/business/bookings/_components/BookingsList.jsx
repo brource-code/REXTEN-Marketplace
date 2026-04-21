@@ -27,6 +27,7 @@ import {
     PiUser,
 } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import { getStatusPalette } from '@/app/business/schedule/_components/ScheduleEventContent'
 import { formatDate, formatTime } from '@/utils/dateTime'
 import useBusinessStore from '@/store/businessStore'
@@ -234,7 +235,11 @@ export default function BookingsList() {
             </div>
 
             {filteredSlots.length === 0 ? (
-                <div className="text-center py-12 text-sm font-bold text-gray-500 dark:text-gray-400">{t('empty')}</div>
+                <EmptyStatePanel
+                    icon={PiCalendarBlank}
+                    title={t('emptyTitle')}
+                    hint={t('emptyHint')}
+                />
             ) : (
                 <>
                     {/* Тот же визуальный язык, что у списка «Агенда» в расписании: полоска статуса, карточка, hover */}

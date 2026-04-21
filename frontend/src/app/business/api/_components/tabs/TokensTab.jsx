@@ -12,6 +12,7 @@ import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
 import { useBusinessApiTokensQuery, useRevokeBusinessApiTokenMutation } from '@/hooks/api/useBusinessApiTokens'
 import CreateTokenDialog from '../CreateTokenDialog'
 import toast from '@/components/ui/toast'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import Notification from '@/components/ui/Notification'
 
 function KeyIcon({ className }) {
@@ -151,18 +152,11 @@ export default function TokensTab() {
                     </div>
                 </>
             ) : (
-                <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/80 py-16 px-6 text-center dark:border-gray-600 dark:bg-gray-900/60">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-subtle text-primary dark:bg-primary/15 dark:text-primary-mild">
-                        <KeyIcon className="h-8 w-8" />
-                    </div>
-                    <div className="max-w-md space-y-2">
-                        <h5 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('emptyTitle')}</h5>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('emptyHint')}</p>
-                    </div>
+                <EmptyStatePanel icon={KeyIcon} title={t('emptyTitle')} hint={t('emptyHint')}>
                     <Button variant="solid" size="sm" onClick={() => setCreateOpen(true)}>
                         {t('create')}
                     </Button>
-                </div>
+                </EmptyStatePanel>
             )}
 
             <CreateTokenDialog

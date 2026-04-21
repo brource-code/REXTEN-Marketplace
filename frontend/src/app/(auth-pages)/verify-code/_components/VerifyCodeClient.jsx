@@ -9,11 +9,9 @@ import Button from '@/components/ui/Button'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { useVerifyEmailCode, useResendEmailCode } from '@/hooks/api/useAuth'
-import { BUSINESS_OWNER } from '@/constants/roles.constant'
 import classNames from '@/utils/classNames'
 import AuthPageLogo from '@/components/auth/AuthPageLogo'
 
-const PENDING_BUSINESS_PROFILE_KEY = 'rexten_pending_business_profile'
 const OTP_LEN = 6
 
 const emptyCells = () => Array.from({ length: OTP_LEN }, () => '')
@@ -62,49 +60,16 @@ export default function VerifyCodeClient() {
         return () => clearInterval(id)
     }, [resendSeconds])
 
-    const applyBusinessDraft = useCallback(async () => {
-        if (typeof window === 'undefined') return
-        const raw = sessionStorage.getItem(PENDING_BUSINESS_PROFILE_KEY)
-        if (!raw) return
-        let draft
-        try {
-            draft = JSON.parse(raw)
-        } catch {
-            sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
-            return
-        }
-        if (!draft || typeof draft !== 'object') {
-            sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
-            return
-        }
-        try {
-            const LaravelAxios = (await import('@/services/axios/LaravelAxios')).default
-            await LaravelAxios.put('/business/settings/profile', draft)
-        } catch {
-            toast.push(
-                <Notification title={t('errors.generic')} type="warning" width={340}>
-                    {t('errors.generic')}
-                </Notification>,
-                { placement: 'top-end', offsetY: 30, offsetX: 30 },
-            )
-        } finally {
-            sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
-        }
-    }, [t])
-
     const onVerified = useCallback(
-        async (data) => {
+        () => {
             toast.push(
                 <Notification title={t('toastVerifiedTitle')} type="success" width={340}>
                     {t('toastVerifiedDescription')}
                 </Notification>,
                 { placement: 'top-end', offsetY: 30, offsetX: 30 },
             )
-            if (data?.user?.role === BUSINESS_OWNER) {
-                await applyBusinessDraft()
-            }
         },
-        [applyBusinessDraft, t],
+        [t],
     )
 
     const runVerify = useCallback(

@@ -25,6 +25,7 @@ import { getStatusPalette } from '@/app/business/schedule/_components/ScheduleEv
 import { formatDate, formatTime } from '@/utils/dateTime'
 import Button from '@/components/ui/Button'
 import OffsiteExecutionBadge from '@/components/shared/OffsiteExecutionBadge'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 
 /**
  * Список бронирований клиента — тот же визуальный язык, что «Бронирования» и агенда расписания:
@@ -101,9 +102,11 @@ export default function ClientBookingsTabList({ clientId, bookings = [], timezon
     if (!bookings.length) {
         return (
             <>
-                <div className="text-center py-12 text-sm font-bold text-gray-500 dark:text-gray-400">
-                    {t('detailsPage.bookings.noBookings')}
-                </div>
+                <EmptyStatePanel
+                    icon={PiCalendarBlank}
+                    title={t('detailsPage.bookings.emptyTitle')}
+                    hint={t('detailsPage.bookings.emptyHint')}
+                />
                 {bookingDrawer}
             </>
         )

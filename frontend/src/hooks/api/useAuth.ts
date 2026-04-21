@@ -12,6 +12,8 @@ import {
     verifyEmailCode,
     resendEmailCode,
 } from '@/lib/api/auth'
+import { applyPendingBusinessProfileFromSession } from '@/utils/auth/applyPendingBusinessProfileFromSession'
+import { BUSINESS_OWNER } from '@/constants/roles.constant'
 import { useAuthStore, useUserStore, clearAuthPersistStorage } from '@/store'
 
 // Query keys
@@ -221,7 +223,7 @@ export function useVerifyEmailCode() {
 
     return useMutation({
         mutationFn: verifyEmailCode,
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             if (typeof window !== 'undefined') {
                 clearAuthPersistStorage()
                 localStorage.removeItem('user-storage')
@@ -241,6 +243,10 @@ export function useVerifyEmailCode() {
             setUser(data.user)
 
             queryClient.setQueryData(authKeys.user(), data.user)
+
+            if (data.user?.role === BUSINESS_OWNER) {
+                await applyPendingBusinessProfileFromSession()
+            }
 
             const role = data.user.role
             const roleEntryPaths: Record<string, string> = {

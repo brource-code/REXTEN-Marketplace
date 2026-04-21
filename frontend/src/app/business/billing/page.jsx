@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import DataTable from '@/components/shared/DataTable'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import Tag from '@/components/ui/Tag'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -134,6 +135,21 @@ function BillingPageContent() {
         const end = start + pageSize
         return filteredTransactions.slice(start, end)
     }, [filteredTransactions, pageIndex, pageSize])
+
+    const billingEmptyState = useMemo(
+        () => (
+            <EmptyStatePanel
+                icon={PiCreditCard}
+                title={
+                    activeSection === 'earnings' ? t('emptyEarningsTitle') : t('emptyExpensesTitle')
+                }
+                hint={
+                    activeSection === 'earnings' ? t('emptyEarningsHint') : t('emptyExpensesHint')
+                }
+            />
+        ),
+        [activeSection, t],
+    )
 
     const earningsTotal = useMemo(() => {
         return earningsTransactions
@@ -611,11 +627,7 @@ function BillingPageContent() {
                             <Loading loading />
                         </div>
                     ) : filteredTransactions.length === 0 ? (
-                        <div className="text-center py-8">
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                {activeSection === 'earnings' ? t('noEarnings') : t('noExpenses')}
-                            </p>
-                        </div>
+                        billingEmptyState
                     ) : (
                         <>
                             <div className="md:hidden space-y-4">
@@ -653,6 +665,7 @@ function BillingPageContent() {
                                     columns={columns}
                                     data={paginatedTransactions}
                                     noData={filteredTransactions.length === 0}
+                                    emptyState={billingEmptyState}
                                     loading={false}
                                     pagingData={{
                                         total: filteredTransactions.length,

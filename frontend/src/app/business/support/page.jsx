@@ -11,6 +11,8 @@ import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Dialog from '@/components/ui/Dialog'
 import Loading from '@/components/shared/Loading'
+import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
+import { PiHeadset } from 'react-icons/pi'
 import Tag from '@/components/ui/Tag'
 import Notification from '@/components/ui/Notification'
 import {
@@ -328,7 +330,11 @@ function BusinessSupportPageInner() {
                                 <Loading loading />
                             </div>
                         ) : !listData?.data?.length ? (
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('empty')}</p>
+                            <EmptyStatePanel
+                                icon={PiHeadset}
+                                title={t('emptyTitle')}
+                                hint={t('emptyHint')}
+                            />
                         ) : (
                             <>
                                 <div className="md:hidden space-y-4">
