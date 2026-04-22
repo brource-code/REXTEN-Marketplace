@@ -16,6 +16,7 @@ const NAV_DATA_TOUR = {
     'business.bookings': 'nav-bookings',
     'business.routes': 'nav-routes',
     'business.clients': 'nav-clients',
+    'business.advertisements.list': 'nav-advertisements',
     'business.billing': 'nav-billing',
     'business.settings': 'nav-settings',
     'business.knowledge': 'nav-knowledge',

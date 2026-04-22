@@ -34,7 +34,7 @@ const businessRoute = {
         authority: [BUSINESS_OWNER, SUPERADMIN],
     },
     '/business/advertisements/ads': {
-        key: 'business.advertisements.ads',
+        key: 'business.advertisements.list',
         authority: [BUSINESS_OWNER, SUPERADMIN],
     },
     '/business/reviews': {

@@ -575,7 +575,7 @@ export default function PurchaseAdvertisementPage() {
                             icon={<PiMegaphone />}
                             onClick={() => {
                                 setIsSuccessModalOpen(false)
-                                router.push('/business/advertisements/ads')
+                                router.push('/business/advertisements?tab=ads')
                             }}
                         >
                             {t('successModal.viewAds') || 'Рекламные объявления'}

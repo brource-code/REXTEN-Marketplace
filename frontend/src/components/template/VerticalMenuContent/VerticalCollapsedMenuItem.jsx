@@ -9,7 +9,6 @@ const { MenuItem, MenuCollapse } = Menu
 
 /** Якорь тура на строке collapse (не на подпункте), иначе подсветка «плывёт» */
 const COLLAPSE_DATA_TOUR = {
-    'business.advertisements': 'nav-advertisements',
     'superadmin.advertisements': 'nav-advertisements',
 }
 
