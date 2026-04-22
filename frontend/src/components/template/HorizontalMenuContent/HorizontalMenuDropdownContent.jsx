@@ -283,6 +283,7 @@ const DefaultLayout = ({
                                                     <NavUpgradeBadge
                                                         label={nav.meta.upgradeBadge}
                                                         tone={nav.meta.upgradeBadgeTone}
+                                                        feature={nav.meta.requiredFeature}
                                                     />
                                                 )}
                                             </span>

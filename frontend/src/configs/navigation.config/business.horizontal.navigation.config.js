@@ -1,16 +1,15 @@
 import {
     NAV_ITEM_TYPE_COLLAPSE,
     NAV_ITEM_TYPE_ITEM,
-    NAV_ITEM_TYPE_DIVIDER,
 } from '@/constants/navigation.constant'
 import { BUSINESS_OWNER } from '@/constants/roles.constant'
 
 /**
- * Горизонтальная навигация для бизнеса (topBar layout)
- * Группирует пункты в dropdown-меню для экономии места
+ * Горизонтальная навигация для бизнеса (topBar layout).
+ * Группы и пункты совпадают с боковым меню (business.navigation.config.js):
+ * те же translateKey секций и тот же набор страниц.
  */
 const businessHorizontalNavigationConfig = [
-    // Дашборд - отдельный пункт (главная страница)
     {
         key: 'business.dashboard',
         path: '/business/dashboard',
@@ -22,12 +21,11 @@ const businessHorizontalNavigationConfig = [
         permission: 'view_dashboard',
         subMenu: [],
     },
-    // Работа - группа: Расписание, Бронирования, Маршруты
     {
-        key: 'business.work',
+        key: 'business.horizontal.operations',
         path: '',
-        title: 'Работа',
-        translateKey: 'nav.business.groups.work',
+        title: 'Расписание и заявки',
+        translateKey: 'nav.business.sections.operations',
         icon: 'calendar',
         type: NAV_ITEM_TYPE_COLLAPSE,
         authority: [BUSINESS_OWNER],
@@ -71,14 +69,27 @@ const businessHorizontalNavigationConfig = [
                 },
                 subMenu: [],
             },
+            {
+                key: 'business.reports',
+                path: '/business/schedule/reports',
+                title: 'Отчеты',
+                translateKey: 'nav.business.reports',
+                icon: 'reports',
+                type: NAV_ITEM_TYPE_ITEM,
+                permission: 'view_reports',
+                meta: {
+                    requiredFeature: 'analytics',
+                    upgradeBadge: 'Pro',
+                },
+                subMenu: [],
+            },
         ],
     },
-    // Клиенты - группа: Клиенты, Отчеты
     {
-        key: 'business.crm',
+        key: 'business.horizontal.clientsAndSales',
         path: '',
-        title: 'Клиенты',
-        translateKey: 'nav.business.groups.crm',
+        title: 'Клиенты и продажи',
+        translateKey: 'nav.business.sections.clientsAndSales',
         icon: 'customers',
         type: NAV_ITEM_TYPE_COLLAPSE,
         authority: [BUSINESS_OWNER],
@@ -99,47 +110,6 @@ const businessHorizontalNavigationConfig = [
                 subMenu: [],
             },
             {
-                key: 'business.reports',
-                path: '/business/schedule/reports',
-                title: 'Отчеты',
-                translateKey: 'nav.business.reports',
-                icon: 'reports',
-                type: NAV_ITEM_TYPE_ITEM,
-                permission: 'view_reports',
-                meta: {
-                    requiredFeature: 'analytics',
-                    upgradeBadge: 'Pro',
-                },
-                subMenu: [],
-            },
-        ],
-    },
-    // Маркетинг - группа: Объявления, Скидки, Отзывы
-    {
-        key: 'business.marketing',
-        path: '',
-        title: 'Маркетинг',
-        translateKey: 'nav.business.groups.marketing',
-        icon: 'advertisements',
-        type: NAV_ITEM_TYPE_COLLAPSE,
-        authority: [BUSINESS_OWNER],
-        meta: {
-            horizontalMenu: {
-                layout: 'default',
-            },
-        },
-        subMenu: [
-            {
-                key: 'business.advertisements.list',
-                path: '/business/advertisements',
-                title: 'Объявления',
-                translateKey: 'nav.business.advertisements.advertisements',
-                icon: 'advertisements',
-                type: NAV_ITEM_TYPE_ITEM,
-                permission: 'manage_settings',
-                subMenu: [],
-            },
-            {
                 key: 'business.discounts',
                 path: '/business/discounts',
                 title: 'Скидки',
@@ -148,6 +118,33 @@ const businessHorizontalNavigationConfig = [
                 type: NAV_ITEM_TYPE_ITEM,
                 permission: 'manage_settings',
                 subMenu: [],
+            },
+            {
+                key: 'business.advertisements',
+                path: '/business/advertisements',
+                title: 'Объявления',
+                translateKey: 'nav.business.advertisements.advertisements',
+                icon: 'advertisements',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                permission: 'manage_settings',
+                subMenu: [
+                    {
+                        key: 'business.advertisements.list',
+                        path: '/business/advertisements',
+                        translateKey: 'nav.business.advertisements.list',
+                        icon: 'advertisements',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        subMenu: [],
+                    },
+                    {
+                        key: 'business.advertisements.ads',
+                        path: '/business/advertisements/ads',
+                        translateKey: 'nav.business.advertisements.ads',
+                        icon: 'advertisements',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        subMenu: [],
+                    },
+                ],
             },
             {
                 key: 'business.reviews',
@@ -161,12 +158,11 @@ const businessHorizontalNavigationConfig = [
             },
         ],
     },
-    // Настройки - группа: Биллинг, Настройки, База знаний, Поддержка
     {
-        key: 'business.system',
+        key: 'business.horizontal.account',
         path: '',
-        title: 'Ещё',
-        translateKey: 'nav.business.groups.more',
+        title: 'Подписка и настройки',
+        translateKey: 'nav.business.sections.account',
         icon: 'settings',
         type: NAV_ITEM_TYPE_COLLAPSE,
         authority: [BUSINESS_OWNER],
@@ -206,11 +202,22 @@ const businessHorizontalNavigationConfig = [
                 permission: 'manage_settings',
                 subMenu: [],
             },
-            {
-                key: 'business.nav.divider.knowledge',
-                type: NAV_ITEM_TYPE_DIVIDER,
-                subMenu: [],
+        ],
+    },
+    {
+        key: 'business.horizontal.help',
+        path: '',
+        title: 'Справка и инструменты',
+        translateKey: 'nav.business.sections.help',
+        icon: 'guide',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: [BUSINESS_OWNER],
+        meta: {
+            horizontalMenu: {
+                layout: 'default',
             },
+        },
+        subMenu: [
             {
                 key: 'business.knowledge',
                 path: '/business/knowledge',
