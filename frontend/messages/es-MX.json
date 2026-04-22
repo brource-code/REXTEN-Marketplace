@@ -1453,6 +1453,9 @@
                 "time": "Hora",
                 "duration": "Duración",
                 "durationMin": "{min} min",
+                "durationHm": "{h} h {m} min",
+                "durationH": "{h} h",
+                "durationM": "{m} min",
                 "price": "Precio",
                 "address": "Dirección",
                 "openBooking": "Abrir reserva",
@@ -1917,14 +1920,14 @@
                     "success": "Reembolso emitido",
                     "error": "No se pudo reembolsar"
                 },
-                "noneHint": "Aún no se ha solicitado pago en línea para esta reserva.",
+                "offlinePaymentExplainer": "Esta reserva no tiene pago con tarjeta en línea a través de la plataforma: el anuncio no se cobró en línea. Efectivo, transferencia o pago presencial no se registran aquí; usa esta pestaña solo para cobros en línea (autorizar, capturar o reembolsar). No necesitas marcar pagos fuera de línea en este bloque.",
                 "statuses": {
-                    "none": "Sin pago",
+                    "none": "Sin pago en línea",
                     "authorized": "Autorizado",
                     "paid": "Pagado",
                     "refunded": "Reembolsado",
                     "cancelled": "Cancelado",
-                    "unpaid": "Sin pagar",
+                    "unpaid": "No pagado en línea",
                     "pending_payment": "Esperando pago",
                     "pending": "Pendiente",
                     "expired": "Vencido",
@@ -1935,6 +1938,11 @@
                     "requires_capture": "Listo para cobrar"
                 },
                 "refundAction": "Reembolsar"
+            },
+            "bookingDuration": {
+                "hm": "{h} h {m} min",
+                "h": "{h} h",
+                "m": "{m} min"
             },
             "activity": {
                 "comment": "Agregar comentario",
@@ -3565,6 +3573,7 @@
                         "descriptionPlaceholder": "Descripción del servicio",
                         "price": "Precio ($)",
                         "duration": "Duración (min)",
+                        "durationNone": "Sin tiempo extra",
                         "sortOrder": "Orden",
                         "active": "Activo",
                         "showInBooking": "Mostrar en la reserva"

@@ -1453,6 +1453,9 @@
                 "time": "Time",
                 "duration": "Duration",
                 "durationMin": "{min} min",
+                "durationHm": "{h} h {m} min",
+                "durationH": "{h} h",
+                "durationM": "{m} min",
                 "price": "Price",
                 "address": "Address",
                 "openBooking": "Open booking",
@@ -1917,14 +1920,14 @@
                     "success": "Refund issued",
                     "error": "Refund failed"
                 },
-                "noneHint": "Online payment is not requested for this booking yet.",
+                "offlinePaymentExplainer": "This booking is not linked to an online card payment: nothing was charged through the platform for the listing. Cash, bank transfer, or in-person payment is not recorded here — use this tab only when the client pays online (authorize, capture, or refund). You do not need to mark offline payment in this tab.",
                 "statuses": {
-                    "none": "No payment",
+                    "none": "No online payment",
                     "authorized": "Authorized",
                     "paid": "Paid",
                     "refunded": "Refunded",
                     "cancelled": "Cancelled",
-                    "unpaid": "Unpaid",
+                    "unpaid": "Not paid online",
                     "pending_payment": "Awaiting payment",
                     "pending": "Pending",
                     "expired": "Expired",
@@ -1935,6 +1938,11 @@
                     "requires_capture": "Ready to capture"
                 },
                 "refundAction": "Refund"
+            },
+            "bookingDuration": {
+                "hm": "{h} h {m} min",
+                "h": "{h} h",
+                "m": "{m} min"
             },
             "activity": {
                 "comment": "Add a comment",
@@ -3565,6 +3573,7 @@
                         "descriptionPlaceholder": "Service description",
                         "price": "Price ($)",
                         "duration": "Duration (min)",
+                        "durationNone": "No extra time",
                         "sortOrder": "Sort Order",
                         "active": "Active",
                         "showInBooking": "Show in booking"
