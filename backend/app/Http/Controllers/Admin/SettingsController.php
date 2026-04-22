@@ -26,8 +26,8 @@ class SettingsController extends Controller
                     'logoColorLight' => $settings->logo_color_light ?? '#0F172A',
                     'logoColorDark' => $settings->logo_color_dark ?? '#FFFFFF',
                     'logoSize' => $settings->logo_size ?? 26,
-                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#2563EB',
-                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#696cff',
+                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#0ea5e9',
+                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#0ea5e9',
                     'maintenanceMode' => (bool) ($settings->maintenance_mode ?? false),
                     'registrationEnabled' => (bool) ($settings->registration_enabled ?? true),
                     'stripePaymentsEnabled' => (bool) ($settings->stripe_enabled ?? true),
@@ -74,8 +74,8 @@ class SettingsController extends Controller
                     'logoColorLight' => $settings->logo_color_light ?? '#0F172A',
                     'logoColorDark' => $settings->logo_color_dark ?? '#FFFFFF',
                     'logoSize' => $settings->logo_size ?? 26,
-                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#2563EB',
-                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#696cff',
+                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#0ea5e9',
+                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#0ea5e9',
                 ],
             ]);
         } catch (\Exception $e) {
@@ -608,8 +608,8 @@ class SettingsController extends Controller
             'logo_color_light' => '#0F172A',
             'logo_color_dark' => '#FFFFFF',
             'logo_size' => 26,
-            'logo_icon_color_light' => '#2563EB',
-            'logo_icon_color_dark' => '#696cff',
+            'logo_icon_color_light' => '#0ea5e9',
+            'logo_icon_color_dark' => '#0ea5e9',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

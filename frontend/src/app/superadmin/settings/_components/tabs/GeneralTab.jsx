@@ -13,6 +13,7 @@ import Notification from '@/components/ui/Notification'
 import Card from '@/components/ui/Card'
 import Logo from '@/components/template/Logo'
 import useTheme from '@/utils/hooks/useTheme'
+import { REXTEN_MARK_COLOR } from '@/constants/rexten-brand.constant'
 
 const GeneralTab = () => {
     const mode = useTheme((state) => state.mode)
@@ -71,8 +72,8 @@ const GeneralTab = () => {
         logoColorLight: '#0F172A',
         logoColorDark: '#FFFFFF',
         logoSize: 26,
-        logoIconColorLight: '#2563EB',
-        logoIconColorDark: '#696cff',
+        logoIconColorLight: REXTEN_MARK_COLOR,
+        logoIconColorDark: REXTEN_MARK_COLOR,
     })
 
     useEffect(() => {
@@ -96,8 +97,8 @@ const GeneralTab = () => {
                 logoColorLight: settings.logoColorLight || '#0F172A',
                 logoColorDark: settings.logoColorDark || '#FFFFFF',
                 logoSize: settings.logoSize || 26,
-                logoIconColorLight: settings.logoIconColorLight || '#2563EB',
-                logoIconColorDark: settings.logoIconColorDark || '#696cff',
+                logoIconColorLight: settings.logoIconColorLight || REXTEN_MARK_COLOR,
+                logoIconColorDark: settings.logoIconColorDark || REXTEN_MARK_COLOR,
             }))
         }
     }, [settings])

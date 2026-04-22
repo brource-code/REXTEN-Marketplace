@@ -766,6 +766,7 @@ class SettingsController extends Controller
                     'blockPastSlots' => true,
                     'minBookingHours' => 2,
                     'maxBookingDays' => 30,
+                    'slot_step_minutes' => 15,
                 ]
             ]);
         }
@@ -776,6 +777,14 @@ class SettingsController extends Controller
         $advertisement = Advertisement::where('company_id', $companyId)
             ->where('type', 'regular')
             ->first();
+
+        $slotStepMinutes = 15;
+        if ($advertisement && ! empty($advertisement->slot_step_minutes)) {
+            $v = (int) $advertisement->slot_step_minutes;
+            if ($v >= 15 && $v <= 240) {
+                $slotStepMinutes = $v;
+            }
+        }
 
         // Дефолтные настройки
         $defaultSettings = [
@@ -793,6 +802,7 @@ class SettingsController extends Controller
             'minBookingHours' => 2,
             'maxBookingDays' => 30,
             'weekStartsOn' => 1, // По умолчанию понедельник
+            'slot_step_minutes' => $slotStepMinutes,
         ];
 
         // Если есть объявление с расписанием, берем его
