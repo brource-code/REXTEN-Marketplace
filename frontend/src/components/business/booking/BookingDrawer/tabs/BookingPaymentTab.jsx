@@ -36,6 +36,8 @@ export default function BookingPaymentTab({ slot, currency = 'USD', onUpdated })
     const paymentStatus = slot?.payment_status || 'none'
     const totalAmount = Number(slot?.total_price ?? slot?.price ?? 0) || 0
 
+    const showOfflinePaymentExplainer = paymentStatus === 'none' || paymentStatus === 'unpaid'
+
     const handleCapture = async () => {
         if (!slot?.id) return
         setCapturing(true)
@@ -106,9 +108,9 @@ export default function BookingPaymentTab({ slot, currency = 'USD', onUpdated })
                 )}
             </div>
 
-            {paymentStatus === 'none' && (
-                <div className={HINT_CLS}>{t('noneHint')}</div>
-            )}
+            {showOfflinePaymentExplainer ? (
+                <div className={HINT_CLS}>{t('offlinePaymentExplainer')}</div>
+            ) : null}
 
             {refundOpen && (
                 <RefundInline

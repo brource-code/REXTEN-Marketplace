@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
 import { FormItem, FormContainer } from '@/components/ui/Form'
 import Switcher from '@/components/ui/Switcher'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -15,6 +16,7 @@ import Loading from '@/components/shared/Loading'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import useDebounce from '@/utils/hooks/useDebounce'
+import { TIME_FORMAT_12H } from '@/utils/timeFormat'
 
 const ScheduleTab = () => {
     const t = useTranslations('business.settings.schedule')
@@ -149,6 +151,8 @@ const ScheduleTab = () => {
         }))
     }
 
+    const breakStepMinutes = Number(scheduleSettings?.slot_step_minutes) || 15
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-12">
@@ -220,23 +224,25 @@ const ScheduleTab = () => {
                             </FormItem>
                             {schedule.breakEnabled && (
                                 <div className="flex items-center gap-2 w-full">
-                                    <Input
-                                        type="time"
-                                        value={schedule.breakFrom}
-                                        onChange={(e) =>
-                                            handleScheduleChange('breakFrom', e.target.value)
-                                        }
-                                        className="flex-1 min-w-0"
-                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <BookingTimePicker
+                                            value={schedule.breakFrom}
+                                            onChange={(v) => handleScheduleChange('breakFrom', v)}
+                                            stepMinutes={breakStepMinutes}
+                                            format={TIME_FORMAT_12H}
+                                            size="sm"
+                                        />
+                                    </div>
                                     <span className="text-gray-400 dark:text-gray-500 shrink-0">—</span>
-                                    <Input
-                                        type="time"
-                                        value={schedule.breakTo}
-                                        onChange={(e) =>
-                                            handleScheduleChange('breakTo', e.target.value)
-                                        }
-                                        className="flex-1 min-w-0"
-                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <BookingTimePicker
+                                            value={schedule.breakTo}
+                                            onChange={(v) => handleScheduleChange('breakTo', v)}
+                                            stepMinutes={breakStepMinutes}
+                                            format={TIME_FORMAT_12H}
+                                            size="sm"
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>

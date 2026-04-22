@@ -123,6 +123,7 @@ export default function RouteSidebar({
                                         onToggle={onUpdateIncluded}
                                         onOpenBooking={onOpenBooking}
                                         selectionReadOnly={!canManageRoutes}
+                                        displayTimezone={route.display_timezone}
                                     />
 
                                     {canShowReturnLegToggle ? (

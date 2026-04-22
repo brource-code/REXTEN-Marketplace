@@ -5,16 +5,7 @@ import { useTranslations } from 'next-intl'
 import Select from '@/components/ui/Select'
 import { LABEL_CLS, HINT_CLS } from '@/components/business/booking/shared/bookingTypography'
 import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
-
-function formatDuration(min) {
-    const m = Number(min) || 0
-    if (m <= 0) return '—'
-    const h = Math.floor(m / 60)
-    const rest = m % 60
-    if (h > 0 && rest === 0) return `${h}h`
-    if (h > 0) return `${h}h ${rest}m`
-    return `${rest}m`
-}
+import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
 
 function formatPrice(value, currency = 'USD') {
     const num = Number(value) || 0
@@ -44,6 +35,7 @@ export default function BookingServicePicker({
     currency = 'USD',
 }) {
     const t = useTranslations('business.schedule.drawer')
+    const tDur = useTranslations('business.schedule.bookingDuration')
     const err = useBookingFormErrorMessage()
 
     const options = useMemo(
@@ -89,7 +81,8 @@ export default function BookingServicePicker({
                             {opt.label}
                         </span>
                         <span className="text-xs font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                            {formatDuration(opt.duration)} · {formatPrice(opt.price, currency)}
+                            {formatBookingDurationMinutes(opt.duration, tDur)} ·{' '}
+                            {formatPrice(opt.price, currency)}
                         </span>
                     </div>
                 )}
@@ -97,7 +90,7 @@ export default function BookingServicePicker({
             {selected && (
                 <div className={`mt-1 ${HINT_CLS}`}>
                     {t('serviceHint', {
-                        duration: formatDuration(selected.duration),
+                        duration: formatBookingDurationMinutes(selected.duration, tDur),
                         price: formatPrice(selected.price, currency),
                     })}
                 </div>

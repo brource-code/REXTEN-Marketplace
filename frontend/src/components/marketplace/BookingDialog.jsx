@@ -17,6 +17,7 @@ import { formatCurrency } from '@/utils/formatCurrency'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import { useTranslations } from 'next-intl'
 import { logClientApiError, logClientApiWarn } from '@/utils/logClientApiError'
+import { snapDurationToBookingPresetMinutes } from '@/components/business/booking/shared/bookingDurationPresets'
 
 /**
  * Переиспользуемый компонент модалки бронирования
@@ -460,9 +461,11 @@ const BookingDialog = ({
                 bookingDate = new Date().toISOString().split('T')[0]
             }
             
-            const duration = service.duration 
-                ? Math.max(parseInt(service.duration) || 60, 15)
-                : 60
+            const duration = snapDurationToBookingPresetMinutes(
+                service.duration != null && String(service.duration).trim() !== ''
+                    ? parseInt(String(service.duration), 10) || 60
+                    : 60,
+            )
             
             // ВАЖНО: Для объявлений ОБЯЗАТЕЛЬНО передаем advertisement_id!
             // Без него бэкенд будет искать услугу во всех объявлениях компании,
@@ -495,13 +498,16 @@ const BookingDialog = ({
             
             // Формируем данные локальных дополнительных услуг для отправки
             const localAdditionalServicesData = localAdditionalServices.length > 0
-                ? localAdditionalServices.map(s => ({
-                    name: s.name || '',
-                    description: s.description || '',
-                    price: parseFloat(s.price) || 0,
-                    duration: s.duration || null,
-                    quantity: s.quantity || 1,
-                }))
+                ? localAdditionalServices.map((s) => ({
+                      name: s.name || '',
+                      description: s.description || '',
+                      price: parseFloat(s.price) || 0,
+                      duration:
+                          s.duration != null && s.duration !== ''
+                              ? snapDurationToBookingPresetMinutes(Number(s.duration))
+                              : null,
+                      quantity: s.quantity || 1,
+                  }))
                 : []
 
             const bookingData = {

@@ -1,8 +1,10 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import Checkbox from '@/components/ui/Checkbox'
+import Button from '@/components/ui/Button'
+import { formatRouteIsoTime } from '../_utils/routeTimeFormat'
 
 /**
  * @param {{
@@ -12,6 +14,7 @@ import Checkbox from '@/components/ui/Checkbox'
  *   onToggle: (nextIds: number[] | null) => void
  *   onOpenBooking?: (bookingId: number) => void
  *   selectionReadOnly?: boolean
+ *   displayTimezone?: string | null
  * }} props
  */
 export default function RouteDayBookingsPanel({
@@ -21,8 +24,10 @@ export default function RouteDayBookingsPanel({
     onToggle,
     onOpenBooking,
     selectionReadOnly = false,
+    displayTimezone,
 }) {
     const t = useTranslations('business.routes')
+    const intlLocale = useLocale()
 
     const allIds = dayBookings.map((b) => b.id)
 
@@ -53,15 +58,6 @@ export default function RouteDayBookingsPanel({
 
     const includedCount =
         includedBookingIds === null ? allIds.length : includedBookingIds.filter((id) => allIds.includes(id)).length
-
-    function formatTime(iso) {
-        try {
-            const d = new Date(iso)
-            return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-        } catch {
-            return ''
-        }
-    }
 
     if (!dayBookings?.length) {
         return (
@@ -95,13 +91,16 @@ export default function RouteDayBookingsPanel({
                 ) : null}
             </div>
 
-            <ul className="flex flex-col gap-2 pr-1 -mr-1">
+            <ul className="flex flex-col gap-2.5 pr-1 -mr-1">
                 {dayBookings.map((b) => {
                     const checked = isIncluded(b.id)
                     return (
-                        <li key={b.id} className="flex gap-2 items-stretch rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden bg-white dark:bg-gray-900">
+                        <li
+                            key={b.id}
+                            className="flex items-start gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-2.5"
+                        >
                             <Checkbox
-                                className={`flex-1 min-w-0 !items-start gap-3 px-3 py-2.5 ${
+                                className={`min-w-0 flex-1 !items-start gap-3 ${
                                     selectionReadOnly || updatingSelection
                                         ? 'cursor-default pointer-events-none opacity-70'
                                         : 'cursor-pointer'
@@ -113,8 +112,12 @@ export default function RouteDayBookingsPanel({
                             >
                                 <div className="min-w-0 flex-1">
                                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
-                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                            {formatTime(b.time_window_start)}
+                                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+                                            {formatRouteIsoTime(
+                                                b.time_window_start,
+                                                displayTimezone ?? undefined,
+                                                intlLocale,
+                                            )}
                                         </span>
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
                                             {b.client_name || t('stopBookingFallbackName')}
@@ -152,14 +155,16 @@ export default function RouteDayBookingsPanel({
                                 </div>
                             </Checkbox>
                             {typeof onOpenBooking === 'function' ? (
-                                <button
+                                <Button
                                     type="button"
-                                    className="shrink-0 px-3 py-2.5 text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 border-l border-gray-200 dark:border-gray-600 self-stretch"
+                                    size="xs"
+                                    variant="solid"
+                                    className="shrink-0 self-start mt-0.5"
                                     disabled={updatingSelection}
                                     onClick={() => onOpenBooking(b.id)}
                                 >
                                     {t('dayBookingOpenLink')}
-                                </button>
+                                </Button>
                             ) : null}
                         </li>
                     )

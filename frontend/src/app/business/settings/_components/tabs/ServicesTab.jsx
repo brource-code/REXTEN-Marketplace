@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
@@ -12,6 +12,7 @@ import { TbPencil, TbTrash, TbPlus } from 'react-icons/tb'
 import { NumericFormat } from 'react-number-format'
 import Dialog from '@/components/ui/Dialog'
 import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
 import { FormItem } from '@/components/ui/Form'
 import Checkbox from '@/components/ui/Checkbox'
 import { Radio } from '@/components/ui/Radio'
@@ -33,6 +34,11 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { formatDuration } from '@/utils/formatDuration'
+import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
+import {
+    BOOKING_DURATION_OPTIONS_MINUTES,
+    snapDurationToBookingPresetMinutes,
+} from '@/components/business/booking/shared/bookingDurationPresets'
 import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
 
@@ -141,10 +147,12 @@ const ServicesTab = () => {
     }
 
     const handleSave = (serviceData) => {
-        // Преобразуем duration в duration_minutes для API
+        // Преобразуем duration в duration_minutes для API (сетка 15…300 мин)
         const apiData = {
             ...serviceData,
-            duration_minutes: serviceData.duration || serviceData.duration_minutes || 60,
+            duration_minutes: snapDurationToBookingPresetMinutes(
+                Number(serviceData.duration) || serviceData.duration_minutes || 60,
+            ),
         }
         // Удаляем duration, если есть duration_minutes
         if (apiData.duration_minutes) {
@@ -399,6 +407,7 @@ const ServicesTab = () => {
 const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
     const t = useTranslations('business.settings.services')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('business.schedule.bookingDuration')
     const [formData, setFormData] = useState({
         name: '',
         category: '',
@@ -407,13 +416,24 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
         service_type: 'onsite',
     })
 
+    const durationOptions = useMemo(
+        () =>
+            BOOKING_DURATION_OPTIONS_MINUTES.map((m) => ({
+                value: m,
+                label: formatBookingDurationMinutes(m, tDur),
+            })),
+        [tDur],
+    )
+
     // Обновляем форму при изменении service или открытии модалки
     useEffect(() => {
         if (isOpen && service) {
             setFormData({
                 name: service.name || '',
                 category: service.category || '',
-                duration: service.duration || service.duration_minutes || 60,
+                duration: snapDurationToBookingPresetMinutes(
+                    service.duration || service.duration_minutes || 60,
+                ),
                 price: service.price || 0,
                 service_type: service.service_type || 'onsite',
             })
@@ -469,18 +489,20 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
                             </FormItem>
                             <div className="grid grid-cols-2 gap-4">
                                 <FormItem label={t('form.duration')}>
-                                    <Input
-                                        type="number"
-                                        value={formData.duration}
-                                        onChange={(e) => {
-                                            const value = e.target.value
+                                    <Select
+                                        options={durationOptions}
+                                        value={
+                                            durationOptions.find(
+                                                (o) => o.value === Number(formData.duration),
+                                            ) || null
+                                        }
+                                        onChange={(opt) =>
                                             setFormData((prev) => ({
                                                 ...prev,
-                                                duration: value === '' ? '' : value,
+                                                duration: Number(opt?.value) || 60,
                                             }))
-                                        }}
-                                        min="15"
-                                        step="15"
+                                        }
+                                        isSearchable={false}
                                     />
                                 </FormItem>
                                 <FormItem label={t('form.price')}>
@@ -768,6 +790,7 @@ const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
 const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave }) => {
     const t = useTranslations('business.settings.services.additionalServices')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('business.schedule.bookingDuration')
     const [formData, setFormData] = useState({
         name: additionalService?.name || '',
         description: additionalService?.description || '',
@@ -777,13 +800,26 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
         sort_order: additionalService?.sort_order || 0,
     })
 
+    const additionalDurationOptions = useMemo(
+        () => [
+            { value: 0, label: t('form.durationNone') },
+            ...BOOKING_DURATION_OPTIONS_MINUTES.map((m) => ({
+                value: m,
+                label: formatBookingDurationMinutes(m, tDur),
+            })),
+        ],
+        [t, tDur],
+    )
+
     useEffect(() => {
         if (additionalService) {
+            const rawDur = Number(additionalService.duration) || 0
             setFormData({
                 name: additionalService.name || '',
                 description: additionalService.description || '',
                 price: additionalService.price || 0,
-                duration: additionalService.duration || 0,
+                duration:
+                    rawDur === 0 ? 0 : snapDurationToBookingPresetMinutes(rawDur),
                 is_active: additionalService.is_active !== undefined ? additionalService.is_active : true,
                 sort_order: additionalService.sort_order || 0,
             })
@@ -850,14 +886,22 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
                             </FormItem>
 
                             <FormItem label={t('form.duration')}>
-                                <Input
-                                    type="number"
-                                    min="0"
-                                    value={formData.duration}
-                                    onChange={(e) => {
-                                        const value = e.target.value
-                                        setFormData((prev) => ({ ...prev, duration: value === '' ? '' : value }))
-                                    }}
+                                <Select
+                                    options={additionalDurationOptions}
+                                    value={
+                                        additionalDurationOptions.find(
+                                            (o) => o.value === Number(formData.duration),
+                                        ) ||
+                                        additionalDurationOptions.find((o) => o.value === 0) ||
+                                        null
+                                    }
+                                    onChange={(opt) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            duration: opt != null ? Number(opt.value) : 0,
+                                        }))
+                                    }
+                                    isSearchable={false}
                                 />
                             </FormItem>
                         </div>

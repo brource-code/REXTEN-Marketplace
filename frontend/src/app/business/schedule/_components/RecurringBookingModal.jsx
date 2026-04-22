@@ -21,11 +21,17 @@ import ClientCreateModal from '@/app/business/clients/_components/ClientCreateMo
 import { createPortal } from 'react-dom'
 import { formatTime } from '@/utils/dateTime'
 import useBusinessStore from '@/store/businessStore'
+import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
+import {
+    BOOKING_DURATION_OPTIONS_MINUTES,
+    snapDurationToBookingPresetMinutes,
+} from '@/components/business/booking/shared/bookingDurationPresets'
 
 const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
     const intlLocale = useLocale()
     const t = useTranslations('business.schedule.recurring')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('business.schedule.bookingDuration')
     const queryClient = useQueryClient()
     const { settings } = useBusinessStore()
     const timezone = settings?.timezone || 'America/Los_Angeles'
@@ -78,6 +84,15 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
         enabled: isOpen,
     })
 
+    const durationOptions = useMemo(
+        () =>
+            BOOKING_DURATION_OPTIONS_MINUTES.map((m) => ({
+                value: m,
+                label: formatBookingDurationMinutes(m, tDur),
+            })),
+        [tDur],
+    )
+
     // Заполняем форму при редактировании
     useEffect(() => {
         if (chain && isOpen) {
@@ -91,7 +106,9 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
                 day_of_month: chain.day_of_month,
                 days_of_month: chain.days_of_month || [],
                 booking_time: chain.booking_time,
-                duration_minutes: chain.duration_minutes,
+                duration_minutes: snapDurationToBookingPresetMinutes(
+                    chain.duration_minutes ?? 60,
+                ),
                 price: chain.price,
                 start_date: chain.start_date,
                 end_date: chain.end_date || null,
@@ -270,7 +287,7 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
             }
         }
         return options
-    }, [timezone])
+    }, [timezone, intlLocale])
 
     // Кастомный Input компонент для предотвращения открытия клавиатуры на мобильных
     const MobileInput = ({
@@ -321,10 +338,17 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
                                     : null}
                                 onChange={(option) => {
                                     const selectedService = services.find(s => s.id === option?.value)
-                                    setFormData(prev => ({
+                                    setFormData((prev) => ({
                                         ...prev,
                                         service_id: option?.value || null,
                                         price: selectedService?.price || 0,
+                                        duration_minutes: selectedService
+                                            ? snapDurationToBookingPresetMinutes(
+                                                  selectedService.duration ||
+                                                      selectedService.duration_minutes ||
+                                                      prev.duration_minutes,
+                                              )
+                                            : prev.duration_minutes,
                                     }))
                                 }}
                                 placeholder={t('selectService')}
@@ -555,13 +579,30 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
                             </FormItem>
 
                             <FormItem label={t('duration')}>
-                                <Input
-                                    type="number"
-                                    value={formData.duration_minutes}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: parseInt(e.target.value) || 60 }))}
-                                    placeholder="60"
+                                <Select
+                                    options={durationOptions}
+                                    value={
+                                        durationOptions.find(
+                                            (opt) => opt.value === formData.duration_minutes,
+                                        ) ||
+                                        durationOptions.find(
+                                            (opt) =>
+                                                opt.value ===
+                                                snapDurationToBookingPresetMinutes(
+                                                    formData.duration_minutes,
+                                                ),
+                                        ) ||
+                                        null
+                                    }
+                                    onChange={(option) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            duration_minutes: option?.value ?? 60,
+                                        }))
+                                    }
+                                    isSearchable={false}
+                                    components={{ Input: MobileInput }}
                                 />
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('durationInMinutes')}</p>
                             </FormItem>
                         </div>
 

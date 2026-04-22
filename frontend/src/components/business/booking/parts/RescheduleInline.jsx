@@ -12,8 +12,11 @@ import BookingTimePicker from './BookingTimePicker'
 import { useBookingTimeSuggestions } from '@/components/business/booking/hooks/useBookingTimeSuggestions'
 import { LABEL_CLS } from '@/components/business/booking/shared/bookingTypography'
 import { TIME_FORMAT_12H } from '@/utils/timeFormat'
-
-const DURATIONS = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300]
+import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
+import {
+    BOOKING_DURATION_OPTIONS_MINUTES,
+    snapDurationToBookingPresetMinutes,
+} from '@/components/business/booking/shared/bookingDurationPresets'
 
 export default function RescheduleInline({
     initialDate,
@@ -27,22 +30,31 @@ export default function RescheduleInline({
     saving = false,
 }) {
     const t = useTranslations('business.schedule.drawer.reschedule')
+    const tDur = useTranslations('business.schedule.bookingDuration')
 
     const [date, setDate] = useState(initialDate ? new Date(`${initialDate}T00:00:00`) : new Date())
     const [time, setTime] = useState(initialTime || '09:00')
-    const [duration, setDuration] = useState(initialDuration || 60)
+    const [duration, setDuration] = useState(() =>
+        snapDurationToBookingPresetMinutes(initialDuration ?? 60),
+    )
 
     useEffect(() => {
         if (initialDate) setDate(new Date(`${initialDate}T00:00:00`))
         if (initialTime) setTime(initialTime)
-        if (initialDuration) setDuration(initialDuration)
+        if (initialDuration != null) {
+            setDuration(snapDurationToBookingPresetMinutes(initialDuration))
+        }
     }, [initialDate, initialTime, initialDuration])
 
     const stepMin = scheduleSettings?.slot_step_minutes || 15
     const timeFormat = scheduleSettings?.time_format || TIME_FORMAT_12H
     const dOptions = useMemo(
-        () => DURATIONS.map((m) => ({ value: m, label: `${m} min` })),
-        [],
+        () =>
+            BOOKING_DURATION_OPTIONS_MINUTES.map((m) => ({
+                value: m,
+                label: formatBookingDurationMinutes(m, tDur),
+            })),
+        [tDur],
     )
     const dateStr = useMemo(() => dayjs(date).format('YYYY-MM-DD'), [date])
 

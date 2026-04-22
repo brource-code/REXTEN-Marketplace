@@ -15,6 +15,7 @@ import Step1ClientService from './Step1ClientService'
 import Step2TimeAssignment from './Step2TimeAssignment'
 import BookingDraftBanner from '@/components/business/booking/parts/BookingDraftBanner'
 import { TITLE_CLS, MUTED_CLS } from '@/components/business/booking/shared/bookingTypography'
+import { snapDurationToBookingPresetMinutes } from '@/components/business/booking/shared/bookingDurationPresets'
 
 function defaultValues(seed) {
     const today = new Date()
@@ -29,7 +30,7 @@ function defaultValues(seed) {
         title: null,
         booking_date: dateStr,
         booking_time: seed?.booking_time || '09:00',
-        duration_minutes: seed?.duration_minutes || 60,
+        duration_minutes: snapDurationToBookingPresetMinutes(seed?.duration_minutes || 60),
         specialist_id: seed?.specialist_id ?? null,
         execution_type: seed?.execution_type || 'onsite',
         status: 'new',

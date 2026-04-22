@@ -16,8 +16,11 @@ import { useBookingTimeSuggestions } from '@/components/business/booking/hooks/u
 import { LABEL_CLS } from '@/components/business/booking/shared/bookingTypography'
 import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
 import { TIME_FORMAT_12H } from '@/utils/timeFormat'
-
-const DURATIONS = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300]
+import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
+import {
+    BOOKING_DURATION_OPTIONS_MINUTES,
+    snapDurationToBookingPresetMinutes,
+} from '@/components/business/booking/shared/bookingDurationPresets'
 
 export default function Step2TimeAssignment({
     values,
@@ -28,13 +31,18 @@ export default function Step2TimeAssignment({
     scheduleSettings,
 }) {
     const t = useTranslations('business.schedule.wizard.step2')
+    const tDur = useTranslations('business.schedule.bookingDuration')
     const err = useBookingFormErrorMessage()
 
     const stepMin = scheduleSettings?.slot_step_minutes || 15
     const timeFormat = scheduleSettings?.time_format || TIME_FORMAT_12H
     const durationOptions = useMemo(
-        () => DURATIONS.map((m) => ({ value: m, label: `${m} min` })),
-        [],
+        () =>
+            BOOKING_DURATION_OPTIONS_MINUTES.map((m) => ({
+                value: m,
+                label: formatBookingDurationMinutes(m, tDur),
+            })),
+        [tDur],
     )
     const teamOptions = useMemo(
         () => [
@@ -102,7 +110,13 @@ export default function Step2TimeAssignment({
                         value={
                             durationOptions.find(
                                 (o) => o.value === Number(values.duration_minutes),
-                            ) || null
+                            ) ||
+                            durationOptions.find(
+                                (o) =>
+                                    o.value ===
+                                    snapDurationToBookingPresetMinutes(values.duration_minutes),
+                            ) ||
+                            null
                         }
                         onChange={(opt) =>
                             setField('duration_minutes', Number(opt?.value) || 60)

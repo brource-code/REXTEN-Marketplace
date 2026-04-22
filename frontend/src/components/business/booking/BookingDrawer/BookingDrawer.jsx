@@ -19,6 +19,7 @@ import BookingActivityTab from './tabs/BookingActivityTab'
 import RescheduleInline from '@/components/business/booking/parts/RescheduleInline'
 import BookingClientPicker from '@/components/business/booking/parts/BookingClientPicker'
 import { LABEL_CLS } from '@/components/business/booking/shared/bookingTypography'
+import { snapDurationToBookingPresetMinutes } from '@/components/business/booking/shared/bookingDurationPresets'
 import { FormItem } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 
@@ -57,7 +58,7 @@ function buildInitialValues(slot) {
         title: slot.title ?? null,
         booking_date,
         booking_time,
-        duration_minutes: Number(slot.duration_minutes) || 60,
+        duration_minutes: snapDurationToBookingPresetMinutes(Number(slot.duration_minutes) || 60),
         specialist_id: slot.specialist_id ?? slot.specialist?.id ?? null,
         execution_type: slot.execution_type || 'onsite',
         status: slot.status || 'new',

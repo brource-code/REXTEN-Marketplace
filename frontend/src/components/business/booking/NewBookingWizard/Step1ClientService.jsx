@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { snapDurationToBookingPresetMinutes } from '@/components/business/booking/shared/bookingDurationPresets'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import BookingClientPicker from '@/components/business/booking/parts/BookingClientPicker'
@@ -70,7 +71,9 @@ export default function Step1ClientService({
                     const patch = { service_id: id }
                     if (service) {
                         if (!values.duration_minutes || values.duration_minutes === 60) {
-                            patch.duration_minutes = service.duration || 60
+                            patch.duration_minutes = snapDurationToBookingPresetMinutes(
+                                service.duration || 60,
+                            )
                         }
                         if (values.price == null || values.price === '') {
                             patch.price = service.price

@@ -376,6 +376,9 @@ export interface ScheduleSettings {
     blockPastSlots: boolean
     minBookingHours: number
     maxBookingDays: number
+    /** С бэкенда объявления — для шага времени в пикерах перерыва */
+    slot_step_minutes?: number
+    time_format?: string
 }
 
 export async function getScheduleSlots(): Promise<ScheduleSlot[]> {

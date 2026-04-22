@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
 import { FormItem } from '@/components/ui/Form'
 import Switcher from '@/components/ui/Switcher'
 import Drawer from '@/components/ui/Drawer'
@@ -11,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getScheduleSettings, updateScheduleSettings } from '@/lib/api/business'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
+import { TIME_FORMAT_12H } from '@/utils/timeFormat'
 
 const ScheduleSettings = () => {
     const queryClient = useQueryClient()
@@ -104,6 +106,8 @@ const ScheduleSettings = () => {
         updateSettingsMutation.mutate(settings)
     }
 
+    const breakStepMinutes = Number(scheduleSettings?.slot_step_minutes) || 15
+
     return (
         <>
             <Button
@@ -189,27 +193,35 @@ const ScheduleSettings = () => {
                             </FormItem>
                             {settings.breakEnabled && (
                                 <div className="flex items-center gap-2">
-                                    <Input
-                                        type="time"
-                                        value={settings.breakFrom}
-                                        onChange={(e) =>
-                                            setSettings((prev) => ({
-                                                ...prev,
-                                                breakFrom: e.target.value,
-                                            }))
-                                        }
-                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <BookingTimePicker
+                                            value={settings.breakFrom}
+                                            onChange={(v) =>
+                                                setSettings((prev) => ({
+                                                    ...prev,
+                                                    breakFrom: v,
+                                                }))
+                                            }
+                                            stepMinutes={breakStepMinutes}
+                                            format={TIME_FORMAT_12H}
+                                            size="sm"
+                                        />
+                                    </div>
                                     <span className="text-gray-400">—</span>
-                                    <Input
-                                        type="time"
-                                        value={settings.breakTo}
-                                        onChange={(e) =>
-                                            setSettings((prev) => ({
-                                                ...prev,
-                                                breakTo: e.target.value,
-                                            }))
-                                        }
-                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <BookingTimePicker
+                                            value={settings.breakTo}
+                                            onChange={(v) =>
+                                                setSettings((prev) => ({
+                                                    ...prev,
+                                                    breakTo: v,
+                                                }))
+                                            }
+                                            stepMinutes={breakStepMinutes}
+                                            format={TIME_FORMAT_12H}
+                                            size="sm"
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>

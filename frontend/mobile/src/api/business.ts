@@ -539,6 +539,8 @@ export interface ScheduleSettings {
   minBookingHours: number;
   maxBookingDays: number;
   weekStartsOn?: number;
+  /** Если бэкенд отдаёт — шаг слотов для сетки времени перерыва */
+  slot_step_minutes?: number;
 }
 
 export async function getScheduleSettings(): Promise<ScheduleSettings> {

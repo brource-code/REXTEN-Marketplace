@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useId, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { PiHouse } from 'react-icons/pi'
 import Map, { Marker, NavigationControl, Popup, Source, Layer } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -16,6 +16,7 @@ import {
 } from './buildRouteMapModel'
 import { getVisitColorHex } from '../_utils/bookingRouteColors'
 import { formatCurrency } from '@/utils/formatCurrency'
+import { formatRouteIsoTime, formatRouteDurationMinutes } from '../_utils/routeTimeFormat'
 
 function subscribeDark(callback) {
     const el = document.documentElement
@@ -49,31 +50,19 @@ function lineFeatureFromCoords(coords) {
     }
 }
 
-function formatHm(iso, tz) {
-    if (!iso) return null
-    try {
-        const d = new Date(iso)
-        if (Number.isNaN(d.getTime())) return null
-        return new Intl.DateTimeFormat(undefined, {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-            timeZone: tz || undefined,
-        }).format(d)
-    } catch {
-        return null
-    }
-}
-
-function RouteMapPopupCard({ marker, displayTimezone, onOpenBooking, onClose }) {
+function RouteMapPopupCard({ marker, displayTimezone, intlLocale, onOpenBooking, onClose }) {
     const t = useTranslations('business.routes')
     const booking = marker?.booking ?? null
     const visitNum = marker?.label ?? ''
     const colorHex = marker?.markerColorHex || '#2563eb'
 
-    const eta = marker?.eta ? formatHm(marker.eta, displayTimezone) : null
-    const winStart = booking?.time_window_start ? formatHm(booking.time_window_start, displayTimezone) : null
-    const winEnd = booking?.time_window_end ? formatHm(booking.time_window_end, displayTimezone) : null
+    const eta = marker?.eta ? formatRouteIsoTime(marker.eta, displayTimezone, intlLocale) || null : null
+    const winStart = booking?.time_window_start
+        ? formatRouteIsoTime(booking.time_window_start, displayTimezone, intlLocale) || null
+        : null
+    const winEnd = booking?.time_window_end
+        ? formatRouteIsoTime(booking.time_window_end, displayTimezone, intlLocale) || null
+        : null
     const timeLine = eta
         ? winStart && winEnd
             ? `${eta} (${winStart}–${winEnd})`
@@ -145,7 +134,7 @@ function RouteMapPopupCard({ marker, displayTimezone, onOpenBooking, onClose }) 
                             {t('mapPopup.duration')}
                         </span>
                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
-                            {t('mapPopup.durationMin', { min: booking.duration_minutes })}
+                            {formatRouteDurationMinutes(booking.duration_minutes, t)}
                         </span>
                     </div>
                 ) : null}
@@ -195,6 +184,7 @@ export default function RouteMapGl({
     displayTimezone,
 }) {
     const t = useTranslations('business.routes')
+    const intlLocale = useLocale()
     const mapRef = useRef(null)
     const baseId = useId().replace(/:/g, '')
     const isDark = useAppDark()
@@ -454,6 +444,7 @@ export default function RouteMapGl({
                             <RouteMapPopupCard
                                 marker={popupMarker}
                                 displayTimezone={displayTimezone}
+                                intlLocale={intlLocale}
                                 onOpenBooking={onOpenBooking}
                                 onClose={() => setPopupKey(null)}
                             />

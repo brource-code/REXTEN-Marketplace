@@ -16,8 +16,12 @@ import { TITLE_CLS, MUTED_CLS, LABEL_CLS } from '@/components/business/booking/s
 import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
 import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
 import { TIME_FORMAT_12H } from '@/utils/timeFormat'
+import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
+import {
+    BOOKING_DURATION_OPTIONS_MINUTES,
+    snapDurationToBookingPresetMinutes,
+} from '@/components/business/booking/shared/bookingDurationPresets'
 
-const DURATIONS = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300]
 const STATUSES = ['new', 'pending', 'confirmed', 'completed', 'cancelled']
 
 /** Из seed (API): ISO или HH:mm → HH:mm */
@@ -67,7 +71,7 @@ function buildInitial(seed, stepMin) {
             seed?.booking_date ||
             `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`,
         booking_time: bookingTime,
-        duration_minutes: Number(seed?.duration_minutes) || 60,
+        duration_minutes: snapDurationToBookingPresetMinutes(Number(seed?.duration_minutes) || 60),
         specialist_id: seed?.specialist_id ?? null,
         status: normalizeStatus(seed?.status),
         notes: seed?.notes || '',
@@ -85,6 +89,7 @@ export default function BlockTimeModal({
     const tDetails = useTranslations('business.schedule.drawer.details')
     const tStatuses = useTranslations('business.schedule.statuses')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('business.schedule.bookingDuration')
     const err = useBookingFormErrorMessage()
 
     const { teamMembers, scheduleSettings } = useScheduleReferenceData()
@@ -100,8 +105,12 @@ export default function BlockTimeModal({
         Boolean(errors.title) && (Boolean(touched.title) || submitAttempted)
 
     const durationOptions = useMemo(
-        () => DURATIONS.map((m) => ({ value: m, label: `${m} min` })),
-        [],
+        () =>
+            BOOKING_DURATION_OPTIONS_MINUTES.map((m) => ({
+                value: m,
+                label: formatBookingDurationMinutes(m, tDur),
+            })),
+        [tDur],
     )
     const teamOptions = useMemo(
         () => [

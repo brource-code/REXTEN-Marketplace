@@ -21,6 +21,7 @@ import {
   ScheduleSettings,
   DayScheduleSlot,
 } from '../../api/business';
+import { NativeHHmmTimeField } from '../../components/business/NativeHHmmTimeField';
 import { ScreenContainer } from '../../components/ScreenContainer';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -132,6 +133,8 @@ export function BusinessScheduleSettingsScreen() {
     );
   }
 
+  const breakStepMinutes = Number(draft.slot_step_minutes) || 15;
+
   return (
     <ScreenContainer edges={['bottom']}>
       <KeyboardAvoidingView
@@ -218,20 +221,18 @@ export function BusinessScheduleSettingsScreen() {
 
             {draft.breakEnabled && (
               <View style={styles.timeRow}>
-                <TextInput
-                  style={[styles.timeInput, { borderColor: colors.inputBorder, color: colors.text, backgroundColor: colors.inputBackground }]}
+                <NativeHHmmTimeField
                   value={draft.breakFrom}
-                  onChangeText={(t) => setDraft({ ...draft, breakFrom: t })}
+                  onChange={(v) => setDraft({ ...draft, breakFrom: v })}
+                  stepMinutes={breakStepMinutes}
                   placeholder="13:00"
-                  placeholderTextColor={colors.textMuted}
                 />
                 <Text style={[styles.timeSeparator, { color: colors.textSecondary }]}>—</Text>
-                <TextInput
-                  style={[styles.timeInput, { borderColor: colors.inputBorder, color: colors.text, backgroundColor: colors.inputBackground }]}
+                <NativeHHmmTimeField
                   value={draft.breakTo}
-                  onChangeText={(t) => setDraft({ ...draft, breakTo: t })}
+                  onChange={(v) => setDraft({ ...draft, breakTo: v })}
+                  stepMinutes={breakStepMinutes}
                   placeholder="14:00"
-                  placeholderTextColor={colors.textMuted}
                 />
               </View>
             )}

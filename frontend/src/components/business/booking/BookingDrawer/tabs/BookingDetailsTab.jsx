@@ -17,8 +17,11 @@ import { useBookingTimeSuggestions } from '@/components/business/booking/hooks/u
 import { LABEL_CLS, ERROR_CLS } from '@/components/business/booking/shared/bookingTypography'
 import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
 import { TIME_FORMAT_12H } from '@/utils/timeFormat'
-
-const DURATIONS = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 300]
+import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
+import {
+    BOOKING_DURATION_OPTIONS_MINUTES,
+    snapDurationToBookingPresetMinutes,
+} from '@/components/business/booking/shared/bookingDurationPresets'
 
 const STATUSES = ['new', 'pending', 'confirmed', 'completed', 'cancelled']
 
@@ -36,13 +39,18 @@ export default function BookingDetailsTab({
 }) {
     const t = useTranslations('business.schedule.drawer.details')
     const tStatuses = useTranslations('business.schedule.statuses')
+    const tDur = useTranslations('business.schedule.bookingDuration')
     const err = useBookingFormErrorMessage()
 
     const stepMin = scheduleSettings?.slot_step_minutes || 15
     const timeFormat = scheduleSettings?.time_format || TIME_FORMAT_12H
     const durationOptions = useMemo(
-        () => DURATIONS.map((m) => ({ value: m, label: `${m} min` })),
-        [],
+        () =>
+            BOOKING_DURATION_OPTIONS_MINUTES.map((m) => ({
+                value: m,
+                label: formatBookingDurationMinutes(m, tDur),
+            })),
+        [tDur],
     )
     const statusOptions = useMemo(
         () =>
@@ -112,7 +120,9 @@ export default function BookingDetailsTab({
                     onChange={(id, service) => {
                         const patch = { service_id: id }
                         if (service && (!values.duration_minutes || values.duration_minutes === 60)) {
-                            patch.duration_minutes = service.duration || 60
+                            patch.duration_minutes = snapDurationToBookingPresetMinutes(
+                                service.duration || 60,
+                            )
                         }
                         if (service && (values.price == null || values.price === '')) {
                             patch.price = service.price
@@ -164,7 +174,13 @@ export default function BookingDetailsTab({
                         value={
                             durationOptions.find(
                                 (o) => o.value === Number(values.duration_minutes),
-                            ) || null
+                            ) ||
+                            durationOptions.find(
+                                (o) =>
+                                    o.value ===
+                                    snapDurationToBookingPresetMinutes(values.duration_minutes),
+                            ) ||
+                            null
                         }
                         onChange={(opt) =>
                             setField('duration_minutes', Number(opt?.value) || 60)
