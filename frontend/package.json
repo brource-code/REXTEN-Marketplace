@@ -10,6 +10,7 @@
     "start": "npx next start -p 3003 -H 0.0.0.0",
     "lint": "npx next lint",
     "i18n:verify": "node scripts/verify-i18n-parity.mjs",
+    "assets:nginx-favicon": "node scripts/render-nginx-favicon.mjs",
     "i18n:export-ru-hy": "node scripts/export-ru-locale-pairs.mjs hy-AM",
     "i18n:export-ru-es": "node scripts/export-ru-locale-pairs.mjs es-MX",
     "prettier": "npx prettier src --check",

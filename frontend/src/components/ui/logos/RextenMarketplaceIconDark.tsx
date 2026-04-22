@@ -1,4 +1,5 @@
 import * as React from "react";
+import { REXTEN_MARK_COLOR } from '@/constants/rexten-brand.constant'
 
 interface RextenMarketplaceIconDarkProps extends Omit<React.SVGProps<SVGSVGElement>, 'customText' | 'customColor' | 'customSize' | 'customIconColor'> {
   customText?: string;
@@ -14,7 +15,7 @@ export default function RextenMarketplaceIconDark(
   const { customText, customColor, customSize, customIconColor, ...svgProps } = props;
   
   // Используем кастомный цвет иконки или дефолтный
-  const iconColor = customIconColor || '#696cff';
+  const iconColor = customIconColor ?? REXTEN_MARK_COLOR
   
   return (
     <svg

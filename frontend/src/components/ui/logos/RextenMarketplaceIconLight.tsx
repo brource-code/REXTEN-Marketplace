@@ -1,4 +1,5 @@
 import * as React from "react";
+import { REXTEN_MARK_COLOR } from '@/constants/rexten-brand.constant'
 
 export default function RextenMarketplaceIconLight(
   props: React.SVGProps<SVGSVGElement> & {
@@ -10,7 +11,8 @@ export default function RextenMarketplaceIconLight(
 ) {
   // Извлекаем кастомные пропсы, чтобы не передавать их в DOM элемент
   const { customText, customColor, customSize, customIconColor, ...svgProps } = props;
-  
+  const iconColor = customIconColor ?? REXTEN_MARK_COLOR
+
   return (
     <svg
       {...svgProps}
@@ -26,16 +28,16 @@ export default function RextenMarketplaceIconLight(
       </title>
       <defs>
         <linearGradient id="icon-light-gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: '#2563EB', stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: '#2563EB', stopOpacity: 0.6 }} />
+          <stop offset="0%" style={{ stopColor: iconColor, stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: iconColor, stopOpacity: 0.6 }} />
         </linearGradient>
         <linearGradient id="icon-light-gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: '#2563EB', stopOpacity: 0.8 }} />
-          <stop offset="100%" style={{ stopColor: '#2563EB', stopOpacity: 0.4 }} />
+          <stop offset="0%" style={{ stopColor: iconColor, stopOpacity: 0.8 }} />
+          <stop offset="100%" style={{ stopColor: iconColor, stopOpacity: 0.4 }} />
         </linearGradient>
         <linearGradient id="icon-light-gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: '#2563EB', stopOpacity: 0.6 }} />
-          <stop offset="100%" style={{ stopColor: '#2563EB', stopOpacity: 0.2 }} />
+          <stop offset="0%" style={{ stopColor: iconColor, stopOpacity: 0.6 }} />
+          <stop offset="100%" style={{ stopColor: iconColor, stopOpacity: 0.2 }} />
         </linearGradient>
         <path d="M4 8L15 2L26 8L15 14L4 8Z" id="icon-light-layer-1" />
         <path d="M4 14L15 8L26 14L15 20L4 14Z" id="icon-light-layer-2" />

@@ -3,7 +3,10 @@ const pageMeta = {
     description:
         'Платформа для управления бизнесом с бронированиями, заказами и клиентами',
     icons: {
-        icon: '/icon.svg',
+        icon: [
+            { url: '/favicon.ico', sizes: '32x32', type: 'image/png' },
+            { url: '/icon.svg', type: 'image/svg+xml' },
+        ],
         apple: '/apple-icon.svg',
     },
 }

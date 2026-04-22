@@ -1,4 +1,5 @@
 import * as React from "react";
+import { REXTEN_MARK_COLOR } from '@/constants/rexten-brand.constant'
 
 const FONT_FAMILY = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
@@ -12,7 +13,7 @@ interface RextenMarketplaceLogoLightProps extends React.SVGProps<SVGSVGElement> 
 export default function RextenMarketplaceLogoLight(
   props: RextenMarketplaceLogoLightProps
 ) {
-  const { customText = 'REXTEN', customColor = '#0F172A', customSize = 26, customIconColor = '#2563EB', ...svgProps } = props
+  const { customText = 'REXTEN', customColor = '#0F172A', customSize = 26, customIconColor = REXTEN_MARK_COLOR, ...svgProps } = props
   
   // Генерируем уникальный ID для градиентов на основе цвета
   const gradientId = customIconColor.replace(/[^a-zA-Z0-9]/g, '')

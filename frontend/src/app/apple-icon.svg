@@ -1,39 +1,11 @@
-<svg width="180" height="180" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs>
-    <linearGradient id="apple-gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0.6" />
-    </linearGradient>
-    <linearGradient id="apple-gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.8" />
-      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0.4" />
-    </linearGradient>
-    <linearGradient id="apple-gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:0.6" />
-      <stop offset="100%" style="stop-color:#2563EB;stop-opacity:0.2" />
-    </linearGradient>
-    <path d="M4 8L15 2L26 8L15 14L4 8Z" id="apple-layer-1" />
-    <path d="M4 14L15 8L26 14L15 20L4 14Z" id="apple-layer-2" />
-    <path d="M4 20L15 14L26 20L15 26L4 20Z" id="apple-layer-3" />
-  </defs>
-  <rect width="30" height="30" fill="#2563EB" rx="6"/>
-  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-    <g transform="translate(0, 0)">
-      <g>
-        <g>
-          <use fill="url(#apple-gradient1)" xlink:href="#apple-layer-1" />
-          <use fill-opacity="0.3" fill="#FFFFFF" xlink:href="#apple-layer-1" />
-        </g>
-        <g transform="translate(1, 2)">
-          <use fill="url(#apple-gradient2)" xlink:href="#apple-layer-2" />
-          <use fill-opacity="0.2" fill="#FFFFFF" xlink:href="#apple-layer-2" />
-        </g>
-        <g transform="translate(2, 4)">
-          <use fill="url(#apple-gradient3)" xlink:href="#apple-layer-3" />
-          <use fill-opacity="0.1" fill="#FFFFFF" xlink:href="#apple-layer-3" />
-        </g>
-      </g>
+<svg width="180" height="180" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="none" fill-rule="evenodd">
+    <path d="M4 8L15 2L26 8L15 14L4 8Z" fill="#0ea5e9"/>
+    <g transform="translate(1, 2)">
+      <path d="M4 14L15 8L26 14L15 20L4 14Z" fill="#0ea5e9"/>
+    </g>
+    <g transform="translate(2, 4)">
+      <path d="M4 20L15 14L26 20L15 26L4 20Z" fill="#0ea5e9"/>
     </g>
   </g>
 </svg>
-

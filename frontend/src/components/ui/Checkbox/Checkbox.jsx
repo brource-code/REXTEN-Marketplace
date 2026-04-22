@@ -94,10 +94,13 @@ const Checkbox = (props) => {
         ],
     )
 
-    const checkboxColor =
-        checkboxClass ||
-        checkboxClassContext ||
-        (variant === 'card' ? 'text-indigo-600 dark:text-indigo-400' : `text-primary`)
+    const defaultControlColorClass =
+        variant === 'card' ? 'text-indigo-600 dark:text-indigo-400' : 'text-primary'
+    const checkboxColor = classNames(
+        defaultControlColorClass,
+        checkboxClassContext,
+        checkboxClass,
+    )
 
     const checkboxDefaultClass = `checkbox peer ${checkboxColor}`
     const checkboxColorClass = disabled && 'disabled'

@@ -10,6 +10,7 @@ import RextenMarketplaceIconDark from '@/components/ui/logos/RextenMarketplaceIc
 import { useQuery } from '@tanstack/react-query'
 import { getPlatformSettings, getPublicPlatformSettings } from '@/lib/api/superadmin'
 import useTheme from '@/utils/hooks/useTheme'
+import { REXTEN_MARK_COLOR } from '@/constants/rexten-brand.constant'
 
 const Logo = (props) => {
     const {
@@ -113,19 +114,19 @@ const Logo = (props) => {
     
     // Функция для получения CSS переменной цвета темы
     const getThemePrimaryColor = () => {
-        if (typeof window === 'undefined') return '#2563EB' // На сервере всегда дефолтный цвет
+        if (typeof window === 'undefined') return REXTEN_MARK_COLOR // На сервере всегда дефолтный цвет
         try {
             const root = document.documentElement
             const value = getComputedStyle(root).getPropertyValue('--primary').trim()
-            return value || '#2563EB'
+            return value || REXTEN_MARK_COLOR
         } catch {
-            return '#2563EB'
+            return REXTEN_MARK_COLOR
         }
     }
     
     // Состояние для отслеживания изменений CSS переменных
     // На сервере используем дефолтный цвет, чтобы избежать проблем с гидратацией
-    const [themePrimaryColor, setThemePrimaryColor] = useState('#2563EB')
+    const [themePrimaryColor, setThemePrimaryColor] = useState(REXTEN_MARK_COLOR)
     const [isMounted, setIsMounted] = useState(false)
     
     // Устанавливаем mounted флаг после монтирования
@@ -165,7 +166,7 @@ const Logo = (props) => {
     const logoText = customText || platformSettings?.logoText || 'REXTEN'
     
     // Используем themePrimaryColor только после монтирования, чтобы избежать проблем с гидратацией
-    const effectiveThemeColor = isMounted ? themePrimaryColor : '#2563EB'
+    const effectiveThemeColor = isMounted ? themePrimaryColor : REXTEN_MARK_COLOR
     
     const logoColor = useMemo(() => {
         // Сначала проверяем кастомные цвета из пропсов
@@ -184,9 +185,9 @@ const Logo = (props) => {
     // Для иконки используем primary цвет из темы, если нет кастомного
     const logoIconColor = useMemo(() => {
         if (currentMode === 'dark') {
-            return customIconColorDark || platformSettings?.logoIconColorDark || (isMounted ? effectiveThemeColor : '#696cff') || '#696cff'
+            return customIconColorDark || platformSettings?.logoIconColorDark || (isMounted ? effectiveThemeColor : REXTEN_MARK_COLOR) || REXTEN_MARK_COLOR
         }
-        return customIconColorLight || platformSettings?.logoIconColorLight || (isMounted ? effectiveThemeColor : '#2563EB') || '#2563EB'
+        return customIconColorLight || platformSettings?.logoIconColorLight || (isMounted ? effectiveThemeColor : REXTEN_MARK_COLOR) || REXTEN_MARK_COLOR
     }, [currentMode, customIconColorDark, customIconColorLight, platformSettings?.logoIconColorDark, platformSettings?.logoIconColorLight, effectiveThemeColor, isMounted])
 
     return (

@@ -14,6 +14,7 @@ import appConfig from '@/configs/app.config'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuthStore } from '@/store'
+import { REXTEN_MARK_COLOR } from '@/constants/rexten-brand.constant'
 
 const MobileNavToggle = withHeaderItem(NavToggle)
 
@@ -59,7 +60,7 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }) => {
                 customText="REXTEN"
                 customColor={defaultMode === 'dark' ? '#FFFFFF' : '#0F172A'}
                 customSize={26}
-                customIconColor={defaultMode === 'dark' ? '#696cff' : '#2563EB'}
+                customIconColor={REXTEN_MARK_COLOR}
             />
         </Link>
     )
