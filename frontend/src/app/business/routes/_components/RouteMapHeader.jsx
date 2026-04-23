@@ -5,15 +5,11 @@ import Button from '@/components/ui/Button'
 import Dropdown from '@/components/ui/Dropdown'
 import RouteStatusBadge from './RouteStatusBadge'
 import { formatMilesOneDecimalFromMeters } from '../_utils/routeMiles'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 
 function formatMiles(meters) {
     if (meters == null) return '—'
     return formatMilesOneDecimalFromMeters(meters) ?? '—'
-}
-
-function formatMin(seconds) {
-    if (seconds == null) return '—'
-    return String(Math.round(seconds / 60))
 }
 
 /**
@@ -49,10 +45,16 @@ export default function RouteMapHeader({
     recalculateDisabled,
 }) {
     const t = useTranslations('business.routes')
+    const tDur = useTranslations('common.durationMinutes')
+
+    const durationLabel =
+        durationSeconds == null || !Number.isFinite(Number(durationSeconds))
+            ? '—'
+            : formatDurationMinutesI18n(Math.max(1, Math.round(Number(durationSeconds) / 60)), tDur)
 
     const metricsLine = t('metricsLine', {
         mi: formatMiles(distanceMeters),
-        min: formatMin(durationSeconds),
+        duration: durationLabel,
         visits: visitsCount,
     })
 

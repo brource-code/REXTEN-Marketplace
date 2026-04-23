@@ -96,7 +96,7 @@ export default function BlockTimeModal({
     const tDetails = useTranslations('business.schedule.drawer.details')
     const tStatuses = useTranslations('business.schedule.statuses')
     const tCommon = useTranslations('business.common')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
     const err = useBookingFormErrorMessage()
 
     const { teamMembers, scheduleSettings } = useScheduleReferenceData()

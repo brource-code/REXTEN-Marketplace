@@ -560,6 +560,11 @@
             "deleted": "Ջնջվել է",
             "updated": "Թարմացվել է",
             "created": "Ստեղծվել է"
+        },
+        "durationMinutes": {
+            "hm": "{h} ժ {m} րոպե",
+            "h": "{h} ժ",
+            "m": "{m} րոպե"
         }
     },
     "client": {
@@ -1511,27 +1516,27 @@
                 "startTitle": "Ելք (տուն)",
                 "endTitle": "Վերադարձ տուն",
                 "inTransit": "Ճանապարհին",
-                "legStats": "{mi} մղոն · {min} րոպե",
+                "legStats": "{mi} մղոն · {duration}",
                 "visitFallback": "Այց",
                 "homeUnknown": "Տան հասցեն նշված չէ",
                 "addressUnknown": "Կանգառի հասցե չկա",
-                "serviceDuration": "Վայրում ~ {min} րոպե",
+                "serviceDuration": "Վայրում ~ {duration}",
                 "routingArrival": "ժամանումը ըստ երթուղու",
                 "waitUntilAppointment": "Սպասեք {duration} մինչև նշված ժամը",
-                "lateArrival": "Ուշացում՝ {min} րոպե"
+                "lateArrival": "Ուշացում՝ {duration}"
             },
             "savedRoutes": {
                 "title": "Պահված երթուղիներ ըստ օրերի",
                 "hint": "Սեղմեք ամսաթիվը՝ այդ օրվա երթուղին բացելու համար։",
                 "empty": "Այս մասնագետի համար դեռ պահված երթուղիներ չկան։",
                 "loading": "Բեռնում…",
-                "lineStats": "{mi} մղոն · {min} րոպե · {visits} այց"
+                "lineStats": "{mi} մղոն · {duration} · {visits} այց"
             },
             "preview": {
                 "title": "Օպտիմալացման նախադիտում",
                 "current": "Ընթացիկ հերթականություն",
                 "proposed": "Առաջարկված հերթականություն",
-                "routeSummaryLine": "{mi} մղոն · {min} րոպե",
+                "routeSummaryLine": "{mi} մղոն · {duration}",
                 "savingsDistance": "{mi} մղոն ({pct}%)",
                 "savings": "Խնայողություն",
                 "noChanges": "Երթուղին արդեն օպտիմալ է",
@@ -1575,7 +1580,7 @@
                 "route": "Երթուղի",
                 "saved": "Պահպանված"
             },
-            "metricsLine": "{mi} մղոն · {min} րոպե · {visits} այց",
+            "metricsLine": "{mi} մղոն · {duration} · {visits} այց",
             "actions": "Գործողություններ",
             "noRouteShort": "Երթուղի դեռ չկա",
             "savedRoutesGroups": {
@@ -1958,11 +1963,6 @@
                     "requires_capture": "Պատրաստ է գանձման"
                 },
                 "refundAction": "Վերադարձ"
-            },
-            "bookingDuration": {
-                "hm": "{h} ժ {m} րոպե",
-                "h": "{h} ժ",
-                "m": "{m} րոպե"
             },
             "activity": {
                 "comment": "Ավելացնել մեկնաբանություն",

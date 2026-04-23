@@ -2,21 +2,13 @@
 
 import { useTranslations } from 'next-intl'
 import { PiMapTrifold, PiArrowRight, PiClock, PiPath, PiLockKey } from 'react-icons/pi'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 
 const formatDistance = (meters) => {
     if (meters == null) return '—'
     const km = meters / 1000
     if (km >= 10) return `${Math.round(km)} km`
     return `${km.toFixed(1)} km`
-}
-
-const formatDuration = (seconds) => {
-    if (seconds == null) return '—'
-    const total = Math.round(seconds / 60)
-    if (total < 60) return `${total} min`
-    const h = Math.floor(total / 60)
-    const m = total % 60
-    return m === 0 ? `${h}h` : `${h}h ${m}m`
 }
 
 /**
@@ -31,6 +23,7 @@ const ScheduleRouteBanner = ({
     onOpen,
 }) => {
     const t = useTranslations('business.schedule.routeBanner')
+    const tDur = useTranslations('common.durationMinutes')
 
     if (locked) {
         return (
@@ -104,7 +97,12 @@ const ScheduleRouteBanner = ({
                     </span>
                     <span className="inline-flex items-center gap-1 tabular-nums">
                         <PiClock className="text-sm" />
-                        {formatDuration(route.total_duration_seconds)}
+                        {route.total_duration_seconds == null || !Number.isFinite(Number(route.total_duration_seconds))
+                            ? '—'
+                            : formatDurationMinutesI18n(
+                                  Math.max(1, Math.round(Number(route.total_duration_seconds) / 60)),
+                                  tDur,
+                              )}
                     </span>
                 </div>
             </div>

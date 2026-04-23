@@ -33,7 +33,7 @@ import {
 import { getCategories } from '@/lib/api/marketplace'
 import { getCitiesByState } from '@/lib/api/locations'
 import { getStates as fetchLocationStates, parseUsStateCode } from '@/services/location/LocationService'
-import { formatDuration } from '@/utils/formatDuration'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 import { normalizeImageUrl, denormalizeImageUrl } from '@/utils/imageUtils'
 import LaravelAxios from '@/services/axios/LaravelAxios'
 import Upload from '@/components/ui/Upload'
@@ -68,6 +68,7 @@ const ServiceAdditionalServicesManager = ({
 }) => {
     const tAdd = useTranslations('business.advertisements.create.additionalServices')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('common.durationMinutes')
     const queryClient = useQueryClient()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isFormModalOpen, setIsFormModalOpen] = useState(false)
@@ -380,7 +381,7 @@ const ServiceAdditionalServicesManager = ({
                                                     </span>
                                                     {addService.duration && (
                                                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {formatDuration(addService.duration, 'minutes')}
+                                                            {formatDurationMinutesI18n(addService.duration, tDur)}
                                                         </span>
                                                     )}
                                                     <span

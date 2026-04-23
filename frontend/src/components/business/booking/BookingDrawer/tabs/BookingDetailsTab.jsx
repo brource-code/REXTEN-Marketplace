@@ -39,7 +39,7 @@ export default function BookingDetailsTab({
 }) {
     const t = useTranslations('business.schedule.drawer.details')
     const tStatuses = useTranslations('business.schedule.statuses')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
     const err = useBookingFormErrorMessage()
 
     const stepMin = scheduleSettings?.slot_step_minutes || 15

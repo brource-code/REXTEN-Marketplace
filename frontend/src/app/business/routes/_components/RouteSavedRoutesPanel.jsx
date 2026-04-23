@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { formatMilesOneDecimalFromMeters } from '../_utils/routeMiles'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 
 const US_LOCALE = 'en-US'
 
@@ -22,11 +23,11 @@ function formatDateShort(ymd, locale) {
     }
 }
 
-function RouteRow({ row, active, ts, t, onSelectDate }) {
+function RouteRow({ row, active, ts, t, tDur, onSelectDate }) {
     const mi = formatMilesOneDecimalFromMeters(row.total_distance_meters)
-    const min =
+    const duration =
         row.total_duration_seconds != null
-            ? String(Math.max(1, Math.round(row.total_duration_seconds / 60)))
+            ? formatDurationMinutesI18n(Math.max(1, Math.round(row.total_duration_seconds / 60)), tDur)
             : '—'
     const label = formatDateShort(row.route_date, US_LOCALE)
     return (
@@ -51,7 +52,7 @@ function RouteRow({ row, active, ts, t, onSelectDate }) {
                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5">
                     {t('lineStats', {
                         mi: mi ?? '—',
-                        min,
+                        duration,
                         visits: row.booking_stops_count ?? 0,
                     })}
                 </div>
@@ -72,6 +73,7 @@ export default function RouteSavedRoutesPanel({ items, currentDate, onSelectDate
     const t = useTranslations('business.routes.savedRoutes')
     const tg = useTranslations('business.routes.savedRoutesGroups')
     const ts = useTranslations('business.routes.status')
+    const tDur = useTranslations('common.durationMinutes')
 
     const { active, empty } = useMemo(() => {
         const list = Array.isArray(items) ? [...items] : []
@@ -136,6 +138,7 @@ export default function RouteSavedRoutesPanel({ items, currentDate, onSelectDate
                                 active={row.route_date === currentDate}
                                 ts={ts}
                                 t={t}
+                                tDur={tDur}
                                 onSelectDate={onSelectDate}
                             />
                         ))}
@@ -169,6 +172,7 @@ export default function RouteSavedRoutesPanel({ items, currentDate, onSelectDate
                                 active={row.route_date === currentDate}
                                 ts={ts}
                                 t={t}
+                                tDur={tDur}
                                 onSelectDate={onSelectDate}
                             />
                         ))}

@@ -52,6 +52,7 @@ function lineFeatureFromCoords(coords) {
 
 function RouteMapPopupCard({ marker, displayTimezone, intlLocale, onOpenBooking, onClose }) {
     const t = useTranslations('business.routes')
+    const tDur = useTranslations('common.durationMinutes')
     const booking = marker?.booking ?? null
     const visitNum = marker?.label ?? ''
     const colorHex = marker?.markerColorHex || '#2563eb'
@@ -134,7 +135,7 @@ function RouteMapPopupCard({ marker, displayTimezone, intlLocale, onOpenBooking,
                             {t('mapPopup.duration')}
                         </span>
                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
-                            {formatRouteDurationMinutes(booking.duration_minutes, t)}
+                            {formatRouteDurationMinutes(booking.duration_minutes, tDur)}
                         </span>
                     </div>
                 ) : null}

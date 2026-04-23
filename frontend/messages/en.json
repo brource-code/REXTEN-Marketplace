@@ -560,6 +560,11 @@
             "deleted": "Deleted",
             "updated": "Updated",
             "created": "Created"
+        },
+        "durationMinutes": {
+            "hm": "{h} h {m} min",
+            "h": "{h} h",
+            "m": "{m} min"
         }
     },
     "client": {
@@ -1511,27 +1516,27 @@
                 "startTitle": "Departure (home)",
                 "endTitle": "Return home",
                 "inTransit": "Driving",
-                "legStats": "{mi} mi · {min} min",
+                "legStats": "{mi} mi · {duration}",
                 "visitFallback": "Visit",
                 "homeUnknown": "Home address not set",
                 "addressUnknown": "No address on stop",
-                "serviceDuration": "On site ~ {min} min",
+                "serviceDuration": "On site ~ {duration}",
                 "routingArrival": "Routing arrival",
                 "waitUntilAppointment": "Wait {duration} until scheduled start",
-                "lateArrival": "Late by {min} min"
+                "lateArrival": "Late by {duration}"
             },
             "savedRoutes": {
                 "title": "Saved routes by day",
                 "hint": "Click a date to open that day’s route.",
                 "empty": "No saved routes for this specialist yet.",
                 "loading": "Loading saved routes…",
-                "lineStats": "{mi} mi · {min} min · {visits} visits"
+                "lineStats": "{mi} mi · {duration} · {visits} visits"
             },
             "preview": {
                 "title": "Optimization preview",
                 "current": "Current order",
                 "proposed": "Proposed order",
-                "routeSummaryLine": "{mi} mi · {min} min",
+                "routeSummaryLine": "{mi} mi · {duration}",
                 "savingsDistance": "{mi} mi ({pct}%)",
                 "savings": "Savings",
                 "noChanges": "Route is already optimal",
@@ -1575,7 +1580,7 @@
                 "route": "Route",
                 "saved": "Saved"
             },
-            "metricsLine": "{mi} mi · {min} min · {visits} visits",
+            "metricsLine": "{mi} mi · {duration} · {visits} visits",
             "actions": "Actions",
             "noRouteShort": "No route yet",
             "savedRoutesGroups": {
@@ -1958,11 +1963,6 @@
                     "requires_capture": "Ready to capture"
                 },
                 "refundAction": "Refund"
-            },
-            "bookingDuration": {
-                "hm": "{h} h {m} min",
-                "h": "{h} h",
-                "m": "{m} min"
             },
             "activity": {
                 "comment": "Add a comment",

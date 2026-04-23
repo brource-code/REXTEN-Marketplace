@@ -31,7 +31,7 @@ export default function Step2TimeAssignment({
     scheduleSettings,
 }) {
     const t = useTranslations('business.schedule.wizard.step2')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
     const err = useBookingFormErrorMessage()
 
     const stepMin = scheduleSettings?.slot_step_minutes || 15

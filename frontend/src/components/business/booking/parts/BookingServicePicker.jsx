@@ -35,7 +35,7 @@ export default function BookingServicePicker({
     currency = 'USD',
 }) {
     const t = useTranslations('business.schedule.drawer')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
     const err = useBookingFormErrorMessage()
 
     const options = useMemo(

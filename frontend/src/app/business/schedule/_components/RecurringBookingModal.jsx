@@ -31,7 +31,7 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
     const intlLocale = useLocale()
     const t = useTranslations('business.schedule.recurring')
     const tCommon = useTranslations('business.common')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
     const queryClient = useQueryClient()
     const { settings } = useBusinessStore()
     const timezone = settings?.timezone || 'America/Los_Angeles'

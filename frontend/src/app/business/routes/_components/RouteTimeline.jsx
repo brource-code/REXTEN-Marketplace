@@ -5,22 +5,15 @@ import { useTranslations } from 'next-intl'
 import { metersToMiles } from '../_utils/routeMiles'
 import { getVisitColorHex } from '../_utils/bookingRouteColors'
 import useBusinessStore from '@/store/businessStore'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 
 const US_LOCALE = 'en-US'
 
-/**
- * Дата/время в американском формате (MM/DD/YYYY, 12h) и указанной IANA-таймзоне.
- */
-function formatWaitDuration(totalSeconds) {
+function waitSecondsToDisplayMinutes(totalSeconds) {
     if (totalSeconds == null || totalSeconds <= 0) {
-        return ''
+        return 0
     }
-    const h = Math.floor(totalSeconds / 3600)
-    const m = Math.round((totalSeconds % 3600) / 60)
-    if (h >= 1) {
-        return m > 0 ? `${h} h ${m} min` : `${h} h`
-    }
-    return `${Math.max(1, m)} min`
+    return Math.max(1, Math.round(Number(totalSeconds) / 60))
 }
 
 /**
@@ -76,6 +69,7 @@ function formatEtaUs(iso, timeZone) {
  */
 export default function RouteTimeline({ route, includeReturnLeg = true }) {
     const t = useTranslations('business.routes.timeline')
+    const tDur = useTranslations('common.durationMinutes')
     const { settings } = useBusinessStore()
     const specialist = route.specialist
     const displayTz = route.display_timezone || settings?.timezone || 'America/Los_Angeles'
@@ -173,7 +167,8 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
                     {rows.map((row) => {
                         if (row.type === 'leg') {
                             const mi = (metersToMiles(row.meters) ?? 0).toFixed(1)
-                            const min = Math.max(1, Math.round(row.seconds / 60))
+                            const legMin = Math.max(1, Math.round(row.seconds / 60))
+                            const legDuration = formatDurationMinutesI18n(legMin, tDur)
                             return (
                                 <li key={row.key} className="flex gap-3 min-h-[52px] items-center">
                                     <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-white dark:border-gray-900 bg-slate-400 dark:bg-slate-500 text-white">
@@ -184,7 +179,7 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
                                     <div className="flex-1 min-w-0 py-1">
                                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('inTransit')}</p>
                                         <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                            {t('legStats', { mi, min })}
+                                            {t('legStats', { mi, duration: legDuration })}
                                         </p>
                                     </div>
                                 </li>
@@ -255,7 +250,9 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
                                             if (lateMin > 0) {
                                                 return (
                                                     <p className="text-xs font-bold text-red-600 dark:text-red-400 mt-1">
-                                                        {t('lateArrival', { min: lateMin })}
+                                                        {t('lateArrival', {
+                                                            duration: formatDurationMinutesI18n(lateMin, tDur),
+                                                        })}
                                                     </p>
                                                 )
                                             }
@@ -270,7 +267,10 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
                                                         </p>
                                                         <p className="text-xs font-bold text-amber-700 dark:text-amber-300 mt-0.5">
                                                             {t('waitUntilAppointment', {
-                                                                duration: formatWaitDuration(stop.wait_before_seconds),
+                                                                duration: formatDurationMinutesI18n(
+                                                                    waitSecondsToDisplayMinutes(stop.wait_before_seconds),
+                                                                    tDur,
+                                                                ),
                                                             })}
                                                         </p>
                                                     </>
@@ -283,7 +283,12 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
                                         </p>
                                         {isBooking && stop.booking?.duration_minutes ? (
                                             <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                                {t('serviceDuration', { min: stop.booking.duration_minutes })}
+                                                {t('serviceDuration', {
+                                                    duration: formatDurationMinutesI18n(
+                                                        stop.booking.duration_minutes,
+                                                        tDur,
+                                                    ),
+                                                })}
                                             </p>
                                         ) : null}
                                     </div>

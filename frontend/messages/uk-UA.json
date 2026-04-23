@@ -560,6 +560,11 @@
             "deleted": "Видалено",
             "updated": "Оновлено",
             "created": "Створено"
+        },
+        "durationMinutes": {
+            "hm": "{h} год {m} хв",
+            "h": "{h} год",
+            "m": "{m} хв"
         }
     },
     "client": {
@@ -1511,27 +1516,27 @@
                 "startTitle": "Виїзд (дім)",
                 "endTitle": "Повернення додому",
                 "inTransit": "У дорозі",
-                "legStats": "{mi} миль · {min} хв",
+                "legStats": "{mi} миль · {duration}",
                 "visitFallback": "Візит",
                 "homeUnknown": "Адресу дому не задано",
                 "addressUnknown": "Немає адреси на зупинці",
-                "serviceDuration": "У клієнта ~ {min} хв",
+                "serviceDuration": "У клієнта ~ {duration}",
                 "routingArrival": "Прибуття за маршрутом",
                 "waitUntilAppointment": "Очікування {duration} до початку запису",
-                "lateArrival": "Запізнення на {min} хв"
+                "lateArrival": "Запізнення: {duration}"
             },
             "savedRoutes": {
                 "title": "Збережені маршрути за днями",
                 "hint": "Натисніть дату, щоб відкрити маршрут за цей день.",
                 "empty": "Поки немає збережених маршрутів для цього спеціаліста.",
                 "loading": "Завантаження списку…",
-                "lineStats": "{mi} миль · {min} хв · візитів: {visits}"
+                "lineStats": "{mi} миль · {duration} · візитів: {visits}"
             },
             "preview": {
                 "title": "Попередній перегляд оптимізації",
                 "current": "Поточний порядок",
                 "proposed": "Запропонований порядок",
-                "routeSummaryLine": "{mi} миль · {min} хв",
+                "routeSummaryLine": "{mi} миль · {duration}",
                 "savingsDistance": "{mi} миль ({pct}%)",
                 "savings": "Економія",
                 "noChanges": "Маршрут уже оптимальний",
@@ -1575,7 +1580,7 @@
                 "route": "Маршрут",
                 "saved": "Збережені"
             },
-            "metricsLine": "{mi} миль · {min} хв · візитів: {visits}",
+            "metricsLine": "{mi} миль · {duration} · візитів: {visits}",
             "actions": "Дії",
             "noRouteShort": "Маршруту ще немає",
             "savedRoutesGroups": {
@@ -1958,11 +1963,6 @@
                     "requires_capture": "Готово до списання"
                 },
                 "refundAction": "Повернення"
-            },
-            "bookingDuration": {
-                "hm": "{h} год {m} хв",
-                "h": "{h} год",
-                "m": "{m} хв"
             },
             "activity": {
                 "comment": "Додати коментар",

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
 import { formatMilesDeltaFromMeters, formatMilesOneDecimalFromKm } from '../_utils/routeMiles'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 
 function resolveOutcome(preview) {
     const o = preview?.comparison?.outcome
@@ -33,6 +34,7 @@ export default function RoutePreviewPanel({ preview, onApply, onCancel, applying
     const t = useTranslations('business.routes')
     const tp = useTranslations('business.routes.preview')
     const tc = useTranslations('business.routes.preview.confidence')
+    const tDur = useTranslations('common.durationMinutes')
 
     if (!preview) {
         return null
@@ -55,7 +57,10 @@ export default function RoutePreviewPanel({ preview, onApply, onCancel, applying
                     <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {tp('routeSummaryLine', {
                             mi: formatMilesOneDecimalFromKm(preview.current?.total_distance_km),
-                            min: preview.current?.total_duration_min ?? 0,
+                            duration: formatDurationMinutesI18n(
+                                preview.current?.total_duration_min ?? 0,
+                                tDur,
+                            ),
                         })}
                     </p>
                 </div>
@@ -64,7 +69,10 @@ export default function RoutePreviewPanel({ preview, onApply, onCancel, applying
                     <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {tp('routeSummaryLine', {
                             mi: formatMilesOneDecimalFromKm(preview.proposed?.total_distance_km),
-                            min: preview.proposed?.total_duration_min ?? 0,
+                            duration: formatDurationMinutesI18n(
+                                preview.proposed?.total_duration_min ?? 0,
+                                tDur,
+                            ),
                         })}
                     </p>
                 </div>

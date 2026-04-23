@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { getAdditionalServices, getAdditionalServicesByAdvertisement } from '@/lib/api/additionalServices';
-import { formatDuration } from '@/utils/formatDuration';
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import Checkbox from '@/components/ui/Checkbox';
 
@@ -25,6 +26,7 @@ export default function BookingAdditionalServices({
   currency = 'USD',
   editablePrice = false, // Разрешить менять цену доп. услуги при редактировании
 }) {
+  const tDur = useTranslations('common.durationMinutes');
   const [availableServices, setAvailableServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -167,7 +169,7 @@ export default function BookingAdditionalServices({
                           </span>
                           {service.duration && service.duration > 0 && (
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {formatDuration(service.duration, 'minutes')}
+                              {formatDurationMinutesI18n(service.duration, tDur)}
                             </span>
                           )}
                         </div>

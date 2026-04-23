@@ -1,3 +1,5 @@
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
+
 /**
  * Время из ISO в таймзоне бизнеса и локали UI (как в попапе карты и списке визитов).
  * @param {string|undefined|null} iso
@@ -21,18 +23,9 @@ export function formatRouteIsoTime(iso, timeZone, intlLocale) {
 
 /**
  * @param {number|string|undefined|null} minutes
- * @param {(key: string, values?: Record<string, number>) => string} tRoutes `useTranslations('business.routes')`
+ * @param {(key: string, values?: Record<string, number>) => string} tDuration `useTranslations('common.durationMinutes')`
  */
-export function formatRouteDurationMinutes(minutes, tRoutes) {
-    const n = Math.round(Number(minutes))
-    if (!Number.isFinite(n) || n < 1) return ''
-    const h = Math.floor(n / 60)
-    const m = n % 60
-    if (h > 0 && m > 0) {
-        return tRoutes('mapPopup.durationHm', { h, m })
-    }
-    if (h > 0) {
-        return tRoutes('mapPopup.durationH', { h })
-    }
-    return tRoutes('mapPopup.durationM', { m })
+export function formatRouteDurationMinutes(minutes, tDuration) {
+    const s = formatDurationMinutesI18n(minutes, tDuration)
+    return s === '—' ? '' : s
 }

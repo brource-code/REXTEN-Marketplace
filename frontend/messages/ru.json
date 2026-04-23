@@ -574,6 +574,11 @@
             "deleted": "Удалено",
             "updated": "Обновлено",
             "created": "Создано"
+        },
+        "durationMinutes": {
+            "hm": "{h} ч {m} мин",
+            "h": "{h} ч",
+            "m": "{m} мин"
         }
     },
     "client": {
@@ -1525,27 +1530,27 @@
                 "startTitle": "Выезд (дом)",
                 "endTitle": "Возврат домой",
                 "inTransit": "В пути",
-                "legStats": "{mi} миль · {min} мин",
+                "legStats": "{mi} миль · {duration}",
                 "visitFallback": "Визит",
                 "homeUnknown": "Адрес дома не задан",
                 "addressUnknown": "Нет адреса у остановки",
-                "serviceDuration": "У клиента ~ {min} мин",
+                "serviceDuration": "У клиента ~ {duration}",
                 "routingArrival": "Прибытие по маршруту",
                 "waitUntilAppointment": "Ожидание {duration} до начала записи",
-                "lateArrival": "Опоздание на {min} мин"
+                "lateArrival": "Опоздание: {duration}"
             },
             "savedRoutes": {
                 "title": "Сохранённые маршруты по дням",
                 "hint": "Нажмите дату, чтобы открыть маршрут за этот день.",
                 "empty": "Пока нет сохранённых маршрутов для этого исполнителя.",
                 "loading": "Загрузка списка…",
-                "lineStats": "{mi} миль · {min} мин · визитов: {visits}"
+                "lineStats": "{mi} миль · {duration} · визитов: {visits}"
             },
             "preview": {
                 "title": "Предпросмотр оптимизации",
                 "current": "Текущий порядок",
                 "proposed": "Предлагаемый порядок",
-                "routeSummaryLine": "{mi} миль · {min} мин",
+                "routeSummaryLine": "{mi} миль · {duration}",
                 "savingsDistance": "{mi} миль ({pct}%)",
                 "savings": "Экономия",
                 "noChanges": "Маршрут уже оптимален",
@@ -1589,7 +1594,7 @@
                 "route": "Маршрут",
                 "saved": "Сохранённые"
             },
-            "metricsLine": "{mi} миль · {min} мин · визитов: {visits}",
+            "metricsLine": "{mi} миль · {duration} · визитов: {visits}",
             "actions": "Действия",
             "noRouteShort": "Маршрута ещё нет",
             "savedRoutesGroups": {
@@ -2904,11 +2909,6 @@
                     "requires_capture": "Готово к списанию"
                 },
                 "refundAction": "Возврат"
-            },
-            "bookingDuration": {
-                "hm": "{h} ч {m} мин",
-                "h": "{h} ч",
-                "m": "{m} мин"
             },
             "activity": {
                 "comment": "Добавить комментарий",

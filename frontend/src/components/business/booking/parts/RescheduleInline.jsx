@@ -30,7 +30,7 @@ export default function RescheduleInline({
     saving = false,
 }) {
     const t = useTranslations('business.schedule.drawer.reschedule')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
 
     const [date, setDate] = useState(initialDate ? new Date(`${initialDate}T00:00:00`) : new Date())
     const [time, setTime] = useState(initialTime || '09:00')

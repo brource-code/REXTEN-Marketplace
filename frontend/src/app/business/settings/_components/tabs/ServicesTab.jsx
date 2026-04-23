@@ -34,6 +34,7 @@ import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { formatDuration } from '@/utils/formatDuration'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
 import {
     BOOKING_DURATION_OPTIONS_MINUTES,
@@ -47,6 +48,7 @@ const { Tr, Td, TBody, THead, Th } = Table
 const ServicesTab = () => {
     const t = useTranslations('business.settings.services')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('common.durationMinutes')
     const queryClient = useQueryClient()
     const { canCreate } = useSubscriptionLimits()
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -407,7 +409,7 @@ const ServicesTab = () => {
 const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
     const t = useTranslations('business.settings.services')
     const tCommon = useTranslations('business.common')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
     const [formData, setFormData] = useState({
         name: '',
         category: '',
@@ -718,7 +720,7 @@ const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
                                                     </span>
                                                     {addService.duration && (
                                                         <span className="text-gray-500">
-                                                            {formatDuration(addService.duration, 'minutes')}
+                                                            {formatDurationMinutesI18n(addService.duration, tDur)}
                                                         </span>
                                                     )}
                                                     <Tag
@@ -790,7 +792,7 @@ const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
 const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave }) => {
     const t = useTranslations('business.settings.services.additionalServices')
     const tCommon = useTranslations('business.common')
-    const tDur = useTranslations('business.schedule.bookingDuration')
+    const tDur = useTranslations('common.durationMinutes')
     const [formData, setFormData] = useState({
         name: additionalService?.name || '',
         description: additionalService?.description || '',

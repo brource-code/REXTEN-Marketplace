@@ -560,6 +560,11 @@
             "deleted": "Eliminado",
             "updated": "Actualizado",
             "created": "Creado"
+        },
+        "durationMinutes": {
+            "hm": "{h} h {m} min",
+            "h": "{h} h",
+            "m": "{m} min"
         }
     },
     "client": {
@@ -1511,27 +1516,27 @@
                 "startTitle": "Salida (casa)",
                 "endTitle": "Regreso a casa",
                 "inTransit": "En ruta",
-                "legStats": "{mi} mi · {min} min",
+                "legStats": "{mi} mi · {duration}",
                 "visitFallback": "Visita",
                 "homeUnknown": "Dirección de casa no configurada",
                 "addressUnknown": "Sin dirección en la parada",
-                "serviceDuration": "En sitio ~ {min} min",
+                "serviceDuration": "En sitio ~ {duration}",
                 "routingArrival": "Llegada por ruta",
                 "waitUntilAppointment": "Espera {duration} hasta la hora de la cita",
-                "lateArrival": "Retraso de {min} min"
+                "lateArrival": "Retraso: {duration}"
             },
             "savedRoutes": {
                 "title": "Rutas guardadas por día",
                 "hint": "Toca una fecha para abrir la ruta de ese día.",
                 "empty": "Aún no hay rutas guardadas para este especialista.",
                 "loading": "Cargando rutas guardadas…",
-                "lineStats": "{mi} mi · {min} min · {visits} visitas"
+                "lineStats": "{mi} mi · {duration} · {visits} visitas"
             },
             "preview": {
                 "title": "Vista previa de optimización",
                 "current": "Orden actual",
                 "proposed": "Orden propuesto",
-                "routeSummaryLine": "{mi} mi · {min} min",
+                "routeSummaryLine": "{mi} mi · {duration}",
                 "savingsDistance": "{mi} mi ({pct}%)",
                 "savings": "Ahorro",
                 "noChanges": "La ruta ya es óptima",
@@ -1575,7 +1580,7 @@
                 "route": "Ruta",
                 "saved": "Guardadas"
             },
-            "metricsLine": "{mi} mi · {min} min · {visits} visitas",
+            "metricsLine": "{mi} mi · {duration} · {visits} visitas",
             "actions": "Acciones",
             "noRouteShort": "Aún no hay ruta",
             "savedRoutesGroups": {
@@ -1958,11 +1963,6 @@
                     "requires_capture": "Listo para cobrar"
                 },
                 "refundAction": "Reembolsar"
-            },
-            "bookingDuration": {
-                "hm": "{h} h {m} min",
-                "h": "{h} h",
-                "m": "{m} min"
             },
             "activity": {
                 "comment": "Agregar comentario",
