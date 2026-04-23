@@ -501,7 +501,7 @@ class SettingsController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'duration_minutes' => 'required|integer|min:1',
+            'duration_minutes' => 'required|integer|min:1|max:720',
             'category_id' => 'nullable|exists:service_categories,id',
             'category' => 'nullable|string|max:255', // Для совместимости с фронтендом
             'service_type' => 'nullable|in:onsite,offsite,hybrid',
@@ -621,8 +621,8 @@ class SettingsController extends Controller
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'price' => 'sometimes|numeric|min:0',
-            'duration_minutes' => 'sometimes|integer|min:1',
-            'duration' => 'sometimes|integer|min:1', // Для совместимости
+            'duration_minutes' => 'sometimes|integer|min:1|max:720',
+            'duration' => 'sometimes|integer|min:1|max:720', // Для совместимости
             'category_id' => 'nullable|exists:service_categories,id',
             'category' => 'nullable|string|max:255', // Для совместимости
             'service_type' => 'nullable|in:onsite,offsite,hybrid',
