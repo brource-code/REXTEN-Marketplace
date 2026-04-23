@@ -91,6 +91,10 @@ function DataTable(props) {
         instanceId = 'data-table',
         ref,
         onRowClick,
+        /** Без inline width на ячейках — table-auto подстраивается под ширину контейнера (CRM и узкий сайдбар) */
+        fluidCells = false,
+        /** Пагинация снизу; при `false` — блок с Pagination/Select рендерит родитель (единый футер для моб. карточек + таблицы) */
+        showPaginationFooter = true,
         ...rest
     } = props
 
@@ -356,9 +360,13 @@ function DataTable(props) {
                                                     return (
                                                         <Td
                                                             key={cell.id}
-                                                            style={{
-                                                                width: cell.column.getSize(),
-                                                            }}
+                                                            style={
+                                                                fluidCells
+                                                                    ? undefined
+                                                                    : {
+                                                                          width: cell.column.getSize(),
+                                                                      }
+                                                            }
                                                             onClick={
                                                                 stopRowClick
                                                                     ? (e) =>
@@ -382,27 +390,31 @@ function DataTable(props) {
                     </TBody>
                 )}
             </Table>
-            <div className="flex items-center justify-between mt-4">
-                <Pagination
-                    pageSize={pageSize}
-                    currentPage={pageIndex}
-                    total={total}
-                    onChange={handlePaginationChange}
-                />
-                <div style={{ minWidth: 130 }}>
-                    <Select
-                        instanceId={instanceId}
-                        size="sm"
-                        menuPlacement="top"
-                        isSearchable={false}
-                        value={pageSizeOption.filter(
-                            (option) => option.value === pageSize,
-                        )}
-                        options={pageSizeOption}
-                        onChange={(option) => handleSelectChange(option?.value)}
+            {showPaginationFooter ? (
+                <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                    <Pagination
+                        pageSize={pageSize}
+                        currentPage={pageIndex}
+                        total={total}
+                        onChange={handlePaginationChange}
                     />
+                    <div style={{ minWidth: 130 }}>
+                        <Select
+                            instanceId={instanceId}
+                            size="sm"
+                            menuPlacement="top"
+                            isSearchable={false}
+                            value={pageSizeOption.filter(
+                                (option) => option.value === pageSize,
+                            )}
+                            options={pageSizeOption}
+                            onChange={(option) =>
+                                handleSelectChange(option?.value)
+                            }
+                        />
+                    </div>
                 </div>
-            </div>
+            ) : null}
         </Loading>
     )
 }
