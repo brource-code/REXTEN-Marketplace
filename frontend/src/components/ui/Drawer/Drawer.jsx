@@ -45,8 +45,12 @@ const Drawer = (props) => {
     // Стили панели + анимация через transform (x/y), без left/top в px — меньше layout thrashing на мобильных
     const { dimensionClass, panelStyle, motionInitial, motionAnimate } = useMemo(() => {
         if (placement === 'left' || placement === 'right') {
+            // На мобильных не даём панели ширину 100vw — иначе оверлей полностью под панелью
+            // и клик «снаружи» (shouldCloseOnOverlayClick) недоступен.
             const widthCss =
-                typeof width === 'number' ? `min(100vw, ${width}px)` : width
+                typeof width === 'number'
+                    ? `min(${width}px, calc(100vw - 2.5rem))`
+                    : width
             const base = {
                 width: widthCss,
                 maxWidth: '100vw',
