@@ -561,14 +561,28 @@ export interface ClientLoyaltySummary {
     bookings_to_next_tier: number | null
 }
 
+export interface BusinessClientsIndexSummary {
+    activeLast30: number
+    permanentVip: number
+    totalRevenue: number
+}
+
 export async function getBusinessClients(filters?: {
     search?: string
     status?: string
+    quickFilter?: '' | 'active30' | 'idle90' | 'vip'
+    sortKey?: 'name' | 'lastVisit' | 'totalBookings' | 'totalSpent' | 'status'
+    order?: 'asc' | 'desc'
     page?: number
     pageSize?: number
-}): Promise<{ data: BusinessClient[]; total: number }> {
+}): Promise<{ data: BusinessClient[]; total: number; summary: BusinessClientsIndexSummary }> {
     const response = await LaravelAxios.get('/business/clients', { params: filters })
-    return response.data
+    const d = response.data
+    return {
+        data: d.data || [],
+        total: d.total ?? 0,
+        summary: d.summary ?? { activeLast30: 0, permanentVip: 0, totalRevenue: 0 },
+    }
 }
 
 export async function getClientDetails(clientId: number, filters?: {

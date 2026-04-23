@@ -54,12 +54,12 @@ const ClientSummaryCard = ({ summary, currency = 'USD' }) => {
     }
 
     return (
-        <Card className="p-6">
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        <Card>
+            <h4 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-base">
                 {t('title')}
             </h4>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-6">
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4 md:grid-cols-4 md:gap-x-6 md:gap-y-5">
                 {/* Первый визит */}
                 <SummaryItem
                     icon={PiCalendar}

@@ -15,16 +15,16 @@ export default function ClientLoyaltyCard({ loyalty }) {
 
     if (!tiersConfigured) {
         return (
-            <Card className="p-5 border border-gray-200 dark:border-gray-700">
+            <Card>
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('notConfiguredShort')}</p>
             </Card>
         )
     }
 
     return (
-        <Card className="p-5 border border-gray-200 dark:border-gray-700">
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
-            <div className="mt-4">
+        <Card>
+            <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-base">{t('title')}</h4>
+            <div className="mt-3 sm:mt-4">
                 <LoyaltyProgramBlock
                     variant="business"
                     loyaltyBookingsCount={loyalty.loyalty_bookings_count}

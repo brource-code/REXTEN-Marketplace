@@ -168,7 +168,7 @@ const ClientCreateModal = ({ isOpen, onClose, onSuccess }) => {
 
                     {/* Футер */}
                     <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end gap-2">
-                        <Button variant="plain" onClick={handleClose}>
+                        <Button type="button" variant="plain" onClick={handleClose}>
                             {t('cancel')}
                         </Button>
                         <Button

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import Dialog from '@/components/ui/Dialog'
 import Button from '@/components/ui/Button'
@@ -11,6 +11,43 @@ import { updateClient } from '@/lib/api/business'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
+
+function normalizeAddressLine(raw) {
+    if (typeof raw === 'string') return raw.trim()
+    if (raw && typeof raw === 'object' && typeof raw.formattedAddress === 'string') {
+        return raw.formattedAddress.trim()
+    }
+    return ''
+}
+
+function buildClientUpdatePayload(formData) {
+    const isPlaceholderEmail =
+        formData.email &&
+        (formData.email.includes('@local.local') ||
+            !formData.email.includes('@') ||
+            formData.email.trim() === '')
+    const addressLine = normalizeAddressLine(formData.address)
+    return {
+        name: formData.name,
+        email: formData.email && !isPlaceholderEmail ? formData.email : undefined,
+        phone:
+            formData.phone && String(formData.phone).trim() !== ''
+                ? String(formData.phone).trim()
+                : undefined,
+        address: addressLine !== '' ? addressLine : undefined,
+        status: formData.status,
+    }
+}
+
+function clientUpdatePayloadsEqual(a, b) {
+    if (!a || !b) return false
+    if ((a.name || '').trim() !== (b.name || '').trim()) return false
+    if (a.status !== b.status) return false
+    if ((a.email ?? undefined) !== (b.email ?? undefined)) return false
+    if ((a.phone ?? undefined) !== (b.phone ?? undefined)) return false
+    if ((a.address ?? undefined) !== (b.address ?? undefined)) return false
+    return true
+}
 
 const ClientEditModal = ({ isOpen, onClose, client }) => {
     const t = useTranslations('business.clients.editModal')
@@ -25,18 +62,20 @@ const ClientEditModal = ({ isOpen, onClose, client }) => {
         address: '',
         status: 'regular',
     })
+    const initialPayloadRef = useRef(null)
 
     useEffect(() => {
-        if (client) {
-            setFormData({
-                name: client.name || '',
-                email: client.email || '',
-                phone: client.phone || '',
-                address: client.address || '',
-                status: client.status || 'regular',
-            })
+        if (!client || !isOpen) return
+        const nextForm = {
+            name: client.name || '',
+            email: client.email || '',
+            phone: client.phone || '',
+            address: client.address || '',
+            status: client.status || 'regular',
         }
-    }, [client])
+        setFormData(nextForm)
+        initialPayloadRef.current = buildClientUpdatePayload(nextForm)
+    }, [client, isOpen])
 
     const statusOptions = [
         { value: 'regular', label: tStatuses('regular') },
@@ -67,29 +106,12 @@ const ClientEditModal = ({ isOpen, onClose, client }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        
-        // Проверяем, является ли email placeholder или невалидным
-        const isPlaceholderEmail = formData.email && (
-            formData.email.includes('@local.local') || 
-            !formData.email.includes('@') ||
-            formData.email.trim() === ''
-        )
-
-        const rawAddr = formData.address
-        const addressLine =
-            typeof rawAddr === 'string'
-                ? rawAddr.trim()
-                : rawAddr && typeof rawAddr === 'object' && typeof rawAddr.formattedAddress === 'string'
-                  ? rawAddr.formattedAddress.trim()
-                  : ''
-        
-        updateMutation.mutate({
-            name: formData.name,
-            email: (formData.email && !isPlaceholderEmail) ? formData.email : undefined,
-            phone: formData.phone && String(formData.phone).trim() !== '' ? String(formData.phone).trim() : undefined,
-            address: addressLine !== '' ? addressLine : undefined,
-            status: formData.status,
-        })
+        const payload = buildClientUpdatePayload(formData)
+        if (clientUpdatePayloadsEqual(payload, initialPayloadRef.current)) {
+            onClose()
+            return
+        }
+        updateMutation.mutate(payload)
     }
 
     const handleStatusChange = (option) => {
@@ -157,7 +179,7 @@ const ClientEditModal = ({ isOpen, onClose, client }) => {
 
                     {/* Футер */}
                     <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end gap-2">
-                        <Button variant="plain" onClick={onClose}>
+                        <Button type="button" variant="plain" onClick={onClose}>
                             {t('cancel')}
                         </Button>
                         <Button
