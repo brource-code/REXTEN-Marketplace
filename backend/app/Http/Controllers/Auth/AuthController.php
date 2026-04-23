@@ -214,6 +214,82 @@ class AuthController extends Controller
     }
 
     /**
+     * Публичный демо-вход: POST без тела, одна общая сессия (user_id или fallback_email из config).
+     * Ссылка для гостей: {frontend}/business/demo-login — см. php artisan demo:public-login-url
+     */
+    public function publicDemoLogin(Request $request)
+    {
+        if (! config('rexten_public_demo_login.enabled')) {
+            return response()->json([
+                'message' => 'Публичный демо-вход отключён.',
+            ], 403);
+        }
+
+        $userId = config('rexten_public_demo_login.user_id');
+        $fallbackEmail = config('rexten_public_demo_login.fallback_email');
+
+        $validator = Validator::make($request->all(), [
+            'locale' => 'nullable|string|in:en,ru,es-MX,hy-AM,uk-UA',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $user = null;
+        if ($userId !== null && $userId >= 1) {
+            $user = User::find($userId);
+        }
+        if (! $user && is_string($fallbackEmail) && $fallbackEmail !== '') {
+            $user = User::where('email', $fallbackEmail)->first();
+        }
+        if (! $user) {
+            return response()->json([
+                'message' => 'Демо-пользователь не найден. Задайте DEMO_PUBLIC_LOGIN_USER_ID или создайте пользователя с email из DEMO_PUBLIC_LOGIN_USER_EMAIL.',
+            ], 503);
+        }
+
+        if (! $user->isSuperAdmin()
+            && PlatformSettingsService::isEmailVerificationRequired()
+            && ! $user->email_verified_at) {
+            return response()->json([
+                'success' => false,
+                'code' => 'email_not_verified',
+                'message' => 'Аккаунт не активирован.',
+            ], 403);
+        }
+
+        if ($user->is_blocked) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Аккаунт заблокирован.',
+                'is_blocked' => true,
+            ], 403);
+        }
+
+        if (! $user->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Аккаунт неактивен.',
+                'is_blocked' => true,
+            ], 403);
+        }
+
+        try {
+            $user->last_login_at = now();
+            $user->saveQuietly();
+            ActivityService::logLogin($user->fresh());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Public demo login activity: '.$e->getMessage());
+        }
+
+        return $this->tokenJsonResponse($user->load('profile'));
+    }
+
+    /**
      * Get authenticated user.
      */
     public function me()
