@@ -27,6 +27,7 @@ import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
 import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { formatDate } from '@/utils/dateTime'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
 import useBusinessStore from '@/store/businessStore'
@@ -114,6 +115,7 @@ const TitleColumn = ({ row, densityLines = [], showThumb, noPhotoText }) => {
 export function AdvertisementsRegularPanel({ queryEnabled = true }) {
     const t = useTranslations('business.advertisements')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('common.durationMinutes')
     const { settings } = useBusinessStore()
     const businessTz = settings?.timezone || 'America/Los_Angeles'
     const { canCreate } = useSubscriptionLimits()
@@ -457,9 +459,9 @@ export function AdvertisementsRegularPanel({ queryEnabled = true }) {
 
     return (
         <>
-            <div className="flex flex-col gap-4">
+            <div className="flex min-w-0 flex-col gap-4">
                 <SubscriptionLimitAlert resource="advertisements" />
-                <div className="flex flex-wrap justify-end gap-2">
+                <div className="flex min-w-0 flex-wrap justify-end gap-2">
                     <Link href="/business/advertisements/purchase">
                         <Button variant="outline" size="sm" icon={<PiMegaphone />}>
                             {t('buyAds')}
@@ -482,7 +484,7 @@ export function AdvertisementsRegularPanel({ queryEnabled = true }) {
                     regularEmptyState
                 ) : (
                     <>
-                        <div className="flex flex-col gap-1.5 md:hidden">
+                        <div className="flex flex-col gap-1.5 lg:hidden">
                             {advertisements.map((ad) => {
                                 const imageUrl = ad.image ? normalizeImageUrl(ad.image) : null
                                 return (
@@ -594,7 +596,7 @@ export function AdvertisementsRegularPanel({ queryEnabled = true }) {
                             })}
                         </div>
 
-                        <div ref={tableHostRef} className="hidden min-w-0 w-full md:block">
+                        <div ref={tableHostRef} className="hidden min-w-0 w-full lg:block">
                             <DataTable
                                 columns={columns}
                                 data={advertisements}
@@ -724,7 +726,7 @@ export function AdvertisementsRegularPanel({ queryEnabled = true }) {
                                                 <div className="ml-4 flex flex-shrink-0 items-center gap-4">
                                                     {service.duration ? (
                                                         <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                                                            {service.duration} {t('viewModal.min')}
+                                                            {formatDurationMinutesI18n(service.duration, tDur)}
                                                         </span>
                                                     ) : null}
                                                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">

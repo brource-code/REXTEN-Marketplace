@@ -27,8 +27,10 @@ import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
 import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { formatDate } from '@/utils/dateTime'
+import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 import useBusinessStore from '@/store/businessStore'
 import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
+import classNames from '@/utils/classNames'
 
 const statusColors = {
     draft: 'bg-yellow-400 dark:bg-yellow-500 text-gray-900 dark:text-gray-900',
@@ -37,6 +39,49 @@ const statusColors = {
     rejected: 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900',
     active: 'bg-blue-200 dark:bg-blue-200 text-gray-900 dark:text-gray-900',
     inactive: 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900',
+}
+
+/** Показы, клики, CTR — отдельный визуальный блок, не сливается с описанием. */
+function AdsStatsMini({ row, impressionsLabel, clicksLabel, ctrLabel, statsHeading, className }) {
+    const ctr = row.impressions > 0 ? ((row.clicks / row.impressions) * 100).toFixed(2) : '0'
+    return (
+        <div
+            className={classNames(
+                'rounded-lg border border-gray-200 bg-gray-50/95 p-2 shadow-sm dark:border-gray-600 dark:bg-gray-800/70',
+                className,
+            )}
+            role="group"
+            aria-label={statsHeading}
+        >
+            <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                {statsHeading}
+            </div>
+            <div className="flex flex-wrap gap-2">
+                <div className="flex min-w-0 flex-1 basis-[28%] flex-col gap-0.5 rounded-md border border-gray-200 bg-white px-2 py-1.5 dark:border-gray-600 dark:bg-gray-900/50">
+                    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        <PiEye className="shrink-0 text-emerald-600 dark:text-emerald-400" size={12} aria-hidden />
+                        {impressionsLabel}
+                    </span>
+                    <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                        {(row.impressions || 0).toLocaleString()}
+                    </span>
+                </div>
+                <div className="flex min-w-0 flex-1 basis-[28%] flex-col gap-0.5 rounded-md border border-gray-200 bg-white px-2 py-1.5 dark:border-gray-600 dark:bg-gray-900/50">
+                    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        <PiCursorClick className="shrink-0 text-blue-600 dark:text-blue-400" size={12} aria-hidden />
+                        {clicksLabel}
+                    </span>
+                    <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">{row.clicks || 0}</span>
+                </div>
+                <div className="flex min-w-0 flex-1 basis-[28%] flex-col gap-0.5 rounded-md border border-gray-200 bg-white px-2 py-1.5 dark:border-gray-600 dark:bg-gray-900/50">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        {ctrLabel}
+                    </span>
+                    <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">{ctr}%</span>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 const ImageColumn = ({ row, noPhotoText }) => {
@@ -65,7 +110,18 @@ const ImageColumn = ({ row, noPhotoText }) => {
     )
 }
 
-const TitleColumn = ({ row, adBadgeText, densityLines = [], showThumb, noPhotoText }) => {
+const TitleColumn = ({
+    row,
+    adBadgeText,
+    densityLines = [],
+    showThumb,
+    noPhotoText,
+    showInlineStats,
+    statsHeading,
+    impressionsLabel,
+    clicksLabel,
+    ctrLabel,
+}) => {
     const imageUrl = row.image ? normalizeImageUrl(row.image) : null
     return (
         <div className="flex min-w-0 max-w-full items-start gap-2">
@@ -101,6 +157,16 @@ const TitleColumn = ({ row, adBadgeText, densityLines = [], showThumb, noPhotoTe
                         {row.description}
                     </div>
                 ) : null}
+                {showInlineStats ? (
+                    <AdsStatsMini
+                        row={row}
+                        impressionsLabel={impressionsLabel}
+                        clicksLabel={clicksLabel}
+                        ctrLabel={ctrLabel}
+                        statsHeading={statsHeading}
+                        className="mt-2"
+                    />
+                ) : null}
                 {densityLines.map((line, i) => (
                     <div
                         key={i}
@@ -114,33 +180,21 @@ const TitleColumn = ({ row, adBadgeText, densityLines = [], showThumb, noPhotoTe
     )
 }
 
-const StatsColumn = ({ row, ctrLabel }) => {
-    const ctr =
-        row.impressions > 0 ? ((row.clicks / row.impressions) * 100).toFixed(2) : '0'
-
-    return (
-        <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1 text-sm">
-                <PiEye className="text-gray-400" size={14} aria-hidden />
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                    {(row.impressions || 0).toLocaleString()}
-                </span>
-            </div>
-            <div className="flex items-center gap-1 text-sm">
-                <PiCursorClick className="text-gray-400" size={14} aria-hidden />
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{row.clicks || 0}</span>
-            </div>
-            <div className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                {ctrLabel}: <span className="text-gray-900 dark:text-gray-100">{ctr}%</span>
-            </div>
-        </div>
-    )
-}
+const StatsColumn = ({ row, ctrLabel, impressionsLabel, clicksLabel, statsHeading }) => (
+    <AdsStatsMini
+        row={row}
+        impressionsLabel={impressionsLabel}
+        clicksLabel={clicksLabel}
+        ctrLabel={ctrLabel}
+        statsHeading={statsHeading}
+    />
+)
 
 export function AdvertisementsAdsPanel({ queryEnabled = true }) {
     const t = useTranslations('business.advertisements.ads')
     const tAds = useTranslations('business.advertisements')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('common.durationMinutes')
     const { settings } = useBusinessStore()
     const businessTz = settings?.timezone || 'America/Los_Angeles'
     const searchParams = useSearchParams()
@@ -169,11 +223,12 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
         return () => ro.disconnect()
     }, [])
 
-    const hidePlacementDatesColumn = tableHostWidth < 1020
-    const hideCreatedAtColumn = tableHostWidth < 920
-    const hideStatsColumn = tableHostWidth < 860
-    const hidePhotoColumn = tableHostWidth < 760
-    const hidePlacementColumn = tableHostWidth < 700
+    // Узкая область (планшет с сайдбаром): раньше прячем колонки — плотность в TitleColumn, без гориз. скролла
+    const hidePlacementDatesColumn = tableHostWidth < 1180
+    const hideCreatedAtColumn = tableHostWidth < 1080
+    const hideStatsColumn = tableHostWidth < 1000
+    const hidePhotoColumn = tableHostWidth < 920
+    const hidePlacementColumn = tableHostWidth < 880
 
     const getStatusLabel = useCallback(
         (status) => {
@@ -290,16 +345,6 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
             if (hidePlacementColumn && row.placement) {
                 lines.push(`${t('columns.placement')}: ${getPlacementLabel(row.placement)}`)
             }
-            if (hideStatsColumn) {
-                const ctr =
-                    row.impressions > 0
-                        ? ((row.clicks / row.impressions) * 100).toFixed(2)
-                        : '0'
-                lines.push(
-                    `${t('stats.impressions')}: ${(row.impressions || 0).toLocaleString()} · ${t('stats.clicks')}: ${row.clicks || 0}`,
-                )
-                lines.push(`${ctrShortLabel}: ${ctr}%`)
-            }
             if (hidePlacementDatesColumn && (row.start_date || row.end_date)) {
                 const start = row.start_date ? formatDate(row.start_date, businessTz, 'short') : '—'
                 const end = row.end_date ? formatDate(row.end_date, businessTz, 'short') : '—'
@@ -338,6 +383,11 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                         adBadgeText={t('adBadge')}
                         showThumb={hidePhotoColumn}
                         noPhotoText={tAds('noPhoto')}
+                        showInlineStats={hideStatsColumn}
+                        statsHeading={t('columns.stats')}
+                        impressionsLabel={t('stats.impressions')}
+                        clicksLabel={t('stats.clicks')}
+                        ctrLabel={ctrShortLabel}
                         densityLines={densityLinesForRow(row)}
                     />
                 )
@@ -397,7 +447,13 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                 accessorKey: 'impressions',
                 enableSorting: false,
                 cell: (props) => (
-                    <StatsColumn row={props.row.original} ctrLabel={ctrShortLabel} />
+                    <StatsColumn
+                        row={props.row.original}
+                        ctrLabel={ctrShortLabel}
+                        impressionsLabel={t('stats.impressions')}
+                        clicksLabel={t('stats.clicks')}
+                        statsHeading={t('columns.stats')}
+                    />
                 ),
             })
         }
@@ -553,8 +609,8 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
 
     return (
         <>
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap justify-end gap-2">
+            <div className="flex min-w-0 flex-col gap-4">
+                <div className="flex min-w-0 flex-wrap justify-end gap-2">
                     <Link href="/business/advertisements/purchase">
                         <Button variant="solid" size="sm" icon={<PiMegaphone />} className="bg-blue-600 hover:bg-blue-700">
                             {t('buyAds')}
@@ -566,13 +622,9 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                     adsEmptyState
                 ) : (
                     <>
-                        <div className="flex flex-col gap-1.5 md:hidden">
+                        <div className="flex flex-col gap-1.5 lg:hidden">
                             {advertisements.map((ad) => {
                                 const imageUrl = ad.image ? normalizeImageUrl(ad.image) : null
-                                const ctr =
-                                    ad.impressions > 0
-                                        ? ((ad.clicks / ad.impressions) * 100).toFixed(2)
-                                        : '0'
                                 return (
                                     <div
                                         key={ad.id}
@@ -634,44 +686,24 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                                                                 </Tag>
                                                             </div>
                                                         ) : null}
-                                                        <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-900/50">
-                                                            <div className="min-w-0">
-                                                                <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
-                                                                    {t('stats.impressions')}
+                                                        <AdsStatsMini
+                                                            row={ad}
+                                                            impressionsLabel={t('stats.impressions')}
+                                                            clicksLabel={t('stats.clicks')}
+                                                            ctrLabel={t('viewModal.ctr')}
+                                                            statsHeading={t('columns.stats')}
+                                                            className="mt-2"
+                                                        />
+                                                        {ad.created_at ? (
+                                                            <div className="mt-2 rounded-md border border-dashed border-gray-200 bg-gray-50/80 px-2 py-1.5 dark:border-gray-600 dark:bg-gray-900/40">
+                                                                <div className="text-[9px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                                                    {t('columns.createdAt')}
                                                                 </div>
-                                                                <div className="mt-0.5 flex items-center gap-1 text-xs font-bold text-gray-900 dark:text-gray-100">
-                                                                    <PiEye className="shrink-0 text-gray-400" size={14} aria-hidden />
-                                                                    {(ad.impressions || 0).toLocaleString()}
-                                                                </div>
-                                                            </div>
-                                                            <div className="min-w-0">
-                                                                <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
-                                                                    {t('stats.clicks')}
-                                                                </div>
-                                                                <div className="mt-0.5 flex items-center gap-1 text-xs font-bold text-gray-900 dark:text-gray-100">
-                                                                    <PiCursorClick className="shrink-0 text-gray-400" size={14} aria-hidden />
-                                                                    {ad.clicks || 0}
+                                                                <div className="mt-0.5 text-xs font-bold text-gray-900 dark:text-gray-100">
+                                                                    {formatDate(ad.created_at, businessTz, 'short')}
                                                                 </div>
                                                             </div>
-                                                            <div className="min-w-0">
-                                                                <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
-                                                                    {t('viewModal.ctr')}
-                                                                </div>
-                                                                <div className="mt-0.5 text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                                                                    {ctr}%
-                                                                </div>
-                                                            </div>
-                                                            {ad.created_at ? (
-                                                                <div className="min-w-0">
-                                                                    <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
-                                                                        {t('columns.createdAt')}
-                                                                    </div>
-                                                                    <div className="mt-0.5 truncate text-xs font-bold text-gray-900 dark:text-gray-100">
-                                                                        {formatDate(ad.created_at, businessTz, 'short')}
-                                                                    </div>
-                                                                </div>
-                                                            ) : null}
-                                                        </div>
+                                                        ) : null}
                                                         <div className="mt-2 flex items-center gap-2 border-t border-gray-100 pt-2 dark:border-gray-700/80">
                                                             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
                                                                 {t('columns.visible')}:
@@ -720,7 +752,7 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                             })}
                         </div>
 
-                        <div ref={tableHostRef} className="hidden min-w-0 w-full md:block">
+                        <div ref={tableHostRef} className="hidden min-w-0 w-full lg:block">
                             <DataTable
                                 columns={columns}
                                 data={advertisements}
@@ -844,7 +876,7 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                                                 <div className="ml-4 flex flex-shrink-0 items-center gap-4">
                                                     {service.duration ? (
                                                         <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                                                            {service.duration} {tAds('viewModal.min')}
+                                                            {formatDurationMinutesI18n(service.duration, tDur)}
                                                         </span>
                                                     ) : null}
                                                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
