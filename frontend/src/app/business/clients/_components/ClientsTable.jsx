@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import dayjs from 'dayjs'
 import Avatar from '@/components/ui/Avatar'
@@ -10,7 +10,7 @@ import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { useRouter } from 'next/navigation'
 import { PiUsers, PiEnvelope, PiCurrencyDollar, PiCalendar } from 'react-icons/pi'
-import { TbPencil, TbEye, TbPhone } from 'react-icons/tb'
+import { TbPencil, TbPhone } from 'react-icons/tb'
 import { NumericFormat } from 'react-number-format'
 import ClientEditModal from './ClientEditModal'
 import { formatDate } from '@/utils/dateTime'
@@ -35,37 +35,36 @@ function getInitials(name) {
     return name[0].toUpperCase()
 }
 
-const NameColumn = ({ row }) => {
+const NameColumn = ({ row, densityLines = [] }) => {
     return (
-        <div className="flex items-center">
-            <Avatar size={40} shape="circle" src={row.img || undefined}>
+        <div className="flex min-w-0 max-w-full items-center">
+            <Avatar size={40} shape="circle" className="shrink-0" src={row.img || undefined}>
                 {!row.img && getInitials(row.name)}
             </Avatar>
-            <div className="ml-2 rtl:mr-2">
-                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{row.name}</div>
+            <div className="ml-2 min-w-0 flex-1 rtl:mr-2">
+                <div className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{row.name}</div>
                 {row.phone ? (
-                    <div className="mt-1 flex items-center gap-1 text-xs font-bold text-gray-900 dark:text-gray-100">
-                        <TbPhone className="text-xs text-gray-400 dark:text-gray-500" aria-hidden />
-                        <span>{row.phone}</span>
+                    <div className="mt-1 flex min-w-0 items-center gap-1 text-xs font-bold text-gray-900 dark:text-gray-100">
+                        <TbPhone className="shrink-0 text-xs text-gray-400 dark:text-gray-500" aria-hidden />
+                        <span className="truncate">{row.phone}</span>
                     </div>
                 ) : null}
+                {densityLines.map((line, i) => (
+                    <div
+                        key={i}
+                        className="mt-0.5 truncate text-[11px] font-bold text-gray-500 dark:text-gray-400"
+                    >
+                        {line}
+                    </div>
+                ))}
             </div>
         </div>
     )
 }
 
-const ActionColumn = ({ onEdit, onViewDetail, t }) => {
+const ActionColumn = ({ onEdit, t }) => {
     return (
-        <div className="flex items-center gap-3">
-            <Tooltip title={t('actions.view')}>
-                <div
-                    className="cursor-pointer select-none text-xl font-semibold hover:text-primary"
-                    role="button"
-                    onClick={onViewDetail}
-                >
-                    <TbEye />
-                </div>
-            </Tooltip>
+        <div className="flex items-center justify-end">
             <Tooltip title={t('actions.edit')}>
                 <div
                     className="cursor-pointer select-none text-xl font-semibold hover:text-primary"
@@ -99,6 +98,27 @@ const ClientsTable = ({
     const { onAppendQueryParams } = useAppendQueryParams()
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [editingClient, setEditingClient] = useState(null)
+    const tableHostRef = useRef(null)
+    const [tableHostWidth, setTableHostWidth] = useState(1200)
+
+    useEffect(() => {
+        const el = tableHostRef.current
+        if (!el || typeof ResizeObserver === 'undefined') return undefined
+        const ro = new ResizeObserver((entries) => {
+            const w = entries[0]?.contentRect?.width
+            // display:none (мобильная вёрстка) даёт 0 — не перезаписываем, иначе сломается набор колонок
+            if (typeof w === 'number' && w >= 320) setTableHostWidth(w)
+        })
+        ro.observe(el)
+        const initial = el.getBoundingClientRect().width
+        if (initial >= 320) setTableHostWidth(initial)
+        return () => ro.disconnect()
+    }, [])
+
+    /** Узкая область (планшет + раскрытый сайдбар): убираем колонку «последний визит», дата — под именем */
+    const hideLastVisitColumn = tableHostWidth < 920
+    /** Совсем тесно: убираем «бронирования», цифра остаётся в карточке моб. не трогаем; в таблице экономим место */
+    const hideBookingsColumn = tableHostWidth < 760
 
     const handleEdit = useCallback((client) => {
         setEditingClient(client)
@@ -126,15 +146,31 @@ const ClientsTable = ({
         return tm('daysAgo', { count: days })
     }
 
-    const columns = useMemo(
-        () => [
+    const columns = useMemo(() => {
+        const densityLinesForRow = (row) => {
+            const lines = []
+            if (hideBookingsColumn) {
+                lines.push(`${t('columns.bookings')}: ${row.totalBookings ?? 0}`)
+            }
+            if (hideLastVisitColumn) {
+                const iso = row.lastVisit
+                lines.push(
+                    iso
+                        ? `${t('columns.lastVisit')}: ${formatDate(iso, timezone, 'short')} · ${lastVisitHint(iso)}`
+                        : `${t('columns.lastVisit')}: ${lastVisitHint(null)}`,
+                )
+            }
+            return lines
+        }
+
+        const cols = [
             {
                 header: t('columns.client'),
                 accessorKey: 'name',
                 enableSorting: false,
                 cell: (props) => {
                     const row = props.row.original
-                    return <NameColumn row={row} />
+                    return <NameColumn row={row} densityLines={densityLinesForRow(row)} />
                 },
             },
             {
@@ -148,14 +184,17 @@ const ClientsTable = ({
                     }
                     return (
                         <Tooltip title={email}>
-                            <span className="block max-w-[220px] truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                            <span className="block max-w-full truncate text-sm font-bold text-gray-900 dark:text-gray-100">
                                 {email}
                             </span>
                         </Tooltip>
                     )
                 },
             },
-            {
+        ]
+
+        if (!hideBookingsColumn) {
+            cols.push({
                 header: t('columns.bookings'),
                 accessorKey: 'totalBookings',
                 enableSorting: false,
@@ -167,7 +206,10 @@ const ClientsTable = ({
                         </span>
                     )
                 },
-            },
+            })
+        }
+
+        cols.push(
             {
                 header: t('columns.spent'),
                 accessorKey: 'totalSpent',
@@ -176,8 +218,8 @@ const ClientsTable = ({
                     const rawValue = props.row.original.totalSpent
                     const value = rawValue !== null && rawValue !== undefined ? parseFloat(rawValue) : 0
                     return (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-sm font-bold tabular-nums text-gray-900 dark:bg-emerald-950/30 dark:text-emerald-100">
-                            <PiCurrencyDollar className="text-base text-emerald-600 dark:text-emerald-400" aria-hidden />
+                        <span className="inline-flex max-w-full items-center gap-0.5 truncate rounded-full bg-emerald-50 px-2 py-0.5 text-sm font-bold tabular-nums text-gray-900 dark:bg-emerald-950/30 dark:text-emerald-100">
+                            <PiCurrencyDollar className="shrink-0 text-base text-emerald-600 dark:text-emerald-400" aria-hidden />
                             <NumericFormat
                                 displayType="text"
                                 value={Number.isNaN(value) ? 0 : value}
@@ -188,24 +230,30 @@ const ClientsTable = ({
                     )
                 },
             },
-            {
+        )
+
+        if (!hideLastVisitColumn) {
+            cols.push({
                 header: t('columns.lastVisit'),
                 accessorKey: 'lastVisit',
                 enableSorting: false,
                 cell: (props) => {
                     const iso = props.row.original.lastVisit
                     return (
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                        <div className="flex min-w-0 max-w-full flex-col gap-0.5">
+                            <span className="truncate text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
                                 {iso ? formatDate(iso, timezone, 'short') : '—'}
                             </span>
-                            <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                            <span className="truncate text-[11px] font-bold text-gray-500 dark:text-gray-400">
                                 {lastVisitHint(iso)}
                             </span>
                         </div>
                     )
                 },
-            },
+            })
+        }
+
+        cols.push(
             {
                 header: t('columns.status'),
                 accessorKey: 'status',
@@ -214,7 +262,7 @@ const ClientsTable = ({
                     const row = props.row.original
                     const currentStatus = row.status || 'regular'
                     return (
-                        <div className="flex items-center">
+                        <div className="flex min-w-0 items-center">
                             <Tag className={statusColor[currentStatus] || statusColor.regular}>
                                 {getStatusLabel(currentStatus)}
                             </Tag>
@@ -228,16 +276,21 @@ const ClientsTable = ({
                 enableSorting: false,
                 meta: { stopRowClick: true },
                 cell: (props) => (
-                    <ActionColumn
-                        onEdit={() => handleEdit(props.row.original)}
-                        onViewDetail={() => handleViewDetails(props.row.original)}
-                        t={t}
-                    />
+                    <ActionColumn onEdit={() => handleEdit(props.row.original)} t={t} />
                 ),
             },
-        ],
-        [t, tStatuses, timezone, tm, handleEdit, handleViewDetails],
-    )
+        )
+
+        return cols
+    }, [
+        t,
+        tStatuses,
+        timezone,
+        tm,
+        handleEdit,
+        hideLastVisitColumn,
+        hideBookingsColumn,
+    ])
 
     const handlePaginationChange = (page) => {
         onAppendQueryParams({
@@ -307,18 +360,7 @@ const ClientsTable = ({
                                     </div>
                                 ) : null}
                             </div>
-                            <div className="flex shrink-0 gap-0.5">
-                                <button
-                                    type="button"
-                                    className="inline-flex size-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
-                                    aria-label={t('actions.view')}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleViewDetails(client)
-                                    }}
-                                >
-                                    <TbEye className="text-base" />
-                                </button>
+                            <div className="flex shrink-0">
                                 <button
                                     type="button"
                                     className="inline-flex size-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
@@ -384,12 +426,15 @@ const ClientsTable = ({
                 )}
             </div>
 
-            <div className="hidden md:block">
+            <div ref={tableHostRef} className="hidden min-w-0 w-full md:block">
                 <DataTable
                     columns={columns}
                     data={clientsList}
                     emptyState={clientsEmptyState}
                     noData={clientsList.length === 0}
+                    compact
+                    fluidCells
+                    className="w-full min-w-0"
                     skeletonAvatarColumns={[0]}
                     skeletonAvatarProps={{ width: 40, height: 40 }}
                     loading={false}

@@ -149,7 +149,7 @@ function ClientsPageContent() {
         return (
             <Container>
                 <AdaptiveCard>
-                    <div className="flex min-h-[400px] flex-col gap-4">
+                    <div className="flex min-h-[400px] min-w-0 flex-col gap-4">
                         <div>
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
                             <p className="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">
@@ -170,7 +170,7 @@ function ClientsPageContent() {
     return (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-4" data-tour="page-clients-main">
+                <div className="flex min-w-0 flex-col gap-4" data-tour="page-clients-main">
                     <div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
                         <p className="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">
