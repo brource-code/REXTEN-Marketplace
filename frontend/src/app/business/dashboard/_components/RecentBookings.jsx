@@ -186,7 +186,7 @@ const RecentBookings = () => {
                                     className={classNames('w-1 shrink-0 sm:w-1.5', palette.accent)}
                                     aria-hidden
                                 />
-                                <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-2 sm:flex-row sm:items-center sm:gap-4 sm:p-3">
+                                <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-2 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-3 sm:gap-y-2 sm:p-3">
                                     <div className="flex min-w-0 items-center gap-2 sm:hidden">
                                         <span className="inline-flex min-w-0 items-center gap-1 text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100">
                                             <PiCalendar className="text-sm shrink-0 text-gray-400 dark:text-gray-500" />
@@ -211,32 +211,33 @@ const RecentBookings = () => {
                                         </span>
                                     </div>
 
-                                    <div className="hidden w-full shrink-0 flex-col gap-1 sm:flex sm:w-48">
-                                        <span className="inline-flex items-center gap-1.5 text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                                            <PiCalendar className="text-base shrink-0 text-gray-400 dark:text-gray-500" />
-                                            {formatDate(booking.date, timezone, 'short')}
+                                    <div className="hidden w-full min-w-0 shrink-0 flex-col gap-1 sm:flex sm:w-28 md:w-36 lg:w-40 xl:w-48">
+                                        <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                                            <PiCalendar className="shrink-0 text-base text-gray-400 dark:text-gray-500" aria-hidden />
+                                            <span className="min-w-0 truncate">{formatDate(booking.date, timezone, 'short')}</span>
                                         </span>
                                         <span
                                             className={classNames(
-                                                'inline-flex items-center gap-1.5 text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100',
+                                                'inline-flex min-w-0 items-center gap-1.5 text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100',
                                                 isCancelled && 'line-through',
                                             )}
                                         >
-                                            <PiClock className="text-base shrink-0 text-gray-400 dark:text-gray-500" />
-                                            {formatTime(booking.time, timezone)}
+                                            <PiClock className="shrink-0 text-base text-gray-400 dark:text-gray-500" aria-hidden />
+                                            <span className="min-w-0 truncate">{formatTime(booking.time, timezone)}</span>
                                         </span>
                                     </div>
 
-                                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                                        <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:gap-2">
+                                    <div className="flex min-w-0 flex-1 basis-0 flex-col gap-0.5 sm:min-w-[10rem]">
+                                        <div className="flex min-w-0 flex-wrap items-center gap-1.5 sm:flex-nowrap sm:gap-2">
                                             <span className="shrink-0 text-[11px] font-bold tabular-nums text-gray-500 dark:text-gray-400 sm:text-xs">
                                                 #{booking.id}
                                             </span>
                                             <span
                                                 className={classNames(
-                                                    'min-w-0 truncate text-sm font-bold text-gray-900 dark:text-gray-100 max-sm:leading-tight',
+                                                    'min-w-0 flex-1 truncate text-sm font-bold text-gray-900 dark:text-gray-100 max-sm:leading-tight',
                                                     isCancelled && 'line-through',
                                                 )}
+                                                title={typeof headline === 'string' ? headline : undefined}
                                             >
                                                 {headline}
                                             </span>
@@ -284,8 +285,8 @@ const RecentBookings = () => {
                                         </div>
                                     </div>
 
-                                    <div className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-1.5 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-3">
-                                        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 sm:justify-end">
+                                    <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1.5 max-sm:justify-between sm:basis-full sm:shrink-0 sm:justify-end sm:gap-x-3 xl:basis-auto xl:flex-nowrap">
+                                        <div className="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1">
                                             {total > 0 ? (
                                                 <span className="inline-flex items-center gap-0.5 text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100 sm:text-sm sm:gap-1">
                                                     <PiCurrencyDollar className="text-sm text-emerald-500 sm:text-base" />
