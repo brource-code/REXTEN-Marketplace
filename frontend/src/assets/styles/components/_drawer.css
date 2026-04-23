@@ -9,9 +9,16 @@
     min-height: 100dvh;
     max-height: 100vh;
     max-height: 100dvh;
+    /*
+     * Обёртка react-modal на весь экран — без pointer-events: none она ловит mousedown
+     * по «пустому» затемнению, react-modal ставит shouldClose=false и клик по оверлею
+     * не вызывает onRequestClose (shouldCloseOnOverlayClick «ломается» на всех размерах).
+     */
+    pointer-events: none;
   }
 
   .drawer-content {
+    pointer-events: auto;
     /* translate — композитный слой; не добавлять filter/backdrop-blur на панель — тяжело на мобильных */
     @apply bg-white dark:bg-gray-800 shadow-xl absolute flex flex-col;
     backface-visibility: hidden;
