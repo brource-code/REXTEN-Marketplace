@@ -3,16 +3,20 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import Card from '@/components/ui/Card'
-import Table from '@/components/ui/Table'
 import Chart from '@/components/shared/Chart'
-import { NumericFormat } from 'react-number-format'
 import { useClientsReport } from '@/hooks/api/useBusinessReports'
 import Loading from '@/components/shared/Loading'
+import useTheme from '@/utils/hooks/useTheme'
+import { MODE_DARK } from '@/constants/theme.constant'
+import { getReportsBarChartOptions } from './reportsChartOptions'
+import ReportRankedTable, { RankBadge, MoneyValue } from './ReportRankedTable'
+
 export default function ClientsReport({ filters }) {
     const t = useTranslations('nav.business.schedule.reports.clients')
     const tCommon = useTranslations('nav.business.schedule.reports')
     const tTable = useTranslations('nav.business.schedule.reports.table')
-    
+    const isDark = useTheme((s) => s.mode === MODE_DARK)
+
     const { data, isLoading, error } = useClientsReport(filters)
 
     const newClientsChartData = useMemo(() => {
@@ -34,10 +38,12 @@ export default function ClientsReport({ filters }) {
         }
     }, [data, t])
 
+    const barOptions = useMemo(() => getReportsBarChartOptions({ isDark }), [isDark])
+
     if (isLoading) {
         return (
             <Card>
-                <div className="flex items-center justify-center min-h-[200px]">
+                <div className="flex min-h-[200px] items-center justify-center">
                     <Loading loading />
                 </div>
             </Card>
@@ -47,7 +53,7 @@ export default function ClientsReport({ filters }) {
     if (error || !data) {
         return (
             <Card>
-                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                <div className="py-8 text-center text-sm font-bold text-gray-500 dark:text-gray-400">
                     {tCommon('noData')}
                 </div>
             </Card>
@@ -57,76 +63,95 @@ export default function ClientsReport({ filters }) {
     return (
         <Card>
             <div className="mb-4">
-                <h2 className="h4 heading-text">{t('title')}</h2>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
             </div>
 
             <div className="space-y-6">
                 {data.newClients && data.newClients.length > 0 && (
-                    <div>
-                        <h3 className="text-sm font-semibold heading-text mb-4">{t('newClients')}</h3>
+                    <div className="rounded-xl border border-gray-100 bg-gray-50/40 p-3 dark:border-gray-700/80 dark:bg-gray-800/30">
+                        <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">{t('newClients')}</h4>
                         <Chart
                             type="bar"
                             series={newClientsChartData.series}
                             xAxis={newClientsChartData.categories}
-                            height={300}
+                            height={280}
+                            customOptions={barOptions}
                         />
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {data.topByBookings && data.topByBookings.length > 0 && (
-                        <div>
-                            <h3 className="text-sm font-semibold heading-text mb-4">{t('topByBookings')}</h3>
-                            <Table>
-                            <thead>
-                                <tr>
-                                    <th>{tTable('number')}</th>
-                                    <th>{tCommon('overview.uniqueClients')}</th>
-                                    <th>{tCommon('overview.totalBookings')}</th>
-                                </tr>
-                            </thead>
-                                <tbody>
-                                    {data.topByBookings.map((client, index) => (
-                                        <tr key={`bookings-${client.clientId || 'unregistered'}-${index}`}>
-                                            <td>{index + 1}</td>
-                                            <td>{client.clientName}</td>
-                                            <td>{client.bookings}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
+                        <div className="min-w-0 border-t border-gray-200 pt-4 dark:border-gray-700 lg:border-t-0 lg:pt-0">
+                            <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                {t('topByBookings')}
+                            </h4>
+                            <ReportRankedTable
+                                rows={data.topByBookings}
+                                getRowKey={(row, index) =>
+                                    `bookings-${row.clientId ?? 'na'}-${index}`
+                                }
+                                mobileValueLabel={tTable('bookings')}
+                                columns={[
+                                    {
+                                        header: tTable('number'),
+                                        thClassName: 'w-14',
+                                        render: (_, index) => <RankBadge rank={index + 1} />,
+                                    },
+                                    {
+                                        header: tTable('client'),
+                                        render: (row) => (
+                                            <span className="block max-w-[280px] truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {row.clientName}
+                                            </span>
+                                        ),
+                                    },
+                                    {
+                                        header: tTable('bookings'),
+                                        align: 'right',
+                                        render: (row) => (
+                                            <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                                                {row.bookings}
+                                            </span>
+                                        ),
+                                    },
+                                ]}
+                            />
                         </div>
                     )}
 
                     {data.topByRevenue && data.topByRevenue.length > 0 && (
-                        <div>
-                            <h3 className="text-sm font-semibold heading-text mb-4">{t('topByRevenue')}</h3>
-                            <Table>
-                            <thead>
-                                <tr>
-                                    <th>{tTable('number')}</th>
-                                    <th>{tCommon('overview.uniqueClients')}</th>
-                                    <th>{tCommon('overview.totalRevenue')}</th>
-                                </tr>
-                            </thead>
-                                <tbody>
-                                    {data.topByRevenue.map((client, index) => (
-                                        <tr key={`revenue-${client.clientId || 'unregistered'}-${index}`}>
-                                            <td>{index + 1}</td>
-                                            <td>{client.clientName}</td>
-                                            <td>
-                                                <NumericFormat
-                                                    displayType="text"
-                                                    value={client.revenue}
-                                                    prefix="$"
-                                                    thousandSeparator={true}
-                                                    decimalScale={2}
-                                                />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
+                        <div className="min-w-0 border-t border-gray-200 pt-4 dark:border-gray-700 lg:border-t-0 lg:pt-0">
+                            <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                {t('topByRevenue')}
+                            </h4>
+                            <ReportRankedTable
+                                rows={data.topByRevenue}
+                                getRowKey={(row, index) =>
+                                    `revenue-${row.clientId ?? 'na'}-${index}`
+                                }
+                                mobileValueLabel={tTable('amount')}
+                                columns={[
+                                    {
+                                        header: tTable('number'),
+                                        thClassName: 'w-14',
+                                        render: (_, index) => <RankBadge rank={index + 1} />,
+                                    },
+                                    {
+                                        header: tTable('client'),
+                                        render: (row) => (
+                                            <span className="block max-w-[280px] truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                {row.clientName}
+                                            </span>
+                                        ),
+                                    },
+                                    {
+                                        header: tTable('amount'),
+                                        align: 'right',
+                                        render: (row) => <MoneyValue value={row.revenue} />,
+                                    },
+                                ]}
+                            />
                         </div>
                     )}
                 </div>
@@ -134,4 +159,3 @@ export default function ClientsReport({ filters }) {
         </Card>
     )
 }
-

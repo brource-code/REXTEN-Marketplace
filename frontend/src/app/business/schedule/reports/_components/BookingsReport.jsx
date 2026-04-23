@@ -3,18 +3,24 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import Card from '@/components/ui/Card'
-import Table from '@/components/ui/Table'
 import Chart from '@/components/shared/Chart'
 import { useBookingsReport } from '@/hooks/api/useBusinessReports'
 import Loading from '@/components/shared/Loading'
+import useTheme from '@/utils/hooks/useTheme'
+import { MODE_DARK } from '@/constants/theme.constant'
+import {
+    getReportsDonutChartOptions,
+    getReportsLineChartOptions,
+} from './reportsChartOptions'
+import ReportRankedTable, { RankBadge } from './ReportRankedTable'
 
 export default function BookingsReport({ filters }) {
     const t = useTranslations('nav.business.schedule.reports.bookings')
     const tCommon = useTranslations('nav.business.schedule.reports')
     const tTable = useTranslations('nav.business.schedule.reports.table')
     const tStatuses = useTranslations('business.schedule.statuses')
-    
-    // Функция для получения перевода статуса
+    const isDark = useTheme((s) => s.mode === MODE_DARK)
+
     const getStatusLabel = (status) => {
         const statusKey = status?.toLowerCase()
         try {
@@ -23,7 +29,7 @@ export default function BookingsReport({ filters }) {
             return status ? status.charAt(0).toUpperCase() + status.slice(1) : status
         }
     }
-    
+
     const { data, isLoading, error } = useBookingsReport(filters)
 
     const chartData = useMemo(() => {
@@ -50,20 +56,33 @@ export default function BookingsReport({ filters }) {
             return {
                 series: [],
                 labels: [],
+                keys: [],
             }
         }
 
         return {
             series: data.byStatus.map((item) => item.count),
             labels: data.byStatus.map((item) => getStatusLabel(item.status)),
+            keys: data.byStatus.map((item) => item.status),
         }
     }, [data, tStatuses])
 
+    const lineOptions = useMemo(() => getReportsLineChartOptions({ isDark }), [isDark])
+    const donutOptions = useMemo(
+        () =>
+            getReportsDonutChartOptions({
+                labels: statusChartData.labels,
+                statusKeys: statusChartData.keys,
+                isDark,
+                totalCenterLabel: tCommon('donutTotalBookings'),
+            }),
+        [statusChartData.labels, statusChartData.keys, isDark, tCommon],
+    )
 
     if (isLoading) {
         return (
             <Card>
-                <div className="flex items-center justify-center min-h-[200px]">
+                <div className="flex min-h-[200px] items-center justify-center">
                     <Loading loading />
                 </div>
             </Card>
@@ -73,7 +92,7 @@ export default function BookingsReport({ filters }) {
     if (error || !data) {
         return (
             <Card>
-                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                <div className="py-8 text-center text-sm font-bold text-gray-500 dark:text-gray-400">
                     {tCommon('noData')}
                 </div>
             </Card>
@@ -84,76 +103,77 @@ export default function BookingsReport({ filters }) {
         <div className="space-y-6">
             <Card>
                 <div className="mb-4">
-                    <h2 className="h4 heading-text">{t('title')}</h2>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <h3 className="text-sm font-semibold heading-text mb-4">{t('byPeriod')}</h3>
+                <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div className="min-w-0 rounded-xl border border-gray-100 bg-gray-50/40 p-3 dark:border-gray-700/80 dark:bg-gray-800/30">
+                        <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">
+                            {t('byPeriod')}
+                        </h4>
                         <Chart
                             type="line"
                             series={chartData.series}
                             xAxis={chartData.categories}
-                            height={300}
+                            height={280}
+                            customOptions={lineOptions}
                         />
                     </div>
-                    <div>
-                        <h3 className="text-sm font-semibold heading-text mb-4">{t('byStatus')}</h3>
-                        <Chart
-                            type="donut"
-                            series={statusChartData.series}
-                            customOptions={{ 
-                                labels: statusChartData.labels,
-                                plotOptions: {
-                                    pie: {
-                                        donut: {
-                                            labels: {
-                                                show: true,
-                                                total: {
-                                                    show: true,
-                                                    showAlways: true,
-                                                    label: '',
-                                                    formatter: function (w) {
-                                                        return w.globals.seriesTotals.reduce((a, b) => {
-                                                            return a + b
-                                                        }, 0)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }}
-                            height={300}
-                        />
+                    <div className="min-w-0 rounded-xl border border-gray-100 bg-gray-50/40 p-3 dark:border-gray-700/80 dark:bg-gray-800/30">
+                        <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">
+                            {t('byStatus')}
+                        </h4>
+                        {statusChartData.series.length > 0 ? (
+                            <Chart
+                                type="donut"
+                                series={statusChartData.series}
+                                customOptions={donutOptions}
+                                height={280}
+                            />
+                        ) : (
+                            <div className="flex h-[280px] items-center justify-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                                {tCommon('noData')}
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 {data.topServices && data.topServices.length > 0 && (
-                    <div>
-                        <h3 className="text-sm font-semibold heading-text mb-4">{t('topServices')}</h3>
-                        <Table>
-                            <thead>
-                                <tr>
-                                    <th>{tTable('number')}</th>
-                                    <th>{t('topServices')}</th>
-                                    <th>{tCommon('overview.totalBookings')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data.topServices.map((service, index) => (
-                                    <tr key={service.serviceId}>
-                                        <td>{index + 1}</td>
-                                        <td>{service.serviceName}</td>
-                                        <td>{service.count}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                    <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+                        <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">
+                            {t('topServices')}
+                        </h4>
+                        <ReportRankedTable
+                            rows={data.topServices}
+                            getRowKey={(row) => row.serviceId}
+                            columns={[
+                                {
+                                    header: tTable('number'),
+                                    thClassName: 'w-14',
+                                    render: (_, index) => <RankBadge rank={index + 1} />,
+                                },
+                                {
+                                    header: tTable('service'),
+                                    render: (row) => (
+                                        <span className="block max-w-[320px] truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                                            {row.serviceName}
+                                        </span>
+                                    ),
+                                },
+                                {
+                                    header: tTable('bookings'),
+                                    align: 'right',
+                                    render: (row) => (
+                                        <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                                            {row.count}
+                                        </span>
+                                    ),
+                                },
+                            ]}
+                        />
                     </div>
                 )}
             </Card>
         </div>
     )
 }
-

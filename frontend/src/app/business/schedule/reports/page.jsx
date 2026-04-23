@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
+import classNames from '@/utils/classNames'
+import SegmentTabBar from '@/components/shared/SegmentTabBar'
 import ReportsHeader from './_components/ReportsHeader'
 import OverviewCards from './_components/OverviewCards'
 import BookingsReport from './_components/BookingsReport'
@@ -15,6 +17,31 @@ import PermissionGuard from '@/components/shared/PermissionGuard'
 import FeatureLockOverlay from '@/components/shared/FeatureLockOverlay'
 import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
 import { PiCalendarBlank } from 'react-icons/pi'
+
+const REPORTS_FILTERS_STORAGE_KEY = 'rexten-business-reports-filters'
+
+function readStoredReportFilters() {
+    if (typeof window === 'undefined') {
+        return null
+    }
+    try {
+        const raw = sessionStorage.getItem(REPORTS_FILTERS_STORAGE_KEY)
+        if (!raw) return null
+        const parsed = JSON.parse(raw)
+        if (
+            parsed &&
+            typeof parsed.date_from === 'string' &&
+            typeof parsed.date_to === 'string' &&
+            parsed.date_from &&
+            parsed.date_to
+        ) {
+            return { date_from: parsed.date_from, date_to: parsed.date_to }
+        }
+    } catch {
+        // ignore
+    }
+    return null
+}
 
 /**
  * Страница отчетов для бизнеса
@@ -38,20 +65,63 @@ function ReportsPageContent() {
         date_from: null,
         date_to: null,
     })
+    const [mobileTab, setMobileTab] = useState('overview')
 
-    const handleFiltersChange = (newFilters) => {
+    const handleFiltersChange = useCallback((newFilters) => {
         setFilters(newFilters)
-    }
+        try {
+            if (newFilters?.date_from && newFilters?.date_to) {
+                sessionStorage.setItem(
+                    REPORTS_FILTERS_STORAGE_KEY,
+                    JSON.stringify({
+                        date_from: newFilters.date_from,
+                        date_to: newFilters.date_to,
+                    }),
+                )
+            } else {
+                sessionStorage.removeItem(REPORTS_FILTERS_STORAGE_KEY)
+            }
+        } catch {
+            // ignore quota / private mode
+        }
+    }, [])
+
+    useEffect(() => {
+        const stored = readStoredReportFilters()
+        if (stored) {
+            handleFiltersChange(stored)
+        }
+    }, [handleFiltersChange])
 
     const hasPeriod = filters?.date_from && filters?.date_to
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return undefined
+        const mq = window.matchMedia('(min-width: 1024px)')
+        const nudgeCharts = () => {
+            window.requestAnimationFrame(() => {
+                window.dispatchEvent(new Event('resize'))
+            })
+        }
+        mq.addEventListener('change', nudgeCharts)
+        return () => mq.removeEventListener('change', nudgeCharts)
+    }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !hasPeriod) return undefined
+        const id = window.setTimeout(() => {
+            window.dispatchEvent(new Event('resize'))
+        }, 120)
+        return () => window.clearTimeout(id)
+    }, [mobileTab, hasPeriod, filters.date_from, filters.date_to])
 
     return (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-4">
+                <div className="flex max-w-full flex-col gap-4 overflow-x-hidden">
                     <div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">
                             {t('description')}
                         </p>
                     </div>
@@ -65,23 +135,81 @@ function ReportsPageContent() {
                             hint={tBusiness('selectPeriodDescription')}
                         />
                     ) : (
-                        <div className="flex flex-col gap-6">
-                            <OverviewCards filters={filters} />
+                        <>
+                            <div className="lg:hidden">
+                                <SegmentTabBar
+                                    value={mobileTab}
+                                    onChange={setMobileTab}
+                                    items={[
+                                        { value: 'overview', label: t('tabs.overview') },
+                                        { value: 'bookings', label: t('tabs.bookings') },
+                                        { value: 'clients', label: t('tabs.clients') },
+                                        { value: 'revenue', label: t('tabs.revenue') },
+                                        { value: 'specialists', label: t('tabs.specialists') },
+                                        { value: 'salary', label: t('tabs.salary') },
+                                    ]}
+                                />
+                            </div>
 
-                            <BookingsReport filters={filters} />
+                            <div className="flex flex-col gap-6">
+                                <div
+                                    className={classNames(
+                                        mobileTab !== 'overview' && 'hidden',
+                                        'lg:block',
+                                    )}
+                                >
+                                    <OverviewCards filters={filters} />
+                                </div>
 
-                            <ClientsReport filters={filters} />
+                                <div
+                                    className={classNames(
+                                        mobileTab !== 'bookings' && 'hidden',
+                                        'lg:block',
+                                    )}
+                                >
+                                    <BookingsReport filters={filters} />
+                                </div>
 
-                            <RevenueReport filters={filters} />
+                                <div
+                                    className={classNames(
+                                        mobileTab !== 'clients' && 'hidden',
+                                        'lg:block',
+                                    )}
+                                >
+                                    <ClientsReport filters={filters} />
+                                </div>
 
-                            <SpecialistsReport filters={filters} />
+                                <div
+                                    className={classNames(
+                                        mobileTab !== 'revenue' && 'hidden',
+                                        'lg:block',
+                                    )}
+                                >
+                                    <RevenueReport filters={filters} />
+                                </div>
 
-                            <SalaryReport filters={filters} />
-                        </div>
+                                <div
+                                    className={classNames(
+                                        mobileTab !== 'specialists' && 'hidden',
+                                        'lg:block',
+                                    )}
+                                >
+                                    <SpecialistsReport filters={filters} />
+                                </div>
+
+                                <div
+                                    className={classNames(
+                                        mobileTab !== 'salary' && 'hidden',
+                                        'lg:block',
+                                    )}
+                                >
+                                    <SalaryReport filters={filters} />
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div>
             </AdaptiveCard>
         </Container>
     )
 }
-

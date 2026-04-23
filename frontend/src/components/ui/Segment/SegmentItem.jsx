@@ -76,6 +76,7 @@ const SegmentItem = (props) => {
         })
     ) : (
         <button
+            type="button"
             ref={ref}
             className={classNames(
                 'segment-item',

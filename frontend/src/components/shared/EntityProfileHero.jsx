@@ -16,6 +16,8 @@ export default function EntityProfileHero({
     childrenActions,
     /** В узких контейнерах (модалки) не ставить имя и кнопки в одну строку по lg viewport */
     stackActionsBelowTitle = false,
+    /** Имя уже в шапке страницы — оставляем аватар, теги, действия и контакты */
+    omitTitle = false,
     className,
 }) {
     return (
@@ -46,11 +48,18 @@ export default function EntityProfileHero({
                         )}
                     >
                         <div className="min-w-0 text-center sm:text-left">
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
-                                {name}
-                            </h4>
+                            {!omitTitle ? (
+                                <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
+                                    {name}
+                                </h4>
+                            ) : null}
                             {childrenTags ? (
-                                <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
+                                <div
+                                    className={classNames(
+                                        'flex flex-wrap justify-center sm:justify-start gap-2',
+                                        omitTitle ? 'mt-0' : 'mt-2',
+                                    )}
+                                >
                                     {childrenTags}
                                 </div>
                             ) : null}
@@ -69,7 +78,12 @@ export default function EntityProfileHero({
                         ) : null}
                     </div>
                     {childrenContact ? (
-                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 space-y-2.5">
+                        <div
+                            className={classNames(
+                                'border-t border-gray-200 dark:border-gray-600 space-y-2.5',
+                                omitTitle ? 'mt-3 pt-3' : 'mt-4 pt-4',
+                            )}
+                        >
                             {childrenContact}
                         </div>
                     ) : null}

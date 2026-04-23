@@ -160,25 +160,37 @@ export default function SalaryReport({ filters }) {
             {/* Таблица по исполнителям */}
             <Card>
                 <div className="flex flex-col gap-4">
-                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         {tSalary('detailsBySpecialist')}
-                    </div>
+                    </h4>
 
                     {data.bySpecialist && data.bySpecialist.length > 0 ? (
-                        <Table>
+                        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+                            <Table overflow={false}>
                             <thead>
-                                <tr>
-                                    <th>{tSalary('columns.specialist')}</th>
-                                    <th>{tSalary('columns.bookings')}</th>
-                                    <th>{tSalary('columns.hours')}</th>
-                                    <th>{tSalary('columns.salary')}</th>
-                                    <th className="w-10"></th>
+                                <tr className="border-b border-gray-200 bg-gray-50/80 dark:border-gray-700 dark:bg-gray-800/50">
+                                    <th className="px-4 py-3 text-left text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {tSalary('columns.specialist')}
+                                    </th>
+                                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {tSalary('columns.bookings')}
+                                    </th>
+                                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {tSalary('columns.hours')}
+                                    </th>
+                                    <th className="px-4 py-3 text-right text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {tSalary('columns.salary')}
+                                    </th>
+                                    <th className="w-12 px-2 py-3" aria-hidden />
                                 </tr>
                             </thead>
                             <tbody>
                                 {data.bySpecialist.map((specialist) => (
-                                    <tr key={specialist.specialist_id}>
-                                        <td>
+                                    <tr
+                                        key={specialist.specialist_id}
+                                        className="border-b border-gray-100 last:border-0 dark:border-gray-800/80"
+                                    >
+                                        <td className="px-4 py-3 align-middle">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                     {specialist.specialist_name}
@@ -192,17 +204,17 @@ export default function SalaryReport({ filters }) {
                                                 )}
                                             </div>
                                         </td>
-                                        <td>
-                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                        <td className="px-4 py-3 text-right align-middle">
+                                            <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
                                                 {specialist.total_bookings || 0}
                                             </span>
                                         </td>
-                                        <td>
-                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                        <td className="px-4 py-3 text-right align-middle">
+                                            <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
                                                 {specialist.total_hours ? specialist.total_hours.toFixed(2) : '0.00'}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td className="px-4 py-3 text-right align-middle">
                                             <span className={`text-sm font-bold ${specialist.has_salary_settings ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'}`}>
                                                 <NumericFormat
                                                     displayType="text"
@@ -213,7 +225,7 @@ export default function SalaryReport({ filters }) {
                                                 />
                                             </span>
                                         </td>
-                                        <td>
+                                        <td className="px-2 py-3 text-center align-middle">
                                             <Tooltip title={tSalary('settingsTooltip')}>
                                                 <div
                                                     className="text-xl cursor-pointer select-none font-semibold hover:text-primary text-gray-600 dark:text-gray-400"
@@ -231,7 +243,8 @@ export default function SalaryReport({ filters }) {
                                     </tr>
                                 ))}
                             </tbody>
-                        </Table>
+                            </Table>
+                        </div>
                     ) : (
                         <div className="text-center text-gray-500 dark:text-gray-400 py-6">
                             {tSalary('noSpecialistsData')}
