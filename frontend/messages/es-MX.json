@@ -252,8 +252,20 @@
                 "reports": {
                     "title": "Reportes",
                     "description": "Análisis detallado de reservas, clientes, ingresos y especialistas. Exporta datos para análisis adicional.",
+                    "noData": "No hay datos para el periodo seleccionado",
+                    "donutTotalBookings": "Reservas",
+                    "tabs": {
+                        "overview": "Resumen",
+                        "bookings": "Reservas",
+                        "clients": "Clientes",
+                        "revenue": "Ingresos",
+                        "specialists": "Especialistas",
+                        "salary": "Salario"
+                    },
                     "overview": {
                         "title": "Resumen",
+                        "sectionBookings": "Reservas",
+                        "sectionFinance": "Ingresos y clientes",
                         "totalBookings": "Total de reservas",
                         "completedBookings": "Completadas",
                         "cancelledBookings": "Canceladas",
@@ -297,6 +309,7 @@
                         "dateTo": "Fecha final",
                         "period": "Periodo",
                         "selectPeriod": "Seleccionar periodo",
+                        "quickPeriods": "Periodo rápido",
                         "reset": "Restablecer",
                         "today": "Hoy",
                         "week": "Semana",
@@ -316,7 +329,8 @@
                         "time": "Hora",
                         "status": "Estado",
                         "amount": "Monto",
-                        "specialist": "Especialista"
+                        "specialist": "Especialista",
+                        "bookings": "Reservas"
                     }
                 }
             },
@@ -1247,6 +1261,12 @@
                 "generic": "No se pudo restablecer la contraseña. Solicita un nuevo enlace."
             }
         },
+        "magicDemoLink": {
+            "title": "Acceso demo",
+            "loading": "Iniciando sesión…",
+            "disabled": "El acceso demo público está desactivado.",
+            "error": "No se pudo iniciar el acceso demo. Inténtalo más tarde."
+        },
         "businessSignUp": {
             "title": "Registro de negocio",
             "subtitle": "Crea una cuenta para tu negocio",
@@ -2175,6 +2195,43 @@
                 "permanent": "Frecuente",
                 "vip": "VIP"
             },
+            "overview": {
+                "sectionTitle": "Resumen (filtros actuales)",
+                "totalClients": "Total de clientes",
+                "activeLast30": "Activos (30 días)",
+                "permanentVip": "Frecuentes y VIP",
+                "totalRevenue": "Ingresos (filtrado)",
+                "revenueHint": "Los totales incluyen a todos los que coinciden con los filtros de abajo, no solo esta página."
+            },
+            "tools": {
+                "statusLabel": "Estado del cliente",
+                "allStatuses": "Todos los estados",
+                "sortLabel": "Ordenar por",
+                "sortNameAsc": "Nombre A–Z",
+                "sortNameDesc": "Nombre Z–A",
+                "sortLastVisitDesc": "Última actividad: más reciente",
+                "sortLastVisitAsc": "Última actividad: más antigua",
+                "sortBookingsDesc": "Reservas: más",
+                "sortBookingsAsc": "Reservas: menos",
+                "sortSpentDesc": "Gastado: mayor",
+                "sortSpentAsc": "Gastado: menor",
+                "sortStatusAsc": "Estado A–Z",
+                "sortStatusDesc": "Estado Z–A",
+                "quickLabel": "Filtros rápidos",
+                "quickAll": "Todos",
+                "quickActive30": "Activos 30 días",
+                "quickIdle90": "Quietos 90 días",
+                "quickVip": "VIP",
+                "reset": "Restablecer"
+            },
+            "mobile": {
+                "bookings": "Reservas",
+                "spent": "Gastado",
+                "lastVisit": "Última visita",
+                "daysAgo": "Hace {count} días",
+                "today": "Hoy",
+                "never": "Sin visitas aún"
+            },
             "detailsModal": {
                 "title": "Detalle del cliente",
                 "tabs": {
@@ -2235,6 +2292,7 @@
                     "bookings": "Reservas",
                     "notes": "Notas"
                 },
+                "statsSectionTitle": "Resumen de reservas",
                 "stats": {
                     "current": "Actuales",
                     "completed": "Completado",
@@ -2332,7 +2390,12 @@
                 "reset": "Restablecer",
                 "found": "Encontrado",
                 "bookings": "reservado",
-                "totalAmount": "monto total"
+                "totalAmount": "monto total",
+                "quickPeriods": "Periodo rápido",
+                "period7": "7 días",
+                "period30": "30 días",
+                "period90": "90 días",
+                "periodCustom": "Personalizado"
             },
             "addClient": "Agregar cliente",
             "searchPlaceholder": "Buscar por nombre, correo o teléfono...",
@@ -3662,6 +3725,10 @@
                 "statusDisabled": "Cuenta de Stripe deshabilitada",
                 "completeOnboarding": "Completa el proceso de registro para comenzar a aceptar pagos",
                 "requirementsDue": "Información requerida",
+                "requirements": {
+                    "past_due": "Requisitos vencidos: complétalos en Stripe para evitar restricciones de pagos"
+                },
+                "stripeDisabledReasonOther": "Stripe indicó «{reason}». Abre el panel de Stripe o contacta a soporte.",
                 "andMore": "y {count} más",
                 "continueSetup": "Continuar configuración",
                 "accountConnected": "Tu cuenta de Stripe está conectada y lista para aceptar pagos",

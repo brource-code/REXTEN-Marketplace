@@ -252,8 +252,20 @@
                 "reports": {
                     "title": "Reports",
                     "description": "Detailed analytics on bookings, clients, revenue and specialists. Export data for further analysis.",
+                    "noData": "No data for the selected period",
+                    "donutTotalBookings": "Bookings",
+                    "tabs": {
+                        "overview": "Overview",
+                        "bookings": "Bookings",
+                        "clients": "Clients",
+                        "revenue": "Revenue",
+                        "specialists": "Specialists",
+                        "salary": "Salary"
+                    },
                     "overview": {
                         "title": "Overview",
+                        "sectionBookings": "Bookings",
+                        "sectionFinance": "Revenue & clients",
                         "totalBookings": "Total Bookings",
                         "completedBookings": "Completed",
                         "cancelledBookings": "Cancelled",
@@ -297,6 +309,7 @@
                         "dateTo": "End Date",
                         "period": "Period",
                         "selectPeriod": "Select period",
+                        "quickPeriods": "Quick period",
                         "reset": "Reset",
                         "today": "Today",
                         "week": "Week",
@@ -316,7 +329,8 @@
                         "time": "Time",
                         "status": "Status",
                         "amount": "Amount",
-                        "specialist": "Specialist"
+                        "specialist": "Specialist",
+                        "bookings": "Bookings"
                     }
                 }
             },
@@ -1247,6 +1261,12 @@
                 "generic": "Could not reset password. Try again or request a new link."
             }
         },
+        "magicDemoLink": {
+            "title": "REXTEN demo access",
+            "loading": "Signing you in…",
+            "disabled": "Public demo access is turned off.",
+            "error": "Could not start demo access. Try again later."
+        },
         "businessSignUp": {
             "title": "Business Registration",
             "subtitle": "Create an account for your business",
@@ -2175,6 +2195,43 @@
                 "permanent": "Permanent",
                 "vip": "VIP"
             },
+            "overview": {
+                "sectionTitle": "Overview (current filters)",
+                "totalClients": "Total clients",
+                "activeLast30": "Active (30 days)",
+                "permanentVip": "Permanent & VIP",
+                "totalRevenue": "Revenue (filtered)",
+                "revenueHint": "Counts and revenue include everyone matching the filters below, not only this page."
+            },
+            "tools": {
+                "statusLabel": "Client status",
+                "allStatuses": "All statuses",
+                "sortLabel": "Sort by",
+                "sortNameAsc": "Name A–Z",
+                "sortNameDesc": "Name Z–A",
+                "sortLastVisitDesc": "Last activity: newest",
+                "sortLastVisitAsc": "Last activity: oldest",
+                "sortBookingsDesc": "Bookings: most",
+                "sortBookingsAsc": "Bookings: fewest",
+                "sortSpentDesc": "Spent: highest",
+                "sortSpentAsc": "Spent: lowest",
+                "sortStatusAsc": "Status A–Z",
+                "sortStatusDesc": "Status Z–A",
+                "quickLabel": "Quick filters",
+                "quickAll": "All",
+                "quickActive30": "Active 30d",
+                "quickIdle90": "Quiet 90d",
+                "quickVip": "VIP",
+                "reset": "Reset"
+            },
+            "mobile": {
+                "bookings": "Bookings",
+                "spent": "Spent",
+                "lastVisit": "Last visit",
+                "daysAgo": "{count} days ago",
+                "today": "Today",
+                "never": "No visits yet"
+            },
             "detailsModal": {
                 "title": "Client Details",
                 "tabs": {
@@ -2235,6 +2292,7 @@
                     "bookings": "Bookings",
                     "notes": "Notes"
                 },
+                "statsSectionTitle": "Booking overview",
                 "stats": {
                     "current": "Current",
                     "completed": "Completed",
@@ -2332,7 +2390,12 @@
                 "reset": "Reset",
                 "found": "Found",
                 "bookings": "bookings",
-                "totalAmount": "total amount"
+                "totalAmount": "total amount",
+                "quickPeriods": "Quick period",
+                "period7": "7 days",
+                "period30": "30 days",
+                "period90": "90 days",
+                "periodCustom": "Custom"
             },
             "addClient": "Add Client",
             "searchPlaceholder": "Search by name, email or phone...",
@@ -3662,6 +3725,10 @@
                 "statusDisabled": "Stripe account disabled",
                 "completeOnboarding": "Complete the onboarding process to start accepting payments",
                 "requirementsDue": "Required information",
+                "requirements": {
+                    "past_due": "Past due requirements — complete them in Stripe to avoid payout restrictions"
+                },
+                "stripeDisabledReasonOther": "Stripe reported “{reason}”. Open the Stripe Dashboard or contact support.",
                 "andMore": "and {count} more",
                 "continueSetup": "Continue Setup",
                 "accountConnected": "Your Stripe account is connected and ready to accept payments",

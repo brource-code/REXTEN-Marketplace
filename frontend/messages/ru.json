@@ -12,8 +12,19 @@
                 "reports": {
                     "title": "Отчеты",
                     "description": "Детальная аналитика по бронированиям, клиентам, заработку и исполнителям. Экспортируйте данные для дальнейшего анализа.",
+                    "donutTotalBookings": "Бронирования",
+                    "tabs": {
+                        "overview": "Обзор",
+                        "bookings": "Бронирования",
+                        "clients": "Клиенты",
+                        "revenue": "Доход",
+                        "specialists": "Исполнители",
+                        "salary": "Зарплата"
+                    },
                     "overview": {
                         "title": "Общая статистика",
+                        "sectionBookings": "Бронирования",
+                        "sectionFinance": "Доход и клиенты",
                         "totalBookings": "Всего бронирований",
                         "completedBookings": "Завершено",
                         "cancelledBookings": "Отменено",
@@ -57,6 +68,7 @@
                         "dateTo": "Дата окончания",
                         "period": "Период",
                         "selectPeriod": "Выберите период",
+                        "quickPeriods": "Быстрый период",
                         "reset": "Сбросить",
                         "today": "Сегодня",
                         "week": "Неделя",
@@ -77,7 +89,8 @@
                         "time": "Время",
                         "status": "Статус",
                         "amount": "Сумма",
-                        "specialist": "Исполнитель"
+                        "specialist": "Исполнитель",
+                        "bookings": "Бронирования"
                     }
                 }
             },
@@ -1261,6 +1274,12 @@
             "errors": {
                 "generic": "Не удалось сбросить пароль. Запросите новую ссылку на странице входа."
             }
+        },
+        "magicDemoLink": {
+            "title": "Демо-доступ REXTEN",
+            "loading": "Выполняется вход…",
+            "disabled": "Публичный демо-вход отключён.",
+            "error": "Не удалось открыть демо. Попробуйте позже."
         },
         "businessSignUp": {
             "title": "Регистрация бизнеса",
@@ -3122,6 +3141,43 @@
                 "permanent": "Постоянный",
                 "vip": "VIP"
             },
+            "overview": {
+                "sectionTitle": "Обзор (текущие фильтры)",
+                "totalClients": "Всего клиентов",
+                "activeLast30": "Активные (30 дней)",
+                "permanentVip": "Постоянные и VIP",
+                "totalRevenue": "Выручка (по фильтру)",
+                "revenueHint": "Счётчики и выручка учитывают всех, кто попадает под фильтры ниже, не только эту страницу."
+            },
+            "tools": {
+                "statusLabel": "Статус клиента",
+                "allStatuses": "Все статусы",
+                "sortLabel": "Сортировка",
+                "sortNameAsc": "Имя А–Я",
+                "sortNameDesc": "Имя Я–А",
+                "sortLastVisitDesc": "Последняя активность: новее",
+                "sortLastVisitAsc": "Последняя активность: старше",
+                "sortBookingsDesc": "Бронирований: больше",
+                "sortBookingsAsc": "Бронирований: меньше",
+                "sortSpentDesc": "Потрачено: больше",
+                "sortSpentAsc": "Потрачено: меньше",
+                "sortStatusAsc": "Статус А–Я",
+                "sortStatusDesc": "Статус Я–А",
+                "quickLabel": "Быстрые фильтры",
+                "quickAll": "Все",
+                "quickActive30": "Активные 30 дн.",
+                "quickIdle90": "Тихие 90 дн.",
+                "quickVip": "VIP",
+                "reset": "Сбросить"
+            },
+            "mobile": {
+                "bookings": "Бронирований",
+                "spent": "Потрачено",
+                "lastVisit": "Последний визит",
+                "daysAgo": "{count} дн. назад",
+                "today": "Сегодня",
+                "never": "Пока без визитов"
+            },
             "detailsModal": {
                 "title": "Детали клиента",
                 "tabs": {
@@ -3182,6 +3238,7 @@
                     "bookings": "Бронирования",
                     "notes": "Заметки"
                 },
+                "statsSectionTitle": "Обзор бронирований",
                 "stats": {
                     "current": "Текущие",
                     "completed": "Завершено",
@@ -3279,7 +3336,12 @@
                 "reset": "Сбросить",
                 "found": "Найдено",
                 "bookings": "бронирований",
-                "totalAmount": "на сумму"
+                "totalAmount": "на сумму",
+                "quickPeriods": "Быстрый период",
+                "period7": "7 дней",
+                "period30": "30 дней",
+                "period90": "90 дней",
+                "periodCustom": "Свой"
             },
             "addClient": "Добавить клиента",
             "searchPlaceholder": "Поиск по имени, email или телефону...",
@@ -3672,6 +3734,10 @@
                 "statusDisabled": "Аккаунт Stripe отключен",
                 "completeOnboarding": "Завершите регистрацию, чтобы начать принимать платежи",
                 "requirementsDue": "Требуемая информация",
+                "requirements": {
+                    "past_due": "Просроченные требования — выполните их в Stripe, чтобы снять ограничения на выплаты"
+                },
+                "stripeDisabledReasonOther": "Stripe указал: «{reason}». Откройте панель Stripe или обратитесь в поддержку.",
                 "andMore": "и еще {count}",
                 "continueSetup": "Продолжить настройку",
                 "accountConnected": "Ваш аккаунт Stripe подключен и готов принимать платежи",

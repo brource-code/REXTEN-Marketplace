@@ -252,8 +252,20 @@
                 "reports": {
                     "title": "Звіти",
                     "description": "Детальна аналітика з бронювань, клієнтів, доходів і спеціалістів. Експортуйте дані для подальшого аналізу.",
+                    "noData": "Немає даних за обраний період",
+                    "donutTotalBookings": "Бронювання",
+                    "tabs": {
+                        "overview": "Огляд",
+                        "bookings": "Бронювання",
+                        "clients": "Клієнти",
+                        "revenue": "Дохід",
+                        "specialists": "Спеціалісти",
+                        "salary": "Зарплата"
+                    },
                     "overview": {
                         "title": "Огляд",
+                        "sectionBookings": "Бронювання",
+                        "sectionFinance": "Дохід і клієнти",
                         "totalBookings": "Усього бронювань",
                         "completedBookings": "Завершено",
                         "cancelledBookings": "Скасовано",
@@ -297,6 +309,7 @@
                         "dateTo": "Кінцева дата",
                         "period": "Період",
                         "selectPeriod": "Оберіть період",
+                        "quickPeriods": "Швидкий період",
                         "reset": "Скинути",
                         "today": "Сьогодні",
                         "week": "Тиждень",
@@ -316,7 +329,8 @@
                         "time": "Час",
                         "status": "Статус",
                         "amount": "Сума",
-                        "specialist": "Спеціаліст"
+                        "specialist": "Спеціаліст",
+                        "bookings": "Бронювання"
                     }
                 }
             },
@@ -1247,6 +1261,12 @@
                 "generic": "Не вдалося скинути пароль. Запросіть нове посилання на сторінці входу."
             }
         },
+        "magicDemoLink": {
+            "title": "Демо-доступ REXTEN",
+            "loading": "Виконується вхід…",
+            "disabled": "Публічний демо-вхід вимкнено.",
+            "error": "Не вдалося відкрити демо. Спробуйте пізніше."
+        },
         "businessSignUp": {
             "title": "Реєстрація бізнесу",
             "subtitle": "Створіть обліковий запис для вашого бізнесу",
@@ -2175,6 +2195,43 @@
                 "permanent": "Постійний",
                 "vip": "VIP"
             },
+            "overview": {
+                "sectionTitle": "Огляд (поточні фільтри)",
+                "totalClients": "Усього клієнтів",
+                "activeLast30": "Активні (30 днів)",
+                "permanentVip": "Постійні та VIP",
+                "totalRevenue": "Дохід (за фільтром)",
+                "revenueHint": "Підрахунки й дохід враховують усіх, хто відповідає фільтрам нижче, не лише цю сторінку."
+            },
+            "tools": {
+                "statusLabel": "Статус клієнта",
+                "allStatuses": "Усі статуси",
+                "sortLabel": "Сортувати за",
+                "sortNameAsc": "Ім’я А–Я",
+                "sortNameDesc": "Ім’я Я–А",
+                "sortLastVisitDesc": "Остання активність: новіші",
+                "sortLastVisitAsc": "Остання активність: старіші",
+                "sortBookingsDesc": "Бронювань: більше",
+                "sortBookingsAsc": "Бронювань: менше",
+                "sortSpentDesc": "Витрачено: більше",
+                "sortSpentAsc": "Витрачено: менше",
+                "sortStatusAsc": "Статус А–Я",
+                "sortStatusDesc": "Статус Я–А",
+                "quickLabel": "Швидкі фільтри",
+                "quickAll": "Усі",
+                "quickActive30": "Активні 30 дн.",
+                "quickIdle90": "Тихі 90 дн.",
+                "quickVip": "VIP",
+                "reset": "Скинути"
+            },
+            "mobile": {
+                "bookings": "Бронювання",
+                "spent": "Витрачено",
+                "lastVisit": "Останній візит",
+                "daysAgo": "{count} дн. тому",
+                "today": "Сьогодні",
+                "never": "Поки без візитів"
+            },
             "detailsModal": {
                 "title": "Деталі клієнта",
                 "tabs": {
@@ -2235,6 +2292,7 @@
                     "bookings": "Бронювання",
                     "notes": "Нотатки"
                 },
+                "statsSectionTitle": "Огляд бронювань",
                 "stats": {
                     "current": "Поточний",
                     "completed": "Завершено",
@@ -2332,7 +2390,12 @@
                 "reset": "Скинути",
                 "found": "Знайдено",
                 "bookings": "бронювання",
-                "totalAmount": "загальна сума"
+                "totalAmount": "загальна сума",
+                "quickPeriods": "Швидкий період",
+                "period7": "7 днів",
+                "period30": "30 днів",
+                "period90": "90 днів",
+                "periodCustom": "Свій"
             },
             "addClient": "Додати клієнта",
             "searchPlaceholder": "Пошук за ім’ям, email або телефоном…",
@@ -3662,6 +3725,10 @@
                 "statusDisabled": "Обліковий запис Stripe вимкнено",
                 "completeOnboarding": "Завершіть реєстрацію, щоб почати приймати платежі",
                 "requirementsDue": "Необхідна інформація",
+                "requirements": {
+                    "past_due": "Прострочені вимоги — виконайте їх у Stripe, щоб зняти обмеження на виплати"
+                },
+                "stripeDisabledReasonOther": "Stripe повідомив: «{reason}». Відкрийте панель Stripe або зверніться в підтримку.",
                 "andMore": "і ще {count}",
                 "continueSetup": "Продовжити налаштування",
                 "accountConnected": "Ваш Stripe підключено й готовий приймати платежі",

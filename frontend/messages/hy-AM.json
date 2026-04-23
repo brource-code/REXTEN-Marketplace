@@ -252,8 +252,20 @@
                 "reports": {
                     "title": "Հաշվետվություններ",
                     "description": "Մանրամասն վերլուծություն ամրագրումների, հաճախորդների, եկամտի և մասնագետների մասին։ Արտահանեք տվյալները հետագա վերլուծության համար։",
+                    "noData": "Ընտրված ժամանակահատվածի համար տվյալներ չկան",
+                    "donutTotalBookings": "Ամրագրումներ",
+                    "tabs": {
+                        "overview": "Ամփոփում",
+                        "bookings": "Ամրագրումներ",
+                        "clients": "Հաճախորդներ",
+                        "revenue": "Եկամուտ",
+                        "specialists": "Մասնագետներ",
+                        "salary": "Աշխատավարձ"
+                    },
                     "overview": {
                         "title": "Ընդհանուր",
+                        "sectionBookings": "Ամրագրումներ",
+                        "sectionFinance": "Եկամուտ և հաճախորդներ",
                         "totalBookings": "Ընդհանուր ամրագրումներ",
                         "completedBookings": "Ավարտված",
                         "cancelledBookings": "Չեղարկված",
@@ -297,6 +309,7 @@
                         "dateTo": "Վերջի ամսաթիվ",
                         "period": "Ժամանակաշրջան",
                         "selectPeriod": "Ընտրել ժամանակաշրջան",
+                        "quickPeriods": "Արագ ժամանակահատված",
                         "reset": "Վերակայել",
                         "today": "Այսօր",
                         "week": "Շաբաթ",
@@ -316,7 +329,8 @@
                         "time": "Ժամ",
                         "status": "Կարգավիճակ",
                         "amount": "Գումար",
-                        "specialist": "Մասնագետ"
+                        "specialist": "Մասնագետ",
+                        "bookings": "Ամրագրումներ"
                     }
                 }
             },
@@ -1247,6 +1261,12 @@
                 "generic": "Չհաջողվեց վերակայել գաղտնաբառը։ Պահանջեք նոր հղում։"
             }
         },
+        "magicDemoLink": {
+            "title": "Դեմո մուտք REXTEN",
+            "loading": "Կատարվում է մուտք…",
+            "disabled": "Հանրային դեմո մուտքը անջատված է։",
+            "error": "Չհաջողվեց բացել դեմոն։ Փորձեք ավելի ուշ։"
+        },
         "businessSignUp": {
             "title": "Բիզնեսի գրանցում",
             "subtitle": "Ստեղծեք հաշիվ ձեր բիզնեսի համար",
@@ -2175,6 +2195,43 @@
                 "permanent": "Մշտական",
                 "vip": "VIP"
             },
+            "overview": {
+                "sectionTitle": "Ամփոփում (ընթացիկ ֆիլտրեր)",
+                "totalClients": "Ընդամենը հաճախորդներ",
+                "activeLast30": "Ակտիվ (30 օր)",
+                "permanentVip": "Մշտական և VIP",
+                "totalRevenue": "Եկամուտ (ֆիլտրով)",
+                "revenueHint": "Թվերը և եկամուտը ներառում են բոլորին, ովքեր համապատասխանում են ստորև ֆիլտրերին, ոչ միայն այս էջը։"
+            },
+            "tools": {
+                "statusLabel": "Հաճախորդի կարգավիճակ",
+                "allStatuses": "Բոլոր կարգավիճակները",
+                "sortLabel": "Դասավորել ըստ",
+                "sortNameAsc": "Անուն Ա–Ֆ",
+                "sortNameDesc": "Անուն Ֆ–Ա",
+                "sortLastVisitDesc": "Վերջին ակտիվություն՝ նոր",
+                "sortLastVisitAsc": "Վերջին ակտիվություն՝ հին",
+                "sortBookingsDesc": "Ամրագրումներ՝ շատ",
+                "sortBookingsAsc": "Ամրագրումներ՝ քիչ",
+                "sortSpentDesc": "Ծախսված՝ ավելի շատ",
+                "sortSpentAsc": "Ծախսված՝ ավելի քիչ",
+                "sortStatusAsc": "Կարգավիճակ Ա–Ֆ",
+                "sortStatusDesc": "Կարգավիճակ Ֆ–Ա",
+                "quickLabel": "Արագ ֆիլտրեր",
+                "quickAll": "Բոլորը",
+                "quickActive30": "Ակտիվ 30 օր",
+                "quickIdle90": "Լուռ 90 օր",
+                "quickVip": "VIP",
+                "reset": "Վերակայել"
+            },
+            "mobile": {
+                "bookings": "Ամրագրումներ",
+                "spent": "Ծախսված",
+                "lastVisit": "Վերջին այց",
+                "daysAgo": "{count} օր առաջ",
+                "today": "Այսօր",
+                "never": "Դեռ այցեր չկան"
+            },
             "detailsModal": {
                 "title": "Հաճախորդի մանրամասներ",
                 "tabs": {
@@ -2235,6 +2292,7 @@
                     "bookings": "Ամրագրումներ",
                     "notes": "Նշումներ"
                 },
+                "statsSectionTitle": "Ամրագրումների ամփոփում",
                 "stats": {
                     "current": "Ընթացիկ",
                     "completed": "Ավարտված",
@@ -2332,7 +2390,12 @@
                 "reset": "Վերակայել",
                 "found": "Գտնվել է",
                 "bookings": "ամրագրումներ",
-                "totalAmount": "ընդհանուր գումար"
+                "totalAmount": "ընդհանուր գումար",
+                "quickPeriods": "Արագ ժամանակաշրջան",
+                "period7": "7 օր",
+                "period30": "30 օր",
+                "period90": "90 օր",
+                "periodCustom": "Ձեր ընտրությամբ"
             },
             "addClient": "Ավելացնել հաճախորդ",
             "searchPlaceholder": "Որոնել անունով, էլ. փոստով կամ հեռախոսով…",
@@ -3662,6 +3725,10 @@
                 "statusDisabled": "Stripe հաշիվը անջատված է",
                 "completeOnboarding": "Ավարտեք գրանցման գործընթացը՝ վճարումներ ընդունելու համար",
                 "requirementsDue": "Պահանջվող տեղեկություն",
+                "requirements": {
+                    "past_due": "Վերջնաժամկետը սպառված պահանջներ — ավարտեք Stripe-ում՝ վճարումների սահմանափակումից խուսափելու համար"
+                },
+                "stripeDisabledReasonOther": "Stripe-ը հայտնել է «{reason}»։ Բացեք Stripe վահանակը կամ դիմեք աջակցությանը։",
                 "andMore": "ու ևս {count}",
                 "continueSetup": "Շարունակել կարգավորումը",
                 "accountConnected": "Ձեր Stripe հաշիվը կապված է և պատրաստ է վճարումներ ընդունելու",
