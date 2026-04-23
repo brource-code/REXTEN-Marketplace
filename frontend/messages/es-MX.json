@@ -2006,6 +2006,8 @@
                     "service": "Servicio",
                     "eventTitle": "Título del evento",
                     "eventTitlePlaceholder": "Nombre del bloqueo",
+                    "price": "Precio",
+                    "priceHint": "Opcional. Monto base para este evento ({currency}).",
                     "date": "Fecha",
                     "time": "Hora",
                     "duration": "Duración",

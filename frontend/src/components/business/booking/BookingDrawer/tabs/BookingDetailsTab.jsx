@@ -14,7 +14,7 @@ import BookingTimeSuggestions from '@/components/business/booking/parts/BookingT
 import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
 import { useBookingConflicts } from '@/components/business/booking/hooks/useBookingConflicts'
 import { useBookingTimeSuggestions } from '@/components/business/booking/hooks/useBookingTimeSuggestions'
-import { LABEL_CLS, ERROR_CLS } from '@/components/business/booking/shared/bookingTypography'
+import { LABEL_CLS, ERROR_CLS, HINT_CLS } from '@/components/business/booking/shared/bookingTypography'
 import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
 import { TIME_FORMAT_12H } from '@/utils/timeFormat'
 import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
@@ -101,18 +101,43 @@ export default function BookingDetailsTab({
     return (
         <div className="flex flex-col gap-4">
             {isCustomEvent ? (
-                <FormItem
-                    label={<span className={LABEL_CLS}>{t('eventTitle')}</span>}
-                    invalid={Boolean(errors.title)}
-                    errorMessage={err(errors.title)}
-                >
-                    <Input
-                        value={values.title || ''}
-                        onChange={(e) => setField('title', e.target.value)}
-                        placeholder={t('eventTitlePlaceholder')}
-                        size="sm"
-                    />
-                </FormItem>
+                <>
+                    <FormItem
+                        label={<span className={LABEL_CLS}>{t('eventTitle')}</span>}
+                        invalid={Boolean(errors.title)}
+                        errorMessage={err(errors.title)}
+                    >
+                        <Input
+                            value={values.title || ''}
+                            onChange={(e) => setField('title', e.target.value)}
+                            placeholder={t('eventTitlePlaceholder')}
+                            size="sm"
+                        />
+                    </FormItem>
+                    <FormItem
+                        label={<span className={LABEL_CLS}>{t('price')}</span>}
+                        invalid={Boolean(errors.price)}
+                        errorMessage={err(errors.price)}
+                    >
+                        <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            size="sm"
+                            value={values.price === null || values.price === undefined ? '' : values.price}
+                            onChange={(e) => {
+                                const v = e.target.value
+                                if (v === '') {
+                                    setField('price', null)
+                                    return
+                                }
+                                const n = parseFloat(v)
+                                setField('price', Number.isFinite(n) ? Math.max(0, n) : null)
+                            }}
+                        />
+                        <div className={`mt-1 ${HINT_CLS}`}>{t('priceHint', { currency })}</div>
+                    </FormItem>
+                </>
             ) : (
                 <BookingServicePicker
                     label={t('service')}

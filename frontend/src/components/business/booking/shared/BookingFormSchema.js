@@ -9,6 +9,21 @@ import { z } from 'zod'
 const dateRe = /^\d{4}-\d{2}-\d{2}$/
 const timeRe = /^\d{2}:\d{2}$/
 
+const priceSchema = z.preprocess(
+    (v) => {
+        if (v === '' || v === null || v === undefined) return null
+        if (typeof v === 'number') return Number.isNaN(v) ? null : v
+        const n = parseFloat(String(v).replace(',', '.'))
+        return Number.isFinite(n) ? n : null
+    },
+    z
+        .union([
+            z.number().min(0, { message: 'price_negative' }),
+            z.null(),
+        ])
+        .optional(),
+)
+
 export const BookingFormSchema = z
     .object({
         id: z.union([z.string(), z.number()]).optional().nullable(),
@@ -30,20 +45,7 @@ export const BookingFormSchema = z
         status: z
             .enum(['new', 'pending', 'confirmed', 'completed', 'cancelled'])
             .optional(),
-        price: z.preprocess(
-            (v) => {
-                if (v === '' || v === null || v === undefined) return null
-                if (typeof v === 'number') return Number.isNaN(v) ? null : v
-                const n = parseFloat(String(v).replace(',', '.'))
-                return Number.isFinite(n) ? n : null
-            },
-            z
-                .union([
-                    z.number().min(0, { message: 'price_negative' }),
-                    z.null(),
-                ])
-                .optional(),
-        ),
+        price: priceSchema,
         notes: z.string().max(1000).optional().nullable(),
         client_notes: z.string().max(1000).optional().nullable(),
         user_id: z.union([z.string(), z.number()]).optional().nullable(),
@@ -86,6 +88,7 @@ export const BlockTimeFormSchema = z.object({
     duration_minutes: z.coerce.number().int().min(15, { message: 'duration_too_short' }),
     specialist_id: z.union([z.string(), z.number()]).optional().nullable(),
     status: z.enum(['new', 'pending', 'confirmed', 'completed', 'cancelled']),
+    price: priceSchema,
     notes: z.string().max(1000).optional().nullable(),
 })
 

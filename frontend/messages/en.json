@@ -2006,6 +2006,8 @@
                     "service": "Service",
                     "eventTitle": "Event title",
                     "eventTitlePlaceholder": "Block time event name",
+                    "price": "Price",
+                    "priceHint": "Optional. Base amount for this event ({currency}).",
                     "date": "Date",
                     "time": "Time",
                     "duration": "Duration",

@@ -12,7 +12,7 @@ import DatePicker from '@/components/ui/DatePicker'
 import { FormItem } from '@/components/ui/Form'
 import { useScheduleReferenceData } from '@/hooks/api/useScheduleReferenceData'
 import { useBookingFormState } from '@/components/business/booking/hooks/useBookingFormState'
-import { TITLE_CLS, MUTED_CLS, LABEL_CLS } from '@/components/business/booking/shared/bookingTypography'
+import { TITLE_CLS, MUTED_CLS, LABEL_CLS, HINT_CLS } from '@/components/business/booking/shared/bookingTypography'
 import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
 import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
 import { TIME_FORMAT_12H } from '@/utils/timeFormat'
@@ -64,6 +64,12 @@ function buildInitial(seed, stepMin) {
     const rawTime = parseTimeFromSeed(seed)
     const bookingTime = snapTimeToGrid(rawTime, stepMin)
 
+    const rawPrice = seed?.price
+    const priceInitial =
+        rawPrice !== null && rawPrice !== undefined && rawPrice !== ''
+            ? Math.max(0, Number(rawPrice))
+            : null
+
     return {
         id: seed?.id,
         title: seed?.title || '',
@@ -74,6 +80,7 @@ function buildInitial(seed, stepMin) {
         duration_minutes: snapDurationToBookingPresetMinutes(Number(seed?.duration_minutes) || 60),
         specialist_id: seed?.specialist_id ?? null,
         status: normalizeStatus(seed?.status),
+        price: Number.isFinite(priceInitial) ? priceInitial : null,
         notes: seed?.notes || '',
     }
 }
@@ -93,6 +100,7 @@ export default function BlockTimeModal({
     const err = useBookingFormErrorMessage()
 
     const { teamMembers, scheduleSettings } = useScheduleReferenceData()
+    const currency = scheduleSettings?.currency || 'USD'
     const stepMin = scheduleSettings?.slot_step_minutes || 15
     const timeFormat = scheduleSettings?.time_format || TIME_FORMAT_12H
 
@@ -103,6 +111,8 @@ export default function BlockTimeModal({
 
     const showTitleError =
         Boolean(errors.title) && (Boolean(touched.title) || submitAttempted)
+    const showPriceError =
+        Boolean(errors.price) && (Boolean(touched.price) || submitAttempted)
 
     const durationOptions = useMemo(
         () =>
@@ -149,7 +159,7 @@ export default function BlockTimeModal({
             specialist_id: values.specialist_id || null,
             notes: values.notes || null,
             status: values.status,
-            price: 0,
+            price: values.price ?? null,
         }
         await onSubmit?.(payload)
     }
@@ -198,6 +208,31 @@ export default function BlockTimeModal({
                             onBlur={() => touchField('title')}
                             placeholder={t('eventTitlePlaceholder')}
                         />
+                    </FormItem>
+
+                    <FormItem
+                        label={<span className={LABEL_CLS}>{tDetails('price')}</span>}
+                        invalid={showPriceError}
+                        errorMessage={showPriceError ? err(errors.price) : undefined}
+                    >
+                        <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            size="sm"
+                            value={values.price === null || values.price === undefined ? '' : values.price}
+                            onChange={(e) => {
+                                const v = e.target.value
+                                if (v === '') {
+                                    setField('price', null)
+                                    return
+                                }
+                                const n = parseFloat(v)
+                                setField('price', Number.isFinite(n) ? Math.max(0, n) : null)
+                            }}
+                            onBlur={() => touchField('price')}
+                        />
+                        <div className={`mt-1 ${HINT_CLS}`}>{tDetails('priceHint', { currency })}</div>
                     </FormItem>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -283,6 +318,7 @@ export default function BlockTimeModal({
 
                 <div className="border-t border-gray-200 dark:border-gray-700 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-2 shrink-0 bg-white dark:bg-gray-900">
                     <Button
+                        type="button"
                         size="sm"
                         variant="default"
                         className="w-full sm:w-auto justify-center"

@@ -2006,6 +2006,8 @@
                     "service": "Послуга",
                     "eventTitle": "Назва події",
                     "eventTitlePlaceholder": "Назва блоку часу",
+                    "price": "Ціна",
+                    "priceHint": "Необовʼязково. Базова сума для цієї події ({currency}).",
                     "date": "Дата",
                     "time": "Час",
                     "duration": "Тривалість",
