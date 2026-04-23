@@ -72,6 +72,10 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
     return LaravelAuthService.login(credentials)
 }
 
+export async function demoLoginPublic(): Promise<AuthResponse> {
+    return LaravelAuthService.demoLoginPublic()
+}
+
 export async function register(data: RegisterData): Promise<AuthResponse> {
     return LaravelAuthService.register(data)
 }

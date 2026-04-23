@@ -13,6 +13,9 @@ const publicRoute = {
     '/business/sign-in': {
         key: 'businessSignIn',
     },
+    '/business/demo-login': {
+        key: 'businessDemoLogin',
+    },
     // Страница доступа запрещен (публичная, чтобы показывать сообщение)
     '/access-denied': {
         key: 'accessDenied',

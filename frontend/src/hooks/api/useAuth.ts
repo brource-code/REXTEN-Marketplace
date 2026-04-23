@@ -11,6 +11,7 @@ import {
     resetPassword,
     verifyEmailCode,
     resendEmailCode,
+    demoLoginPublic,
 } from '@/lib/api/auth'
 import { applyPendingBusinessProfileFromSession } from '@/utils/auth/applyPendingBusinessProfileFromSession'
 import { BUSINESS_OWNER } from '@/constants/roles.constant'
@@ -101,6 +102,55 @@ export function useLogin() {
         },
         onError: (error) => {
             console.error('Login error:', error)
+        },
+    })
+}
+
+/** Публичный демо-вход: страница /business/demo-login → POST /api/auth/demo-login без тела. */
+export function useDemoMagicLogin() {
+    const queryClient = useQueryClient()
+    const { setAuth } = useAuthStore()
+    const { setUser, clearUser } = useUserStore()
+
+    return useMutation({
+        mutationFn: demoLoginPublic,
+        onSuccess: (data) => {
+            if (typeof window !== 'undefined') {
+                clearAuthPersistStorage()
+                localStorage.removeItem('user-storage')
+                localStorage.removeItem('business-storage')
+            }
+            clearUser()
+            queryClient.clear()
+
+            setAuth(
+                {
+                    access_token: data.access_token,
+                    refresh_token: data.refresh_token,
+                },
+                data.user,
+            )
+
+            setUser(data.user)
+
+            queryClient.setQueryData(authKeys.user(), data.user)
+
+            const role = data.user.role
+            const roleEntryPaths: Record<string, string> = {
+                CLIENT: '/services',
+                BUSINESS_OWNER: '/business/dashboard',
+                SUPERADMIN: '/superadmin/dashboard',
+            }
+            const entryPath = roleEntryPaths[role]
+
+            if (entryPath) {
+                setTimeout(() => {
+                    window.location.href = entryPath
+                }, 100)
+            }
+        },
+        onError: (error) => {
+            console.error('Public demo login error:', error)
         },
     })
 }

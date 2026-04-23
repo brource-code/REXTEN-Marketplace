@@ -19,6 +19,10 @@ const authRoute = {
         key: 'verifyCode',
         authority: [],
     },
+    '/business/demo-login': {
+        key: 'demoMagicLogin',
+        authority: [],
+    },
     '/otp-verification': {
         key: 'otpVerification',
         authority: [],

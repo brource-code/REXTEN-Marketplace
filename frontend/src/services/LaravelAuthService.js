@@ -55,6 +55,44 @@ const LaravelAuthService = {
     },
 
     /**
+     * Публичный демо-вход: POST /auth/demo-login без тела (одна общая сессия на сервере).
+     */
+    async demoLoginPublic() {
+        if (USE_MOCK) {
+            throw new Error('Public demo login is not available in mock auth mode')
+        }
+
+        try {
+            const response = await LaravelAxios.post('/auth/demo-login', {})
+            const data = response.data
+
+            if (data.access_token) {
+                setAccessToken(data.access_token)
+            }
+            if (data.refresh_token) {
+                setRefreshToken(data.refresh_token)
+            }
+
+            return {
+                access_token: data.access_token,
+                refresh_token: data.refresh_token || data.access_token,
+                user: data.user,
+            }
+        } catch (error) {
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.message ||
+                'Не удалось войти в демо'
+
+            const authError = new Error(errorMessage)
+            authError.response = error.response
+            authError.message = errorMessage
+
+            throw authError
+        }
+    },
+
+    /**
      * Регистрация
      * @param {Object} data - данные пользователя {name, email, password, password_confirmation, role?}
      * @returns {Promise} - возвращает {access_token, refresh_token, user}

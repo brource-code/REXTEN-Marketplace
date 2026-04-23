@@ -310,7 +310,7 @@ LaravelAxios.interceptors.response.use(
                 
                 // Редиректим на логин только если это не публичная страница
                 if (typeof window !== 'undefined') {
-                    const publicRoutes = ['/services', '/marketplace', '/landing', '/sign-in', '/business/sign-in', '/admin/sign-in']
+                    const publicRoutes = ['/services', '/marketplace', '/landing', '/sign-in', '/business/sign-in', '/business/demo-login', '/admin/sign-in', '/auth/demo-login']
                     const isPublicRoute = publicRoutes.some(route => window.location.pathname.startsWith(route))
                     
                     if (!isPublicRoute && !window.location.pathname.includes('/sign-in')) {
