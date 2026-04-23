@@ -21,7 +21,7 @@ import SalarySettingsModal from '@/components/business/SalarySettingsModal'
 export default function SalaryReport({ filters }) {
     const t = useTranslations('nav.business.schedule.reports')
     const tSalary = useTranslations('business.salary')
-    const { data, isLoading, error, refetch } = useSalaryReport(filters)
+    const { data, isLoading, error } = useSalaryReport(filters)
     const [settingsModal, setSettingsModal] = useState({ isOpen: false, specialistId: null, specialistName: '' })
 
     if (isLoading) {
@@ -255,10 +255,9 @@ export default function SalaryReport({ filters }) {
 
             <SalarySettingsModal
                 isOpen={settingsModal.isOpen}
-                onClose={() => {
+                onClose={() =>
                     setSettingsModal({ isOpen: false, specialistId: null, specialistName: '' })
-                    refetch()
-                }}
+                }
                 specialistId={settingsModal.specialistId}
                 specialistName={settingsModal.specialistName}
             />

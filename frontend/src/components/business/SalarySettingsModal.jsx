@@ -61,19 +61,6 @@ const SalarySettingsModal = ({ isOpen, onClose, specialistId, specialistName }) 
         }
     }, [isOpen, settingsData])
 
-    useEffect(() => {
-        if (!isOpen) {
-            // Сброс формы при закрытии
-            setPaymentType('percent')
-            setPercentRate('')
-            setFixedAmount('')
-            setHourlyRate('')
-            setEffectiveFrom(new Date())
-            setEffectiveTo(null)
-            setIsActive(true)
-        }
-    }, [isOpen])
-
     const handleSubmit = (e) => {
         e.preventDefault()
 
@@ -171,7 +158,13 @@ const SalarySettingsModal = ({ isOpen, onClose, specialistId, specialistName }) 
     }
 
     return (
-        <Dialog isOpen={isOpen} onClose={onClose} width={500} style={dialogStyle}>
+        <Dialog
+            isOpen={isOpen}
+            onClose={onClose}
+            width={500}
+            style={dialogStyle}
+            shouldFocusAfterRender={false}
+        >
             <form onSubmit={handleSubmit}>
                 <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('title')}</h3>
@@ -288,7 +281,7 @@ const SalarySettingsModal = ({ isOpen, onClose, specialistId, specialistName }) 
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
-                    <Button variant="plain" onClick={onClose}>
+                    <Button type="button" variant="plain" onClick={onClose}>
                         {tCommon('cancel')}
                     </Button>
                     <Button

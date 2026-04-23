@@ -88,6 +88,8 @@ export function useUpdateSalarySettings() {
             queryClient.invalidateQueries({ queryKey: salaryKeys.settings(variables.specialistId) })
             // Также инвалидируем все расчеты, так как настройки могли измениться
             queryClient.invalidateQueries({ queryKey: salaryKeys.calculations() })
+            // Отчёт по ЗП (вкл. детализацию по исполнителям) — раньше дергался refetch при каждом onClose модалки
+            queryClient.invalidateQueries({ queryKey: salaryKeys.all })
         },
     })
 }
