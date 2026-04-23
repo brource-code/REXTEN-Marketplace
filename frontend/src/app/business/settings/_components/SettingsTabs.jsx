@@ -1,7 +1,10 @@
 'use client'
+
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
-import Tabs from '@/components/ui/Tabs'
+import SegmentTabBar from '@/components/shared/SegmentTabBar'
+import classNames from '@/utils/classNames'
 import ProfileTab from './tabs/ProfileTab'
 import TeamTab from './tabs/TeamTab'
 import UsersTab from './tabs/UsersTab'
@@ -23,11 +26,10 @@ import {
     PiListBullets,
 } from 'react-icons/pi'
 
-const { TabNav, TabList, TabContent } = Tabs
-
 const SettingsTabs = () => {
     const t = useTranslations('business.settings')
-    
+    const [tab, setTab] = useState('profile')
+
     return (
         <AdaptiveCard>
             <div className="mb-6">
@@ -37,66 +39,151 @@ const SettingsTabs = () => {
                 </p>
             </div>
 
-            <Tabs defaultValue="profile">
-                <TabList className="overflow-x-auto pb-1 gap-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 rounded">
-                    <TabNav value="profile" icon={<PiUser />} className="shrink-0">
-                        {t('tabs.profile')}
-                    </TabNav>
-                    <TabNav value="users" icon={<PiUserCircle />} className="shrink-0">
-                        {t('tabs.users')}
-                    </TabNav>
-                    <TabNav value="roles" icon={<PiShieldCheck />} className="shrink-0">
-                        {t('tabs.roles')}
-                    </TabNav>
-                    <TabNav value="services" icon={<PiListBullets />} className="shrink-0">
-                        {t('tabs.services')}
-                    </TabNav>
-                    <TabNav value="team" icon={<PiUsers />} className="shrink-0">
-                        {t('tabs.team')}
-                    </TabNav>
-                    <TabNav value="schedule" icon={<PiClock />} className="shrink-0">
-                        {t('tabs.schedule')}
-                    </TabNav>
-                    <TabNav value="notifications" icon={<PiBell />} className="shrink-0">
-                        {t('tabs.notifications')}
-                    </TabNav>
-                    <TabNav value="payments" icon={<PiCreditCard />} className="shrink-0">
-                        {t('tabs.payments')}
-                    </TabNav>
-                    <TabNav value="marketplace" icon={<PiStorefront />} className="shrink-0">
-                        {t('tabs.marketplace')}
-                    </TabNav>
-                </TabList>
-                <div className="p-4 sm:p-6 -mx-4 sm:mx-0">
-                    <TabContent value="profile">
-                        <ProfileTab />
-                    </TabContent>
-                    <TabContent value="services">
-                        <ServicesTab />
-                    </TabContent>
-                    <TabContent value="team">
-                        <TeamTab />
-                    </TabContent>
-                    <TabContent value="users">
-                        <UsersTab />
-                    </TabContent>
-                    <TabContent value="roles">
-                        <RolesTab />
-                    </TabContent>
-                    <TabContent value="schedule">
-                        <ScheduleTab />
-                    </TabContent>
-                    <TabContent value="notifications">
-                        <NotificationsTab />
-                    </TabContent>
-                    <TabContent value="payments">
-                        <PaymentsTab />
-                    </TabContent>
-                    <TabContent value="marketplace">
-                        <MarketplaceTab />
-                    </TabContent>
+            <div className="mb-4 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600">
+                <SegmentTabBar
+                    value={tab}
+                    onChange={setTab}
+                    items={[
+                        {
+                            value: 'profile',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiUser className="text-base shrink-0" />
+                                    {t('tabs.profile')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'users',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiUserCircle className="text-base shrink-0" />
+                                    {t('tabs.users')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'roles',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiShieldCheck className="text-base shrink-0" />
+                                    {t('tabs.roles')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'services',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiListBullets className="text-base shrink-0" />
+                                    {t('tabs.services')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'team',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiUsers className="text-base shrink-0" />
+                                    {t('tabs.team')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'schedule',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiClock className="text-base shrink-0" />
+                                    {t('tabs.schedule')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'notifications',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiBell className="text-base shrink-0" />
+                                    {t('tabs.notifications')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'payments',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiCreditCard className="text-base shrink-0" />
+                                    {t('tabs.payments')}
+                                </span>
+                            ),
+                        },
+                        {
+                            value: 'marketplace',
+                            label: (
+                                <span className="inline-flex items-center gap-1.5">
+                                    <PiStorefront className="text-base shrink-0" />
+                                    {t('tabs.marketplace')}
+                                </span>
+                            ),
+                        },
+                    ]}
+                />
+            </div>
+            <div className="p-4 sm:p-6 -mx-4 sm:mx-0">
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'profile' && 'tab-content-active')}
+                >
+                    <ProfileTab />
                 </div>
-            </Tabs>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'services' && 'tab-content-active')}
+                >
+                    <ServicesTab />
+                </div>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'team' && 'tab-content-active')}
+                >
+                    <TeamTab />
+                </div>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'users' && 'tab-content-active')}
+                >
+                    <UsersTab />
+                </div>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'roles' && 'tab-content-active')}
+                >
+                    <RolesTab />
+                </div>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'schedule' && 'tab-content-active')}
+                >
+                    <ScheduleTab />
+                </div>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'notifications' && 'tab-content-active')}
+                >
+                    <NotificationsTab />
+                </div>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'payments' && 'tab-content-active')}
+                >
+                    <PaymentsTab />
+                </div>
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content', tab === 'marketplace' && 'tab-content-active')}
+                >
+                    <MarketplaceTab />
+                </div>
+            </div>
         </AdaptiveCard>
     )
 }

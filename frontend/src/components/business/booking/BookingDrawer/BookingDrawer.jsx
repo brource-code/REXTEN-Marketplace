@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import dayjs from 'dayjs'
 import Drawer from '@/components/ui/Drawer'
-import Tabs from '@/components/ui/Tabs'
+import SegmentTabBar from '@/components/shared/SegmentTabBar'
 import Button from '@/components/ui/Button'
+import classNames from '@/utils/classNames'
 import Dialog from '@/components/ui/Dialog'
 import { useScheduleReferenceData } from '@/hooks/api/useScheduleReferenceData'
 import { useBookingFormState } from '@/components/business/booking/hooks/useBookingFormState'
@@ -116,6 +117,22 @@ export default function BookingDrawer({
         setSelectedAdditional(slot?.additional_services || [])
     }, [slot?.id, initialValues, reset])
 
+    useEffect(() => {
+        if (isCustomEvent && (tab === 'pricing' || tab === 'payment')) {
+            setTab('details')
+        }
+    }, [isCustomEvent, tab])
+
+    const drawerTabItems = useMemo(() => {
+        const items = [{ value: 'details', label: t('tabs.details') }]
+        if (!isCustomEvent) {
+            items.push({ value: 'pricing', label: t('tabs.pricing') })
+            items.push({ value: 'payment', label: t('tabs.payment') })
+        }
+        items.push({ value: 'activity', label: t('tabs.activity') })
+        return items
+    }, [isCustomEvent, t])
+
     const handleSave = async () => {
         if (!isValid) return
         const payload = {
@@ -202,36 +219,31 @@ export default function BookingDrawer({
                     />
 
                     <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-                        <Tabs value={tab} onChange={setTab} variant="underline">
-                            <Tabs.TabList className="px-4 sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-700">
-                                <Tabs.TabNav value="details">{t('tabs.details')}</Tabs.TabNav>
-                                {!isCustomEvent && (
-                                    <Tabs.TabNav value="pricing">{t('tabs.pricing')}</Tabs.TabNav>
-                                )}
-                                {!isCustomEvent && (
-                                    <Tabs.TabNav value="payment">{t('tabs.payment')}</Tabs.TabNav>
-                                )}
-                                <Tabs.TabNav value="activity">{t('tabs.activity')}</Tabs.TabNav>
-                            </Tabs.TabList>
+                        <div className="px-4 py-2 sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-200 dark:border-gray-700">
+                            <SegmentTabBar value={tab} onChange={setTab} items={drawerTabItems} />
+                        </div>
 
-                            <div className="p-4">
-                                {showReschedule && (
-                                    <div className="mb-3">
-                                        <RescheduleInline
-                                            initialDate={values.booking_date}
-                                            initialTime={values.booking_time}
-                                            initialDuration={values.duration_minutes}
-                                            specialistId={values.specialist_id}
-                                            excludeId={slot?.id}
-                                            scheduleSettings={scheduleSettings}
-                                            onApply={handleApplyReschedule}
-                                            onCancel={() => setShowReschedule(false)}
-                                            saving={saving}
-                                        />
-                                    </div>
-                                )}
+                        <div className="p-4">
+                            {showReschedule && (
+                                <div className="mb-3">
+                                    <RescheduleInline
+                                        initialDate={values.booking_date}
+                                        initialTime={values.booking_time}
+                                        initialDuration={values.duration_minutes}
+                                        specialistId={values.specialist_id}
+                                        excludeId={slot?.id}
+                                        scheduleSettings={scheduleSettings}
+                                        onApply={handleApplyReschedule}
+                                        onCancel={() => setShowReschedule(false)}
+                                        saving={saving}
+                                    />
+                                </div>
+                            )}
 
-                                <Tabs.TabContent value="details">
+                            <div
+                                role="tabpanel"
+                                className={classNames('tab-content', tab === 'details' && 'tab-content-active')}
+                            >
                                     {!isCustomEvent && (
                                         <div className="mb-4 grid grid-cols-1 gap-3">
                                             <BookingClientPicker
@@ -291,36 +303,41 @@ export default function BookingDrawer({
                                         isCustomEvent={isCustomEvent}
                                         currency={currency}
                                     />
-                                </Tabs.TabContent>
-
-                                {!isCustomEvent && (
-                                    <Tabs.TabContent value="pricing">
-                                        <BookingPricingTab
-                                            values={values}
-                                            setField={setField}
-                                            selectedAdditionalServices={selectedAdditional}
-                                            setSelectedAdditionalServices={setSelectedAdditional}
-                                            slot={slot}
-                                            currency={currency}
-                                            dirty={dirty}
-                                        />
-                                    </Tabs.TabContent>
-                                )}
-
-                                {!isCustomEvent && (
-                                    <Tabs.TabContent value="payment">
-                                        <BookingPaymentTab
-                                            slot={slot}
-                                            currency={currency}
-                                        />
-                                    </Tabs.TabContent>
-                                )}
-
-                                <Tabs.TabContent value="activity">
-                                    <BookingActivityTab bookingId={slot?.id} />
-                                </Tabs.TabContent>
                             </div>
-                        </Tabs>
+
+                            {!isCustomEvent && (
+                                <div
+                                    role="tabpanel"
+                                    className={classNames('tab-content', tab === 'pricing' && 'tab-content-active')}
+                                >
+                                    <BookingPricingTab
+                                        values={values}
+                                        setField={setField}
+                                        selectedAdditionalServices={selectedAdditional}
+                                        setSelectedAdditionalServices={setSelectedAdditional}
+                                        slot={slot}
+                                        currency={currency}
+                                        dirty={dirty}
+                                    />
+                                </div>
+                            )}
+
+                            {!isCustomEvent && (
+                                <div
+                                    role="tabpanel"
+                                    className={classNames('tab-content', tab === 'payment' && 'tab-content-active')}
+                                >
+                                    <BookingPaymentTab slot={slot} currency={currency} />
+                                </div>
+                            )}
+
+                            <div
+                                role="tabpanel"
+                                className={classNames('tab-content', tab === 'activity' && 'tab-content-active')}
+                            >
+                                <BookingActivityTab bookingId={slot?.id} />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="border-t border-gray-200 dark:border-gray-700 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-2 shrink-0 bg-white dark:bg-gray-900">

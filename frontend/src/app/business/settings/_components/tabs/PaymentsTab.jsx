@@ -19,6 +19,18 @@ import {
 } from '@/lib/api/stripe'
 import { updateMarketplaceSettings, getMarketplaceSettings } from '@/lib/api/business'
 
+/** Stripe `requirements.disabled_reason` — показываем человекочитаемый текст, не сырой код. */
+function formatStripeDisabledReason(reason, t) {
+    if (reason == null || String(reason).trim() === '') {
+        return ''
+    }
+    const r = String(reason).trim()
+    if (r === 'requirements.past_due') {
+        return t('requirements.past_due')
+    }
+    return t('stripeDisabledReasonOther', { reason: r })
+}
+
 const PaymentsTab = () => {
     const t = useTranslations('business.settings.payments')
     const tCommon = useTranslations('business.common')
@@ -294,7 +306,9 @@ const PaymentsTab = () => {
                     {t('statusDisabled')}
                 </p>
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2">
-                    {status?.stripe_disabled_reason || t('contactSupport')}
+                    {status?.stripe_disabled_reason
+                        ? formatStripeDisabledReason(status.stripe_disabled_reason, t)
+                        : t('contactSupport')}
                 </p>
                 <div className="flex gap-2 justify-center mt-4">
                     <Button
