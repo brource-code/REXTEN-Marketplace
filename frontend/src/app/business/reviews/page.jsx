@@ -40,7 +40,7 @@ function ReviewsPageContent() {
         return (
             <Container>
                 <AdaptiveCard>
-                    <div className="flex items-center justify-center min-h-[400px]">
+                    <div className="flex min-h-[400px] min-w-0 items-center justify-center">
                         <Loading loading />
                     </div>
                 </AdaptiveCard>
@@ -51,7 +51,7 @@ function ReviewsPageContent() {
     return (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-4">
+                <div className="flex min-w-0 flex-col gap-4">
                     <div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
