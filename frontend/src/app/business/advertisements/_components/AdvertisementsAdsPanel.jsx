@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import DataTable from '@/components/shared/DataTable'
@@ -10,13 +10,18 @@ import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getBusinessAdvertisements, deleteBusinessAdvertisement, getBusinessAdvertisement, updateAdvertisementVisibility } from '@/lib/api/business'
+import {
+    getBusinessAdvertisements,
+    deleteBusinessAdvertisement,
+    getBusinessAdvertisement,
+    updateAdvertisementVisibility,
+} from '@/lib/api/business'
 import Switcher from '@/components/ui/Switcher'
 import Loading from '@/components/shared/Loading'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import { PiPlus, PiPencil, PiTrash, PiMegaphone, PiEye, PiCursorClick, PiArrowRight } from 'react-icons/pi'
+import { PiPencil, PiTrash, PiMegaphone, PiEye, PiCursorClick, PiArrowRight } from 'react-icons/pi'
 import Link from 'next/link'
 import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
 import Pagination from '@/components/ui/Pagination'
@@ -38,7 +43,7 @@ const ImageColumn = ({ row, noPhotoText }) => {
     const imageUrl = row.image ? normalizeImageUrl(row.image) : null
     return (
         <div className="flex items-center">
-            <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                 {imageUrl ? (
                     <Image
                         src={imageUrl}
@@ -51,7 +56,7 @@ const ImageColumn = ({ row, noPhotoText }) => {
                         }}
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                    <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
                         {noPhotoText}
                     </div>
                 )}
@@ -60,71 +65,74 @@ const ImageColumn = ({ row, noPhotoText }) => {
     )
 }
 
-const TitleColumn = ({ row, adBadgeText }) => {
+const TitleColumn = ({ row, adBadgeText, densityLines = [], showThumb, noPhotoText }) => {
+    const imageUrl = row.image ? normalizeImageUrl(row.image) : null
     return (
-        <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                    {row.title}
+        <div className="flex min-w-0 max-w-full items-start gap-2">
+            {showThumb ? (
+                <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                    {imageUrl ? (
+                        <Image
+                            src={imageUrl}
+                            alt=""
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                                e.target.src = FALLBACK_IMAGE
+                                e.target.onerror = null
+                            }}
+                        />
+                    ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
+                            {noPhotoText}
+                        </div>
+                    )}
                 </div>
-                <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                    {adBadgeText}
-                </span>
+            ) : null}
+            <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <div className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{row.title}</div>
+                    <span className="inline-flex shrink-0 items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                        {adBadgeText}
+                    </span>
+                </div>
+                {row.description ? (
+                    <div className="mt-1 line-clamp-2 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        {row.description}
+                    </div>
+                ) : null}
+                {densityLines.map((line, i) => (
+                    <div
+                        key={i}
+                        className="mt-0.5 truncate text-[11px] font-bold text-gray-500 dark:text-gray-400"
+                    >
+                        {line}
+                    </div>
+                ))}
             </div>
-            {row.description && (
-                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                    {row.description}
-                </div>
-            )}
         </div>
     )
 }
 
-const StatsColumn = ({ row }) => {
-    const ctr = row.impressions > 0 
-        ? ((row.clicks / row.impressions) * 100).toFixed(2)
-        : 0
-    
+const StatsColumn = ({ row, ctrLabel }) => {
+    const ctr =
+        row.impressions > 0 ? ((row.clicks / row.impressions) * 100).toFixed(2) : '0'
+
     return (
         <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1 text-sm">
-                <PiEye className="text-gray-400" size={14} />
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{(row.impressions || 0).toLocaleString()}</span>
+                <PiEye className="text-gray-400" size={14} aria-hidden />
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                    {(row.impressions || 0).toLocaleString()}
+                </span>
             </div>
             <div className="flex items-center gap-1 text-sm">
-                <PiCursorClick className="text-gray-400" size={14} />
+                <PiCursorClick className="text-gray-400" size={14} aria-hidden />
                 <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{row.clicks || 0}</span>
             </div>
             <div className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                CTR: <span className="text-gray-900 dark:text-gray-100">{ctr}%</span>
+                {ctrLabel}: <span className="text-gray-900 dark:text-gray-100">{ctr}%</span>
             </div>
-        </div>
-    )
-}
-
-const ActionColumn = ({ row, onView, onEdit, onDelete }) => {
-    return (
-        <div className="flex items-center gap-2">
-            <Button
-                variant="plain"
-                size="sm"
-                icon={<PiEye />}
-                onClick={() => onView(row)}
-            />
-            <Link href={`/business/settings/advertisements/create?edit=${row.id}`}>
-                <Button
-                    variant="plain"
-                    size="sm"
-                    icon={<PiPencil />}
-                />
-            </Link>
-            <Button
-                variant="plain"
-                size="sm"
-                icon={<PiTrash />}
-                onClick={() => onDelete(row)}
-                className="text-red-600"
-            />
         </div>
     )
 }
@@ -135,51 +143,75 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
     const tCommon = useTranslations('business.common')
     const { settings } = useBusinessStore()
     const businessTz = settings?.timezone || 'America/Los_Angeles'
-    const router = useRouter()
     const searchParams = useSearchParams()
     const queryClient = useQueryClient()
     const { onAppendQueryParams } = useAppendQueryParams()
-    const pageIndex = parseInt(searchParams.get('pageIndex') || '1')
-    const pageSize = parseInt(searchParams.get('pageSize') || '10')
+    const pageIndex = parseInt(searchParams.get('pageIndex') || '1', 10)
+    const pageSize = parseInt(searchParams.get('pageSize') || '10', 10)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [adToDelete, setAdToDelete] = useState(null)
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
     const [selectedAd, setSelectedAd] = useState(null)
-    
-    // Функция для получения перевода статуса
-    const getStatusLabel = (status) => {
-        try {
-            return tAds(`statuses.${status}`) || status
-        } catch {
-            return status
-        }
-    }
-    
-    // Функция для получения перевода размещения
-    const getPlacementLabel = (placement) => {
-        try {
-            return t(`placements.${placement}`) || placement
-        } catch {
-            return placement
-        }
-    }
+
+    const tableHostRef = useRef(null)
+    const [tableHostWidth, setTableHostWidth] = useState(1200)
+
+    useEffect(() => {
+        const el = tableHostRef.current
+        if (!el || typeof ResizeObserver === 'undefined') return undefined
+        const ro = new ResizeObserver((entries) => {
+            const w = entries[0]?.contentRect?.width
+            if (typeof w === 'number' && w >= 320) setTableHostWidth(w)
+        })
+        ro.observe(el)
+        const initial = el.getBoundingClientRect().width
+        if (initial >= 320) setTableHostWidth(initial)
+        return () => ro.disconnect()
+    }, [])
+
+    const hidePlacementDatesColumn = tableHostWidth < 1020
+    const hideCreatedAtColumn = tableHostWidth < 920
+    const hideStatsColumn = tableHostWidth < 860
+    const hidePhotoColumn = tableHostWidth < 760
+    const hidePlacementColumn = tableHostWidth < 700
+
+    const getStatusLabel = useCallback(
+        (status) => {
+            try {
+                return tAds(`statuses.${status}`) || status
+            } catch {
+                return status
+            }
+        },
+        [tAds],
+    )
+
+    const getPlacementLabel = useCallback(
+        (placement) => {
+            try {
+                return t(`placements.${placement}`) || placement
+            } catch {
+                return placement
+            }
+        },
+        [t],
+    )
 
     const { data: advertisementsData, isLoading, error } = useQuery({
         queryKey: ['business-advertisements-ads', pageIndex, pageSize],
-        queryFn: () => getBusinessAdvertisements({
-            page: pageIndex,
-            pageSize,
-            type: 'advertisement', // Фильтруем на бэкенде только рекламные (type = 'advertisement' или 'ad')
-        }),
+        queryFn: () =>
+            getBusinessAdvertisements({
+                page: pageIndex,
+                pageSize,
+                type: 'advertisement',
+            }),
         enabled: queryEnabled,
     })
-    
-    // Дополнительная фильтрация на клиенте для надежности
-    const advertisements = (advertisementsData?.data || []).filter(ad => 
-        ad.type === 'advertisement' || ad.type === 'ad'
+
+    const advertisements = (advertisementsData?.data || []).filter(
+        (ad) => ad.type === 'advertisement' || ad.type === 'ad',
     )
-    
-    // Используем total от бэкенда - он должен быть правильным после фильтрации
+
     const total = advertisementsData?.total || 0
 
     const deleteAdMutation = useMutation({
@@ -222,10 +254,10 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
         },
     })
 
-    const handleDeleteAd = (ad) => {
+    const handleDeleteAd = useCallback((ad) => {
         setAdToDelete(ad)
         setIsDeleteDialogOpen(true)
-    }
+    }, [])
 
     const confirmDeleteAd = () => {
         if (adToDelete) {
@@ -233,63 +265,114 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
         }
     }
 
-    const handleView = async (ad) => {
-        try {
-            const fullAd = await getBusinessAdvertisement(ad.id)
-            setSelectedAd(fullAd)
-            setIsViewModalOpen(true)
-        } catch (error) {
-            toast.push(
-                <Notification title={tCommon('error')} type="danger">
-                    {tAds('notifications.loadError')}
-                </Notification>,
-            )
-        }
-    }
+    const handleView = useCallback(
+        async (ad) => {
+            try {
+                const fullAd = await getBusinessAdvertisement(ad.id)
+                setSelectedAd(fullAd)
+                setIsViewModalOpen(true)
+            } catch {
+                toast.push(
+                    <Notification title={tCommon('error')} type="danger">
+                        {tAds('notifications.loadError')}
+                    </Notification>,
+                )
+            }
+        },
+        [tAds, tCommon],
+    )
 
-    const columns = useMemo(
-        () => [
-            {
+    const ctrShortLabel = t('viewModal.ctr')
+
+    const columns = useMemo(() => {
+        const densityLinesForRow = (row) => {
+            const lines = []
+            if (hidePlacementColumn && row.placement) {
+                lines.push(`${t('columns.placement')}: ${getPlacementLabel(row.placement)}`)
+            }
+            if (hideStatsColumn) {
+                const ctr =
+                    row.impressions > 0
+                        ? ((row.clicks / row.impressions) * 100).toFixed(2)
+                        : '0'
+                lines.push(
+                    `${t('stats.impressions')}: ${(row.impressions || 0).toLocaleString()} · ${t('stats.clicks')}: ${row.clicks || 0}`,
+                )
+                lines.push(`${ctrShortLabel}: ${ctr}%`)
+            }
+            if (hidePlacementDatesColumn && (row.start_date || row.end_date)) {
+                const start = row.start_date ? formatDate(row.start_date, businessTz, 'short') : '—'
+                const end = row.end_date ? formatDate(row.end_date, businessTz, 'short') : '—'
+                lines.push(`${t('columns.placementDates')}: ${start} — ${end}`)
+            }
+            if (hideCreatedAtColumn && row.created_at) {
+                lines.push(
+                    `${t('columns.createdAt')}: ${formatDate(row.created_at, businessTz, 'short')}`,
+                )
+            }
+            return lines
+        }
+
+        const cols = []
+
+        if (!hidePhotoColumn) {
+            cols.push({
                 header: t('columns.photo'),
                 accessorKey: 'image',
-                cell: (props) => <ImageColumn row={props.row.original} noPhotoText={tAds('noPhoto')} />,
-            },
-            {
-                header: t('columns.title'),
-                accessorKey: 'title',
+                enableSorting: false,
                 cell: (props) => (
-                    <div 
-                        className="cursor-pointer hover:text-primary"
-                        onClick={() => handleView(props.row.original)}
-                    >
-                        <TitleColumn row={props.row.original} adBadgeText={t('adBadge')} />
-                    </div>
+                    <ImageColumn row={props.row.original} noPhotoText={tAds('noPhoto')} />
                 ),
+            })
+        }
+
+        cols.push({
+            header: t('columns.title'),
+            accessorKey: 'title',
+            enableSorting: false,
+            cell: (props) => {
+                const row = props.row.original
+                return (
+                    <TitleColumn
+                        row={row}
+                        adBadgeText={t('adBadge')}
+                        showThumb={hidePhotoColumn}
+                        noPhotoText={tAds('noPhoto')}
+                        densityLines={densityLinesForRow(row)}
+                    />
+                )
             },
-            {
+        })
+
+        if (!hidePlacementColumn) {
+            cols.push({
                 header: t('columns.placement'),
                 accessorKey: 'placement',
+                enableSorting: false,
                 cell: (props) => (
                     <Tag className="bg-gray-100 dark:bg-gray-800">
                         {getPlacementLabel(props.row.original.placement)}
                     </Tag>
                 ),
-            },
+            })
+        }
+
+        cols.push(
             {
                 header: t('columns.status'),
                 accessorKey: 'status',
-                cell: (props) => {
-                    const row = props.row.original
-                    return (
-                        <Tag className={statusColors[row.status] || statusColors.inactive}>
-                            {getStatusLabel(row.status)}
-                        </Tag>
-                    )
-                },
+                enableSorting: false,
+                cell: (props) => (
+                    <Tag className={statusColors[props.row.original.status] || statusColors.inactive}>
+                        {getStatusLabel(props.row.original.status)}
+                    </Tag>
+                ),
             },
             {
-                header: t('columns.visible') || 'Видимость', // Fallback на случай проблем с переводами
+                header: t('columns.visible'),
                 accessorKey: 'is_active',
+                enableSorting: false,
+                meta: { stopRowClick: true },
                 cell: (props) => {
                     const row = props.row.original
                     return (
@@ -298,7 +381,7 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                             onChange={(checked) => {
                                 updateVisibilityMutation.mutate({
                                     id: row.id,
-                                    isActive: checked
+                                    isActive: checked,
                                 })
                             }}
                             loading={updateVisibilityMutation.isPending}
@@ -306,57 +389,155 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                     )
                 },
             },
-            {
+        )
+
+        if (!hideStatsColumn) {
+            cols.push({
                 header: t('columns.stats'),
                 accessorKey: 'impressions',
-                cell: (props) => <StatsColumn row={props.row.original} />,
-            },
-            {
+                enableSorting: false,
+                cell: (props) => (
+                    <StatsColumn row={props.row.original} ctrLabel={ctrShortLabel} />
+                ),
+            })
+        }
+
+        if (!hidePlacementDatesColumn) {
+            cols.push({
                 header: t('columns.placementDates'),
                 accessorKey: 'start_date',
+                enableSorting: false,
                 cell: (props) => {
                     const row = props.row.original
                     if (row.start_date || row.end_date) {
                         return (
                             <div className="text-xs">
                                 <div className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                                    {row.start_date ? formatDate(row.start_date, businessTz, 'short') : '-'}
+                                    {row.start_date ? formatDate(row.start_date, businessTz, 'short') : '—'}
                                 </div>
                                 <div className="text-xs font-bold text-gray-900 dark:text-gray-100">
-                                    {row.end_date ? formatDate(row.end_date, businessTz, 'short') : '-'}
+                                    {row.end_date ? formatDate(row.end_date, businessTz, 'short') : '—'}
                                 </div>
                             </div>
                         )
                     }
-                    return <span className="text-sm font-bold text-gray-500 dark:text-gray-400">-</span>
+                    return <span className="text-sm font-bold text-gray-500 dark:text-gray-400">—</span>
                 },
-            },
-            {
+            })
+        }
+
+        if (!hideCreatedAtColumn) {
+            cols.push({
                 header: t('columns.createdAt'),
                 accessorKey: 'created_at',
+                enableSorting: false,
                 cell: (props) => (
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {props.row.original.created_at 
-                            ? formatDate(props.row.original.created_at, businessTz, 'short') 
-                            : '-'}
+                        {props.row.original.created_at
+                            ? formatDate(props.row.original.created_at, businessTz, 'short')
+                            : '—'}
                     </span>
                 ),
-            },
-            {
-                header: '',
-                id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        row={props.row.original}
-                        onView={handleView}
-                        onEdit={() => router.push(`/business/settings/advertisements/create?edit=${props.row.original.id}`)}
-                        onDelete={handleDeleteAd}
+            })
+        }
+
+        cols.push({
+            header: '',
+            id: 'action',
+            enableSorting: false,
+            meta: { stopRowClick: true },
+            cell: (props) => (
+                <div className="flex items-center justify-end gap-1">
+                    <Link href={`/business/settings/advertisements/create?edit=${props.row.original.id}`}>
+                        <Button variant="plain" size="sm" icon={<PiPencil />} />
+                    </Link>
+                    <Button
+                        variant="plain"
+                        size="sm"
+                        icon={<PiTrash />}
+                        onClick={() => handleDeleteAd(props.row.original)}
+                        className="text-red-600"
                     />
-                ),
-            },
-        ],
-        [t, tAds, getStatusLabel, getPlacementLabel, handleView, updateVisibilityMutation]
+                </div>
+            ),
+        })
+
+        return cols
+    }, [
+        t,
+        tAds,
+        businessTz,
+        getPlacementLabel,
+        getStatusLabel,
+        handleDeleteAd,
+        hideCreatedAtColumn,
+        hidePhotoColumn,
+        hidePlacementColumn,
+        hidePlacementDatesColumn,
+        hideStatsColumn,
+        ctrShortLabel,
+        updateVisibilityMutation,
+    ])
+
+    const adsEmptyState = useMemo(
+        () => (
+            <EmptyStatePanel icon={PiMegaphone} title={t('emptyTitle')} hint={t('emptyHint')}>
+                {error ? (
+                    <div className="w-full max-w-md rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+                        <p className="text-sm font-bold text-red-600 dark:text-red-400">
+                            {tAds('loadError')}: {error.message}
+                        </p>
+                    </div>
+                ) : null}
+                <Link href="/business/advertisements/purchase">
+                    <Button variant="solid" icon={<PiMegaphone />}>
+                        {t('buyAds')}
+                    </Button>
+                </Link>
+            </EmptyStatePanel>
+        ),
+        [t, tAds, error],
     )
+
+    const pageSizeOptions = useMemo(
+        () =>
+            [10, 25, 50, 100].map((n) => ({
+                value: n,
+                label: `${n} / page`,
+            })),
+        [],
+    )
+
+    const listPaginationFooter =
+        advertisements.length > 0 ? (
+            <div className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <Pagination
+                    pageSize={pageSize}
+                    currentPage={pageIndex}
+                    total={total}
+                    onChange={(page) => {
+                        onAppendQueryParams({
+                            pageIndex: String(page),
+                        })
+                    }}
+                />
+                <div className="min-w-[130px]">
+                    <Select
+                        size="sm"
+                        menuPlacement="top"
+                        isSearchable={false}
+                        value={pageSizeOptions.find((opt) => opt.value === pageSize)}
+                        options={pageSizeOptions}
+                        onChange={(option) => {
+                            onAppendQueryParams({
+                                pageSize: String(option?.value),
+                                pageIndex: '1',
+                            })
+                        }}
+                    />
+                </div>
+            </div>
+        ) : null
 
     if (!queryEnabled) {
         return null
@@ -364,7 +545,7 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex min-h-[400px] items-center justify-center">
                 <Loading loading />
             </div>
         )
@@ -373,227 +554,209 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
     return (
         <>
             <div className="flex flex-col gap-4">
-                    <div className="flex flex-wrap gap-2 justify-end">
-                            <Link href="/business/advertisements/purchase">
-                                <Button
-                                    variant="solid"
-                                    size="sm"
-                                    icon={<PiMegaphone />}
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                >
-                                    {t('buyAds')}
-                                </Button>
-                            </Link>
-                    </div>
+                <div className="flex flex-wrap justify-end gap-2">
+                    <Link href="/business/advertisements/purchase">
+                        <Button variant="solid" size="sm" icon={<PiMegaphone />} className="bg-blue-600 hover:bg-blue-700">
+                            {t('buyAds')}
+                        </Button>
+                    </Link>
+                </div>
 
-                    {advertisements.length === 0 ? (
-                        <EmptyStatePanel icon={PiMegaphone} title={t('emptyTitle')} hint={t('emptyHint')}>
-                            {error && (
-                                <div className="w-full max-w-md rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
-                                    <p className="text-sm font-bold text-red-600 dark:text-red-400">
-                                        {tAds('loadError')}: {error.message}
-                                    </p>
-                                </div>
-                            )}
-                            <Link href="/business/advertisements/purchase">
-                                <Button variant="solid" icon={<PiMegaphone />}>
-                                    {t('buyAds')}
-                                </Button>
-                            </Link>
-                        </EmptyStatePanel>
-                    ) : (
-                        <>
-                            {/* Мобильная версия - карточки */}
-                            <div className="block md:hidden space-y-4">
-                                {advertisements.map((ad) => {
-                                    const imageUrl = ad.image ? normalizeImageUrl(ad.image) : null
-                                    const ctr = ad.impressions > 0 
+                {advertisements.length === 0 ? (
+                    adsEmptyState
+                ) : (
+                    <>
+                        <div className="flex flex-col gap-1.5 md:hidden">
+                            {advertisements.map((ad) => {
+                                const imageUrl = ad.image ? normalizeImageUrl(ad.image) : null
+                                const ctr =
+                                    ad.impressions > 0
                                         ? ((ad.clicks / ad.impressions) * 100).toFixed(2)
-                                        : 0
-                                    return (
-                                        <div
-                                            key={ad.id}
-                                            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-                                        >
-                                            <div className="p-4 space-y-4">
-                                                <div className="flex items-start gap-4">
-                                                    {imageUrl ? (
-                                                        <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800 shadow-sm">
-                                                            <Image
-                                                                src={imageUrl}
-                                                                alt={ad.title}
-                                                                fill
-                                                                className="object-cover"
-                                                                onError={(e) => {
-                                                                    e.target.src = FALLBACK_IMAGE
-                                                                    e.target.onerror = null
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="w-20 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 text-xs flex-shrink-0 shadow-sm">
-                                                            Нет фото
-                                                        </div>
-                                                    )}
-                                                    <div className="flex-1 min-w-0 pt-1">
-                                                        <div className="flex items-start gap-2 mb-2">
-                                                            <div
-                                                                className="text-sm font-bold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-primary transition-colors line-clamp-2 flex-1 min-w-0"
-                                                                onClick={() => handleView(ad)}
-                                                            >
+                                        : '0'
+                                return (
+                                    <div
+                                        key={ad.id}
+                                        className="rounded-lg border border-gray-200 bg-white p-2 shadow-sm transition-colors active:bg-gray-50 dark:border-gray-700 dark:bg-gray-800/40 dark:active:bg-gray-800/60"
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleView(ad)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault()
+                                                handleView(ad)
+                                            }
+                                        }}
+                                    >
+                                        <div className="flex gap-2">
+                                            {imageUrl ? (
+                                                <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                                                    <Image
+                                                        src={imageUrl}
+                                                        alt=""
+                                                        fill
+                                                        className="object-cover"
+                                                        onError={(e) => {
+                                                            e.target.src = FALLBACK_IMAGE
+                                                            e.target.onerror = null
+                                                        }}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-[10px] text-gray-400 dark:bg-gray-800">
+                                                    {tAds('noPhoto')}
+                                                </div>
+                                            )}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                                                            <span className="min-w-0 truncate text-sm font-bold text-gray-900 dark:text-gray-100">
                                                                 {ad.title}
-                                                            </div>
-                                                            <span className="inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 flex-shrink-0">
-                                                                Реклама
                                                             </span>
-                                                        </div>
-                                                        {ad.description && (
-                                                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
-                                                                {ad.description}
-                                                            </div>
-                                                        )}
-                                                        <div className="flex items-center gap-2 flex-wrap mb-3">
-                                                            <Tag className={`${statusColors[ad.status] || statusColors.inactive} text-xs font-bold px-2.5 py-1`}>
+                                                            <span className="inline-flex shrink-0 items-center rounded-full bg-blue-100 px-1.5 py-0 text-[11px] font-bold leading-none text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                                {t('adBadge')}
+                                                            </span>
+                                                            <Tag
+                                                                className={`shrink-0 !px-1.5 !py-0 !text-[11px] leading-none ${statusColors[ad.status] || statusColors.inactive}`}
+                                                            >
                                                                 {getStatusLabel(ad.status)}
                                                             </Tag>
-                                                            {ad.placement && (
-                                                                <Tag className="bg-gray-100 dark:bg-gray-800 text-xs font-bold px-2.5 py-1">
+                                                        </div>
+                                                        {ad.description ? (
+                                                            <div className="mt-0.5 line-clamp-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                                                                {ad.description}
+                                                            </div>
+                                                        ) : null}
+                                                        {ad.placement ? (
+                                                            <div className="mt-1">
+                                                                <Tag className="bg-gray-100 text-[11px] dark:bg-gray-800">
                                                                     {getPlacementLabel(ad.placement)}
                                                                 </Tag>
-                                                            )}
-                                                        </div>
-                                                        <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                                                            <div>
-                                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Показы</div>
-                                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                                                                    <PiEye className="text-gray-400" size={14} />
+                                                            </div>
+                                                        ) : null}
+                                                        <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-900/50">
+                                                            <div className="min-w-0">
+                                                                <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
+                                                                    {t('stats.impressions')}
+                                                                </div>
+                                                                <div className="mt-0.5 flex items-center gap-1 text-xs font-bold text-gray-900 dark:text-gray-100">
+                                                                    <PiEye className="shrink-0 text-gray-400" size={14} aria-hidden />
                                                                     {(ad.impressions || 0).toLocaleString()}
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Клики</div>
-                                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                                                                    <PiCursorClick className="text-gray-400" size={14} />
+                                                            <div className="min-w-0">
+                                                                <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
+                                                                    {t('stats.clicks')}
+                                                                </div>
+                                                                <div className="mt-0.5 flex items-center gap-1 text-xs font-bold text-gray-900 dark:text-gray-100">
+                                                                    <PiCursorClick className="shrink-0 text-gray-400" size={14} aria-hidden />
                                                                     {ad.clicks || 0}
                                                                 </div>
                                                             </div>
-                                                            <div>
-                                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">CTR</div>
-                                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{ctr}%</div>
+                                                            <div className="min-w-0">
+                                                                <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
+                                                                    {t('viewModal.ctr')}
+                                                                </div>
+                                                                <div className="mt-0.5 text-xs font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                                                                    {ctr}%
+                                                                </div>
                                                             </div>
-                                                            {ad.created_at && (
-                                                                <div>
-                                                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Создано</div>
-                                                                    <div className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                                                            {ad.created_at ? (
+                                                                <div className="min-w-0">
+                                                                    <div className="truncate text-[9px] font-bold uppercase leading-none tracking-wide text-gray-500 dark:text-gray-400">
+                                                                        {t('columns.createdAt')}
+                                                                    </div>
+                                                                    <div className="mt-0.5 truncate text-xs font-bold text-gray-900 dark:text-gray-100">
                                                                         {formatDate(ad.created_at, businessTz, 'short')}
                                                                     </div>
                                                                 </div>
-                                                            )}
+                                                            ) : null}
+                                                        </div>
+                                                        <div className="mt-2 flex items-center gap-2 border-t border-gray-100 pt-2 dark:border-gray-700/80">
+                                                            <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                                                                {t('columns.visible')}:
+                                                            </span>
+                                                            <div
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                role="presentation"
+                                                            >
+                                                                <Switcher
+                                                                    checked={ad.is_active !== false}
+                                                                    onChange={(checked) => {
+                                                                        updateVisibilityMutation.mutate({
+                                                                            id: ad.id,
+                                                                            isActive: checked,
+                                                                        })
+                                                                    }}
+                                                                    loading={updateVisibilityMutation.isPending}
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                
-                                                {/* Кнопки действий */}
-                                                <div className="flex items-center gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        icon={<PiEye />}
-                                                        onClick={() => handleView(ad)}
-                                                        className="flex-1 justify-center"
-                                                    />
-                                                    <Link href={`/business/settings/advertisements/create?edit=${ad.id}`} className="flex-1">
+                                                    <div className="flex shrink-0 gap-1">
+                                                        <Link
+                                                            href={`/business/settings/advertisements/create?edit=${ad.id}`}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <Button variant="plain" size="sm" icon={<PiPencil />} />
+                                                        </Link>
                                                         <Button
-                                                            variant="outline"
+                                                            variant="plain"
                                                             size="sm"
-                                                            icon={<PiPencil />}
-                                                            className="w-full justify-center"
+                                                            icon={<PiTrash />}
+                                                            className="text-red-600"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                handleDeleteAd(ad)
+                                                            }}
                                                         />
-                                                    </Link>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        icon={<PiTrash />}
-                                                        onClick={() => handleDeleteAd(ad)}
-                                                        className="flex-1 justify-center text-red-600 hover:text-red-700 hover:border-red-300 dark:hover:border-red-600"
-                                                    />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    )
-                                })}
-                            </div>
-                            {/* Пагинация для мобильной версии */}
-                            <div className="block md:hidden flex flex-col gap-3 mt-4">
-                                <div className="flex items-center justify-between">
-                                    <Pagination
-                                        pageSize={pageSize}
-                                        currentPage={pageIndex}
-                                        total={total}
-                                        onChange={(page) => {
-                                            onAppendQueryParams({
-                                                pageIndex: String(page),
-                                            })
-                                        }}
-                                    />
-                                    <Select
-                                        size="sm"
-                                        menuPlacement="top"
-                                        isSearchable={false}
-                                        value={[
-                                            { value: 10, label: '10 / page' },
-                                            { value: 25, label: '25 / page' },
-                                            { value: 50, label: '50 / page' },
-                                            { value: 100, label: '100 / page' },
-                                        ].find(opt => opt.value === pageSize)}
-                                        options={[
-                                            { value: 10, label: '10 / page' },
-                                            { value: 25, label: '25 / page' },
-                                            { value: 50, label: '50 / page' },
-                                            { value: 100, label: '100 / page' },
-                                        ]}
-                                        onChange={(option) => {
-                                            onAppendQueryParams({
-                                                pageSize: String(option?.value),
-                                                pageIndex: '1',
-                                            })
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
 
-                            {/* Десктопная версия - таблица */}
-                            <div className="hidden md:block">
-                                <DataTable
-                                    columns={columns}
-                                    data={advertisements}
-                                    noData={advertisements.length === 0}
-                                    emptyTranslationNamespace="business.advertisements.ads"
-                                    emptyStateIcon={PiMegaphone}
-                                    loading={false}
-                                    pagingData={{
-                                        pageIndex,
-                                        pageSize,
-                                        total,
-                                    }}
-                                    onPaginationChange={(page) => {
-                                        onAppendQueryParams({
-                                            pageIndex: String(page),
-                                        })
-                                    }}
-                                    onSelectChange={(value) => {
-                                        onAppendQueryParams({
-                                            pageSize: String(value),
-                                            pageIndex: '1',
-                                        })
-                                    }}
-                                />
-                            </div>
-                        </>
-                    )}
+                        <div ref={tableHostRef} className="hidden min-w-0 w-full md:block">
+                            <DataTable
+                                columns={columns}
+                                data={advertisements}
+                                emptyState={adsEmptyState}
+                                noData={advertisements.length === 0}
+                                emptyStateIcon={PiMegaphone}
+                                loading={false}
+                                compact
+                                fluidCells
+                                className="w-full min-w-0"
+                                showPaginationFooter={false}
+                                pagingData={{
+                                    pageIndex,
+                                    pageSize,
+                                    total,
+                                }}
+                                onPaginationChange={(page) => {
+                                    onAppendQueryParams({
+                                        pageIndex: String(page),
+                                    })
+                                }}
+                                onSelectChange={(value) => {
+                                    onAppendQueryParams({
+                                        pageSize: String(value),
+                                        pageIndex: '1',
+                                    })
+                                }}
+                                onRowClick={handleView}
+                            />
+                        </div>
+
+                        {listPaginationFooter}
+                    </>
+                )}
             </div>
 
-            {/* Модалка просмотра (как у обычных объявлений) */}
             <Dialog
                 isOpen={isViewModalOpen}
                 onClose={() => {
@@ -602,77 +765,88 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                 }}
                 width={700}
             >
-                {selectedAd && (
-                    <div className="flex flex-col h-full max-h-[85vh]">
-                        <div className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{tAds('viewModal.title')}</h4>
+                {selectedAd ? (
+                    <div className="flex h-full max-h-[85vh] flex-col">
+                        <div className="flex-shrink-0 border-b border-gray-200 px-6 pb-4 pt-6 dark:border-gray-700">
+                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                {tAds('viewModal.title')}
+                            </h4>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                            {selectedAd.image && (
-                                <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
+                            {selectedAd.image ? (
+                                <div className="relative h-64 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                     <img
                                         src={normalizeImageUrl(selectedAd.image)}
                                         alt={selectedAd.title}
-                                        className="w-full h-full object-cover"
+                                        className="h-full w-full object-cover"
                                         onError={(e) => {
                                             e.target.src = FALLBACK_IMAGE
                                             e.target.onerror = null
                                         }}
                                     />
                                 </div>
-                            )}
+                            ) : null}
 
                             <div>
                                 <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">{selectedAd.title}</h4>
-                                {selectedAd.description && (
-                                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{selectedAd.description}</p>
-                                )}
+                                {selectedAd.description ? (
+                                    <p className="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {selectedAd.description}
+                                    </p>
+                                ) : null}
                             </div>
 
-                            <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex flex-wrap items-center gap-3">
                                 <Tag className={statusColors[selectedAd.status] || statusColors.inactive}>
                                     {getStatusLabel(selectedAd.status)}
                                 </Tag>
-                                <span className={`text-xs font-bold px-2 py-1 rounded-full ${selectedAd.is_active ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
+                                <span
+                                    className={`rounded-full px-2 py-1 text-xs font-bold ${selectedAd.is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}
+                                >
                                     {selectedAd.is_active ? tAds('viewModal.visible') : tAds('viewModal.hidden')}
                                 </span>
-                                {selectedAd.category_slug && (
-                                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
+                                {selectedAd.category_slug ? (
+                                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-bold text-blue-700 dark:bg-blue-500/20 dark:text-blue-400">
                                         {selectedAd.category_slug}
                                     </span>
-                                )}
+                                ) : null}
                             </div>
 
-                            {selectedAd.status === 'rejected' && selectedAd.moderation_reason && (
-                                <div className="p-3 bg-red-50 dark:bg-red-500/10 rounded-lg border border-red-200 dark:border-red-800">
-                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-0.5">
+                            {selectedAd.status === 'rejected' && selectedAd.moderation_reason ? (
+                                <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-500/10">
+                                    <div className="mb-0.5 text-sm font-bold text-gray-900 dark:text-gray-100">
                                         {tAds('viewModal.rejectionReason')}
                                     </div>
-                                    <div className="text-sm text-red-600 dark:text-red-400">
-                                        {selectedAd.moderation_reason}
-                                    </div>
+                                    <div className="text-sm text-red-600 dark:text-red-400">{selectedAd.moderation_reason}</div>
                                 </div>
-                            )}
+                            ) : null}
 
-                            {selectedAd.services && selectedAd.services.length > 0 && (
-                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{tAds('viewModal.services')}</div>
+                            {selectedAd.services && selectedAd.services.length > 0 ? (
+                                <div className="border-t border-gray-200 pt-2 dark:border-gray-700">
+                                    <div className="mb-2 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {tAds('viewModal.services')}
+                                    </div>
                                     <div className="space-y-2">
                                         {selectedAd.services.map((service, idx) => (
-                                            <div key={service.id || idx} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                                                <div className="flex-1 min-w-0">
+                                            <div
+                                                key={service.id || idx}
+                                                className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
+                                            >
+                                                <div className="min-w-0 flex-1">
                                                     <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{service.name}</div>
-                                                    {service.description && (
-                                                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{service.description}</div>
-                                                    )}
+                                                    {service.description ? (
+                                                        <div className="mt-0.5 line-clamp-1 text-xs text-gray-500 dark:text-gray-400">
+                                                            {service.description}
+                                                        </div>
+                                                    ) : null}
                                                 </div>
-                                                <div className="flex items-center gap-4 ml-4 flex-shrink-0">
-                                                    {service.duration && (
+                                                <div className="ml-4 flex flex-shrink-0 items-center gap-4">
+                                                    {service.duration ? (
                                                         <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
                                                             {service.duration} {tAds('viewModal.min')}
                                                         </span>
-                                                    )}
+                                                    ) : null}
                                                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                         ${Number(service.price || 0).toFixed(2)}
                                                     </span>
@@ -681,18 +855,23 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                                         ))}
                                     </div>
                                 </div>
-                            )}
+                            ) : null}
 
-                            {selectedAd.portfolio && selectedAd.portfolio.length > 0 && (
-                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                    <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">{tAds('viewModal.portfolio')}</div>
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            {selectedAd.portfolio && selectedAd.portfolio.length > 0 ? (
+                                <div className="border-t border-gray-200 pt-2 dark:border-gray-700">
+                                    <div className="mb-2 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {tAds('viewModal.portfolio')}
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                                         {selectedAd.portfolio.map((item, idx) => (
-                                            <div key={item.id || idx} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                            <div
+                                                key={item.id || idx}
+                                                className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
+                                            >
                                                 <img
                                                     src={normalizeImageUrl(item.image || item.url || item)}
                                                     alt=""
-                                                    className="w-full h-full object-cover"
+                                                    className="h-full w-full object-cover"
                                                     onError={(e) => {
                                                         e.target.src = FALLBACK_IMAGE
                                                         e.target.onerror = null
@@ -702,117 +881,145 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                                         ))}
                                     </div>
                                 </div>
-                            )}
+                            ) : null}
 
-                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {selectedAd.city && (
+                            <div className="border-t border-gray-200 pt-2 dark:border-gray-700">
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                    {selectedAd.city ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.city')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {tAds('viewModal.city')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.city}</div>
                                         </div>
-                                    )}
-                                    {selectedAd.state && (
+                                    ) : null}
+                                    {selectedAd.state ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.state')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {tAds('viewModal.state')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.state}</div>
                                         </div>
-                                    )}
-                                    {selectedAd.placement && (
+                                    ) : null}
+                                    {selectedAd.placement ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.placement')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {tAds('viewModal.placement')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {getPlacementLabel(selectedAd.placement) || selectedAd.placement}
                                             </div>
                                         </div>
-                                    )}
-                                    {(selectedAd.price_from || selectedAd.price_to) && (
+                                    ) : null}
+                                    {selectedAd.price_from || selectedAd.price_to ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.priceFrom')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {tAds('viewModal.priceFrom')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {selectedAd.price_from && `$${selectedAd.price_from}`}
-                                                {selectedAd.price_from && selectedAd.price_to && ' — '}
+                                                {selectedAd.price_from && selectedAd.price_to ? ' — ' : null}
                                                 {selectedAd.price_to && `$${selectedAd.price_to}`}
                                             </div>
                                         </div>
-                                    )}
-                                    {selectedAd.start_date && (
+                                    ) : null}
+                                    {selectedAd.start_date ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.startDate')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {t('viewModal.startDate')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {formatDate(selectedAd.start_date, businessTz, 'short')}
                                             </div>
                                         </div>
-                                    )}
-                                    {selectedAd.end_date && (
+                                    ) : null}
+                                    {selectedAd.end_date ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.endDate')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {t('viewModal.endDate')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {formatDate(selectedAd.end_date, businessTz, 'short')}
                                             </div>
                                         </div>
-                                    )}
-                                    {(selectedAd.impressions > 0 || selectedAd.clicks > 0) && (
+                                    ) : null}
+                                    {selectedAd.impressions > 0 || selectedAd.clicks > 0 ? (
                                         <>
                                             <div>
-                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.impressions')}</div>
-                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.impressions || 0}</div>
+                                                <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                    {tAds('viewModal.impressions')}
+                                                </div>
+                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                    {selectedAd.impressions || 0}
+                                                </div>
                                             </div>
                                             <div>
-                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.clicks')}</div>
-                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedAd.clicks || 0}</div>
+                                                <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                    {tAds('viewModal.clicks')}
+                                                </div>
+                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                    {selectedAd.clicks || 0}
+                                                </div>
                                             </div>
                                         </>
-                                    )}
-                                    {selectedAd.impressions > 0 && (
+                                    ) : null}
+                                    {selectedAd.impressions > 0 ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{t('viewModal.ctr')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {t('viewModal.ctr')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {((selectedAd.clicks / selectedAd.impressions) * 100).toFixed(2)}%
                                             </div>
                                         </div>
-                                    )}
-                                    {selectedAd.created_at && (
+                                    ) : null}
+                                    {selectedAd.created_at ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.createdAt')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {tAds('viewModal.createdAt')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {formatDate(selectedAd.created_at, businessTz, 'short')}
                                             </div>
                                         </div>
-                                    )}
-                                    {selectedAd.updated_at && (
+                                    ) : null}
+                                    {selectedAd.updated_at ? (
                                         <div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.updatedAt')}</div>
+                                            <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                {tAds('viewModal.updatedAt')}
+                                            </div>
                                             <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
                                                 {formatDate(selectedAd.updated_at, businessTz, 'short')}
                                             </div>
                                         </div>
-                                    )}
+                                    ) : null}
                                 </div>
                             </div>
 
-                            {selectedAd.link && (
-                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5">{tAds('viewModal.link')}</div>
+                            {selectedAd.link ? (
+                                <div className="border-t border-gray-200 pt-2 dark:border-gray-700">
+                                    <div className="mb-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                        {tAds('viewModal.link')}
+                                    </div>
                                     <Link
                                         href={`/marketplace/${selectedAd.link}`}
                                         target="_blank"
-                                        className="text-sm font-bold text-primary hover:underline break-all"
+                                        className="break-all text-sm font-bold text-primary hover:underline"
                                     >
                                         /marketplace/{selectedAd.link}
                                     </Link>
                                 </div>
-                            )}
+                            ) : null}
                         </div>
 
-                        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 flex justify-end gap-2">
-                            {selectedAd.link && (
+                        <div className="flex flex-shrink-0 justify-end gap-2 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+                            {selectedAd.link ? (
                                 <Link href={`/marketplace/${selectedAd.link}`} target="_blank">
                                     <Button variant="outline" size="sm" icon={<PiArrowRight />}>
                                         {tAds('viewModal.link')}
                                     </Button>
                                 </Link>
-                            )}
+                            ) : null}
                             <Link href={`/business/settings/advertisements/create?edit=${selectedAd.id}`}>
                                 <Button variant="solid" size="sm" icon={<PiPencil />}>
                                     {tAds('viewModal.editAd')}
@@ -820,27 +1027,22 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                             </Link>
                         </div>
                     </div>
-                )}
+                ) : null}
             </Dialog>
 
-            {/* Диалог подтверждения удаления */}
             <ConfirmDialog
                 isOpen={isDeleteDialogOpen}
                 type="danger"
-                title="Удалить объявление?"
-                confirmText="Удалить"
+                title={tAds('deleteConfirm.title')}
+                confirmText={tAds('deleteConfirm.confirm')}
                 onConfirm={confirmDeleteAd}
                 onCancel={() => {
                     setIsDeleteDialogOpen(false)
                     setAdToDelete(null)
                 }}
             >
-                <p>
-                    Вы уверены, что хотите удалить объявление &quot;{adToDelete?.title}&quot;?
-                    Это действие нельзя отменить.
-                </p>
+                <p>{tAds('deleteConfirm.message', { title: adToDelete?.title || '' })}</p>
             </ConfirmDialog>
         </>
     )
 }
-

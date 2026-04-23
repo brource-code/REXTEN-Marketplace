@@ -52,7 +52,7 @@ function AdvertisementsPageLayout() {
     return (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-4">
+                <div className="flex min-w-0 flex-col gap-4">
                     <div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                             {tPage('title')}
@@ -71,11 +71,11 @@ function AdvertisementsPageLayout() {
                         ]}
                     />
 
-                    <div className="mt-6">
-                        <div className={classNames(activeTab !== 'regular' && 'hidden')}>
+                    <div className="mt-6 min-w-0">
+                        <div className={classNames('min-w-0', activeTab !== 'regular' && 'hidden')}>
                             <AdvertisementsRegularPanel queryEnabled={activeTab === 'regular'} />
                         </div>
-                        <div className={classNames(activeTab !== 'ads' && 'hidden')}>
+                        <div className={classNames('min-w-0', activeTab !== 'ads' && 'hidden')}>
                             <AdvertisementsAdsPanel queryEnabled={activeTab === 'ads'} />
                         </div>
                     </div>
