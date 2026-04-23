@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\UserProfile;
 use App\Services\DiscountCalculationService;
 use App\Helpers\DatabaseHelper;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -167,6 +168,188 @@ class ClientsController extends Controller
     }
 
     /**
+     * Идентификаторы клиентов компании (CRM + бронирования).
+     *
+     * @return \Illuminate\Support\Collection<int, int>
+     */
+    private function collectCompanyClientIds(int $companyId)
+    {
+        $clientIdsFromTable = DB::table('company_clients')
+            ->where('company_id', $companyId)
+            ->pluck('user_id');
+
+        $clientIdsFromBookings = Booking::where('company_id', $companyId)
+            ->withoutPendingPayment()
+            ->whereNotNull('user_id')
+            ->distinct()
+            ->pluck('user_id');
+
+        return $clientIdsFromTable->merge($clientIdsFromBookings)->unique();
+    }
+
+    /**
+     * Базовый запрос списка клиентов с поиском, статусом и быстрыми фильтрами (без сортировки).
+     *
+     * @return Builder<User>
+     */
+    private function businessClientsFilteredQuery(Request $request, int $companyId): Builder
+    {
+        $clientIds = $this->collectCompanyClientIds($companyId);
+
+        // Явно users.id / users.role: после leftJoin(user_profiles) неоднозначный "id" ломает PostgreSQL.
+        $query = User::whereIn('users.id', $clientIds)
+            ->where('users.role', 'CLIENT')
+            ->with('profile');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where(function ($emailQuery) use ($search) {
+                    DatabaseHelper::whereLike($emailQuery, 'users.email', "%{$search}%");
+                    $emailQuery->whereRaw("users.email NOT LIKE '%@local.local'");
+                })
+                    ->orWhereHas('profile', function ($profileQuery) use ($search) {
+                        DatabaseHelper::whereLike($profileQuery, 'first_name', "%{$search}%");
+                        DatabaseHelper::whereLike($profileQuery, 'last_name', "%{$search}%", 'or');
+                        DatabaseHelper::whereLike($profileQuery, 'phone', "%{$search}%", 'or');
+                    });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('users.client_status', $request->status);
+        }
+
+        $quick = $request->get('quickFilter');
+        if ($quick === 'active30') {
+            $query->whereHas('bookings', function (Builder $q) use ($companyId) {
+                $q->where('company_id', $companyId)
+                    ->withoutPendingPayment()
+                    ->where('created_at', '>=', now()->subDays(30));
+            });
+        } elseif ($quick === 'idle90') {
+            $query->whereNotExists(function ($sub) use ($companyId) {
+                $sub->select(DB::raw(1))
+                    ->from('bookings')
+                    ->whereColumn('bookings.user_id', 'users.id')
+                    ->where('bookings.company_id', $companyId)
+                    ->whereNull('bookings.deleted_at')
+                    ->where(function ($w) {
+                        $w->whereNull('bookings.payment_status')
+                            ->orWhereNotIn('bookings.payment_status', ['pending_payment', 'expired']);
+                    })
+                    ->where('bookings.created_at', '>=', now()->subDays(90));
+            });
+        } elseif ($quick === 'vip') {
+            $query->where('users.client_status', 'vip');
+        }
+
+        return $query;
+    }
+
+    /**
+     * Сортировка списка клиентов (имя, статус, последняя активность, метрики).
+     */
+    private function applyBusinessClientsSort(Builder $query, Request $request, int $companyId): void
+    {
+        $sortKey = $request->get('sortKey', 'name');
+        $allowed = ['name', 'lastVisit', 'totalBookings', 'totalSpent', 'status'];
+        if (! in_array($sortKey, $allowed, true)) {
+            $sortKey = 'name';
+        }
+        $sortOrder = strtolower((string) $request->get('order', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        if ($sortKey === 'name') {
+            $query->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
+                ->select('users.*')
+                ->orderBy('user_profiles.first_name', $sortOrder)
+                ->orderBy('user_profiles.last_name', $sortOrder)
+                ->orderBy('users.id', 'asc');
+
+            return;
+        }
+
+        if ($sortKey === 'status') {
+            $query->orderBy('users.client_status', $sortOrder)->orderBy('users.id', 'asc');
+
+            return;
+        }
+
+        if ($sortKey === 'lastVisit') {
+            $dir = strtoupper($sortOrder);
+            $query->orderByRaw(
+                '(SELECT MAX(bookings.created_at) FROM bookings WHERE bookings.user_id = users.id AND bookings.company_id = ? AND bookings.deleted_at IS NULL AND (bookings.payment_status IS NULL OR bookings.payment_status NOT IN (\'pending_payment\',\'expired\'))) '.$dir.' NULLS LAST',
+                [$companyId]
+            )->orderBy('users.id', 'asc');
+
+            return;
+        }
+
+        if ($sortKey === 'totalBookings') {
+            $query->withCount([
+                'bookings as bookings_sort_count' => function (Builder $q) use ($companyId) {
+                    $q->where('company_id', $companyId)->withoutPendingPayment();
+                },
+            ])->orderBy('bookings_sort_count', $sortOrder)->orderBy('users.id', 'asc');
+
+            return;
+        }
+
+        if ($sortKey === 'totalSpent') {
+            $dir = strtoupper($sortOrder);
+            $query->orderByRaw(
+                '('
+                .'COALESCE((SELECT SUM(COALESCE(b.total_price, b.price, 0)) FROM bookings b WHERE b.user_id = users.id AND b.company_id = ? AND b.deleted_at IS NULL AND b.status = ? AND (b.payment_status IS NULL OR b.payment_status NOT IN (\'pending_payment\',\'expired\'))), 0)'
+                .' + '
+                .'COALESCE((SELECT SUM(o.total) FROM orders o WHERE o.user_id = users.id AND o.company_id = ? AND o.deleted_at IS NULL AND o.payment_status = ?), 0)'
+                .') '.$dir,
+                [$companyId, 'completed', $companyId, 'paid']
+            )->orderBy('users.id', 'asc');
+        }
+    }
+
+    /**
+     * Сводка по отфильтрованному списку (для карточек на фронте).
+     *
+     * @return array{activeLast30: int, permanentVip: int, totalRevenue: float}
+     */
+    private function buildClientsIndexSummary(Builder $filteredQuery, int $companyId): array
+    {
+        $activeLast30 = (clone $filteredQuery)
+            ->whereHas('bookings', function (Builder $q) use ($companyId) {
+                $q->where('company_id', $companyId)
+                    ->withoutPendingPayment()
+                    ->where('created_at', '>=', now()->subDays(30));
+            })
+            ->count();
+
+        $permanentVip = (clone $filteredQuery)
+            ->whereIn('users.client_status', ['permanent', 'vip'])
+            ->count();
+
+        $idSub = (clone $filteredQuery)->select('users.id');
+
+        $spentBookings = (float) Booking::query()
+            ->withoutPendingPayment()
+            ->where('company_id', $companyId)
+            ->where('status', 'completed')
+            ->whereIn('user_id', $idSub)
+            ->sum(DB::raw('COALESCE(total_price, price, 0)'));
+
+        $spentOrders = (float) Order::query()
+            ->where('company_id', $companyId)
+            ->where('payment_status', 'paid')
+            ->whereIn('user_id', $idSub)
+            ->sum('total');
+
+        return [
+            'activeLast30' => $activeLast30,
+            'permanentVip' => $permanentVip,
+            'totalRevenue' => $spentBookings + $spentOrders,
+        ];
+    }
+
+    /**
      * Get business clients.
      */
     public function index(Request $request)
@@ -180,55 +363,19 @@ class ClientsController extends Controller
             ], 404);
         }
 
-        // Получаем клиентов компании из таблицы company_clients или через bookings
-        $clientIdsFromTable = DB::table('company_clients')
-            ->where('company_id', $companyId)
-            ->pluck('user_id');
-        
-        $clientIdsFromBookings = Booking::where('company_id', $companyId)
-            ->withoutPendingPayment()
-            ->whereNotNull('user_id')
-            ->distinct()
-            ->pluck('user_id');
-        
-        // Объединяем оба списка и убираем дубликаты
-        $clientIds = $clientIdsFromTable->merge($clientIdsFromBookings)->unique();
+        $filteredBase = $this->businessClientsFilteredQuery($request, $companyId);
+        $total = (clone $filteredBase)->count();
+        $summary = $this->buildClientsIndexSummary($filteredBase, $companyId);
 
-        $query = User::whereIn('id', $clientIds)
-            ->where('role', 'CLIENT')
-            ->with('profile');
-
-        // Поиск по имени, телефону или email (исключаем placeholder email)
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where(function ($emailQuery) use ($search) {
-                    DatabaseHelper::whereLike($emailQuery, 'email', "%{$search}%");
-                    $emailQuery->whereRaw("email NOT LIKE '%@local.local'");
-                })
-                    ->orWhereHas('profile', function ($profileQuery) use ($search) {
-                        DatabaseHelper::whereLike($profileQuery, 'first_name', "%{$search}%");
-                        DatabaseHelper::whereLike($profileQuery, 'last_name', "%{$search}%", 'or');
-                        DatabaseHelper::whereLike($profileQuery, 'phone', "%{$search}%", 'or');
-                    });
-            });
-        }
-
-        // Фильтрация по статусу клиента
-        if ($request->has('status') && $request->status) {
-            $status = $request->status;
-            $query->where('client_status', $status);
-        }
-
-        // Получаем общее количество для пагинации
-        $total = $query->count();
+        $rowQuery = $this->businessClientsFilteredQuery($request, $companyId);
+        $this->applyBusinessClientsSort($rowQuery, $request, $companyId);
 
         // Пагинация
         $page = (int) $request->get('page', 1);
         $pageSize = (int) $request->get('pageSize', 10);
         $skip = ($page - 1) * $pageSize;
 
-        $clients = $query->skip($skip)->take($pageSize)->get();
+        $clients = $rowQuery->skip($skip)->take($pageSize)->get();
 
         $data = $clients->map(function ($client) use ($companyId) {
             $totalBookings = Booking::where('company_id', $companyId)
@@ -283,6 +430,7 @@ class ClientsController extends Controller
         return response()->json([
             'data' => $data,
             'total' => $total,
+            'summary' => $summary,
         ]);
     }
 
