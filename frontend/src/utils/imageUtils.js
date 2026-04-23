@@ -32,11 +32,26 @@ function getLaravelApiUrl() {
  * - Относительный путь (/storage/...) - добавляет базовый URL Laravel
  * - Относительный путь без слеша (storage/...) - добавляет базовый URL Laravel
  * 
- * @param {string|null|undefined} imageUrl - URL изображения из API
+ * @param {string|null|undefined|object|number} imageUrl - URL изображения из API
  * @returns {string|null} Полный URL изображения или null если URL пустой
  */
 export function normalizeImageUrl(imageUrl) {
-    if (!imageUrl) {
+    if (imageUrl == null || imageUrl === '') {
+        return null
+    }
+
+    if (typeof imageUrl !== 'string') {
+        if (typeof imageUrl === 'object') {
+            const nested =
+                imageUrl.url ??
+                imageUrl.src ??
+                imageUrl.path ??
+                imageUrl.href ??
+                imageUrl.image
+            if (typeof nested === 'string' && nested) {
+                return normalizeImageUrl(nested)
+            }
+        }
         return null
     }
 
@@ -153,11 +168,25 @@ export function normalizeImageUrl(imageUrl) {
  * Денормализует URL изображения (преобразует /api/storage/ обратно в полный URL Laravel API)
  * Используется перед отправкой данных на сервер
  * 
- * @param {string|null|undefined} imageUrl - Нормализованный URL изображения
+ * @param {string|null|undefined|object} imageUrl - Нормализованный URL изображения
  * @returns {string|null} Полный URL изображения или null если URL пустой
  */
 export function denormalizeImageUrl(imageUrl) {
-    if (!imageUrl) {
+    if (imageUrl == null || imageUrl === '') {
+        return null
+    }
+
+    if (typeof imageUrl !== 'string') {
+        if (typeof imageUrl === 'object') {
+            const nested =
+                imageUrl.url ??
+                imageUrl.src ??
+                imageUrl.path ??
+                imageUrl.href
+            if (typeof nested === 'string' && nested) {
+                return denormalizeImageUrl(nested)
+            }
+        }
         return null
     }
 
