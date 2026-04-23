@@ -164,7 +164,7 @@ export function BusinessClientsListScreen() {
       const badgeColor = STATUS_BADGE[status] || 'default';
 
       return (
-        <Card>
+        <Card compact>
           <Card.Header
             avatar={getInitials(item.name)}
             title={item.name}
@@ -274,7 +274,7 @@ export function BusinessClientsListScreen() {
 
 const styles = StyleSheet.create({
   listContent: {
-    paddingBottom: 32,
+    paddingBottom: 16,
     paddingHorizontal: 16,
   },
   emptyWrap: {

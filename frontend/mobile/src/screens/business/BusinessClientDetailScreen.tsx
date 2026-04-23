@@ -34,6 +34,7 @@ type Nav = NativeStackNavigationProp<BusinessStackParamList>;
 
 const T = {
   title: 'Детали клиента',
+  subtitle: 'Просмотр информации о клиенте',
   tabs: {
     info: 'Информация',
     bookings: 'Бронирования',
@@ -280,6 +281,7 @@ export function BusinessClientDetailScreen() {
             </View>
             <View style={styles.profileInfo}>
               <Text style={[styles.clientName, { color: colors.text }]}>{client.name}</Text>
+              <Text style={[styles.profileSubtitle, { color: colors.textSecondary }]}>{T.subtitle}</Text>
               <View style={[styles.statusTag, { backgroundColor: statusColors.bg }]}>
                 <Text style={[styles.statusTagText, { color: statusColors.text }]}>
                   {getStatusLabel(status)}
@@ -547,30 +549,31 @@ function BookingCard({ booking }: { booking: ClientBooking }) {
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   scroll: { flex: 1 },
-  scrollContent: { padding: 16, paddingBottom: 40 },
+  scrollContent: { padding: 16, paddingBottom: 24 },
 
   profileCard: {
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
-    marginBottom: 16,
+    padding: 12,
+    marginBottom: 12,
   },
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    marginBottom: 16,
+    gap: 12,
+    marginBottom: 12,
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontSize: 22, fontWeight: '700' },
+  avatarText: { fontSize: 18, fontWeight: '700' },
   profileInfo: { flex: 1, minWidth: 0 },
-  clientName: { fontSize: 20, fontWeight: '700', marginBottom: 6 },
+  clientName: { fontSize: 18, fontWeight: '700', marginBottom: 2 },
+  profileSubtitle: { fontSize: 12, fontWeight: '700', marginBottom: 6 },
   statusTag: {
     alignSelf: 'flex-start',
     paddingHorizontal: 10,
@@ -579,7 +582,7 @@ const styles = StyleSheet.create({
   },
   statusTagText: { fontSize: 12, fontWeight: '700' },
 
-  contactList: { gap: 8, marginBottom: 16 },
+  contactList: { gap: 6, marginBottom: 12 },
   contactRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   contactLabel: { fontSize: 13, fontWeight: '700' },
   contactText: { fontSize: 13, fontWeight: '700' },
@@ -588,7 +591,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     borderTopWidth: 1,
-    paddingTop: 16,
+    paddingTop: 12,
   },
   actionBtn: {
     flex: 1,
