@@ -10,7 +10,7 @@
             "schedule": {
                 "schedule": "Расписание",
                 "reports": {
-                    "title": "Отчеты",
+                    "title": "Аналитика",
                     "description": "Детальная аналитика по бронированиям, клиентам, заработку и исполнителям. Экспортируйте данные для дальнейшего анализа.",
                     "donutTotalBookings": "Бронирования",
                     "tabs": {
@@ -94,7 +94,7 @@
                     }
                 }
             },
-            "reports": "Отчёты",
+            "reports": "Аналитика",
             "clients": "Клиенты",
             "discounts": "Скидки",
             "advertisements": {
@@ -3127,6 +3127,12 @@
             "notifications": {
                 "responseUpdated": "Ответ успешно обновлён",
                 "responseError": "Не удалось обновить ответ"
+            },
+            "mobile": {
+                "rating": "Рейтинг",
+                "date": "Дата",
+                "ad": "Объявление",
+                "respondAria": "Ответить на отзыв"
             }
         },
         "clients": {
@@ -4750,7 +4756,7 @@
                 "dashboard": "Дашборд",
                 "schedule": "Расписание и календарь",
                 "bookings": "Бронирования",
-                "reports": "Отчёты",
+                "reports": "Аналитика",
                 "clients": "Клиенты (CRM)",
                 "discounts": "Скидки",
                 "advertisements": "Объявления",

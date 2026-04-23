@@ -250,7 +250,7 @@
             "schedule": {
                 "schedule": "Horarios",
                 "reports": {
-                    "title": "Reportes",
+                    "title": "Analítica",
                     "description": "Análisis detallado de reservas, clientes, ingresos y especialistas. Exporta datos para análisis adicional.",
                     "noData": "No hay datos para el periodo seleccionado",
                     "donutTotalBookings": "Reservas",
@@ -334,7 +334,7 @@
                     }
                 }
             },
-            "reports": "Reportes",
+            "reports": "Analítica",
             "clients": "Clientes",
             "discounts": "Descuentos",
             "advertisements": {
@@ -2181,6 +2181,12 @@
             "notifications": {
                 "responseUpdated": "Respuesta actualizada correctamente",
                 "responseError": "No se pudo actualizar la respuesta"
+            },
+            "mobile": {
+                "rating": "Calificación",
+                "date": "Fecha",
+                "ad": "Anuncio",
+                "respondAria": "Responder a la reseña"
             }
         },
         "clients": {
@@ -4741,7 +4747,7 @@
                 "dashboard": "Panel",
                 "schedule": "Agenda y calendario",
                 "bookings": "Reservas",
-                "reports": "Informes",
+                "reports": "Analítica",
                 "clients": "Clientes (CRM)",
                 "discounts": "Descuentos",
                 "advertisements": "Anuncios",

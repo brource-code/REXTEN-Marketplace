@@ -250,7 +250,7 @@
             "schedule": {
                 "schedule": "Schedule",
                 "reports": {
-                    "title": "Reports",
+                    "title": "Analytics",
                     "description": "Detailed analytics on bookings, clients, revenue and specialists. Export data for further analysis.",
                     "noData": "No data for the selected period",
                     "donutTotalBookings": "Bookings",
@@ -334,7 +334,7 @@
                     }
                 }
             },
-            "reports": "Reports",
+            "reports": "Analytics",
             "clients": "Clients",
             "discounts": "Discounts",
             "advertisements": {
@@ -2181,6 +2181,12 @@
             "notifications": {
                 "responseUpdated": "Response updated successfully",
                 "responseError": "Failed to update response"
+            },
+            "mobile": {
+                "rating": "Rating",
+                "date": "Date",
+                "ad": "Listing",
+                "respondAria": "Respond to review"
             }
         },
         "clients": {
@@ -4741,7 +4747,7 @@
                 "dashboard": "Dashboard",
                 "schedule": "Schedule & calendar",
                 "bookings": "Bookings",
-                "reports": "Reports",
+                "reports": "Analytics",
                 "clients": "Clients (CRM)",
                 "discounts": "Discounts",
                 "advertisements": "Advertisements",

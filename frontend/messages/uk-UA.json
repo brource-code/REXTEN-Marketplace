@@ -250,7 +250,7 @@
             "schedule": {
                 "schedule": "Розклад",
                 "reports": {
-                    "title": "Звіти",
+                    "title": "Аналітика",
                     "description": "Детальна аналітика з бронювань, клієнтів, доходів і спеціалістів. Експортуйте дані для подальшого аналізу.",
                     "noData": "Немає даних за обраний період",
                     "donutTotalBookings": "Бронювання",
@@ -334,7 +334,7 @@
                     }
                 }
             },
-            "reports": "Звіти",
+            "reports": "Аналітика",
             "clients": "Клієнти",
             "discounts": "Знижки",
             "advertisements": {
@@ -2181,6 +2181,12 @@
             "notifications": {
                 "responseUpdated": "Відповідь успішно оновлено",
                 "responseError": "Не вдалося оновити відповідь"
+            },
+            "mobile": {
+                "rating": "Рейтинг",
+                "date": "Дата",
+                "ad": "Оголошення",
+                "respondAria": "Відповісти на відгук"
             }
         },
         "clients": {
@@ -4741,7 +4747,7 @@
                 "dashboard": "Панель",
                 "schedule": "Розклад і календар",
                 "bookings": "Бронювання",
-                "reports": "Звіти",
+                "reports": "Аналітика",
                 "clients": "Клієнти (CRM)",
                 "discounts": "Знижки",
                 "advertisements": "Оголошення",
