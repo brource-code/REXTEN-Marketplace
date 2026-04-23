@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import Tabs from '@/components/ui/Tabs'
+import SegmentTabBar from '@/components/shared/SegmentTabBar'
+import classNames from '@/utils/classNames'
 import RouteFilters from './RouteFilters'
 import RouteDayBookingsPanel from './RouteDayBookingsPanel'
 import RouteSavedRoutesPanel from './RouteSavedRoutesPanel'
@@ -64,20 +65,23 @@ export default function RouteSidebar({
 
     return (
         <div className="flex min-h-0 flex-col gap-3 lg:h-full">
-            <Tabs
-                value={tab}
-                onChange={setTab}
-                variant="underline"
-                className="flex min-h-0 flex-col lg:h-full"
-            >
-                <Tabs.TabList>
-                    <Tabs.TabNav value="filter">{t('tabs.filter')}</Tabs.TabNav>
-                    <Tabs.TabNav value="route">{routeTabLabel}</Tabs.TabNav>
-                    <Tabs.TabNav value="saved">{savedTabLabel}</Tabs.TabNav>
-                </Tabs.TabList>
+            <div className="min-w-0 shrink-0 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600">
+                <SegmentTabBar
+                    value={tab}
+                    onChange={setTab}
+                    items={[
+                        { value: 'filter', label: t('tabs.filter') },
+                        { value: 'route', label: routeTabLabel },
+                        { value: 'saved', label: savedTabLabel },
+                    ]}
+                />
+            </div>
 
-                <div className="mt-3 flex min-h-0 flex-col gap-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1 booking-modal-scroll">
-                    <Tabs.TabContent value="filter">
+            <div className="mt-1 flex min-h-0 flex-1 flex-col gap-4 lg:min-h-0 lg:overflow-y-auto lg:pr-1 booking-modal-scroll">
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content min-h-0', tab === 'filter' && 'tab-content-active')}
+                >
                         <div className="flex flex-col gap-4">
                             <RouteFilters
                                 teamMembers={teamMembers}
@@ -110,9 +114,12 @@ export default function RouteSidebar({
                                 </Link>
                             </p>
                         </div>
-                    </Tabs.TabContent>
+                </div>
 
-                    <Tabs.TabContent value="route">
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content min-h-0', tab === 'route' && 'tab-content-active')}
+                >
                         <div className="flex flex-col gap-4">
                             {route ? (
                                 <>
@@ -195,9 +202,12 @@ export default function RouteSidebar({
                                 </p>
                             )}
                         </div>
-                    </Tabs.TabContent>
+                </div>
 
-                    <Tabs.TabContent value="saved">
+                <div
+                    role="tabpanel"
+                    className={classNames('tab-content min-h-0', tab === 'saved' && 'tab-content-active')}
+                >
                         <div className="flex flex-col gap-4">
                             <RouteSavedRoutesPanel
                                 items={savedRoutes ?? []}
@@ -209,9 +219,8 @@ export default function RouteSidebar({
                                 isLoading={savedRoutesLoading}
                             />
                         </div>
-                    </Tabs.TabContent>
                 </div>
-            </Tabs>
+            </div>
         </div>
     )
 }

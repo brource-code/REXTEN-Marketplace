@@ -6,12 +6,12 @@ import { useTranslations } from 'next-intl'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Loading from '@/components/shared/Loading'
-import { Tabs } from '@/components/ui/Tabs'
 import PermissionGuard from '@/components/shared/PermissionGuard'
+import SegmentTabBar from '@/components/shared/SegmentTabBar'
+import classNames from '@/utils/classNames'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { AdvertisementsRegularPanel } from './_components/AdvertisementsRegularPanel'
 import { AdvertisementsAdsPanel } from './_components/AdvertisementsAdsPanel'
-import { PiListBullets, PiMegaphone } from 'react-icons/pi'
 
 export default function AdvertisementsPage() {
     return (
@@ -62,25 +62,23 @@ function AdvertisementsPageLayout() {
                         </p>
                     </div>
 
-                    <Tabs value={activeTab} onChange={handleTabChange} variant="underline">
-                        <Tabs.TabList>
-                            <Tabs.TabNav value="regular" icon={<PiListBullets className="text-lg" />}>
-                                {tNav('list')}
-                            </Tabs.TabNav>
-                            <Tabs.TabNav value="ads" icon={<PiMegaphone className="text-lg" />}>
-                                {tNav('ads')}
-                            </Tabs.TabNav>
-                        </Tabs.TabList>
+                    <SegmentTabBar
+                        value={activeTab}
+                        onChange={handleTabChange}
+                        items={[
+                            { value: 'regular', label: tNav('list') },
+                            { value: 'ads', label: tNav('ads') },
+                        ]}
+                    />
 
-                        <div className="mt-6">
-                            <Tabs.TabContent value="regular">
-                                <AdvertisementsRegularPanel queryEnabled={activeTab === 'regular'} />
-                            </Tabs.TabContent>
-                            <Tabs.TabContent value="ads">
-                                <AdvertisementsAdsPanel queryEnabled={activeTab === 'ads'} />
-                            </Tabs.TabContent>
+                    <div className="mt-6">
+                        <div className={classNames(activeTab !== 'regular' && 'hidden')}>
+                            <AdvertisementsRegularPanel queryEnabled={activeTab === 'regular'} />
                         </div>
-                    </Tabs>
+                        <div className={classNames(activeTab !== 'ads' && 'hidden')}>
+                            <AdvertisementsAdsPanel queryEnabled={activeTab === 'ads'} />
+                        </div>
+                    </div>
                 </div>
             </AdaptiveCard>
         </Container>

@@ -11,8 +11,9 @@ import Card from '@/components/ui/Card'
 import Tag from '@/components/ui/Tag'
 import Checkbox from '@/components/ui/Checkbox'
 import { FormContainer, FormItem } from '@/components/ui/Form'
-import { Tabs } from '@/components/ui/Tabs'
 import PermissionGuard from '@/components/shared/PermissionGuard'
+import SegmentTabBar from '@/components/shared/SegmentTabBar'
+import classNames from '@/utils/classNames'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
     getBusinessDiscountSettings,
@@ -32,7 +33,7 @@ import Notification from '@/components/ui/Notification'
 import Dialog from '@/components/ui/Dialog'
 import DatePicker from '@/components/ui/DatePicker'
 import EmptyStatePanel from '@/components/shared/EmptyStatePanel'
-import { PiSlidersHorizontal, PiStack, PiTicket } from 'react-icons/pi'
+import { PiStack, PiTicket } from 'react-icons/pi'
 
 /** Как в расписании: без ввода в react-select и без клавиатуры на мобилках */
 function SelectMobileInput(props) {
@@ -126,62 +127,58 @@ function DiscountsContent() {
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{t('description')}</p>
                     </div>
 
-                    <Tabs value={tab} onChange={setTab} variant="underline">
-                        <Tabs.TabList>
-                            <Tabs.TabNav value="tiers" icon={<PiStack className="text-lg" />}>
-                                {t('tabs.tiers')}
-                            </Tabs.TabNav>
-                            <Tabs.TabNav value="promos" icon={<PiTicket className="text-lg" />}>
-                                {t('tabs.promos')}
-                            </Tabs.TabNav>
-                            <Tabs.TabNav value="rule" icon={<PiSlidersHorizontal className="text-lg" />}>
-                                {t('tabs.rule')}
-                            </Tabs.TabNav>
-                        </Tabs.TabList>
+                    <SegmentTabBar
+                        value={tab}
+                        onChange={setTab}
+                        items={[
+                            { value: 'tiers', label: t('tabs.tiers') },
+                            { value: 'promos', label: t('tabs.promos') },
+                            { value: 'rule', label: t('tabs.rule') },
+                        ]}
+                    />
 
-                        <div className="mt-6">
-                            <Tabs.TabContent value="rule">
-                                {settings && (
-                                    <div className="max-w-xl space-y-4">
-                                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                            {t('rule.hint')}
-                                        </p>
-                                        <FormItem label={t('tabs.rule')} layout="vertical">
-                                            <Select
-                                                isSearchable={false}
-                                                size="sm"
-                                                components={{ Input: SelectMobileInput }}
-                                                isDisabled={updateRule.isPending}
-                                                options={ruleOptions}
-                                                value={ruleOptions.find(
-                                                    (o) => o.value === settings.loyalty_booking_count_rule,
-                                                )}
-                                                onChange={(opt) =>
-                                                    updateRule.mutate({
-                                                        loyalty_booking_count_rule: opt?.value,
-                                                    })
-                                                }
-                                            />
-                                        </FormItem>
-                                    </div>
-                                )}
-                            </Tabs.TabContent>
-
-                            <Tabs.TabContent value="tiers">
-                                <TiersSection
-                                    tiers={tiers}
-                                    onChanged={() => qc.invalidateQueries({ queryKey: ['business-discount-tiers'] })}
-                                />
-                            </Tabs.TabContent>
-
-                            <Tabs.TabContent value="promos">
-                                <PromosSection
-                                    promos={promos}
-                                    onChanged={() => qc.invalidateQueries({ queryKey: ['business-promo-codes'] })}
-                                />
-                            </Tabs.TabContent>
+                    <div className="mt-6">
+                        <div className={classNames(tab !== 'rule' && 'hidden')}>
+                            {settings && (
+                                <div className="max-w-xl space-y-4">
+                                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {t('rule.hint')}
+                                    </p>
+                                    <FormItem label={t('tabs.rule')} layout="vertical">
+                                        <Select
+                                            isSearchable={false}
+                                            size="sm"
+                                            components={{ Input: SelectMobileInput }}
+                                            isDisabled={updateRule.isPending}
+                                            options={ruleOptions}
+                                            value={ruleOptions.find(
+                                                (o) => o.value === settings.loyalty_booking_count_rule,
+                                            )}
+                                            onChange={(opt) =>
+                                                updateRule.mutate({
+                                                    loyalty_booking_count_rule: opt?.value,
+                                                })
+                                            }
+                                        />
+                                    </FormItem>
+                                </div>
+                            )}
                         </div>
-                    </Tabs>
+
+                        <div className={classNames(tab !== 'tiers' && 'hidden')}>
+                            <TiersSection
+                                tiers={tiers}
+                                onChanged={() => qc.invalidateQueries({ queryKey: ['business-discount-tiers'] })}
+                            />
+                        </div>
+
+                        <div className={classNames(tab !== 'promos' && 'hidden')}>
+                            <PromosSection
+                                promos={promos}
+                                onChanged={() => qc.invalidateQueries({ queryKey: ['business-promo-codes'] })}
+                            />
+                        </div>
+                    </div>
                 </div>
             </AdaptiveCard>
         </Container>
