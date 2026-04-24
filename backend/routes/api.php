@@ -73,6 +73,9 @@ use App\Http\Controllers\Api\V1\ScheduleController as ApiV1ScheduleController;
 use App\Http\Controllers\Api\V1\ServicesController as ApiV1ServicesController;
 use App\Http\Controllers\Api\V1\TeamMembersController as ApiV1TeamMembersController;
 use App\Http\Controllers\Business\ApiTokensController;
+use App\Http\Controllers\Api\Zapier\BookingsController as ZapierBookingsController;
+use App\Http\Controllers\Api\Zapier\ClientsController as ZapierClientsController;
+use App\Http\Controllers\Api\Zapier\MeController as ZapierMeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +102,20 @@ Route::prefix('v1')->middleware([
     Route::get('/team-members', [ApiV1TeamMembersController::class, 'index']);
     Route::get('/reviews', [ApiV1ReviewsController::class, 'index']);
     Route::get('/schedule', [ApiV1ScheduleController::class, 'index']);
+});
+
+// Zapier (private app): same Sanctum + company-stamped token; read/write via zapier:* abilities
+Route::prefix('zapier')->middleware([
+    'auth:sanctum',
+    'tenant.api',
+    'subscription.feature:api_access',
+    'throttle:zapier',
+])->group(function () {
+    Route::get('/me', [ZapierMeController::class, 'show'])->middleware('zapier.token:read');
+    Route::get('/bookings', [ZapierBookingsController::class, 'index'])->middleware('zapier.token:read');
+    Route::get('/clients', [ZapierClientsController::class, 'index'])->middleware('zapier.token:read');
+    Route::post('/clients', [ZapierClientsController::class, 'store'])->middleware('zapier.token:write');
+    Route::post('/bookings', [ZapierBookingsController::class, 'store'])->middleware('zapier.token:write');
 });
 
 // Public routes

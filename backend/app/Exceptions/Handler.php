@@ -102,6 +102,13 @@ class Handler extends ExceptionHandler
             ], 422);
         }
 
+        if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+            return response()->json([
+                'error' => 'unauthenticated',
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+
         if (method_exists($e, 'getStatusCode')) {
             $statusCode = $e->getStatusCode();
         } elseif (method_exists($e, 'getCode') && $e->getCode() !== 0 && $e->getCode() < 600) {

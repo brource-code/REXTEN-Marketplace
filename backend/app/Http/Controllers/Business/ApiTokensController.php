@@ -51,7 +51,7 @@ class ApiTokensController extends Controller
             $expiresAt = Carbon::now()->addDays((int) $validated['expires_in_days']);
         }
 
-        $newAccessToken = $user->createToken($validated['name'], ['read'], $expiresAt);
+        $newAccessToken = $user->createToken($validated['name'], ['read', 'zapier:read', 'zapier:write'], $expiresAt);
         $plain = $newAccessToken->plainTextToken;
         $accessToken = $newAccessToken->accessToken;
 

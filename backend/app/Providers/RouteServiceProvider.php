@@ -77,6 +77,37 @@ class RouteServiceProvider extends ServiceProvider
                 Limit::perDay($perDay)->by('api_v1_company:'.$companyId),
             ];
         });
+
+        RateLimiter::for('zapier', function (Request $request) {
+            $perMinute = (int) config('api.zapier.per_minute', 60);
+            $perDay = (int) config('api.zapier.per_day', 10000);
+
+            $plan = null;
+            $companyId = (int) ($request->input('current_company_id') ?? 0);
+            if ($companyId > 0) {
+                $plan = SubscriptionLimitService::getPlanForCompany($companyId);
+            }
+            if ($plan) {
+                $pm = $plan->getFeature('api_rate_limit_per_minute');
+                $pd = $plan->getFeature('api_rate_limit_per_day');
+                if ($pm !== null && $pm !== '') {
+                    $perMinute = max(1, (int) $pm);
+                }
+                if ($pd !== null && $pd !== '') {
+                    $perDay = max(1, (int) $pd);
+                }
+            }
+
+            $token = $request->user('sanctum')?->currentAccessToken();
+            if (! $token) {
+                return Limit::perMinute($perMinute)->by('zapier_ip:'.$request->ip());
+            }
+
+            return [
+                Limit::perMinute($perMinute)->by('zapier_token:'.$token->id),
+                Limit::perDay($perDay)->by('zapier_company:'.$companyId),
+            ];
+        });
     }
 }
 

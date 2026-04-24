@@ -24,10 +24,13 @@ class Kernel extends HttpKernel
 
         'api' => [
             \App\Http\Middleware\EnforcePlatformApiRules::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 
     protected $middlewareAliases = [
+        'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'tenant' => \App\Http\Middleware\TenantMiddleware::class,
         'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
@@ -38,6 +41,7 @@ class Kernel extends HttpKernel
         'log.api_v1' => \App\Http\Middleware\LogApiV1Request::class,
         'api.v1.read' => \App\Http\Middleware\EnsureApiV1ReadScope::class,
         'abilities' => \Laravel\Sanctum\Http\Middleware\CheckAbilities::class,
+        'zapier.token' => \App\Http\Middleware\EnsureZapierToken::class,
     ];
 }
 
