@@ -7,6 +7,7 @@ import { getLaravelApiUrl } from '@/lib/api/marketplace'
 const SECTION_IDS = {
     base: 'api-docs-base',
     auth: 'api-docs-auth',
+    zapier: 'api-docs-zapier',
     endpoints: 'api-docs-endpoints',
     query: 'api-docs-query',
     response: 'api-docs-response',
@@ -56,12 +57,18 @@ function CodePanel({ title, children, action }) {
     )
 }
 
-function MethodRow({ path, description }) {
+function MethodRow({ path, description, method = 'GET' }) {
+    const methodBadgeClass =
+        method === 'POST'
+            ? 'bg-amber-100 text-amber-900 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:ring-amber-700/50'
+            : 'bg-primary-subtle text-primary-deep ring-1 ring-primary/15 dark:text-primary-mild dark:ring-primary/25'
     return (
         <div className="flex flex-col gap-2 py-3 border-b border-gray-100 dark:border-gray-700/90 last:border-0 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex flex-wrap items-center gap-2 shrink-0">
-                <span className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide bg-primary-subtle text-primary-deep ring-1 ring-primary/15 dark:text-primary-mild dark:ring-primary/25">
-                    GET
+                <span
+                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${methodBadgeClass}`}
+                >
+                    {method}
                 </span>
                 <code className="text-sm font-bold text-gray-900 dark:text-gray-100 font-mono">{path}</code>
             </div>
@@ -74,32 +81,45 @@ export default function DocsTab() {
     const t = useTranslations('business.api.docs')
     const base = getLaravelApiUrl().replace(/\/$/, '')
     const resolvedV1 = `${base}/v1`
+    const resolvedZapier = `${base}/zapier`
     const sameV1AsPublicDocs = resolvedV1 === DOCS_V1_PUBLIC_BASE
 
-    const [copied, setCopied] = useState(false)
+    const [copied, setCopied] = useState(null) // 'v1' | 'zapier' | null
     const curlOneLine = `curl -sS -H "Authorization: Bearer YOUR_TOKEN" ${DOCS_V1_PUBLIC_BASE}/me`
     const curlExample = `curl -sS -H "Authorization: Bearer YOUR_TOKEN" \\\n  ${DOCS_V1_PUBLIC_BASE}/me`
 
     const copyCurl = useCallback(async () => {
         try {
             await navigator.clipboard.writeText(curlOneLine)
-            setCopied(true)
-            window.setTimeout(() => setCopied(false), 2000)
+            setCopied('v1')
+            window.setTimeout(() => setCopied(null), 2000)
         } catch {
-            setCopied(false)
+            setCopied(null)
         }
-    }, [])
+    }, [curlOneLine])
+
+    const zapierCurlOne = `curl -sS -H "Authorization: Bearer YOUR_TOKEN" ${resolvedZapier}/me`
+    const copyZapierCurl = useCallback(async () => {
+        try {
+            await navigator.clipboard.writeText(zapierCurlOne)
+            setCopied('zapier')
+            window.setTimeout(() => setCopied(null), 2000)
+        } catch {
+            setCopied(null)
+        }
+    }, [zapierCurlOne])
 
     const navItems = useMemo(
         () => [
             { id: SECTION_IDS.base, label: t('nav.base') },
             { id: SECTION_IDS.auth, label: t('nav.auth') },
-            { id: SECTION_IDS.endpoints, label: t('nav.endpoints') },
+            { id: SECTION_IDS.endpoints, label: t('nav.restV1') },
             { id: SECTION_IDS.query, label: t('nav.query') },
             { id: SECTION_IDS.response, label: t('nav.response') },
             { id: SECTION_IDS.limits, label: t('nav.limits') },
             { id: SECTION_IDS.errors, label: t('nav.errors') },
             { id: SECTION_IDS.example, label: t('nav.example') },
+            { id: SECTION_IDS.zapier, label: t('nav.zapier') },
         ],
         [t],
     )
@@ -152,16 +172,14 @@ export default function DocsTab() {
             </div>
 
             <div className="min-w-0 flex-1 space-y-8">
-                <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900/70 dark:to-gray-950 p-6 shadow-sm">
-                    <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/10 blur-3xl dark:bg-primary/15" />
-                    <div className="relative flex flex-col gap-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary dark:text-primary-mild">
-                                {t('releaseBadge')}
-                            </span>
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('tagline')}</span>
-                        </div>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 max-w-2xl">{t('intro')}</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/50 p-3">
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('heroBlockRestTitle')}</p>
+                        <p className="mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">{t('heroBlockRestLine')}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/50 p-3">
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('heroBlockZapierTitle')}</p>
+                        <p className="mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">{t('heroBlockZapierLine')}</p>
                     </div>
                 </div>
 
@@ -275,11 +293,40 @@ export default function DocsTab() {
                                 onClick={copyCurl}
                                 className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0"
                             >
-                                {copied ? t('copied') : t('copy')}
+                                {copied === 'v1' ? t('copied') : t('copy')}
                             </button>
                         }
                     >
                         <code className="whitespace-pre-wrap text-slate-200">{curlExample}</code>
+                    </CodePanel>
+                </section>
+
+                <section id={SECTION_IDS.zapier} className="scroll-mt-24 space-y-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h5 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('zapierSectionTitle')}</h5>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('zapierIntro')}</p>
+                    <CodePanel title={t('zapierPathTitle')}>
+                        <code className="text-primary-mild">{resolvedZapier}</code>
+                    </CodePanel>
+                    <div className="rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/70 px-4">
+                        <MethodRow path="/zapier/me" description={t('zapierEndpointMe')} method="GET" />
+                        <MethodRow path="/zapier/bookings" description={t('zapierBookingsList')} method="GET" />
+                        <MethodRow path="/zapier/clients" description={t('zapierClientsList')} method="GET" />
+                        <MethodRow path="/zapier/clients" description={t('zapierClientsCreate')} method="POST" />
+                        <MethodRow path="/zapier/bookings" description={t('zapierBookingsCreate')} method="POST" />
+                    </div>
+                    <CodePanel
+                        title={t('zapierCurlTitle')}
+                        action={
+                            <button
+                                type="button"
+                                onClick={copyZapierCurl}
+                                className="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-0"
+                            >
+                                {copied === 'zapier' ? t('copied') : t('copy')}
+                            </button>
+                        }
+                    >
+                        <code className="whitespace-pre-wrap text-slate-200">{zapierCurlOne}</code>
                     </CodePanel>
                 </section>
             </div>

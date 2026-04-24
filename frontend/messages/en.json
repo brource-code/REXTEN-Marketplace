@@ -349,7 +349,7 @@
             "knowledge": "Knowledge base",
             "notifications": "Notifications",
             "support": "Support",
-            "api": "API",
+            "api": "API & integrations",
             "sections": {
                 "overview": "Overview",
                 "operations": "Schedule & bookings",
@@ -2956,8 +2956,8 @@
             }
         },
         "api": {
-            "title": "Developer API",
-            "description": "Create tokens and call the read-only API for your company data (services, clients, bookings).",
+            "title": "API & integrations",
+            "description": "Token, read-only /v1, and automations on /zapier.",
             "tabs": {
                 "tokens": "Tokens",
                 "docs": "Documentation",
@@ -3004,6 +3004,10 @@
                     "copy": "Copy to clipboard",
                     "done": "Done"
                 },
+                "whereRestTitle": "Read-only API (v1)",
+                "whereRestLine": "Use the Documentation tab: prefix /v1.",
+                "whereZapierTitle": "Zapier / automations",
+                "whereZapierLine": "Prefix /zapier, same host and token. Re-create the token if it predates automations.",
                 "errors": {
                     "loadFailed": "Failed to load tokens",
                     "createFailed": "Failed to create token",
@@ -3011,10 +3015,13 @@
                 }
             },
             "docs": {
-                "intro": "Authenticate with a Bearer token. All endpoints are read-only (GET) and scoped to your company.",
+                "heroBlockRestTitle": "Read-only API (v1)",
+                "heroBlockRestLine": "GET /v1/…, company data only, see the table below.",
+                "heroBlockZapierTitle": "Zapier / automations",
+                "heroBlockZapierLine": "GET/POST /zapier/… on the same API host; details at the end of the page.",
                 "baseUrl": "Base URL",
                 "auth": "Authorization header",
-                "endpointsTitle": "Endpoints (releases 1 & 1.1)",
+                "endpointsTitle": "REST (v1), read-only",
                 "endpointMe": "Workspace and subscription usage",
                 "endpointServices": "List or get a service",
                 "endpointClients": "List or get a client",
@@ -3034,8 +3041,6 @@
                 "errorExample": "JSON body includes error and message fields; HTTP 401/403/404/429 as usual.",
                 "errorBodyTitle": "Example error body",
                 "onThisPage": "On this page",
-                "tagline": "REST · Read-only · Company-scoped",
-                "releaseBadge": "Releases 1 & 1.1",
                 "authHint": "Create a token on the Tokens tab and pass it in this header.",
                 "copy": "Copy",
                 "copied": "Copied",
@@ -3060,15 +3065,25 @@
                 "endpointServiceById": "Single service by id",
                 "endpointClientById": "Single client by id",
                 "endpointBookingById": "Single booking by id",
+                "zapierSectionTitle": "Zapier",
+                "zapierPathTitle": "Path",
+                "zapierIntro": "Same host and Bearer. Re-issue the token if POST is rejected (old token).",
+                "zapierEndpointMe": "Token & workspace",
+                "zapierBookingsList": "List bookings",
+                "zapierBookingsCreate": "Create booking (POST)",
+                "zapierClientsList": "List clients",
+                "zapierClientsCreate": "Create client (POST)",
+                "zapierCurlTitle": "cURL (this deployment)",
                 "nav": {
                     "base": "Base URL",
                     "auth": "Authentication",
-                    "endpoints": "Endpoints",
+                    "restV1": "REST (v1)",
                     "query": "Pagination & filters",
                     "response": "Response format",
                     "limits": "Rate limits",
                     "errors": "Errors",
-                    "example": "Example"
+                    "example": "Example",
+                    "zapier": "Zapier"
                 }
             },
             "placeholders": {

@@ -96,6 +96,16 @@ export default function TokensTab() {
 
     return (
         <div className="flex flex-col gap-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/50 p-3">
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('whereRestTitle')}</p>
+                    <p className="mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">{t('whereRestLine')}</p>
+                </div>
+                <div className="rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/50 p-3">
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t('whereZapierTitle')}</p>
+                    <p className="mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">{t('whereZapierLine')}</p>
+                </div>
+            </div>
             {hasTokens ? (
                 <>
                     <div className="flex flex-wrap justify-end gap-2">

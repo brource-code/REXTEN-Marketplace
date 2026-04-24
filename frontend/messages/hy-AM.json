@@ -349,7 +349,7 @@
             "knowledge": "Գիտելիքների բազա",
             "notifications": "Ծանուցումներ",
             "support": "Աջակցություն",
-            "api": "API",
+            "api": "API և ինտեգրումներ",
             "sections": {
                 "overview": "Ակնարկ",
                 "operations": "Ժամանակացույց և ամրագրումներ",
@@ -2956,8 +2956,8 @@
             }
         },
         "api": {
-            "title": "Զարգացողների API",
-            "description": "Ստեղծեք թոքեններ և կանչեք read-only API՝ ձեր ընկերության տվյալների համար (ծառայություններ, հաճախորդներ, ամրագրումներ)։",
+            "title": "API և ինտեգրումներ",
+            "description": "Թոքեն, read-only /v1, ավտոմատացում /zapier։",
             "tabs": {
                 "tokens": "Թոքեններ",
                 "docs": "Փաստաթուղթ",
@@ -3004,6 +3004,10 @@
                     "copy": "Պատճենել",
                     "done": "Պատրաստ է"
                 },
+                "whereRestTitle": "Read-only (v1)",
+                "whereRestLine": "Ներդիր «Փաստաթուղթ» — նախածանց /v1։",
+                "whereZapierTitle": "Zapier",
+                "whereZapierLine": "Նախածանց /zapier, նույն հոսթը և թոքենը։ Հին թոքենը նորով փոխարինեք։",
                 "errors": {
                     "loadFailed": "Չհաջողվեց բեռնել թոքենները",
                     "createFailed": "Չհաջողվեց ստեղծել թոքենը",
@@ -3011,10 +3015,13 @@
                 }
             },
             "docs": {
-                "intro": "Նույնականացում Bearer թոքենով։ Բոլոր կետերը միայն GET (read-only) են՝ ձեր ընկերության շրջանակում։",
+                "heroBlockRestTitle": "Read-only (v1)",
+                "heroBlockRestLine": "GET /v1/…, ընկերության տվյալներ — աղյուսակը ներքևում։",
+                "heroBlockZapierTitle": "Zapier",
+                "heroBlockZapierLine": "GET/POST /zapier/…, նույն host — էջի վերջում։",
                 "baseUrl": "Հիմնական URL",
                 "auth": "Authorization վերնագիր",
-                "endpointsTitle": "Կետեր (թողարկումներ 1 և 1.1)",
+                "endpointsTitle": "REST (v1), միայն կարդալ",
                 "endpointMe": "Աշխատատարածք և բաժանորդագրության օգտագործում",
                 "endpointServices": "Ցուցակ կամ մեկ ծառայություն",
                 "endpointClients": "Ցուցակ կամ մեկ հաճախորդ",
@@ -3034,8 +3041,6 @@
                 "errorExample": "JSON մարմնում error և message դաշտեր; HTTP 401/403/404/429։",
                 "errorBodyTitle": "Սխալի մարմնի օրինակ",
                 "onThisPage": "Այս էջում",
-                "tagline": "REST · Միայն կարդալ · Ընկերության շրջանակ",
-                "releaseBadge": "Թողարկումներ 1 և 1.1",
                 "authHint": "Ստեղծեք թոքեն «Թոքեններ» ներդիրում և փոխանցեք այն այս վերնագրում։",
                 "copy": "Պատճենել",
                 "copied": "Պատճենված է",
@@ -3060,15 +3065,25 @@
                 "endpointServiceById": "Մեկ ծառայություն id-ով",
                 "endpointClientById": "Մեկ հաճախորդ id-ով",
                 "endpointBookingById": "Մեկ ամրագրում id-ով",
+                "zapierSectionTitle": "Zapier",
+                "zapierPathTitle": "Ճանապարհ",
+                "zapierIntro": "Նույն host և token։ POST-ը չի անցնում — թարմացրեք թոքենը (հին)։",
+                "zapierEndpointMe": "Թոքեն և աշխատատարածք",
+                "zapierBookingsList": "Ամրագրումներ",
+                "zapierBookingsCreate": "Ստեղծել (POST)",
+                "zapierClientsList": "Հաճախորդներ",
+                "zapierClientsCreate": "Ստեղծել (POST)",
+                "zapierCurlTitle": "cURL (այս տեղակայում)",
                 "nav": {
                     "base": "Հիմնական URL",
                     "auth": "Նույնականացում",
-                    "endpoints": "Կետեր",
+                    "restV1": "REST (v1)",
                     "query": "Էջավորում և ֆիլտրեր",
                     "response": "Պատասխանի ձևաչափ",
                     "limits": "Սահմանափակումներ",
                     "errors": "Սխալներ",
-                    "example": "Օրինակ"
+                    "example": "Օրինակ",
+                    "zapier": "Zapier"
                 }
             },
             "placeholders": {

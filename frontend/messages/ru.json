@@ -109,7 +109,7 @@
             "knowledge": "База знаний",
             "notifications": "Уведомления",
             "support": "Поддержка",
-            "api": "API",
+            "api": "API и интеграции",
             "sections": {
                 "overview": "Обзор",
                 "operations": "Расписание и заявки",
@@ -2118,8 +2118,8 @@
             }
         },
         "api": {
-            "title": "API для разработчиков",
-            "description": "Создавайте токены и вызывайте read-only API по данным компании (услуги, клиенты, бронирования).",
+            "title": "API и интеграции",
+            "description": "Токен, read-only /v1, автоматизации /zapier.",
             "tabs": {
                 "tokens": "Токены",
                 "docs": "Документация",
@@ -2166,6 +2166,10 @@
                     "copy": "Скопировать",
                     "done": "Готово"
                 },
+                "whereRestTitle": "Read-only (v1)",
+                "whereRestLine": "Вкладка «Документация» — путь /v1.",
+                "whereZapierTitle": "Zapier",
+                "whereZapierLine": "Путь /zapier, тот же токен. Старый — пересоздайте.",
                 "errors": {
                     "loadFailed": "Не удалось загрузить токены",
                     "createFailed": "Не удалось создать токен",
@@ -2173,10 +2177,13 @@
                 }
             },
             "docs": {
-                "intro": "Авторизация: заголовок Bearer. Все методы — только GET (read-only) в рамках вашей компании.",
+                "heroBlockRestTitle": "Read-only (v1)",
+                "heroBlockRestLine": "GET /v1/…, только данные компании — таблица ниже.",
+                "heroBlockZapierTitle": "Zapier",
+                "heroBlockZapierLine": "GET/POST /zapier/… на том же API — в конце страницы.",
                 "baseUrl": "Базовый URL",
                 "auth": "Заголовок Authorization",
-                "endpointsTitle": "Эндпоинты (релизы 1 и 1.1)",
+                "endpointsTitle": "REST (v1), только чтение",
                 "endpointMe": "Компания и использование подписки",
                 "endpointServices": "Список или одна услуга",
                 "endpointClients": "Список или один клиент",
@@ -2196,8 +2203,6 @@
                 "errorExample": "В теле JSON поля error и message; коды HTTP 401/403/404/429.",
                 "errorBodyTitle": "Пример тела ошибки",
                 "onThisPage": "На странице",
-                "tagline": "REST · Только чтение · Данные компании",
-                "releaseBadge": "Релизы 1 и 1.1",
                 "authHint": "Создайте токен на вкладке «Токены» и передавайте его в этом заголовке.",
                 "copy": "Копировать",
                 "copied": "Скопировано",
@@ -2222,15 +2227,25 @@
                 "endpointServiceById": "Одна услуга по id",
                 "endpointClientById": "Один клиент по id",
                 "endpointBookingById": "Одно бронирование по id",
+                "zapierSectionTitle": "Zapier",
+                "zapierPathTitle": "Путь",
+                "zapierIntro": "Тот же хост и токен. Не пускает POST — выпустите новый токен (старый).",
+                "zapierEndpointMe": "Токен и рабочая область",
+                "zapierBookingsList": "Список бронирований",
+                "zapierBookingsCreate": "Создать (POST)",
+                "zapierClientsList": "Список клиентов",
+                "zapierClientsCreate": "Создать (POST)",
+                "zapierCurlTitle": "cURL (текущий деплой)",
                 "nav": {
                     "base": "Базовый URL",
                     "auth": "Авторизация",
-                    "endpoints": "Эндпоинты",
+                    "restV1": "REST (v1)",
                     "query": "Пагинация и фильтры",
                     "response": "Формат ответа",
                     "limits": "Лимиты",
                     "errors": "Ошибки",
-                    "example": "Пример"
+                    "example": "Пример",
+                    "zapier": "Zapier"
                 }
             },
             "placeholders": {

@@ -349,7 +349,7 @@
             "knowledge": "База знань",
             "notifications": "Сповіщення",
             "support": "Підтримка",
-            "api": "API",
+            "api": "API та інтеграції",
             "sections": {
                 "overview": "Огляд",
                 "operations": "Розклад і записи",
@@ -2956,8 +2956,8 @@
             }
         },
         "api": {
-            "title": "API для розробників",
-            "description": "Створюйте токени та викликайте read-only API для даних компанії (послуги, клієнти, бронювання).",
+            "title": "API та інтеграції",
+            "description": "Токен, read-only /v1, /zapier для автоматизації.",
             "tabs": {
                 "tokens": "Токени",
                 "docs": "Документація",
@@ -3004,6 +3004,10 @@
                     "copy": "Скопіювати",
                     "done": "Готово"
                 },
+                "whereRestTitle": "Read-only (v1)",
+                "whereRestLine": "Вкладка «Документація» — шлях /v1.",
+                "whereZapierTitle": "Zapier",
+                "whereZapierLine": "Шлях /zapier, той самий токен. Старий — випустіть новий.",
                 "errors": {
                     "loadFailed": "Не вдалося завантажити токени",
                     "createFailed": "Не вдалося створити токен",
@@ -3011,10 +3015,13 @@
                 }
             },
             "docs": {
-                "intro": "Авторизація: заголовок Bearer. Усі ендпоінти лише GET (read-only) у межах вашої компанії.",
+                "heroBlockRestTitle": "Read-only (v1)",
+                "heroBlockRestLine": "GET /v1/…, лише дані компанії — таблиця нижче.",
+                "heroBlockZapierTitle": "Zapier",
+                "heroBlockZapierLine": "GET/POST /zapier/… на тому ж API — внизу сторінки.",
                 "baseUrl": "Базовий URL",
                 "auth": "Заголовок Authorization",
-                "endpointsTitle": "Ендпоінти (релізи 1 і 1.1)",
+                "endpointsTitle": "REST (v1), лише читання",
                 "endpointMe": "Компанія та використання підписки",
                 "endpointServices": "Список або одна послуга",
                 "endpointClients": "Список або один клієнт",
@@ -3034,8 +3041,6 @@
                 "errorExample": "У тілі JSON поля error та message; коди HTTP 401/403/404/429.",
                 "errorBodyTitle": "Приклад тіла помилки",
                 "onThisPage": "На сторінці",
-                "tagline": "REST · Лише читання · Дані компанії",
-                "releaseBadge": "Релізи 1 і 1.1",
                 "authHint": "Створіть токен на вкладці «Токени» і передайте його в цьому заголовку.",
                 "copy": "Копіювати",
                 "copied": "Скопійовано",
@@ -3060,15 +3065,25 @@
                 "endpointServiceById": "Одна послуга за id",
                 "endpointClientById": "Один клієнт за id",
                 "endpointBookingById": "Одне бронювання за id",
+                "zapierSectionTitle": "Zapier",
+                "zapierPathTitle": "Шлях",
+                "zapierIntro": "Той самий хост і токен. Не пускає POST — випустіть новий токен (старий).",
+                "zapierEndpointMe": "Токен і область",
+                "zapierBookingsList": "Список",
+                "zapierBookingsCreate": "Створити (POST)",
+                "zapierClientsList": "Список",
+                "zapierClientsCreate": "Створити (POST)",
+                "zapierCurlTitle": "cURL (поточний деплой)",
                 "nav": {
                     "base": "Базовий URL",
                     "auth": "Авторизація",
-                    "endpoints": "Ендпоінти",
+                    "restV1": "REST (v1)",
                     "query": "Пагінація та фільтри",
                     "response": "Формат відповіді",
                     "limits": "Ліміти",
                     "errors": "Помилки",
-                    "example": "Приклад"
+                    "example": "Приклад",
+                    "zapier": "Zapier"
                 }
             },
             "placeholders": {
