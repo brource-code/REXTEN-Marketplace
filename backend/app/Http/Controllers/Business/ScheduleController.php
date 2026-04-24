@@ -210,6 +210,7 @@ class ScheduleController extends Controller
                     
                     $result = [
                         'id' => (string) $booking->id,
+                        'recurring_chain_id' => $booking->recurring_chain_id,
                         'company_id' => $booking->company_id,
                         'event_type' => $eventType,
                         'title' => $title,

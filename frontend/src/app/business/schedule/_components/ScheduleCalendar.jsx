@@ -614,7 +614,7 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         const status = slot.status || 'new'
         const isCustomEvent = isScheduleBlockOrCustomSlot(slot)
         const isInRoute = isDayView && selectedSpecialistId && dayRouteBookingIds.has(String(slot.id))
-        const isRecurring = recurringSlotIds.has(String(slot.id)) || !!slot.recurring_chain_id
+        const isRecurring = !!slot.recurring_chain_id || recurringSlotIds.has(String(slot.id))
 
         const serviceName = isCustomEvent
             ? null
@@ -659,7 +659,8 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
         included_in_route: isDayView && selectedSpecialistId
             ? dayRouteBookingIds.has(String(slot.id))
             : false,
-        recurring_chain_id: recurringSlotIds.has(String(slot.id)) ? true : (slot.recurring_chain_id || null),
+        recurring_chain_id: slot.recurring_chain_id
+            ?? (recurringSlotIds.has(String(slot.id)) ? true : null),
     })), [filteredSlots, isDayView, selectedSpecialistId, dayRouteBookingIds, recurringSlotIds])
 
     const badgeLabels = useMemo(() => ({

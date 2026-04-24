@@ -360,6 +360,8 @@ export interface ScheduleSlot {
     } | null
     client_name?: string | null
     service_id?: number | string | null
+    /** ID цепочки регулярного бронирования (если слот сгенерирован из recurring) */
+    recurring_chain_id?: string | number | null
 }
 
 export interface ScheduleSettings {
