@@ -21,6 +21,8 @@ backend/bootstrap/cache/**
 # Next.js / фронт
 frontend/.next/
 frontend/out/
+# Временные превью/кропы из IDE (не коммитить)
+frontend/.tmp-*.png
 
 # Expo / мобильное
 frontend/mobile/.expo/
