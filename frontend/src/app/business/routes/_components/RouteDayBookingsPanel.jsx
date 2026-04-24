@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import Checkbox from '@/components/ui/Checkbox'
 import Button from '@/components/ui/Button'
+import useBusinessStore from '@/store/businessStore'
 import { formatRouteIsoTime } from '../_utils/routeTimeFormat'
 
 /**
@@ -27,6 +28,8 @@ export default function RouteDayBookingsPanel({
     displayTimezone,
 }) {
     const t = useTranslations('business.routes')
+    const { settings } = useBusinessStore()
+    const resolvedDisplayTz = displayTimezone || settings?.timezone || null
 
     const allIds = dayBookings.map((b) => b.id)
 
@@ -115,7 +118,8 @@ export default function RouteDayBookingsPanel({
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                                             {formatRouteIsoTime(
                                                 b.time_window_start,
-                                                displayTimezone ?? undefined,
+                                                resolvedDisplayTz,
+                                                { withTimeZoneName: true },
                                             )}
                                         </span>
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">

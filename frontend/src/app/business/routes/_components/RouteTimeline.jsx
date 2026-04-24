@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { metersToMiles } from '../_utils/routeMiles'
 import { getVisitColorHex } from '../_utils/bookingRouteColors'
 import useBusinessStore from '@/store/businessStore'
+import { formatRouteIsoTime, resolveRouteDisplayTimeZone } from '../_utils/routeTimeFormat'
 import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 
 const US_LOCALE = 'en-US'
@@ -43,7 +44,10 @@ function formatEtaUs(iso, timeZone) {
     }
     try {
         const d = new Date(iso)
-        const tz = timeZone && String(timeZone).trim() !== '' ? String(timeZone).trim() : 'America/Los_Angeles'
+        if (Number.isNaN(d.getTime())) {
+            return '—'
+        }
+        const tz = resolveRouteDisplayTimeZone(timeZone)
         return new Intl.DateTimeFormat(US_LOCALE, {
             timeZone: tz,
             month: 'numeric',
@@ -51,7 +55,7 @@ function formatEtaUs(iso, timeZone) {
             year: 'numeric',
             hour: 'numeric',
             minute: '2-digit',
-            hour12: true,
+            hourCycle: 'h12',
             timeZoneName: 'short',
         }).format(d)
     } catch {
@@ -244,19 +248,7 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
                                             if (!isBooking) return null
                                             if (stop.is_infeasible) {
                                                 const reason = stop.infeasible_reason
-                                                const fmtTime = (iso) => {
-                                                    if (!iso) return ''
-                                                    try {
-                                                        return new Intl.DateTimeFormat(US_LOCALE, {
-                                                            timeZone: displayTz,
-                                                            hour: 'numeric',
-                                                            minute: '2-digit',
-                                                            hour12: true,
-                                                        }).format(new Date(iso))
-                                                    } catch {
-                                                        return ''
-                                                    }
-                                                }
+                                                const fmtTime = (iso) => formatRouteIsoTime(iso, displayTz, { withTimeZoneName: true })
                                                 let text = tIssues('infeasible')
                                                 if (reason === 'window_before_shift_start') {
                                                     text = tIssues('infeasibleWindowBeforeShiftStart', {

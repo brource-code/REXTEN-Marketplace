@@ -16,7 +16,7 @@ import {
 } from './buildRouteMapModel'
 import { getVisitColorHex } from '../_utils/bookingRouteColors'
 import { formatCurrency } from '@/utils/formatCurrency'
-import { formatRouteIsoTime, formatRouteDurationMinutes } from '../_utils/routeTimeFormat'
+import { formatRouteIsoTime, formatRouteDurationMinutes, getRouteTimeZoneShortName } from '../_utils/routeTimeFormat'
 
 function subscribeDark(callback) {
     const el = document.documentElement
@@ -66,6 +66,9 @@ function RouteMapPopupCard({ marker, displayTimezone, onOpenBooking, onClose }) 
         ? formatRouteIsoTime(winStartIso, displayTimezone) || null
         : null
     const winEnd = winEndIso ? formatRouteIsoTime(winEndIso, displayTimezone) || null : null
+    const tzForLabel = winStartIso || etaIso
+    const timeZoneShort = tzForLabel ? getRouteTimeZoneShortName(tzForLabel, displayTimezone) : ''
+    const timeZoneSuffix = timeZoneShort ? ` ${timeZoneShort}` : ''
 
     const etaMatchesWindowStart = (() => {
         if (!etaIso || !winStartIso) return false
@@ -79,9 +82,11 @@ function RouteMapPopupCard({ marker, displayTimezone, onOpenBooking, onClose }) 
     let timeLine = null
     if (winStart && winEnd) {
         timeLine =
-            eta && !etaMatchesWindowStart ? `${eta} (${winStart}–${winEnd})` : `${winStart}–${winEnd}`
+            (eta && !etaMatchesWindowStart
+                ? `${eta} (${winStart}–${winEnd})`
+                : `${winStart}–${winEnd}`) + timeZoneSuffix
     } else if (eta) {
-        timeLine = eta
+        timeLine = eta + timeZoneSuffix
     }
 
     const priceVal = typeof booking?.total_price === 'number' ? booking.total_price : null
