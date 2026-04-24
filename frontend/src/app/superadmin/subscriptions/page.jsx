@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import Tag from '@/components/ui/Tag'
 import Dialog from '@/components/ui/Dialog'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import Switcher from '@/components/ui/Switcher'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -439,11 +440,25 @@ function EditPlanDialog({ plan, onClose, onSave, loading, t }) {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('priceMonthly')} (cents)</label>
-                            <Input type="number" value={form.price_monthly_cents || 0} onChange={(e) => setForm({ ...form, price_monthly_cents: parseInt(e.target.value) || 0 })} />
+                            <AmountInput
+                                decimalScale={0}
+                                value={form.price_monthly_cents ?? 0}
+                                onValueChange={(n) =>
+                                    setForm({ ...form, price_monthly_cents: n == null ? 0 : Math.round(n) })
+                                }
+                                min={0}
+                            />
                         </div>
                         <div>
                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('priceYearly')} (cents)</label>
-                            <Input type="number" value={form.price_yearly_cents || 0} onChange={(e) => setForm({ ...form, price_yearly_cents: parseInt(e.target.value) || 0 })} />
+                            <AmountInput
+                                decimalScale={0}
+                                value={form.price_yearly_cents ?? 0}
+                                onValueChange={(n) =>
+                                    setForm({ ...form, price_yearly_cents: n == null ? 0 : Math.round(n) })
+                                }
+                                min={0}
+                            />
                         </div>
                     </div>
                     <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
@@ -522,12 +537,20 @@ function EditPlanDialog({ plan, onClose, onSave, loading, t }) {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('trialDays')}</label>
-                                <Input
-                                    type="number"
+                                <AmountInput
+                                    decimalScale={0}
+                                    value={form.trial_days ?? 0}
+                                    onValueChange={(n) =>
+                                        setForm({
+                                            ...form,
+                                            trial_days:
+                                                n == null
+                                                    ? 0
+                                                    : Math.min(365, Math.max(0, Math.round(n))),
+                                        })
+                                    }
                                     min={0}
                                     max={365}
-                                    value={form.trial_days ?? 0}
-                                    onChange={(e) => setForm({ ...form, trial_days: parseInt(e.target.value) || 0 })}
                                 />
                                 <span className="text-[10px] text-gray-400">{t('trialDaysHint')}</span>
                             </div>
@@ -611,11 +634,25 @@ function CreatePlanDialog({ isOpen, onClose, onSave, loading, t }) {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('priceMonthly')} (cents)</label>
-                            <Input type="number" value={form.price_monthly_cents} onChange={(e) => setForm({ ...form, price_monthly_cents: parseInt(e.target.value) || 0 })} />
+                            <AmountInput
+                                decimalScale={0}
+                                value={form.price_monthly_cents ?? 0}
+                                onValueChange={(n) =>
+                                    setForm({ ...form, price_monthly_cents: n == null ? 0 : Math.round(n) })
+                                }
+                                min={0}
+                            />
                         </div>
                         <div>
                             <label className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('priceYearly')} (cents)</label>
-                            <Input type="number" value={form.price_yearly_cents} onChange={(e) => setForm({ ...form, price_yearly_cents: parseInt(e.target.value) || 0 })} />
+                            <AmountInput
+                                decimalScale={0}
+                                value={form.price_yearly_cents ?? 0}
+                                onValueChange={(n) =>
+                                    setForm({ ...form, price_yearly_cents: n == null ? 0 : Math.round(n) })
+                                }
+                                min={0}
+                            />
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -636,12 +673,20 @@ function CreatePlanDialog({ isOpen, onClose, onSave, loading, t }) {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1 block">{t('trialDays')}</label>
-                                <Input
-                                    type="number"
+                                <AmountInput
+                                    decimalScale={0}
+                                    value={form.trial_days ?? 0}
+                                    onValueChange={(n) =>
+                                        setForm({
+                                            ...form,
+                                            trial_days:
+                                                n == null
+                                                    ? 0
+                                                    : Math.min(365, Math.max(0, Math.round(n))),
+                                        })
+                                    }
                                     min={0}
                                     max={365}
-                                    value={form.trial_days}
-                                    onChange={(e) => setForm({ ...form, trial_days: parseInt(e.target.value) || 0 })}
                                 />
                             </div>
                             <div className="flex items-center gap-2">

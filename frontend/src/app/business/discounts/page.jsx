@@ -6,6 +6,7 @@ import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import Loading from '@/components/shared/Loading'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import Select from '@/components/ui/Select'
 import Card from '@/components/ui/Card'
 import Tag from '@/components/ui/Tag'
@@ -355,11 +356,19 @@ function TiersSection({ tiers, onChanged }) {
                                     />
                                 </FormItem>
                                 <FormItem label={t('value')} layout="vertical">
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        value={form.discount_value}
-                                        onChange={(e) => setForm({ ...form, discount_value: e.target.value })}
+                                    <AmountInput
+                                        value={
+                                            form.discount_value === '' || form.discount_value == null
+                                                ? null
+                                                : Number(form.discount_value)
+                                        }
+                                        onValueChange={(n) =>
+                                            setForm({
+                                                ...form,
+                                                discount_value: n == null ? '' : n,
+                                            })
+                                        }
+                                        min={0}
                                     />
                                 </FormItem>
                                 <div className="md:col-span-2 flex items-center">
@@ -635,43 +644,86 @@ function PromosSection({ promos, onChanged }) {
                                     />
                                 </FormItem>
                                 <FormItem label={t('value')} layout="vertical">
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        value={form.discount_value}
-                                        onChange={(e) => setForm({ ...form, discount_value: e.target.value })}
+                                    <AmountInput
+                                        value={
+                                            form.discount_value === '' || form.discount_value == null
+                                                ? null
+                                                : Number(form.discount_value)
+                                        }
+                                        onValueChange={(n) =>
+                                            setForm({
+                                                ...form,
+                                                discount_value: n == null ? '' : n,
+                                            })
+                                        }
+                                        min={0}
                                     />
                                 </FormItem>
                                 <FormItem label={t('minOrder')} layout="vertical">
-                                    <Input
-                                        type="number"
-                                        value={form.min_order_amount}
-                                        onChange={(e) =>
-                                            setForm({ ...form, min_order_amount: e.target.value })
+                                    <AmountInput
+                                        value={
+                                            form.min_order_amount === '' || form.min_order_amount == null
+                                                ? null
+                                                : Number(form.min_order_amount)
                                         }
+                                        onValueChange={(n) =>
+                                            setForm({
+                                                ...form,
+                                                min_order_amount: n == null ? '' : n,
+                                            })
+                                        }
+                                        min={0}
                                     />
                                 </FormItem>
                                 <FormItem label={t('maxDiscount')} layout="vertical">
-                                    <Input
-                                        type="number"
-                                        value={form.max_discount_amount}
-                                        onChange={(e) =>
-                                            setForm({ ...form, max_discount_amount: e.target.value })
+                                    <AmountInput
+                                        value={
+                                            form.max_discount_amount === '' ||
+                                            form.max_discount_amount == null
+                                                ? null
+                                                : Number(form.max_discount_amount)
                                         }
+                                        onValueChange={(n) =>
+                                            setForm({
+                                                ...form,
+                                                max_discount_amount: n == null ? '' : n,
+                                            })
+                                        }
+                                        min={0}
                                     />
                                 </FormItem>
                                 <FormItem label={t('usageLimit')} layout="vertical">
-                                    <Input
-                                        type="number"
-                                        value={form.usage_limit}
-                                        onChange={(e) => setForm({ ...form, usage_limit: e.target.value })}
+                                    <AmountInput
+                                        decimalScale={0}
+                                        value={
+                                            form.usage_limit === '' || form.usage_limit == null
+                                                ? null
+                                                : Number(form.usage_limit)
+                                        }
+                                        onValueChange={(n) =>
+                                            setForm({
+                                                ...form,
+                                                usage_limit: n == null ? '' : n,
+                                            })
+                                        }
+                                        min={0}
                                     />
                                 </FormItem>
                                 <FormItem label={t('perUser')} layout="vertical">
-                                    <Input
-                                        type="number"
-                                        value={form.usage_per_user}
-                                        onChange={(e) => setForm({ ...form, usage_per_user: e.target.value })}
+                                    <AmountInput
+                                        decimalScale={0}
+                                        value={
+                                            form.usage_per_user === '' || form.usage_per_user == null
+                                                ? null
+                                                : Number(form.usage_per_user)
+                                        }
+                                        onValueChange={(n) =>
+                                            setForm({
+                                                ...form,
+                                                usage_per_user: n == null ? '' : n,
+                                            })
+                                        }
+                                        min={0}
                                         placeholder="1"
                                     />
                                 </FormItem>

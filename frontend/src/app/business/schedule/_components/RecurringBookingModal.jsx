@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import { FormItem } from '@/components/ui/Form'
 import Select from '@/components/ui/Select'
 import DatePicker from '@/components/ui/DatePicker'
@@ -50,7 +51,7 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
         days_of_month: [],
         booking_time: '09:00',
         duration_minutes: 60,
-        price: 0,
+        price: null,
         start_date: dayjs().format('YYYY-MM-DD'),
         end_date: null,
         client_name: '',
@@ -109,7 +110,10 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
                 duration_minutes: snapDurationToBookingPresetMinutes(
                     chain.duration_minutes ?? 60,
                 ),
-                price: chain.price,
+                price:
+                    chain.price == null || chain.price === ''
+                        ? null
+                        : Number(chain.price),
                 start_date: chain.start_date,
                 end_date: chain.end_date || null,
                 client_name: chain.client_name || '',
@@ -130,7 +134,7 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
                 days_of_month: [],
                 booking_time: '09:00',
                 duration_minutes: 60,
-                price: 0,
+                price: null,
                 start_date: dayjs().format('YYYY-MM-DD'),
                 end_date: null,
                 client_name: '',
@@ -250,6 +254,10 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
             client_email: clientMode === 'manual' ? formData.client_email : null,
             client_phone: clientMode === 'manual' ? formData.client_phone : null,
             end_date: formData.end_date || null,
+            price:
+                formData.price == null || Number.isNaN(Number(formData.price))
+                    ? 0
+                    : Number(formData.price),
         }
 
         if (chain) {
@@ -341,7 +349,10 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
                                     setFormData((prev) => ({
                                         ...prev,
                                         service_id: option?.value || null,
-                                        price: selectedService?.price || 0,
+                                        price:
+                                            selectedService?.price == null
+                                                ? null
+                                                : Number(selectedService.price),
                                         duration_minutes: selectedService
                                             ? snapDurationToBookingPresetMinutes(
                                                   selectedService.duration ||
@@ -639,11 +650,12 @@ const RecurringBookingModal = ({ isOpen, onClose, chain = null }) => {
 
                         {/* Цена */}
                         <FormItem label={t('price')}>
-                            <Input
-                                type="number"
-                                step="0.01"
+                            <AmountInput
                                 value={formData.price}
-                                onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                                onValueChange={(n) =>
+                                    setFormData((prev) => ({ ...prev, price: n }))
+                                }
+                                min={0}
                                 placeholder="0"
                             />
                         </FormItem>

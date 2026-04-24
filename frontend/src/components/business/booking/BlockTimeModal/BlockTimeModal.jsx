@@ -7,6 +7,7 @@ import Drawer from '@/components/ui/Drawer'
 import Button from '@/components/ui/Button'
 import CloseButton from '@/components/ui/CloseButton'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import Select from '@/components/ui/Select'
 import DatePicker from '@/components/ui/DatePicker'
 import { FormItem } from '@/components/ui/Form'
@@ -215,21 +216,13 @@ export default function BlockTimeModal({
                         invalid={showPriceError}
                         errorMessage={showPriceError ? err(errors.price) : undefined}
                     >
-                        <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
+                        <AmountInput
                             size="sm"
-                            value={values.price === null || values.price === undefined ? '' : values.price}
-                            onChange={(e) => {
-                                const v = e.target.value
-                                if (v === '') {
-                                    setField('price', null)
-                                    return
-                                }
-                                const n = parseFloat(v)
-                                setField('price', Number.isFinite(n) ? Math.max(0, n) : null)
+                            value={values.price ?? null}
+                            onValueChange={(n) => {
+                                setField('price', n == null ? null : Math.max(0, n))
                             }}
+                            min={0}
                             onBlur={() => touchField('price')}
                         />
                         <div className={`mt-1 ${HINT_CLS}`}>{tDetails('priceHint', { currency })}</div>

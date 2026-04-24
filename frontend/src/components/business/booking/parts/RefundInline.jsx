@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import { FormItem } from '@/components/ui/Form'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -27,7 +28,8 @@ export default function RefundInline({
     const queryClient = useQueryClient()
 
     const [reason, setReason] = useState('')
-    const [amountStr, setAmountStr] = useState('')
+    /** null = не указана (полный возврат), иначе частичная сумма */
+    const [refundAmount, setRefundAmount] = useState(null)
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState(null)
 
@@ -51,9 +53,8 @@ export default function RefundInline({
         }
 
         const payload = { reason: trimmedReason }
-        const trimmedAmount = String(amountStr || '').trim()
-        if (trimmedAmount) {
-            const n = parseFloat(trimmedAmount.replace(',', '.'))
+        if (refundAmount != null) {
+            const n = Number(refundAmount)
             if (Number.isNaN(n) || n <= 0) {
                 setError(t('amountInvalid'))
                 return
@@ -90,14 +91,12 @@ export default function RefundInline({
 
             <FormItem label={<span className={LABEL_CLS}>{t('amountLabel')}</span>}>
                 <div className="flex flex-col gap-2">
-                    <Input
+                    <AmountInput
                         size="sm"
-                        type="number"
-                        step="0.01"
-                        min="0"
                         placeholder={t('amountPlaceholder', { currency })}
-                        value={amountStr}
-                        onChange={(e) => setAmountStr(e.target.value)}
+                        value={refundAmount}
+                        onValueChange={setRefundAmount}
+                        min={0}
                     />
                     <div className="flex flex-wrap gap-2">
                         {presets.map((p) => (
@@ -106,7 +105,7 @@ export default function RefundInline({
                                 type="button"
                                 size="xs"
                                 variant="default"
-                                onClick={() => setAmountStr(String(p.value))}
+                                onClick={() => setRefundAmount(p.value)}
                             >
                                 {p.label}
                             </Button>

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import { FormItem } from '@/components/ui/Form'
 import BookingAdditionalServices from '@/components/BookingAdditionalServices'
 import { formatCurrency } from '@/utils/formatCurrency'
@@ -50,16 +51,13 @@ export default function BookingPricingTab({
     return (
         <div className="flex flex-col gap-4">
             <FormItem label={<span className={LABEL_CLS}>{t('basePrice')}</span>}>
-                <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
+                <AmountInput
                     size="sm"
-                    value={values.price ?? ''}
-                    onChange={(e) => {
-                        const v = e.target.value
-                        setField('price', v === '' ? null : Math.max(0, parseFloat(v)))
+                    value={values.price ?? null}
+                    onValueChange={(n) => {
+                        setField('price', n == null ? null : Math.max(0, n))
                     }}
+                    min={0}
                     disabled={readOnly}
                 />
                 <div className={`mt-1 ${HINT_CLS}`}>

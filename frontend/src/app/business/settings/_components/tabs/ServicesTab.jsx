@@ -12,6 +12,7 @@ import { TbPencil, TbTrash, TbPlus } from 'react-icons/tb'
 import { NumericFormat } from 'react-number-format'
 import Dialog from '@/components/ui/Dialog'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import Select from '@/components/ui/Select'
 import { FormItem } from '@/components/ui/Form'
 import Checkbox from '@/components/ui/Checkbox'
@@ -149,9 +150,15 @@ const ServicesTab = () => {
     }
 
     const handleSave = (serviceData) => {
+        const priceRaw = serviceData.price
+        const priceNum =
+            priceRaw === null || priceRaw === undefined || priceRaw === ''
+                ? 0
+                : Number(priceRaw)
         // Преобразуем duration в duration_minutes для API (сетка 15…300 мин)
         const apiData = {
             ...serviceData,
+            price: Number.isFinite(priceNum) ? priceNum : 0,
             duration_minutes: snapDurationToBookingPresetMinutes(
                 Number(serviceData.duration) || serviceData.duration_minutes || 60,
             ),
@@ -414,7 +421,7 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
         name: '',
         category: '',
         duration: 60,
-        price: 0,
+        price: null,
         service_type: 'onsite',
     })
 
@@ -436,7 +443,10 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
                 duration: snapDurationToBookingPresetMinutes(
                     service.duration || service.duration_minutes || 60,
                 ),
-                price: service.price || 0,
+                price:
+                    service.price === null || service.price === undefined || service.price === ''
+                        ? null
+                        : Number(service.price),
                 service_type: service.service_type || 'onsite',
             })
         } else if (isOpen && !service) {
@@ -445,7 +455,7 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
                 name: '',
                 category: '',
                 duration: 60,
-                price: 0,
+                price: null,
                 service_type: 'onsite',
             })
         }
@@ -508,17 +518,12 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
                                     />
                                 </FormItem>
                                 <FormItem label={t('form.price')}>
-                                    <Input
-                                        type="number"
+                                    <AmountInput
                                         value={formData.price}
-                                        onChange={(e) => {
-                                            const value = e.target.value
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                price: value === '' ? '' : value,
-                                            }))
-                                        }}
-                                        min="0"
+                                        onValueChange={(n) =>
+                                            setFormData((prev) => ({ ...prev, price: n }))
+                                        }
+                                        min={0}
                                     />
                                 </FormItem>
                             </div>
@@ -657,14 +662,25 @@ const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
     }
 
     const handleSave = (data) => {
+        const payload = {
+            ...data,
+            price:
+                data.price === null || data.price === undefined || data.price === ''
+                    ? 0
+                    : Number(data.price),
+            sort_order:
+                data.sort_order === '' || data.sort_order == null
+                    ? 0
+                    : Number(data.sort_order),
+        }
         if (editingAdditionalService) {
             updateMutation.mutate({
                 id: editingAdditionalService.id,
-                data,
+                data: payload,
             })
         } else {
             createMutation.mutate({
-                ...data,
+                ...payload,
                 service_id: service.id,
                 is_active: true,
             })
@@ -796,7 +812,7 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
     const [formData, setFormData] = useState({
         name: additionalService?.name || '',
         description: additionalService?.description || '',
-        price: additionalService?.price || 0,
+        price: null,
         duration: additionalService?.duration || 0,
         is_active: additionalService?.is_active !== undefined ? additionalService.is_active : true,
         sort_order: additionalService?.sort_order || 0,
@@ -819,7 +835,10 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
             setFormData({
                 name: additionalService.name || '',
                 description: additionalService.description || '',
-                price: additionalService.price || 0,
+                price:
+                    additionalService.price == null || additionalService.price === ''
+                        ? null
+                        : Number(additionalService.price),
                 duration:
                     rawDur === 0 ? 0 : snapDurationToBookingPresetMinutes(rawDur),
                 is_active: additionalService.is_active !== undefined ? additionalService.is_active : true,
@@ -829,7 +848,7 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
             setFormData({
                 name: '',
                 description: '',
-                price: 0,
+                price: null,
                 duration: 0,
                 is_active: true,
                 sort_order: 0,
@@ -874,15 +893,12 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
 
                         <div className="grid grid-cols-2 gap-4">
                             <FormItem label={t('form.price')} required>
-                                <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
+                                <AmountInput
                                     value={formData.price}
-                                    onChange={(e) => {
-                                        const value = e.target.value
-                                        setFormData((prev) => ({ ...prev, price: value === '' ? '' : value }))
-                                    }}
+                                    onValueChange={(n) =>
+                                        setFormData((prev) => ({ ...prev, price: n }))
+                                    }
+                                    min={0}
                                     required
                                 />
                             </FormItem>
@@ -909,14 +925,13 @@ const AdditionalServiceFormModal = ({ isOpen, onClose, additionalService, onSave
                         </div>
 
                         <FormItem label={t('form.sortOrder')}>
-                            <Input
-                                type="number"
-                                min="0"
+                            <AmountInput
+                                decimalScale={0}
                                 value={formData.sort_order}
-                                onChange={(e) => {
-                                    const value = e.target.value
-                                    setFormData((prev) => ({ ...prev, sort_order: value === '' ? '' : value }))
-                                }}
+                                onValueChange={(n) =>
+                                    setFormData((prev) => ({ ...prev, sort_order: n == null ? 0 : n }))
+                                }
+                                min={0}
                             />
                         </FormItem>
 

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import Container from '@/components/shared/Container'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import Select from '@/components/ui/Select'
 import DatePicker from '@/components/ui/DatePicker'
 import { FormItem } from '@/components/ui/Form'
@@ -1113,8 +1114,8 @@ export default function CreateAdvertisementPage() {
                 services: servicesData,
                 schedule: formData.schedule || null,
                 slot_step_minutes: formData.slot_step_minutes || 60,
-                priceFrom: formData.priceFrom && formData.priceFrom !== '' ? formData.priceFrom : null,
-                priceTo: formData.priceTo && formData.priceTo !== '' ? formData.priceTo : null,
+                priceFrom: formData.priceFrom !== '' && formData.priceFrom != null ? formData.priceFrom : null,
+                priceTo: formData.priceTo !== '' && formData.priceTo != null ? formData.priceTo : null,
                 currency: formData.currency || 'USD',
                 portfolio: Array.isArray(formData.portfolio) 
                     ? formData.portfolio.map(item => ({
@@ -1263,8 +1264,8 @@ export default function CreateAdvertisementPage() {
                 : [],
             schedule: formData.schedule || null,
             slot_step_minutes: formData.slot_step_minutes || 60,
-            priceFrom: formData.priceFrom && formData.priceFrom !== '' ? formData.priceFrom : null,
-            priceTo: formData.priceTo && formData.priceTo !== '' ? formData.priceTo : null,
+            priceFrom: formData.priceFrom !== '' && formData.priceFrom != null ? formData.priceFrom : null,
+            priceTo: formData.priceTo !== '' && formData.priceTo != null ? formData.priceTo : null,
             currency: formData.currency || 'USD',
             portfolio: Array.isArray(formData.portfolio) 
                 ? formData.portfolio.map(item => ({
@@ -1867,27 +1868,39 @@ export default function CreateAdvertisementPage() {
                                             
                                             <div className="grid grid-cols-2 gap-4">
                                                 <FormItem label={t('pricing.priceFrom')}>
-                                                    <Input
+                                                    <AmountInput
                                                         size="sm"
-                                                        type="number"
-                                                        value={formData.priceFrom || ''}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value
-                                                            setFormData({ ...formData, priceFrom: value === '' ? '' : value })
-                                                        }}
+                                                        value={
+                                                            formData.priceFrom === '' || formData.priceFrom == null
+                                                                ? null
+                                                                : Number(formData.priceFrom)
+                                                        }
+                                                        onValueChange={(n) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                priceFrom: n == null ? '' : n,
+                                                            })
+                                                        }
+                                                        min={0}
                                                         placeholder="0"
                                                     />
                                                 </FormItem>
 
                                                 <FormItem label={t('pricing.priceTo')}>
-                                                    <Input
+                                                    <AmountInput
                                                         size="sm"
-                                                        type="number"
-                                                        value={formData.priceTo || ''}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value
-                                                            setFormData({ ...formData, priceTo: value === '' ? '' : value })
-                                                        }}
+                                                        value={
+                                                            formData.priceTo === '' || formData.priceTo == null
+                                                                ? null
+                                                                : Number(formData.priceTo)
+                                                        }
+                                                        onValueChange={(n) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                priceTo: n == null ? '' : n,
+                                                            })
+                                                        }
+                                                        min={0}
                                                         placeholder="0"
                                                     />
                                                 </FormItem>
@@ -1983,13 +1996,23 @@ export default function CreateAdvertisementPage() {
                                                             </FormItem>
                                                             <div className="grid grid-cols-2 gap-3">
                                                                 <FormItem label={t('services.price')}>
-                                                                    <Input
+                                                                    <AmountInput
                                                                         size="sm"
-                                                                        type="number"
-                                                                        value={service.price || ''}
-                                                                        onChange={(e) => updateService(service.id, 'price', e.target.value)}
+                                                                        value={
+                                                                            service.price === '' ||
+                                                                            service.price == null
+                                                                                ? null
+                                                                                : Number(service.price)
+                                                                        }
+                                                                        onValueChange={(n) =>
+                                                                            updateService(
+                                                                                service.id,
+                                                                                'price',
+                                                                                n == null ? '' : n,
+                                                                            )
+                                                                        }
+                                                                        min={0}
                                                                         placeholder="0"
-                                                                        disabled={false}
                                                                     />
                                                                 </FormItem>
                                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-2">

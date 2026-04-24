@@ -6,6 +6,7 @@ import { getAdditionalServices, getAdditionalServicesByAdvertisement } from '@/l
 import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import Checkbox from '@/components/ui/Checkbox';
+import AmountInput from '@/components/ui/AmountInput/AmountInput';
 
 /**
  * Компонент для отображения и выбора дополнительных услуг в букинге
@@ -106,9 +107,11 @@ export default function BookingAdditionalServices({
     onSelectionChange(updated);
   };
 
-  const handlePriceChange = (serviceId, price) => {
-    const updated = selectedServices.map(s => 
-      s.id === serviceId ? { ...s, price: parseFloat(price) || 0 } : s
+  const handlePriceChange = (serviceId, floatValue) => {
+    const updated = selectedServices.map((s) =>
+      s.id === serviceId
+        ? { ...s, price: floatValue == null ? 0 : floatValue }
+        : s,
     );
     onSelectionChange(updated);
   };
@@ -195,13 +198,15 @@ export default function BookingAdditionalServices({
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
                               Цена:
                             </label>
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={selectedService?.price ?? service.price ?? ''}
-                              onChange={(e) => handlePriceChange(service.id, e.target.value)}
-                              className="w-20 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-2 py-1.5 text-sm"
+                            <AmountInput
+                              className="w-20 min-w-0"
+                              value={
+                                selectedService
+                                  ? selectedService.price
+                                  : null
+                              }
+                              onValueChange={(n) => handlePriceChange(service.id, n)}
+                              min={0}
                             />
                           </div>
                         )}
