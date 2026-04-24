@@ -27,10 +27,12 @@ export default function Step2TimeAssignment({
     setField,
     setFields,
     errors,
+    services = [],
     teamMembers = [],
     scheduleSettings,
 }) {
     const t = useTranslations('business.schedule.wizard.step2')
+    const tModalLabels = useTranslations('business.schedule.modal.labels')
     const tDur = useTranslations('common.durationMinutes')
     const err = useBookingFormErrorMessage()
 
@@ -71,6 +73,18 @@ export default function Step2TimeAssignment({
     })
 
     const isOffsite = (values.execution_type || 'onsite') === 'offsite'
+
+    const selectedService = useMemo(() => {
+        if (values.service_id == null) return null
+        const sid = String(values.service_id)
+        return (services || []).find((s) => String(s.id) === sid) || null
+    }, [services, values.service_id])
+
+    const serviceType = selectedService?.service_type
+    const onsiteLabel =
+        serviceType === 'hybrid' ? tModalLabels('hybridOnsite') : t('onsite')
+    const offsiteLabel =
+        serviceType === 'hybrid' ? tModalLabels('hybridOffsite') : t('offsite')
 
     return (
         <div className="flex flex-col gap-4">
@@ -156,13 +170,13 @@ export default function Step2TimeAssignment({
             <FormItem label={<span className={LABEL_CLS}>{t('executionType')}</span>}>
                 <Select
                     options={[
-                        { value: 'onsite', label: t('onsite') },
-                        { value: 'offsite', label: t('offsite') },
+                        { value: 'onsite', label: onsiteLabel },
+                        { value: 'offsite', label: offsiteLabel },
                     ]}
                     value={
                         (values.execution_type || 'onsite') === 'offsite'
-                            ? { value: 'offsite', label: t('offsite') }
-                            : { value: 'onsite', label: t('onsite') }
+                            ? { value: 'offsite', label: offsiteLabel }
+                            : { value: 'onsite', label: onsiteLabel }
                     }
                     onChange={(opt) => setField('execution_type', opt?.value || 'onsite')}
                     isSearchable={false}

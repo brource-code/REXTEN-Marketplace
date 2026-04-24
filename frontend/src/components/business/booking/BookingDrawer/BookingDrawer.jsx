@@ -52,6 +52,11 @@ function buildInitialValues(slot) {
         slot.event_type ||
         (slot.title && !slot.service_id ? 'block' : 'booking')
     const { booking_date, booking_time } = slotDateParts(slot)
+    const loc = slot.location || {}
+    const address_line1 = slot.address_line1 ?? loc.address_line1 ?? ''
+    const city = slot.city ?? loc.city ?? ''
+    const state = slot.state ?? loc.state ?? ''
+    const zip = slot.zip ?? loc.zip ?? ''
     return {
         id: slot.id,
         event_type: eventType,
@@ -70,10 +75,10 @@ function buildInitialValues(slot) {
         client_name: slot.client_name ?? slot.client?.name ?? '',
         client_email: slot.client_email ?? slot.client?.email ?? '',
         client_phone: slot.client_phone ?? slot.client?.phone ?? '',
-        address_line1: slot.address_line1 ?? '',
-        city: slot.city ?? '',
-        state: slot.state ?? '',
-        zip: slot.zip ?? '',
+        address_line1,
+        city,
+        state,
+        zip,
     }
 }
 

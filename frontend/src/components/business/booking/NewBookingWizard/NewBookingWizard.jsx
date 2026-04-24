@@ -262,6 +262,7 @@ export default function NewBookingWizard({
                             setField={setField}
                             setFields={setFields}
                             errors={errors}
+                            services={services}
                             teamMembers={teamMembers}
                             scheduleSettings={scheduleSettings}
                         />

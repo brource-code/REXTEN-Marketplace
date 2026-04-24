@@ -78,9 +78,12 @@ export default function Step1ClientService({
                         if (values.price == null || values.price === '') {
                             patch.price = service.price
                         }
-                        if (service.service_type) {
-                            patch.execution_type =
-                                service.service_type === 'offsite' ? 'offsite' : 'onsite'
+                        if (service.service_type === 'offsite') {
+                            patch.execution_type = 'offsite'
+                        } else if (service.service_type === 'onsite') {
+                            patch.execution_type = 'onsite'
+                        } else if (service.service_type === 'hybrid') {
+                            patch.execution_type = values.execution_type || 'onsite'
                         }
                     }
                     setFields(patch)

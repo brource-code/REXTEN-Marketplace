@@ -41,6 +41,10 @@ const businessRoute = {
         key: 'business.reviews',
         authority: [BUSINESS_OWNER, SUPERADMIN],
     },
+    '/business/subscription': {
+        key: 'business.subscription',
+        authority: [BUSINESS_OWNER, SUPERADMIN],
+    },
     '/business/billing': {
         key: 'business.billing',
         authority: [BUSINESS_OWNER, SUPERADMIN],

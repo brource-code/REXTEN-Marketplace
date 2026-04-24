@@ -818,6 +818,14 @@ class ScheduleController extends Controller
                 'additional_services.*.id' => 'required|exists:additional_services,id',
                 'additional_services.*.quantity' => 'required|integer|min:1',
                 'additional_services.*.price' => 'nullable|numeric|min:0',
+                'execution_type' => 'sometimes|nullable|in:onsite,offsite',
+                'address_line1' => 'nullable|string|max:255',
+                'city' => 'nullable|string|max:100',
+                'state' => 'nullable|string|max:50',
+                'zip' => 'nullable|string|max:20',
+                'lat' => 'nullable|numeric',
+                'lng' => 'nullable|numeric',
+                'location_notes' => 'nullable|string|max:1000',
             ]);
 
             // Снимок окна до правок: при смене исполнителя/даты/времени/длительности проверяем пересечения с другими бронями
@@ -1049,6 +1057,120 @@ class ScheduleController extends Controller
                 $booking->total_price = $booking->calculateTotalWithAdditionalServices();
             }
 
+            // Тип исполнения и адрес выезда (гибрид / offsite) — иначе драуэр бизнеса не мог сохранить смену «у вас / у клиента».
+            $isCustomEventUpdate = empty($booking->service_id) && !empty($booking->title);
+            $executionOrLocationTouched = false;
+            if (!$isCustomEventUpdate && $request->has('execution_type')) {
+                $exec = (string) $request->input('execution_type');
+                if (in_array($exec, ['onsite', 'offsite'], true)) {
+                    $prevExec = $booking->execution_type ?? 'onsite';
+                    $booking->loadMissing(['service', 'location', 'user.profile']);
+
+                    $serviceType = 'onsite';
+                    if ($booking->service && $booking->service->service_type) {
+                        $serviceType = $booking->service->service_type;
+                    } elseif ($booking->advertisement_id) {
+                        $advertisement = \App\Models\Advertisement::find($booking->advertisement_id);
+                        if ($advertisement) {
+                            $services = is_array($advertisement->services) ? $advertisement->services : (json_decode($advertisement->services, true) ?? []);
+                            $serviceData = collect($services)->first(function ($s) use ($booking) {
+                                return isset($s['id']) && (string) $s['id'] === (string) $booking->service_id;
+                            });
+                            if ($serviceData && isset($serviceData['service_type'])) {
+                                $serviceType = $serviceData['service_type'];
+                            }
+                        }
+                    }
+
+                    if ($serviceType === 'onsite' && $exec !== 'onsite') {
+                        return response()->json([
+                            'message' => 'Для этой услуги возможна только запись у вас (on-site).',
+                            'error' => 'execution_type_not_allowed',
+                        ], 422);
+                    }
+                    if ($serviceType === 'offsite' && $exec !== 'offsite') {
+                        return response()->json([
+                            'message' => 'Для этой услуги только выезд к клиенту.',
+                            'error' => 'execution_type_not_allowed',
+                        ], 422);
+                    }
+
+                    $booking->execution_type = $exec;
+
+                    if ($exec === 'onsite') {
+                        $booking->location()?->delete();
+                        $booking->unsetRelation('location');
+                    } else {
+                        $addressData = [];
+                        if ($request->filled('address_line1')) {
+                            $addressData = [
+                                'address_line1' => trim((string) $request->address_line1),
+                                'city' => $request->input('city'),
+                                'state' => $request->input('state'),
+                                'zip' => $request->input('zip'),
+                                'lat' => $request->input('lat'),
+                                'lng' => $request->input('lng'),
+                                'location_notes' => $request->input('location_notes'),
+                            ];
+                        } elseif ($booking->location && trim((string) ($booking->location->address_line1 ?? '')) !== '') {
+                            $loc = $booking->location;
+                            $addressData = [
+                                'address_line1' => trim((string) $loc->address_line1),
+                                'city' => $loc->city,
+                                'state' => $loc->state,
+                                'zip' => $loc->zip,
+                                'lat' => $loc->lat,
+                                'lng' => $loc->lng,
+                                'location_notes' => $loc->notes,
+                            ];
+                        } elseif ($booking->user_id) {
+                            $user = $booking->user ?? \App\Models\User::with('profile')->find($booking->user_id);
+                            if ($user && $user->profile) {
+                                $profile = $user->profile;
+                                $addressLine1 = $profile->address ?? null;
+                                if ($addressLine1) {
+                                    $addressData = [
+                                        'address_line1' => $addressLine1,
+                                        'city' => $profile->city ?? null,
+                                        'state' => $profile->state ?? null,
+                                        'zip' => $profile->zip_code ?? null,
+                                        'lat' => null,
+                                        'lng' => null,
+                                        'location_notes' => null,
+                                    ];
+                                }
+                            }
+                        }
+
+                        if (empty($addressData) || trim((string) ($addressData['address_line1'] ?? '')) === '') {
+                            return response()->json([
+                                'message' => 'Для выездных услуг необходимо указать адрес клиента',
+                                'error' => 'address_required',
+                            ], 400);
+                        }
+
+                        \App\Models\BookingLocation::updateOrCreate(
+                            ['booking_id' => $booking->id],
+                            [
+                                'type' => 'client',
+                                'address_line1' => $addressData['address_line1'],
+                                'city' => $addressData['city'] ?? null,
+                                'state' => $addressData['state'] ?? null,
+                                'zip' => $addressData['zip'] ?? null,
+                                'lat' => $addressData['lat'] ?? null,
+                                'lng' => $addressData['lng'] ?? null,
+                                'notes' => $addressData['location_notes'] ?? null,
+                            ]
+                        );
+                        $booking->load('location');
+                    }
+
+                    if ($exec !== $prevExec) {
+                        $executionOrLocationTouched = true;
+                    }
+                }
+            }
+
             $bookingService = app(\App\Services\BookingService::class);
             $slotConflict = $this->assertBookingSlotStillFree($companyId, $booking, $slotSnapshotBefore, $bookingService);
             if ($slotConflict) {
@@ -1056,6 +1178,16 @@ class ScheduleController extends Controller
             }
 
             $booking->save();
+
+            if ($executionOrLocationTouched) {
+                try {
+                    app(\App\Services\Routing\GeocodingService::class)->geocodeBooking(
+                        $booking->fresh(['location', 'user.profile'])
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('ScheduleController: geocodeBooking after update: '.$e->getMessage());
+                }
+            }
 
             // Пересчитываем скидку лояльности если изменилась цена/услуга
             if ($priceChanged && $booking->user_id && $booking->service_id) {
@@ -1138,6 +1270,7 @@ class ScheduleController extends Controller
                 'review_token' => $booking->review_token, // Токен для отзыва клиентов без клиентского аккаунта
                 'specialist_id' => $booking->specialist_id,
                 'specialist' => $this->getSpecialistFromTeam($booking) ?: null,
+                'execution_type' => $booking->execution_type ?? 'onsite',
                 'notes' => $booking->notes,
                 'client_notes' => $booking->client_notes,
             ]);

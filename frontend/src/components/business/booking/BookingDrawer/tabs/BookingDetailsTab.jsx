@@ -39,6 +39,7 @@ export default function BookingDetailsTab({
     currency,
 }) {
     const t = useTranslations('business.schedule.drawer.details')
+    const tModalLabels = useTranslations('business.schedule.modal.labels')
     const tStatuses = useTranslations('business.schedule.statuses')
     const tDur = useTranslations('common.durationMinutes')
     const err = useBookingFormErrorMessage()
@@ -90,6 +91,22 @@ export default function BookingDetailsTab({
     })
 
     const isOffsite = (values.execution_type || 'onsite') === 'offsite'
+
+    const selectedService = useMemo(() => {
+        if (values.service_id == null) return null
+        const sid = String(values.service_id)
+        return (services || []).find((s) => String(s.id) === sid) || null
+    }, [services, values.service_id])
+
+    const serviceType = selectedService?.service_type || slot?.service?.service_type
+    const onsiteLabel =
+        serviceType === 'hybrid'
+            ? tModalLabels('hybridOnsite')
+            : t('onsite')
+    const offsiteLabel =
+        serviceType === 'hybrid'
+            ? tModalLabels('hybridOffsite')
+            : t('offsite')
 
     const specialistName = useMemo(() => {
         if (values.specialist_id == null) return null
@@ -148,8 +165,12 @@ export default function BookingDetailsTab({
                         if (service && (values.price == null || values.price === '')) {
                             patch.price = service.price
                         }
-                        if (service?.service_type) {
-                            patch.execution_type = service.service_type === 'offsite' ? 'offsite' : 'onsite'
+                        if (service?.service_type === 'offsite') {
+                            patch.execution_type = 'offsite'
+                        } else if (service?.service_type === 'onsite') {
+                            patch.execution_type = 'onsite'
+                        } else if (service?.service_type === 'hybrid') {
+                            patch.execution_type = values.execution_type || 'onsite'
                         }
                         setFields(patch)
                     }}
@@ -258,13 +279,13 @@ export default function BookingDetailsTab({
                 <FormItem label={<span className={LABEL_CLS}>{t('executionType')}</span>}>
                     <Select
                         options={[
-                            { value: 'onsite', label: t('onsite') },
-                            { value: 'offsite', label: t('offsite') },
+                            { value: 'onsite', label: onsiteLabel },
+                            { value: 'offsite', label: offsiteLabel },
                         ]}
                         value={
                             (values.execution_type || 'onsite') === 'offsite'
-                                ? { value: 'offsite', label: t('offsite') }
-                                : { value: 'onsite', label: t('onsite') }
+                                ? { value: 'offsite', label: offsiteLabel }
+                                : { value: 'onsite', label: onsiteLabel }
                         }
                         onChange={(opt) => setField('execution_type', opt?.value || 'onsite')}
                         isSearchable={false}
