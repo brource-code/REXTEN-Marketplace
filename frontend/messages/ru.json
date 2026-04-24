@@ -2290,6 +2290,7 @@
                 "services": "Услуги",
                 "advertisements": "Объявления",
                 "analytics": "Расширенная аналитика",
+                "routesAiDispatcherAnalytics": "Маршруты, AI и аналитика",
                 "prioritySupport": "Приоритетная поддержка",
                 "apiAccess": "Доступ к API",
                 "ai": "REXTEN AI Dispatcher (запросов в месяц)",
@@ -2355,7 +2356,7 @@
                 "notIncluded": "Не включено"
             },
             "aiUsageResets": "Обновляется {date}.",
-            "aiUpsellShort": "Доступно с тарифа Starter и выше.",
+            "aiUpsellShort": "Доступно с тарифа Professional и выше.",
             "aiUpsellLink": "К тарифам",
             "limitReached": {
                 "title": "Достигнут лимит тарифа",
@@ -5863,11 +5864,9 @@
                 "servicesUnlimited": "Неограниченно услуг",
                 "listingsUpTo": "До {n} активных объявлений на маркетплейсе",
                 "listingsUnlimited": "Неограниченно активных объявлений",
-                "featAnalytics": "Расширенная аналитика",
+                "featRoutesAiDispatcherAnalytics": "Маршруты, AI и аналитика",
                 "featPriority": "Приоритетная поддержка",
-                "featApi": "Доступ к API",
-                "featAi": "REXTEN AI Dispatcher: {n} запр./мес",
-                "featAiNone": "REXTEN AI Dispatcher — нет в тарифе"
+                "featApi": "Доступ к API"
             },
             "enterpriseDialog": {
                 "title": "Связаться с продажами — тариф Enterprise",
@@ -5924,12 +5923,18 @@
                 }
             },
             "growth": {
-                "title": "Масштаб и локации",
-                "description": "Несколько точек с общими правилами: роли для руководителей, срезы по локациям и сводная аналитика.",
+                "title": "Маршруты и AI‑диспетчер",
+                "description": "Планируйте день в полях целиком: умные маршруты с учётом окон бронирований и времени в дороге, а AI‑диспетчер подсказывает, как переставить визиты, чтобы успеть больше.",
                 "points": {
-                    "access": "Разграничение прав для управляющих",
-                    "compare": "Сравнение показателей точек",
-                    "languages": "Несколько языков интерфейса для разных рынков"
+                    "access": "Оптимизация маршрута на день в один клик",
+                    "compare": "Учитываются окна бронирований, дорога и пробки",
+                    "languages": "Подсказки AI‑диспетчера: что и когда сместить"
+                },
+                "visual": {
+                    "headerChip": "Сегодня · 4 точки · 26 км",
+                    "aiBadge": "AI‑диспетчер",
+                    "aiTip": "Маршрут переставлен — экономия {minutes} мин",
+                    "savedBadge": "−{minutes} мин"
                 }
             },
             "integrations": {

@@ -3128,8 +3128,9 @@
                 "services": "Servicios",
                 "advertisements": "Anuncios",
                 "analytics": "Analíticas avanzadas",
+                "routesAiDispatcherAnalytics": "Rutas, AI y analítica",
                 "prioritySupport": "Soporte prioritario",
-                "apiAccess": "Acceso a API",
+                "apiAccess": "Acceso a la API",
                 "ai": "REXTEN AI Dispatcher (solicitudes al mes)",
                 "unlimited": "Ilimitado"
             },
@@ -3193,7 +3194,7 @@
                 "notIncluded": "No incluido"
             },
             "aiUsageResets": "Se restablece el {date}.",
-            "aiUpsellShort": "Disponible desde Starter en adelante.",
+            "aiUpsellShort": "Disponible desde Professional en adelante.",
             "aiUpsellLink": "Ver planes",
             "limitReached": {
                 "title": "Límite del plan alcanzado",
@@ -5854,11 +5855,9 @@
                 "servicesUnlimited": "Servicios ilimitados",
                 "listingsUpTo": "Hasta {n} anuncios activos en el marketplace",
                 "listingsUnlimited": "Anuncios activos ilimitados",
-                "featAnalytics": "Analítica avanzada",
+                "featRoutesAiDispatcherAnalytics": "Rutas, AI y analítica",
                 "featPriority": "Soporte prioritario",
-                "featApi": "Acceso a la API",
-                "featAi": "REXTEN AI Dispatcher: {n} sol./mes",
-                "featAiNone": "REXTEN AI Dispatcher — no incluido"
+                "featApi": "Acceso a la API"
             },
             "enterpriseDialog": {
                 "title": "Habla con ventas — plan Enterprise",
@@ -5915,12 +5914,18 @@
                 }
             },
             "growth": {
-                "title": "Escala y ubicaciones",
-                "description": "Varias sedes con estándares compartidos: roles para gerentes, vistas por ubicación y analítica consolidada.",
+                "title": "Rutas y AI Dispatcher",
+                "description": "Planea el día en campo de inicio a fin: rutas inteligentes que respetan las ventanas de las reservas y los tiempos de traslado, y el AI dispatcher sugiere cómo reordenar las visitas para cubrir más.",
                 "points": {
-                    "access": "Acceso basado en roles para gerentes",
-                    "compare": "Compara el desempeño por ubicación",
-                    "languages": "Varios idiomas de interfaz para mercados locales"
+                    "access": "Optimización de la ruta del día con un clic",
+                    "compare": "Considera ventanas de reservas, traslado y tráfico",
+                    "languages": "Sugerencias del AI dispatcher: qué mover y cuándo"
+                },
+                "visual": {
+                    "headerChip": "Hoy · 4 paradas · 26 km",
+                    "aiBadge": "AI Dispatcher",
+                    "aiTip": "Ruta reordenada — ahorras {minutes} min",
+                    "savedBadge": "−{minutes} min"
                 }
             },
             "integrations": {

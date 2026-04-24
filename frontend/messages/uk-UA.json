@@ -3128,6 +3128,7 @@
                 "services": "Послуги",
                 "advertisements": "Оголошення",
                 "analytics": "Розширена аналітика",
+                "routesAiDispatcherAnalytics": "Маршрути, AI і аналітика",
                 "prioritySupport": "Пріоритетна підтримка",
                 "apiAccess": "Доступ до API",
                 "ai": "REXTEN AI Dispatcher (запитів/місяць)",
@@ -3193,7 +3194,7 @@
                 "notIncluded": "Не включено"
             },
             "aiUsageResets": "Оновлюється {date}.",
-            "aiUpsellShort": "Доступно з тарифу Starter і вище.",
+            "aiUpsellShort": "Доступно з тарифу Professional і вище.",
             "aiUpsellLink": "До тарифів",
             "limitReached": {
                 "title": "Ліміт тарифу досягнуто",
@@ -5869,11 +5870,9 @@
                 "servicesUnlimited": "Необмежено послуг",
                 "listingsUpTo": "До {n} активних оголошень на маркетплейсі",
                 "listingsUnlimited": "Необмежено активних оголошень",
-                "featAnalytics": "Розширена аналітика",
+                "featRoutesAiDispatcherAnalytics": "Маршрути, AI і аналітика",
                 "featPriority": "Пріоритетна підтримка",
-                "featApi": "Доступ до API",
-                "featAi": "REXTEN AI Dispatcher: {n} з./міс",
-                "featAiNone": "REXTEN AI Dispatcher — не входить у тариф"
+                "featApi": "Доступ до API"
             },
             "enterpriseDialog": {
                 "title": "Зв'язатися з відділом продажів — тариф Enterprise",
@@ -5930,12 +5929,18 @@
                 }
             },
             "growth": {
-                "title": "Масштаб і локації",
-                "description": "Кілька точок із спільними правилами: ролі для керівників, зрізи по локаціях і зведена аналітика.",
+                "title": "Маршрути та AI‑диспетчер",
+                "description": "Плануйте день у полях повністю: розумні маршрути з урахуванням вікон бронювань і часу в дорозі, а AI‑диспетчер підказує, як переставити візити, щоб встигнути більше.",
                 "points": {
-                    "access": "Ролі для власників і керівників точок",
-                    "compare": "Порівняння показників по локаціях",
-                    "languages": "Кілька мов інтерфейсу для різних ринків"
+                    "access": "Оптимізація маршруту на день одним кліком",
+                    "compare": "Враховуються вікна бронювань, дорога та затори",
+                    "languages": "Підказки AI‑диспетчера: що і коли посунути"
+                },
+                "visual": {
+                    "headerChip": "Сьогодні · 4 точки · 26 км",
+                    "aiBadge": "AI‑диспетчер",
+                    "aiTip": "Маршрут переставлено — економія {minutes} хв",
+                    "savedBadge": "−{minutes} хв"
                 }
             },
             "integrations": {

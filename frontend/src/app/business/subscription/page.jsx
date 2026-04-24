@@ -39,13 +39,13 @@ import {
     PiCaretDown,
     PiCaretUp,
     PiLightning,
-    PiChartLineUp,
     PiHeadset,
     PiCode,
     PiUsers,
     PiMegaphone,
     PiWrench,
     PiGift,
+    PiMapTrifold,
 } from 'react-icons/pi'
 import PermissionGuard from '@/components/shared/PermissionGuard'
 import Checkbox from '@/components/ui/Checkbox'
@@ -478,9 +478,20 @@ function SubscriptionContent() {
         { key: 'max_team_members', label: t('features.teamMembers'), icon: PiUsers },
         { key: 'max_services', label: t('features.services'), icon: PiWrench },
         { key: 'max_advertisements', label: t('features.advertisements'), icon: PiMegaphone },
-        { key: 'analytics', label: t('features.analytics'), icon: PiChartLineUp },
-        { key: 'priority_support', label: t('features.prioritySupport'), icon: PiHeadset, comingSoon: true },
+        {
+            key: 'routes_ai_analytics',
+            label: t('features.routesAiDispatcherAnalytics'),
+            icon: PiMapTrifold,
+            resolve: (f) =>
+                Boolean(
+                    f?.routes &&
+                        f?.analytics &&
+                        (Number(f?.ai_max_requests_per_month) > 0 ||
+                            Number(f?.ai_max_tokens_per_month) > 0),
+                ),
+        },
         { key: 'api_access', label: t('features.apiAccess'), icon: PiCode },
+        { key: 'priority_support', label: t('features.prioritySupport'), icon: PiHeadset },
     ], [t])
 
     const faqItems = useMemo(() => [
@@ -494,6 +505,13 @@ function SubscriptionContent() {
         if (typeof val === 'boolean') return val
         if (val === -1) return t('features.unlimited')
         return val
+    }
+
+    const getPlanFeatureValue = (plan, row) => {
+        if (row.resolve) {
+            return row.resolve(plan.features)
+        }
+        return plan.features[row.key]
     }
 
     return (
@@ -831,9 +849,6 @@ function SubscriptionContent() {
                                                     ? t('usage.included')
                                                     : t('usage.notIncluded')}
                                             </span>
-                                            <Tag className="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300 text-[10px] uppercase tracking-wide">
-                                                {t('comingSoon')}
-                                            </Tag>
                                         </span>
                                     </div>
                                     {usageData.ai ? (
@@ -1170,19 +1185,19 @@ function SubscriptionContent() {
                                         const RowIcon = row.icon
                                         return (
                                             <tr key={row.key} className={idx < featureRows.length - 1 ? 'border-b border-gray-100 dark:border-gray-800' : ''}>
-                                                <td className="py-3 pr-4">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <RowIcon className="text-gray-400 flex-shrink-0" size={16} />
-                                                        <span className="font-bold text-gray-700 dark:text-gray-300">{row.label}</span>
-                                                        {row.comingSoon && (
-                                                            <Tag className="bg-gray-100 text-gray-600 dark:bg-gray-700/60 dark:text-gray-300 text-[10px] uppercase tracking-wide">
-                                                                {t('comingSoon')}
-                                                            </Tag>
-                                                        )}
+                                                <td className="py-3 pr-4 max-w-[min(100%,20rem)]">
+                                                    <div className="flex items-start gap-2">
+                                                        <RowIcon
+                                                            className="text-gray-400 flex-shrink-0 mt-0.5"
+                                                            size={16}
+                                                        />
+                                                        <span className="font-bold text-gray-700 dark:text-gray-300 min-w-0 break-words leading-snug whitespace-pre-line">
+                                                            {row.label}
+                                                        </span>
                                                     </div>
                                                 </td>
                                                 {plans?.map((plan) => {
-                                                    const val = plan.features[row.key]
+                                                    const val = getPlanFeatureValue(plan, row)
                                                     const isBool = typeof val === 'boolean'
                                                     return (
                                                         <td key={plan.id} className="text-center py-3 px-2">

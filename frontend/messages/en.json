@@ -3128,6 +3128,7 @@
                 "services": "Services",
                 "advertisements": "Advertisements",
                 "analytics": "Advanced analytics",
+                "routesAiDispatcherAnalytics": "Routes, AI & analytics",
                 "prioritySupport": "Priority support",
                 "apiAccess": "API access",
                 "ai": "REXTEN AI Dispatcher (monthly requests)",
@@ -3193,7 +3194,7 @@
                 "notIncluded": "Not included"
             },
             "aiUsageResets": "Resets on {date}.",
-            "aiUpsellShort": "Available on Starter and higher.",
+            "aiUpsellShort": "Available on Professional and higher.",
             "aiUpsellLink": "View plans",
             "limitReached": {
                 "title": "Plan limit reached",
@@ -5854,11 +5855,9 @@
                 "servicesUnlimited": "Unlimited services",
                 "listingsUpTo": "Up to {n} active marketplace listings",
                 "listingsUnlimited": "Unlimited active listings",
-                "featAnalytics": "Advanced analytics",
+                "featRoutesAiDispatcherAnalytics": "Routes, AI & analytics",
                 "featPriority": "Priority support",
-                "featApi": "API access",
-                "featAi": "REXTEN AI Dispatcher: {n} requests/mo",
-                "featAiNone": "REXTEN AI Dispatcher — not included"
+                "featApi": "API access"
             },
             "enterpriseDialog": {
                 "title": "Talk to sales — Enterprise plan",
@@ -5915,12 +5914,18 @@
                 }
             },
             "growth": {
-                "title": "Scale & locations",
-                "description": "Operate multiple sites with shared standards: roles for managers, location-level views, and analytics that roll up across the network.",
+                "title": "Routes & AI Dispatcher",
+                "description": "Plan field days end-to-end: build smart routes that respect booking windows and travel time, while the AI dispatcher suggests how to reorder visits to fit more in.",
                 "points": {
-                    "access": "Role-based access for managers",
-                    "compare": "Compare location performance",
-                    "languages": "Multiple interface languages for local markets"
+                    "access": "One-click route optimization for the day",
+                    "compare": "Booking windows, travel time and traffic taken into account",
+                    "languages": "AI dispatcher hints on what to move and when"
+                },
+                "visual": {
+                    "headerChip": "Today · 4 stops · 26 km",
+                    "aiBadge": "AI Dispatcher",
+                    "aiTip": "Re-ordered route — saved {minutes} min",
+                    "savedBadge": "−{minutes} min"
                 }
             },
             "integrations": {

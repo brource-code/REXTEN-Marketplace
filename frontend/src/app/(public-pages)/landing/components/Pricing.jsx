@@ -10,11 +10,10 @@ import {
     PiUsers,
     PiWrench,
     PiMegaphone,
-    PiChartLineUp,
     PiHeadset,
     PiCode,
-    PiLightning,
     PiArrowUpRight,
+    PiMapTrifold,
 } from 'react-icons/pi'
 import Button from '@/components/ui/Button'
 import { useRouter } from 'next/navigation'
@@ -79,16 +78,10 @@ function buildPlanRows(plan, tFrom) {
                 : tFrom('listingsUpTo', { n: num(ads) }),
         },
         {
-            Icon: PiChartLineUp,
+            Icon: PiMapTrifold,
             kind: 'flag',
-            included: !!f.analytics,
-            label: tFrom('featAnalytics'),
-        },
-        {
-            Icon: PiHeadset,
-            kind: 'flag',
-            included: !!f.priority_support,
-            label: tFrom('featPriority'),
+            included: Boolean(f.routes && f.analytics && num(aiReq) > 0),
+            label: tFrom('featRoutesAiDispatcherAnalytics'),
         },
         {
             Icon: PiCode,
@@ -97,13 +90,10 @@ function buildPlanRows(plan, tFrom) {
             label: tFrom('featApi'),
         },
         {
-            Icon: PiLightning,
-            kind: 'capacity',
-            included: num(aiReq) > 0,
-            label:
-                num(aiReq) > 0
-                    ? tFrom('featAi', { n: num(aiReq) })
-                    : tFrom('featAiNone'),
+            Icon: PiHeadset,
+            kind: 'flag',
+            included: !!f.priority_support,
+            label: tFrom('featPriority'),
         },
     ]
 }
