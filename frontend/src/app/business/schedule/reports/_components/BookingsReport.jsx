@@ -9,10 +9,116 @@ import Loading from '@/components/shared/Loading'
 import useTheme from '@/utils/hooks/useTheme'
 import { MODE_DARK } from '@/constants/theme.constant'
 import {
-    getReportsDonutChartOptions,
     getReportsLineChartOptions,
+    statusKeyToChartColor,
 } from './reportsChartOptions'
 import ReportRankedTable, { RankBadge } from './ReportRankedTable'
+
+function StatusDonutChart({ series = [], labels = [], keys = [], centerLabel = '', isDark = false }) {
+    const total = series.reduce((sum, value) => sum + (Number(value) || 0), 0)
+    const segments = series.map((rawValue, index) => {
+        const value = Number(rawValue) || 0
+        const percent = total > 0 ? (value / total) * 100 : 0
+        return {
+            value,
+            percent,
+            label: labels[index] || keys[index] || '',
+            key: keys[index] || index,
+            color: statusKeyToChartColor(keys[index]),
+        }
+    })
+    const donutOptions = {
+        colors: segments.map((segment) => segment.color),
+        labels,
+        chart: {
+            fontFamily: 'inherit',
+            sparkline: { enabled: false },
+            toolbar: { show: false },
+            animations: {
+                enabled: true,
+                speed: 450,
+                animateGradually: { enabled: true, delay: 60 },
+            },
+        },
+        plotOptions: {
+            pie: {
+                expandOnClick: false,
+                donut: {
+                    size: '73%',
+                    labels: { show: false },
+                },
+            },
+        },
+        stroke: {
+            show: true,
+            width: 5,
+            colors: [isDark ? '#111827' : '#ffffff'],
+        },
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        states: {
+            hover: { filter: { type: 'lighten', value: 0.06 } },
+            active: { filter: { type: 'none', value: 0 } },
+        },
+        tooltip: {
+            theme: isDark ? 'dark' : 'light',
+            y: { formatter: (val) => `${val}` },
+        },
+    }
+
+    return (
+        <div className="flex min-h-[300px] w-full flex-col items-center justify-center gap-3 xl:flex-row xl:gap-5">
+            <div className="relative h-[232px] w-[232px] shrink-0">
+                <Chart
+                    type="donut"
+                    series={series}
+                    customOptions={donutOptions}
+                    height={232}
+                    width={232}
+                />
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-[104px] w-[104px] flex-col items-center justify-center rounded-full bg-white/88 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.06)] backdrop-blur-sm dark:bg-gray-900/82 dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.16)]">
+                        <span className="max-w-[86px] truncate text-[10px] font-bold uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+                            {centerLabel}
+                        </span>
+                        <span className="mt-1 text-xl font-bold leading-none tabular-nums text-gray-900 dark:text-gray-100">
+                            {total}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="w-full max-w-[260px] rounded-xl border border-gray-200/80 bg-white/75 p-2.5 shadow-sm ring-1 ring-gray-900/[0.02] backdrop-blur-sm dark:border-gray-700/80 dark:bg-gray-900/30 dark:ring-white/[0.04]">
+                <div className="grid grid-cols-1 gap-1.5">
+                {segments.map((segment) => (
+                    <div
+                        key={`legend-${segment.key}`}
+                        className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 bg-gray-50/90 px-3 py-2 transition-colors hover:bg-white dark:border-gray-700/70 dark:bg-gray-800/55 dark:hover:bg-gray-800"
+                    >
+                        <div className="flex min-w-0 items-center gap-2">
+                            <span
+                                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                                style={{ backgroundColor: segment.color }}
+                            />
+                            <span className="truncate text-xs font-bold text-gray-600 dark:text-gray-300">
+                                {segment.label}
+                            </span>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1.5 text-right tabular-nums">
+                            <span className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                                {segment.value}
+                            </span>
+                            <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold text-gray-500 shadow-sm dark:bg-gray-900/70 dark:text-gray-400">
+                                {Math.round(segment.percent)}%
+                            </span>
+                        </div>
+                    </div>
+                ))}
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export default function BookingsReport({ filters }) {
     const t = useTranslations('nav.business.schedule.reports.bookings')
@@ -68,17 +174,6 @@ export default function BookingsReport({ filters }) {
     }, [data, tStatuses])
 
     const lineOptions = useMemo(() => getReportsLineChartOptions({ isDark }), [isDark])
-    const donutOptions = useMemo(
-        () =>
-            getReportsDonutChartOptions({
-                labels: statusChartData.labels,
-                statusKeys: statusChartData.keys,
-                isDark,
-                totalCenterLabel: tCommon('donutTotalBookings'),
-            }),
-        [statusChartData.labels, statusChartData.keys, isDark, tCommon],
-    )
-
     if (isLoading) {
         return (
             <Card>
@@ -119,19 +214,20 @@ export default function BookingsReport({ filters }) {
                             customOptions={lineOptions}
                         />
                     </div>
-                    <div className="min-w-0 rounded-xl border border-gray-100 bg-gray-50/40 p-3 dark:border-gray-700/80 dark:bg-gray-800/30">
+                    <div className="min-w-0 rounded-xl border border-gray-100 bg-gray-50/40 p-3 shadow-inner ring-1 ring-inset ring-gray-900/[0.04] dark:border-gray-700/80 dark:bg-gray-800/30 dark:ring-white/[0.06]">
                         <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">
                             {t('byStatus')}
                         </h4>
                         {statusChartData.series.length > 0 ? (
-                            <Chart
-                                type="donut"
+                            <StatusDonutChart
                                 series={statusChartData.series}
-                                customOptions={donutOptions}
-                                height={280}
+                                labels={statusChartData.labels}
+                                keys={statusChartData.keys}
+                                centerLabel={tCommon('donutTotalBookings')}
+                                isDark={isDark}
                             />
                         ) : (
-                            <div className="flex h-[280px] items-center justify-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                            <div className="flex h-[300px] items-center justify-center text-sm font-bold text-gray-500 dark:text-gray-400">
                                 {tCommon('noData')}
                             </div>
                         )}

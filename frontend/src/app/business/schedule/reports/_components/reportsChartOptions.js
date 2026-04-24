@@ -126,32 +126,55 @@ export function getReportsDonutChartOptions({
     totalCenterLabel = '',
 } = {}) {
     const colors = (statusKeys || []).map((s) => statusKeyToChartColor(s))
-    const labelColor = isDark ? '#94a3b8' : '#64748b'
+    const muted = isDark ? '#94a3b8' : '#64748b'
+    const centerTitle = isDark ? '#cbd5e1' : '#475569'
+    const centerValue = isDark ? '#f8fafc' : '#0f172a'
+    /** Зазор между сегментами — как фон карточки отчёта */
+    const gapStroke = isDark ? 'rgba(30,41,59,0.92)' : 'rgba(249,250,251,0.95)'
+
     return {
         colors: colors.length ? colors : [...COLORS],
         labels: labels || [],
         chart: {
             fontFamily: 'inherit',
+            foreColor: muted,
+            dropShadow: {
+                enabled: true,
+                top: 1,
+                left: 0,
+                blur: 6,
+                opacity: isDark ? 0.35 : 0.12,
+                color: '#000000',
+            },
         },
         plotOptions: {
             pie: {
+                expandOnClick: false,
+                offsetY: 2,
                 donut: {
-                    size: '72%',
+                    size: '62%',
                     labels: {
                         show: true,
-                        name: { show: true, color: labelColor, fontWeight: 600, fontSize: '12px' },
+                        /** В режиме total Apex рисует подпись (total.label) и число отдельно; у подписи размер total.fontSize. */
+                        name: {
+                            show: true,
+                            color: centerTitle,
+                            fontWeight: 600,
+                            offsetY: isDark ? 2 : 0,
+                        },
                         value: {
                             show: true,
                             fontWeight: 700,
-                            fontSize: '22px',
-                            color: isDark ? '#f1f5f9' : '#0f172a',
+                            fontSize: '17px',
+                            color: centerValue,
+                            offsetY: 8,
                         },
                         total: {
                             show: true,
                             showAlways: true,
                             label: totalCenterLabel,
-                            color: labelColor,
-                            fontSize: '11px',
+                            color: centerTitle,
+                            fontSize: '10px',
                             fontWeight: 600,
                             formatter(w) {
                                 return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
@@ -161,20 +184,61 @@ export function getReportsDonutChartOptions({
                 },
             },
         },
-        stroke: { colors: [isDark ? '#1f2937' : '#ffffff'], width: 2 },
+        stroke: {
+            show: true,
+            width: 3,
+            lineCap: 'round',
+            colors: [gapStroke],
+        },
         dataLabels: { enabled: false },
+        states: {
+            hover: { filter: { type: 'lighten', value: 0.08 } },
+            active: { filter: { type: 'none', value: 0 } },
+        },
         legend: {
             show: true,
-            position: 'bottom',
-            fontWeight: 700,
-            fontSize: '12px',
-            labels: { colors: labelColor },
-            markers: { width: 10, height: 10, radius: 3 },
+            position: 'right',
+            horizontalAlign: 'center',
+            floating: true,
+            offsetX: isDark ? -4 : -6,
+            offsetY: 0,
+            fontWeight: 600,
+            fontSize: '11px',
+            labels: { colors: muted },
+            markers: {
+                width: 9,
+                height: 9,
+                radius: 3,
+                offsetX: -2,
+                offsetY: 0,
+            },
+            itemMargin: { vertical: 5 },
         },
         tooltip: {
             theme: isDark ? 'dark' : 'light',
             y: { formatter: (val) => `${val}` },
         },
+        responsive: [
+            {
+                breakpoint: 640,
+                options: {
+                    chart: { dropShadow: { enabled: false } },
+                    legend: {
+                        position: 'bottom',
+                        floating: false,
+                        offsetX: 0,
+                        horizontalAlign: 'center',
+                        fontSize: '11px',
+                    },
+                    plotOptions: {
+                        pie: {
+                            offsetY: 0,
+                            donut: { size: '58%' },
+                        },
+                    },
+                },
+            },
+        ],
     }
 }
 
