@@ -29,6 +29,24 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
+        RateLimiter::for('ai_route_assist_user', function (Request $request) {
+            $user = $request->user();
+            if ($user === null) {
+                return Limit::perMinute(3)->by('ai_route_assist_ip:'.$request->ip());
+            }
+
+            return Limit::perMinute(3)->by('ai_route_assist_user:'.$user->id);
+        });
+
+        RateLimiter::for('ai_route_apply', function (Request $request) {
+            $user = $request->user();
+            if ($user === null) {
+                return Limit::perMinute(10)->by('ai_route_apply_ip:'.$request->ip());
+            }
+
+            return Limit::perMinute(10)->by('ai_route_apply_user:'.$user->id);
+        });
+
         RateLimiter::for('api_v1', function (Request $request) {
             $perMinute = (int) config('api.v1.per_minute', 60);
             $perDay = (int) config('api.v1.per_day', 5000);

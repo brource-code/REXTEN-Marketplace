@@ -110,6 +110,14 @@ class RouteController extends Controller
         ]);
     }
 
+    /**
+     * Тот же payload, что в show (для AI apply и др.).
+     */
+    public function buildRouteApiData(Route $route, ?Collection $dayBookings = null, ?TeamMember $specialist = null): array
+    {
+        return $this->formatRoute($route, $dayBookings, $specialist);
+    }
+
     public function updateIncluded(Request $request, int $specialist, string $date): JsonResponse
     {
         $companyId = $this->requireCompanyId($request);
@@ -137,6 +145,8 @@ class RouteController extends Controller
 
         $allowedIds = Booking::query()
             ->forRoutePlannerDay($companyId, (int) $specialist, $date)
+            ->where('status', '!=', 'declined')
+            ->whereNotNull('booking_time')
             ->pluck('id')
             ->map(static fn ($id) => (int) $id)
             ->all();
@@ -400,8 +410,26 @@ class RouteController extends Controller
                 : null,
         ];
 
-        $dayBookingsPayload = $dayBookings->map(function (Booking $booking) {
-            $tw = $booking->getTimeWindow();
+        $dayBookingsPayload = $dayBookings->map(function (Booking $booking) use ($displayTz) {
+            try {
+                $tw = $booking->getTimeWindow($displayTz);
+            } catch (\DomainException) {
+                return [
+                    'id' => $booking->id,
+                    'specialist_id' => $booking->specialist_id !== null ? (int) $booking->specialist_id : null,
+                    'client_name' => $booking->businessClientDisplayName(),
+                    'title' => $booking->businessServiceDisplayName(),
+                    'address' => $booking->visitAddressLineForDisplay(),
+                    'execution_type' => $booking->execution_type ?? 'onsite',
+                    'offsite_address_missing' => $booking->isOffsiteVisitAddressMissing(),
+                    'time_window_start' => null,
+                    'time_window_end' => null,
+                    'time_window_unavailable' => true,
+                    'priority' => (int) ($booking->priority ?? 5),
+                    'duration_minutes' => (int) ($booking->duration_minutes ?? 60),
+                    'has_coordinates' => $booking->getGeoPoint() !== null,
+                ];
+            }
 
             return [
                 'id' => $booking->id,
@@ -419,12 +447,35 @@ class RouteController extends Controller
             ];
         })->values()->all();
 
+        $feas = app(RouteOrchestrator::class)->buildFeasibilityForRouteResponse(
+            $route,
+            $specialist,
+            $displayTz
+        );
+        $stopExtras = $feas['stop_extras'];
+
+        $lateMinutesTotal = 0;
+        $idleMinutesTotal = 0;
+        foreach ($route->stops as $stop) {
+            if ($stop->stop_type !== RouteStop::TYPE_BOOKING) {
+                continue;
+            }
+            $extra = $stopExtras[(int) $stop->id] ?? null;
+            $lateSec = (int) ($extra['late_seconds'] ?? 0);
+            $lateMinutesTotal += (int) round($lateSec / 60);
+            $wait = (int) ($stop->wait_before_seconds ?? 0);
+            if ($wait > 0) {
+                $idleMinutesTotal += (int) max(1, (int) round($wait / 60));
+            }
+        }
+
         return [
             'id' => $route->id,
             'specialist_id' => $route->specialist_id,
             'route_date' => $route->route_date->format('Y-m-d'),
             'status' => $route->status,
             'display_timezone' => $displayTz,
+            'cache_version' => (int) ($route->cache_version ?? 0),
             'total_distance_meters' => $route->total_distance_meters,
             'total_duration_seconds' => $route->total_duration_seconds,
             'path_lng_lat' => $route->path_lng_lat,
@@ -432,12 +483,28 @@ class RouteController extends Controller
             'include_return_leg' => (bool) ($route->include_return_leg ?? true),
             'specialist' => $specialistPayload,
             'day_bookings' => $dayBookingsPayload,
-            'stops' => $route->stops->map(function ($stop) {
+            'day_start_iso' => $feas['day_start_iso'],
+            'feasibility_issues' => $feas['feasibility_issues'],
+            'late_minutes_total' => $lateMinutesTotal,
+            'idle_minutes_total' => $idleMinutesTotal,
+            'stops' => $route->stops->map(function ($stop) use ($stopExtras) {
                 $booking = $stop->booking;
                 $tw = null;
                 if ($booking !== null) {
-                    $tw = $booking->getTimeWindow();
+                    try {
+                        $tw = $booking->getTimeWindow();
+                    } catch (\DomainException) {
+                        $tw = null;
+                    }
                 }
+                $extra = $stopExtras[(int) $stop->id] ?? [
+                    'late_seconds' => 0,
+                    'is_infeasible' => false,
+                    'infeasible_reason' => null,
+                    'shift_start_iso' => null,
+                    'window_start_iso' => null,
+                    'late_minutes' => 0,
+                ];
 
                 return [
                     'id' => $stop->id,
@@ -452,6 +519,12 @@ class RouteController extends Controller
                     'distance_from_prev_meters' => $stop->distance_from_prev_meters,
                     'duration_from_prev_seconds' => $stop->duration_from_prev_seconds,
                     'status' => $stop->status,
+                    'late_seconds' => (int) ($extra['late_seconds'] ?? 0),
+                    'is_infeasible' => (bool) ($extra['is_infeasible'] ?? false),
+                    'infeasible_reason' => $extra['infeasible_reason'] ?? null,
+                    'shift_start_iso' => $extra['shift_start_iso'] ?? null,
+                    'window_start_iso' => $extra['window_start_iso'] ?? null,
+                    'late_minutes' => (int) ($extra['late_minutes'] ?? 0),
                     'booking' => $booking === null ? null : [
                         'id' => $booking->id,
                         'client_name' => $booking->businessClientDisplayName(),
@@ -459,8 +532,8 @@ class RouteController extends Controller
                         'address' => $booking->visitAddressLineForDisplay(),
                         'execution_type' => $booking->execution_type ?? 'onsite',
                         'offsite_address_missing' => $booking->isOffsiteVisitAddressMissing(),
-                        'time_window_start' => $tw['start']->toIso8601String(),
-                        'time_window_end' => $tw['end']->toIso8601String(),
+                        'time_window_start' => $tw ? $tw['start']->toIso8601String() : null,
+                        'time_window_end' => $tw ? $tw['end']->toIso8601String() : null,
                         'priority' => (int) ($booking->priority ?? 5),
                         'duration_minutes' => (int) ($booking->duration_minutes ?? 60),
                         'total_price' => (float) ($booking->total_price ?? $booking->price ?? 0),

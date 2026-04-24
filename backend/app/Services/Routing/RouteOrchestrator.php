@@ -11,6 +11,7 @@ use App\Models\TeamMember;
 use App\Services\Routing\Dto\GeoPoint;
 use App\Services\Routing\Dto\PreviewResult;
 use App\Services\Routing\Dto\RouteResult;
+use App\Support\UsTimeWindowFormat;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -110,7 +111,13 @@ class RouteOrchestrator
             return $this->emptyPreview($warnings);
         }
 
-        $currentOrder = $bookings->sortBy(static fn (Booking $b) => $b->getTimeWindow($tz)['start']->timestamp)->values();
+        $currentOrder = $bookings->sortBy(static function (Booking $b) use ($tz) {
+            try {
+                return $b->getTimeWindow($tz)['start']->timestamp;
+            } catch (\DomainException) {
+                return 0;
+            }
+        })->values();
 
         $opt = $this->routeOptimizer->optimize($bookings->all(), $start, $end, $startTime, $specialist, $includeReturnLeg);
 
@@ -146,8 +153,13 @@ class RouteOrchestrator
             }
         }
 
+        $curItems = $this->routeOptimizer->buildOrderedUsableItems($currentOrder, $tz);
+        $propItems = $this->routeOptimizer->buildOrderedUsableItems($proposedBookings, $tz);
+        $curCostB = $this->routeOptimizer->routeCostBreakdown($curItems, $start, $end, $startTime, $includeReturnLeg);
+        $propCostB = $this->routeOptimizer->routeCostBreakdown($propItems, $start, $end, $startTime, $includeReturnLeg);
+
         $suppressedWorseProposal = false;
-        if ($jobsReordered && ($deltaMeters < 0 || ($deltaMeters === 0 && $durProposed > $durCurrent))) {
+        if ($jobsReordered && $propCostB['cost'] >= $curCostB['cost'] - 0.01) {
             $suppressedWorseProposal = true;
             $proposedBookings = $currentOrder;
             $distProposed = $distCurrent;
@@ -155,12 +167,15 @@ class RouteOrchestrator
             $jobsReordered = false;
             $deltaMeters = 0;
             $outcome = 'unchanged_order';
+            $propCostB = $curCostB;
         }
 
         $comparison = [
             'distance_change_meters' => $deltaMeters,
             'duration_change_seconds' => $durCurrent - $durProposed,
             'distance_change_percent' => $distCurrent > 0 ? round(($distCurrent - $distProposed) / $distCurrent * 100, 2) : 0.0,
+            'late_change_seconds' => $curCostB['late_seconds'] - $propCostB['late_seconds'],
+            'idle_change_seconds' => $curCostB['idle_seconds'] - $propCostB['idle_seconds'],
             'jobs_reordered' => $jobsReordered,
             'locked_jobs' => $opt->lockedCount,
             'outcome' => $outcome,
@@ -170,7 +185,7 @@ class RouteOrchestrator
         if ($suppressedWorseProposal) {
             $mergeWarnings[] = [
                 'type' => 'proposal_worse_than_current',
-                'message' => 'Suggested order would increase driving time or distance; keeping your current order.',
+                'message' => 'Suggested order would not improve the route (distance, time windows, or idle time); keeping your current order.',
             ];
         }
 
@@ -591,7 +606,11 @@ class RouteOrchestrator
 
         $bookings = ($preloadedBookings ?? $this->bookingsForDate($specialist->id, $date, $companyId))
             ->sortBy(static function (Booking $b) use ($tz) {
-                return $b->getTimeWindow($tz)['start']->timestamp;
+                try {
+                    return $b->getTimeWindow($tz)['start']->timestamp;
+                } catch (\DomainException) {
+                    return 0;
+                }
             })->values();
 
         $this->ensureBookingsGeocoded($bookings);
@@ -707,10 +726,200 @@ class RouteOrchestrator
     {
         return Booking::query()
             ->forRoutePlannerDay($companyId, $specialistId, $date)
+            ->where('status', '!=', 'declined')
+            ->whereNotNull('booking_time')
             ->with(['location', 'company', 'user.profile', 'service', 'advertisement'])
             ->orderBy('booking_date')
             ->orderBy('booking_time')
             ->get();
+    }
+
+    /**
+     * Метаданные для API маршрута: опоздания, невыполнимость, список проблем дня.
+     *
+     * @return array{
+     *   day_start_iso: string,
+     *   feasibility_issues: array<int, array{type: string, booking_id?: int, stop_id?: int, minutes?: int, message?: string}>,
+     *   stop_extras: array<int, array{late_seconds: int, is_infeasible: bool, infeasible_reason: ?string, shift_start_iso: ?string, window_start_iso: ?string, late_minutes: int}>
+     * }
+     */
+    public function buildFeasibilityForRouteResponse(Route $route, ?TeamMember $specialist, string $tz): array
+    {
+        $dateStr = $route->route_date->format('Y-m-d');
+        $dayStart = $specialist !== null
+            ? $this->parseRouteStartTime($dateStr, $specialist, $tz)
+            : Carbon::createFromFormat('Y-m-d H:i:s', $dateStr.' 08:00:00', $tz);
+
+        $dayStartIso = $dayStart->toIso8601String();
+        $shiftEnd = $specialist !== null
+            ? $this->parseShiftEnd($dateStr, $specialist, $tz)
+            : null;
+
+        $issues = [];
+        $stopExtras = [];
+
+        $stops = $route->stops->sortBy('sequence_order')->values();
+        foreach ($stops as $stop) {
+            if ($stop->stop_type !== RouteStop::TYPE_BOOKING || $stop->booking === null) {
+                continue;
+            }
+            $booking = $stop->booking;
+            $bid = (int) $booking->id;
+            $sid = (int) $stop->id;
+
+            if ($booking->getGeoPoint() === null) {
+                $issues[] = [
+                    'type' => 'no_geocode',
+                    'booking_id' => $bid,
+                    'stop_id' => $sid,
+                ];
+                $stopExtras[$sid] = [
+                    'late_seconds' => 0,
+                    'is_infeasible' => true,
+                    'infeasible_reason' => 'no_geocode',
+                    'shift_start_iso' => $dayStartIso,
+                    'window_start_iso' => null,
+                    'late_minutes' => 0,
+                ];
+
+                continue;
+            }
+
+            try {
+                $tw = $booking->getTimeWindow($tz);
+            } catch (\DomainException) {
+                $issues[] = [
+                    'type' => 'no_time',
+                    'booking_id' => $bid,
+                    'stop_id' => $sid,
+                ];
+                $stopExtras[$sid] = [
+                    'late_seconds' => 0,
+                    'is_infeasible' => true,
+                    'infeasible_reason' => 'no_time',
+                    'shift_start_iso' => $dayStartIso,
+                    'window_start_iso' => null,
+                    'late_minutes' => 0,
+                ];
+
+                continue;
+            }
+
+            $windowStart = $tw['start'];
+            $windowEnd = $tw['end'];
+            if ($windowStart->lt($dayStart)) {
+                $issues[] = [
+                    'type' => 'out_of_shift',
+                    'booking_id' => $bid,
+                    'stop_id' => $sid,
+                    'message' => 'Window starts before route day start',
+                ];
+            }
+            if ($shiftEnd !== null && $windowEnd->gt($shiftEnd)) {
+                $issues[] = [
+                    'type' => 'out_of_shift',
+                    'booking_id' => $bid,
+                    'stop_id' => $sid,
+                    'message' => 'Window extends after specialist shift end',
+                ];
+            }
+
+            $eta = $stop->eta;
+            $arrived = $stop->arrived_at;
+            $actualStart = $arrived ?? $eta;
+            $lateSeconds = 0;
+            if ($actualStart !== null && $actualStart->gt($windowStart)) {
+                $lateSeconds = (int) abs($windowStart->diffInSeconds($actualStart, false));
+            }
+            $lateMinutes = $lateSeconds > 0 ? (int) ceil($lateSeconds / 60) : 0;
+            if ($lateSeconds > 0) {
+                $issues[] = [
+                    'type' => 'late',
+                    'booking_id' => $bid,
+                    'stop_id' => $sid,
+                    'minutes' => $lateMinutes,
+                ];
+            }
+
+            $infeasibleReason = null;
+            $isInfeasible = false;
+            // 1) Реально приехать вовремя нельзя — опоздание > 4 часов копится по маршруту.
+            if ($lateSeconds > 240 * 60) {
+                $isInfeasible = true;
+                $infeasibleReason = 'late_over_4h';
+                $issues[] = [
+                    'type' => 'infeasible',
+                    'booking_id' => $bid,
+                    'stop_id' => $sid,
+                    'minutes' => $lateMinutes,
+                ];
+            }
+            // 2) Время визита раньше начала смены специалиста — структурно невозможно.
+            if ($windowStart->lt($dayStart)) {
+                $isInfeasible = true;
+                if ($infeasibleReason === null) {
+                    $infeasibleReason = 'window_before_shift_start';
+                }
+            }
+
+            $stopExtras[$sid] = [
+                'late_seconds' => $lateSeconds,
+                'is_infeasible' => $isInfeasible,
+                'infeasible_reason' => $infeasibleReason,
+                'shift_start_iso' => $dayStartIso,
+                'window_start_iso' => $windowStart->toIso8601String(),
+                'late_minutes' => $lateMinutes,
+            ];
+        }
+
+        $issues = $this->dedupeFeasibilityIssues($issues);
+
+        return [
+            'day_start_iso' => $dayStartIso,
+            'feasibility_issues' => $issues,
+            'stop_extras' => $stopExtras,
+        ];
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $issues
+     * @return array<int, array<string, mixed>>
+     */
+    protected function dedupeFeasibilityIssues(array $issues): array
+    {
+        $seen = [];
+        $out = [];
+        foreach ($issues as $row) {
+            $key = ($row['type'] ?? '').':'.($row['booking_id'] ?? '').':'.($row['stop_id'] ?? '');
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $out[] = $row;
+        }
+
+        return $out;
+    }
+
+    protected function parseShiftEnd(string $date, TeamMember $specialist, string $tz): ?Carbon
+    {
+        $t = $specialist->default_end_time ?? '18:00:00';
+        if ($t instanceof Carbon) {
+            $timeStr = $t->format('H:i:s');
+        } else {
+            $timeStr = trim((string) $t);
+            if (strlen($timeStr) === 5) {
+                $timeStr .= ':00';
+            }
+        }
+        if ($timeStr === '') {
+            return null;
+        }
+        try {
+            return Carbon::createFromFormat('Y-m-d H:i:s', $date.' '.$timeStr, $tz);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
@@ -1097,6 +1306,8 @@ class RouteOrchestrator
                 'distance_change_meters' => 0,
                 'duration_change_seconds' => 0,
                 'distance_change_percent' => 0.0,
+                'late_change_seconds' => 0,
+                'idle_change_seconds' => 0,
                 'jobs_reordered' => false,
                 'locked_jobs' => 0,
                 'outcome' => 'insufficient_data',
@@ -1108,5 +1319,152 @@ class RouteOrchestrator
             ],
             warnings: $warnings,
         );
+    }
+
+    /**
+     * Симуляция для AI-инструмента: метрики без записи в БД.
+     *
+     * @return array{
+     *   miles: float,
+     *   drive_min: int,
+     *   late_min_total: int,
+     *   idle_min_total: int,
+     *   infeasible_count: int,
+     *   ordered_booking_ids: int[]
+     * }
+     */
+    public function assistantSimulateRoute(
+        int $specialistId,
+        string $date,
+        int $companyId,
+        ?array $includedBookingIds,
+        bool $includeReturnLeg
+    ): array {
+        $specialist = TeamMember::query()
+            ->where('company_id', $companyId)
+            ->whereKey($specialistId)
+            ->first();
+
+        if ($specialist === null) {
+            throw (new ModelNotFoundException)->setModel(TeamMember::class, [$specialistId]);
+        }
+
+        $company = Company::query()->findOrFail($companyId);
+        $allBookings = $this->bookingsForDate($specialistId, $date, $companyId);
+        $this->ensureBookingsGeocoded($allBookings);
+
+        $bookings = $allBookings;
+        if ($includedBookingIds !== null) {
+            $set = array_fill_keys(array_map('intval', $includedBookingIds), true);
+            $bookings = $allBookings->filter(static fn (Booking $b) => isset($set[(int) $b->id]))->values();
+        }
+
+        if ($bookings->isEmpty()) {
+            return [
+                'miles' => 0.0,
+                'drive_min' => 0,
+                'late_min_total' => 0,
+                'idle_min_total' => 0,
+                'infeasible_count' => 0,
+                'ordered_booking_ids' => [],
+            ];
+        }
+
+        [$start, $end] = $this->resolveStartEndPoints($specialist, $company);
+        $tz = $this->companyTimezone($company);
+        $startTime = $this->parseRouteStartTime($date, $specialist, $tz);
+
+        if ($start === null || $end === null) {
+            return [
+                'miles' => 0.0,
+                'drive_min' => 0,
+                'late_min_total' => 0,
+                'idle_min_total' => 0,
+                'infeasible_count' => 0,
+                'ordered_booking_ids' => $bookings->pluck('id')->map(static fn ($id) => (int) $id)->all(),
+            ];
+        }
+
+        $opt = $this->routeOptimizer->optimize($bookings->all(), $start, $end, $startTime, $specialist, $includeReturnLeg);
+        $byId = $bookings->keyBy('id');
+        $proposed = collect($opt->order)
+            ->map(static fn (int $id) => $byId->get($id))
+            ->filter()
+            ->values();
+
+        $items = $this->routeOptimizer->buildOrderedUsableItems($proposed, $tz);
+        $b = $this->routeOptimizer->routeCostBreakdown($items, $start, $end, $startTime, $includeReturnLeg);
+        [$distM, $durS] = $this->hereMetricsForBookingOrder($proposed, $start, $end, $companyId, $includeReturnLeg);
+
+        $infeas = 0;
+        foreach ($proposed as $bk) {
+            try {
+                $w = $bk->getTimeWindow($tz);
+            } catch (\DomainException) {
+                $infeas++;
+
+                continue;
+            }
+            if ($w['start']->lt($startTime)) {
+                $infeas++;
+            }
+        }
+        if ((int) round($b['late_seconds'] / 60) > 240) {
+            $infeas = max(1, $infeas);
+        }
+
+        return [
+            'miles' => round($distM / 1609.34, 1),
+            'drive_min' => (int) max(0, (int) round($durS / 60)),
+            'late_min_total' => (int) round($b['late_seconds'] / 60),
+            'idle_min_total' => (int) round($b['idle_seconds'] / 60),
+            'infeasible_count' => $infeas,
+            'ordered_booking_ids' => $proposed->pluck('id')->map(static fn ($id) => (int) $id)->all(),
+        ];
+    }
+
+    /**
+     * Брони на день без исполнителя (для AI: кого можно назначить/вставить).
+     *
+     * @return list<array{booking_id: int, window: string, duration_min: int, lat: ?float, lng: ?float}>
+     */
+    public function assistantListUnassignedForDay(int $specialistId, string $date, int $companyId): array
+    {
+        $company = Company::query()->find($companyId);
+        $tz = $this->companyTimezone($company);
+        $rows = Booking::query()
+            ->where('company_id', $companyId)
+            ->whereDate('booking_date', $date)
+            ->whereNull('specialist_id')
+            ->where('status', '!=', 'cancelled')
+            ->where('status', '!=', 'declined')
+            ->whereNotNull('booking_time')
+            ->where(function ($q) {
+                $q->whereNull('payment_status')
+                    ->orWhereNotIn('payment_status', ['pending_payment', 'expired']);
+            })
+            ->orderBy('booking_time')
+            ->get();
+
+        $out = [];
+        foreach ($rows as $b) {
+            $line = '—';
+            try {
+                $w = $b->getTimeWindow($tz);
+                $line = UsTimeWindowFormat::window($w['start'], $w['end']);
+            } catch (\DomainException) {
+                $line = '—';
+            }
+            $gp = $b->getGeoPoint();
+            $out[] = [
+                'booking_id' => (int) $b->id,
+                'window' => $line,
+                'duration_min' => (int) ($b->duration_minutes ?? 60),
+                'lat' => $gp !== null ? (float) $gp->latitude : null,
+                'lng' => $gp !== null ? (float) $gp->longitude : null,
+            ];
+        }
+
+        return $out;
     }
 }

@@ -819,6 +819,9 @@ class ScheduleController extends Controller
                 'additional_services.*.price' => 'nullable|numeric|min:0',
             ]);
 
+            // Снимок окна до правок: при смене исполнителя/даты/времени/длительности проверяем пересечения с другими бронями
+            $slotSnapshotBefore = $this->makeSlotSnapshotFromBooking($booking);
+
             // Обновляем статус, если передан
             // Разрешаем изменение статуса даже для прошедших дат
             $oldStatus = $booking->status;
@@ -1043,6 +1046,12 @@ class ScheduleController extends Controller
 
             if ($priceChanged) {
                 $booking->total_price = $booking->calculateTotalWithAdditionalServices();
+            }
+
+            $bookingService = app(\App\Services\BookingService::class);
+            $slotConflict = $this->assertBookingSlotStillFree($companyId, $booking, $slotSnapshotBefore, $bookingService);
+            if ($slotConflict) {
+                return $slotConflict;
             }
 
             $booking->save();
@@ -1479,6 +1488,84 @@ class ScheduleController extends Controller
             $message,
             '/business/schedule'
         );
+    }
+
+    /**
+     * @return array{specialist_id: int|null, booking_date: string, booking_time: string, duration_minutes: int}
+     */
+    private function makeSlotSnapshotFromBooking(Booking $booking): array
+    {
+        $bd = $booking->booking_date instanceof \Carbon\Carbon
+            ? $booking->booking_date->format('Y-m-d')
+            : substr((string) $booking->booking_date, 0, 10);
+        $bt = (string) $booking->booking_time;
+        if (strlen($bt) === 8 && substr($bt, -3) === ':00') {
+            $bt = substr($bt, 0, 5);
+        }
+
+        return [
+            'specialist_id' => $booking->specialist_id !== null ? (int) $booking->specialist_id : null,
+            'booking_date' => $bd,
+            'booking_time' => $bt,
+            'duration_minutes' => (int) ($booking->duration_minutes ?? 60),
+        ];
+    }
+
+    /**
+     * Если окно или исполнитель изменились — проверяем, что слот свободен (другие брони этого исполнителя).
+     */
+    private function assertBookingSlotStillFree(
+        int $companyId,
+        Booking $booking,
+        array $before,
+        \App\Services\BookingService $bookingService
+    ): ?\Illuminate\Http\JsonResponse {
+        if ($booking->status === 'cancelled') {
+            return null;
+        }
+        $bd = $booking->booking_date instanceof \Carbon\Carbon
+            ? $booking->booking_date->format('Y-m-d')
+            : substr((string) $booking->booking_date, 0, 10);
+        $bt = (string) $booking->booking_time;
+        if (strlen($bt) === 8 && substr($bt, -3) === ':00') {
+            $bt = substr($bt, 0, 5);
+        }
+        $after = [
+            'specialist_id' => $booking->specialist_id !== null ? (int) $booking->specialist_id : null,
+            'booking_date' => $bd,
+            'booking_time' => $bt,
+            'duration_minutes' => (int) ($booking->duration_minutes ?? 60),
+        ];
+        $changed =
+            $after['specialist_id'] !== $before['specialist_id']
+            || $after['booking_date'] !== $before['booking_date']
+            || $after['booking_time'] !== $before['booking_time']
+            || $after['duration_minutes'] !== $before['duration_minutes'];
+        if (! $changed) {
+            return null;
+        }
+        $service = null;
+        if ($booking->service_id) {
+            $service = \App\Models\Service::where('id', $booking->service_id)->where('company_id', $companyId)->first();
+        }
+        $isAvailable = $bookingService->isSlotAvailable(
+            $companyId,
+            $booking->service_id,
+            $after['booking_date'],
+            $after['booking_time'],
+            $after['duration_minutes'],
+            (int) $booking->id,
+            $service,
+            $after['specialist_id']
+        );
+        if (! $isAvailable) {
+            return response()->json([
+                'message' => 'Это время уже занято для выбранного исполнителя. Выберите другое время или исполнителя.',
+                'error' => 'slot_occupied',
+            ], 400);
+        }
+
+        return null;
     }
 }
 

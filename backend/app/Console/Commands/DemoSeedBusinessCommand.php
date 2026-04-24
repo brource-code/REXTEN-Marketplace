@@ -14,6 +14,7 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\TeamMember;
 use App\Models\User;
+use App\Services\DemoPresentationSubscriptionService;
 use App\Services\Routing\RouteOrchestrator;
 use Carbon\Carbon;
 use Database\Seeders\DemoRextenPro\DemoRextenProDataset;
@@ -81,7 +82,8 @@ class DemoSeedBusinessCommand extends Command
             ->count();
 
         if ($existingDemoBookings >= self::IDEMPOTENT_MIN_BOOKINGS && ! $this->option('force')) {
-            $this->info("Уже есть {$existingDemoBookings} demo-броней. Пропуск (используйте --force).");
+            DemoPresentationSubscriptionService::ensureStarterForDemoCompany((int) $company->id);
+            $this->info("Уже есть {$existingDemoBookings} demo-броней. Пропуск полного сида (используйте --force). Подписка демо для нескольких исполнителей приведена в порядок.");
 
             return self::SUCCESS;
         }
@@ -93,6 +95,7 @@ class DemoSeedBusinessCommand extends Command
 
         $this->seedCore($company);
         $this->seedTeam($company);
+        DemoPresentationSubscriptionService::ensureStarterForDemoCompany((int) $company->id);
         $clients = $this->seedClients($company);
         $services = $this->seedServices($company);
         $team = TeamMember::query()->where('company_id', $company->id)->orderBy('id')->get();

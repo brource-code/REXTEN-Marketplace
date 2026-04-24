@@ -357,30 +357,54 @@ class BookingsController extends Controller
         }
 
         try {
-            // Если изменяется дата/время, проверяем доступность.
             // Для блок-времени и custom событий (без service_id) пропускаем проверку — допускаем оверлап.
             $isBlockOrCustom = ($booking->event_type === 'block')
                 || ($request->input('event_type') === 'block')
                 || (! ($request->service_id ?? $booking->service_id));
 
-            if (! $isBlockOrCustom && ($request->has('booking_date') || $request->has('booking_time'))) {
-                $bookingDate = $request->booking_date ?? $booking->booking_date->format('Y-m-d');
-                $bookingTime = $request->booking_time ?? $booking->booking_time;
-                $duration = $request->duration_minutes ?? $booking->duration_minutes ?? 60;
+            $serviceId = $request->service_id ?? $booking->service_id;
+            $bookingDate = $request->booking_date ?? $booking->booking_date->format('Y-m-d');
+            $bookingTimeRaw = $request->booking_time ?? $booking->booking_time;
+            $bookingTime = (string) $bookingTimeRaw;
+            if (strlen($bookingTime) === 8 && substr($bookingTime, -3) === ':00') {
+                $bookingTime = substr($bookingTime, 0, 5);
+            }
+            $duration = (int) ($request->duration_minutes ?? $booking->duration_minutes ?? 60);
+
+            // Эффективный исполнитель после PATCH: иначе смена specialist_id не проверялась на пересечения.
+            $specialistForCheck = $request->exists('specialist_id')
+                ? ($request->input('specialist_id') !== null && $request->input('specialist_id') !== ''
+                    ? (int) $request->input('specialist_id')
+                    : null)
+                : ($booking->specialist_id !== null ? (int) $booking->specialist_id : null);
+
+            $slotRelevantChange = $request->has('booking_date')
+                || $request->has('booking_time')
+                || $request->has('duration_minutes')
+                || $request->exists('specialist_id');
+
+            $skippingCancel = $request->has('status') && $request->status === 'cancelled';
+
+            if (! $isBlockOrCustom && $slotRelevantChange && $booking->status !== 'cancelled' && ! $skippingCancel) {
+                $serviceModel = $serviceId
+                    ? \App\Models\Service::where('id', $serviceId)->where('company_id', $companyId)->first()
+                    : null;
 
                 $isAvailable = $this->bookingService->isSlotAvailable(
                     $companyId,
-                    $request->service_id ?? $booking->service_id,
+                    $serviceId,
                     $bookingDate,
                     $bookingTime,
                     $duration,
-                    $booking->id // Исключаем текущее бронирование
+                    $booking->id,
+                    $serviceModel,
+                    $specialistForCheck
                 );
 
-                if (!$isAvailable) {
+                if (! $isAvailable) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Это время уже занято. Выберите другое время.',
+                        'message' => 'Это время уже занято для выбранного исполнителя. Выберите другое время или исполнителя.',
                         'error' => 'slot_occupied',
                     ], 400);
                 }

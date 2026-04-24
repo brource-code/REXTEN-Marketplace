@@ -26,6 +26,107 @@ class RouteOptimizer
      */
     private const MAX_IDLE_AFTER_SWAP_SECONDS = 3 * 3600;
 
+    /** @var float Вес штрафа за опоздания (сек) в целевой функции */
+    private const W_LATE = 50.0;
+
+    /** @var float Вес простоя до окна (сек) */
+    private const W_IDLE = 10.0;
+
+    /** @var float Вес приоритета брони (снижает стоимость) */
+    private const W_PRIO = 5.0;
+
+    /**
+     * Стоимость маршрута: дистанция + штрафы за опоздания/ожидания − бонус приоритета.
+     * Используется в 2-opt и в предпросмотре оптимизации (сравнение с текущим днём).
+     *
+     * @param  array<int, array{b: Booking, p: GeoPoint, tw: array{start: Carbon, end: Carbon}}>  $orderedItems
+     */
+    public function routeCost(
+        array $orderedItems,
+        GeoPoint $start,
+        GeoPoint $end,
+        Carbon $startTime,
+        bool $includeReturnLeg = true
+    ): float {
+        $b = $this->routeCostBreakdown($orderedItems, $start, $end, $startTime, $includeReturnLeg);
+
+        return (float) $b['cost'];
+    }
+
+    /**
+     * @param  array<int, array{b: Booking, p: GeoPoint, tw: array{start: Carbon, end: Carbon}}>  $orderedItems
+     * @return array{cost: float, distance_meters: float, late_seconds: int, idle_seconds: int, priority_sum: int}
+     */
+    public function routeCostBreakdown(
+        array $orderedItems,
+        GeoPoint $start,
+        GeoPoint $end,
+        Carbon $startTime,
+        bool $includeReturnLeg = true
+    ): array {
+        $drive = $this->totalRouteDistance($orderedItems, $start, $end, $includeReturnLeg);
+        $late = 0;
+        $idle = 0;
+        $prio = 0;
+        $current = $start;
+        $clock = $startTime->copy();
+        foreach ($orderedItems as $item) {
+            $prio += (int) ($item['b']->priority ?? 5);
+            $travelSec = $this->travelSeconds($current, $item['p']);
+            $arrival = $clock->copy()->addSeconds($travelSec);
+            $ws = $item['tw']['start'];
+            if ($arrival->getTimestamp() <= $ws->getTimestamp()) {
+                $idle += (int) ($ws->getTimestamp() - $arrival->getTimestamp());
+                $serviceStart = $ws->copy();
+            } else {
+                $late += (int) ($arrival->getTimestamp() - $ws->getTimestamp());
+                $serviceStart = $arrival->copy();
+            }
+            $clock = $serviceStart->copy()->addMinutes((int) ($item['b']->duration_minutes ?? 60));
+            $current = $item['p'];
+        }
+        $cost = $drive
+            + self::W_LATE * $late
+            + self::W_IDLE * $idle
+            - self::W_PRIO * $prio;
+
+        return [
+            'cost' => $cost,
+            'distance_meters' => $drive,
+            'late_seconds' => $late,
+            'idle_seconds' => $idle,
+            'priority_sum' => $prio,
+        ];
+    }
+
+    /**
+     * Те же «usable» записи, что в optimize, в порядке переданной коллекции.
+     *
+     * @param  \Illuminate\Support\Collection<int, Booking>  $bookingsInOrder
+     * @return array<int, array{b: Booking, p: GeoPoint, tw: array{start: Carbon, end: Carbon}}>
+     */
+    public function buildOrderedUsableItems(\Illuminate\Support\Collection $bookingsInOrder, string $tz): array
+    {
+        $out = [];
+        foreach ($bookingsInOrder as $b) {
+            if (! $b instanceof Booking || $b->getGeoPoint() === null) {
+                continue;
+            }
+            try {
+                $tw = $b->getTimeWindow($tz);
+            } catch (\DomainException) {
+                continue;
+            }
+            $out[] = [
+                'b' => $b,
+                'p' => $b->getGeoPoint(),
+                'tw' => $tw,
+            ];
+        }
+
+        return $out;
+    }
+
     /**
      * @param  array<int, Booking>  $bookings
      */
@@ -65,10 +166,21 @@ class RouteOptimizer
                 continue;
             }
 
+            try {
+                $tw = $b->getTimeWindow($tz ?? 'America/Los_Angeles');
+            } catch (\DomainException) {
+                $warnings[] = [
+                    'type' => 'no_time',
+                    'message' => 'Booking has no scheduled time',
+                    'job_id' => $b->id,
+                ];
+
+                continue;
+            }
             $usable[] = [
                 'b' => $b,
                 'p' => $point,
-                'tw' => $b->getTimeWindow($tz ?? 'America/Los_Angeles'),
+                'tw' => $tw,
             ];
         }
 
@@ -94,12 +206,12 @@ class RouteOptimizer
         $movableOrdered = $this->nearestNeighborMovable($movable, $start, $startTime);
         $merged = $this->mergeByTimeWindow($locked, $movableOrdered);
 
-        $distanceBefore = $this->totalRouteDistance($merged, $start, $end, $includeReturnLeg);
+        $costBefore = $this->routeCost($merged, $start, $end, $startTime, $includeReturnLeg);
         $after2opt = $this->twoOptPass($merged, $start, $end, $startTime, $tz, 2, $includeReturnLeg);
-        $distanceAfter = $this->totalRouteDistance($after2opt, $start, $end, $includeReturnLeg);
+        $costAfter = $this->routeCost($after2opt, $start, $end, $startTime, $includeReturnLeg);
 
         $finalOrder = array_map(static fn (array $item): int => (int) $item['b']->id, $after2opt);
-        $savings = (int) max(0, round($distanceBefore - $distanceAfter));
+        $savings = (int) max(0, round($costBefore - $costAfter));
         $lockedCount = count($locked);
 
         return new OptimizationResult($finalOrder, $savings, $warnings, $lockedCount);
@@ -310,7 +422,7 @@ class RouteOptimizer
                         continue;
                     }
 
-                    if ($this->totalRouteDistance($trial, $start, $end, $includeReturnLeg) < $this->totalRouteDistance($route, $start, $end, $includeReturnLeg)) {
+                    if ($this->routeCost($trial, $start, $end, $startTime, $includeReturnLeg) < $this->routeCost($route, $start, $end, $startTime, $includeReturnLeg)) {
                         $route = $trial;
                         $improved = true;
                     }

@@ -397,17 +397,21 @@ class Booking extends Model
         }
 
         $time = $this->booking_time;
+        if ($time === null) {
+            throw new \DomainException('Booking has no scheduled time (booking_time is null).');
+        }
+
         if ($time instanceof CarbonInterface) {
             $timeStr = $time->format('H:i:s');
         } else {
-            $timeStr = is_string($time) ? trim($time) : '00:00:00';
+            $timeStr = is_string($time) ? trim($time) : '';
             if ($timeStr !== '' && strlen($timeStr) === 5) {
                 $timeStr .= ':00';
             }
         }
 
         if ($timeStr === '') {
-            $timeStr = '00:00:00';
+            throw new \DomainException('Booking has no scheduled time (booking_time is empty).');
         }
 
         $start = Carbon::createFromFormat('Y-m-d H:i:s', $dateStr.' '.$timeStr, $tz);

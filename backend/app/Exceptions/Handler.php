@@ -78,6 +78,16 @@ class Handler extends ExceptionHandler
             ], $statusCode);
         }
 
+        if ($e instanceof AiQuotaExceededException) {
+            return response()->json([
+                'success' => false,
+                'error' => 'ai_quota_exceeded',
+                'message' => 'AI limit reached for this month.',
+                'usage' => $e->usage,
+                'period_end' => $e->periodEndIso,
+            ], 429);
+        }
+
         // Обработка ValidationException
         if ($e instanceof \Illuminate\Validation\ValidationException) {
             $errors = $e->errors();

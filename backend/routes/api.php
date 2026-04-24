@@ -61,6 +61,7 @@ use App\Http\Controllers\Business\StripeConnectController;
 use App\Http\Controllers\Business\SubscriptionController;
 use App\Http\Controllers\Business\SearchController as BusinessSearchController;
 use App\Http\Controllers\Business\RouteController;
+use App\Http\Controllers\Business\RouteAssistantController;
 use App\Http\Controllers\Admin\SearchController as AdminSearchController;
 use App\Http\Controllers\Admin\RealtimeMetricsController;
 use App\Http\Controllers\UserPresenceController;
@@ -312,6 +313,14 @@ Route::middleware(['jwt.auth'])->group(function () {
                 ->whereNumber('specialist')
                 ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
             Route::post('/{specialist}/{date}/optimize/apply', [RouteController::class, 'optimizeApply'])
+                ->whereNumber('specialist')
+                ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+            Route::post('/{specialist}/{date}/assist', [RouteAssistantController::class, 'assist'])
+                ->middleware('throttle:ai_route_assist_user')
+                ->whereNumber('specialist')
+                ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
+            Route::post('/{specialist}/{date}/assist/apply', [RouteAssistantController::class, 'apply'])
+                ->middleware('throttle:ai_route_apply')
                 ->whereNumber('specialist')
                 ->where('date', '[0-9]{4}-[0-9]{2}-[0-9]{2}');
         });

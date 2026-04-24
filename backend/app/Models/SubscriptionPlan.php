@@ -93,9 +93,58 @@ class SubscriptionPlan extends Model
     public function hasFeature(string $key): bool
     {
         $value = $this->getFeature($key);
+        if ($value === null) {
+            $inferred = $this->inferBooleanFeatureWhenKeyMissing($key);
+            if ($inferred !== null) {
+                $value = $inferred;
+            }
+        }
         if (is_bool($value)) {
             return $value;
         }
+
         return $value !== null && $value !== 0;
+    }
+
+    /**
+     * Если в JSON плана пропал ключ (например после сбойной миграции), не считаем фичу выключенной/включённой наугад
+     * для «неизвестных» slug; для стандартных — как в create_subscription_plans + add_routes.
+     */
+    private function inferBooleanFeatureWhenKeyMissing(string $key): ?bool
+    {
+        if (! in_array($key, ['routes', 'analytics', 'api_access', 'priority_support'], true)) {
+            return null;
+        }
+
+        $map = [
+            'free' => [
+                'routes' => false,
+                'analytics' => false,
+                'api_access' => false,
+                'priority_support' => false,
+            ],
+            'starter' => [
+                'routes' => false,
+                'analytics' => false,
+                'api_access' => false,
+                'priority_support' => false,
+            ],
+            'professional' => [
+                'routes' => true,
+                'analytics' => true,
+                'api_access' => false,
+                'priority_support' => true,
+            ],
+            'enterprise' => [
+                'routes' => true,
+                'analytics' => true,
+                'api_access' => true,
+                'priority_support' => true,
+            ],
+        ];
+
+        $slug = (string) $this->slug;
+
+        return $map[$slug][$key] ?? null;
     }
 }

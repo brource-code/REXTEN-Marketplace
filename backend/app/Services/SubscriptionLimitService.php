@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\AI\AiQuotaService;
 use App\Models\Advertisement;
 use App\Models\Company;
 use App\Models\CompanyUser;
@@ -152,6 +153,8 @@ class SubscriptionLimitService
         $adActive = self::countMarketplaceAdvertisementsActive($companyId);
         $adTotal = self::countMarketplaceAdvertisementsTotal($companyId);
 
+        $ai = app(AiQuotaService::class)->getUsage($companyId);
+
         return [
             'team_members' => self::buildNumericUsageExtended($teamActive, $teamTotal, $maxTeam),
             'services' => self::buildNumericUsageExtended($serviceActive, $serviceTotal, $maxServices),
@@ -160,6 +163,7 @@ class SubscriptionLimitService
             'api_access' => ['allowed' => $plan->hasFeature('api_access')],
             'priority_support' => ['allowed' => $plan->hasFeature('priority_support')],
             'routes' => ['allowed' => $plan->hasFeature('routes')],
+            'ai' => $ai,
             'grace_period_ends_at' => $graceEnds?->toIso8601String(),
             'grace_period_active' => $graceActive,
             'is_over_limit' => self::isOverLimit($companyId),
@@ -443,6 +447,15 @@ class SubscriptionLimitService
             'api_access' => ['allowed' => false],
             'priority_support' => ['allowed' => false],
             'routes' => ['allowed' => false],
+            'ai' => [
+                'allowed' => false,
+                'requests_used' => 0,
+                'requests_limit' => 0,
+                'tokens_used' => 0,
+                'tokens_limit' => 0,
+                'period' => '',
+                'period_end_iso' => null,
+            ],
             'grace_period_ends_at' => null,
             'grace_period_active' => false,
             'is_over_limit' => false,

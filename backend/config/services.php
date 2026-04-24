@@ -22,6 +22,13 @@ return [
 
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
+        /** Модель для чата (маршруты / AI dispatcher). */
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+        /** Включить эндпоинты ассистента маршрутов (false — 503). */
+        'route_assist_enabled' => filter_var(
+            env('AI_ROUTE_ASSIST_ENABLED', env('OPENAI_ROUTE_ASSIST_ENABLED', true)),
+            FILTER_VALIDATE_BOOL,
+        ),
     ],
 
     'stripe' => [
