@@ -1525,6 +1525,18 @@
                 "waitUntilAppointment": "Espera {duration} hasta la hora de la cita",
                 "lateArrival": "Retraso: {duration}"
             },
+            "issues": {
+                "banner": "{count, plural, one {# problema en el plan del día} other {# problemas en el plan del día}}",
+                "late": "Atraso vs ventana",
+                "infeasible": "No es factible a tiempo con la hora de inicio o las ventanas actuales. Ajuste la agenda, el turno o el orden.",
+                "infeasibleWindowBeforeShiftStart": "La visita está programada a las {visitTime}, pero el turno inicia a las {shiftStart}. Mueva la visita a las {shiftStart} o más tarde, o adelante el inicio del turno.",
+                "infeasibleLateOver4h": "Antes de esta visita se acumula más de {lateDuration} de retraso — no es posible llegar a tiempo en el orden actual. Pruebe optimizar la ruta o mueva algunas visitas.",
+                "infeasibleNoGeocode": "La reserva no tiene coordenadas de dirección. Abra la reserva y ajuste la dirección.",
+                "infeasibleNoTime": "La reserva no tiene hora de visita. Establezca una hora para que entre en la ruta.",
+                "no_geocode": "Dirección sin mapa: geocodifica la visita o corrige la dirección.",
+                "no_time": "La reserva no tiene hora de cita",
+                "out_of_shift": "Fuera del turno del especialista o de la ventana"
+            },
             "savedRoutes": {
                 "title": "Rutas guardadas por día",
                 "hint": "Toca una fecha para abrir la ruta de ese día.",
@@ -1534,6 +1546,8 @@
             },
             "preview": {
                 "title": "Vista previa de optimización",
+                "lateChange": "Retraso vs ventanas (aprox.)",
+                "idleChange": "Espera inactiva (aprox.)",
                 "current": "Orden actual",
                 "proposed": "Orden propuesto",
                 "routeSummaryLine": "{mi} mi · {duration}",
@@ -1550,6 +1564,48 @@
                 "summaryImproved": "La distancia por carretera es menor con el orden propuesto (estimación HERE).",
                 "summaryWorse": "La distancia por carretera es mayor con el orden propuesto (estimación HERE). Puedes aplicarlo o cancelar.",
                 "summaryTie": "Cambiaría el orden de paradas, pero la distancia por carretera es similar (estimación HERE)."
+            },
+            "assistant": {
+                "title": "REXTEN AI Dispatcher",
+                "usageLabel": "Solicitudes de IA (este mes)",
+                "pickSpecialist": "Elige un especialista para recibir sugerencias para este día.",
+                "upsell": "REXTEN AI Dispatcher está disponible en planes superiores (desde Starter).",
+                "upsellLink": "Ver suscripción",
+                "checkDay": "Revisar este día",
+                "checkingDay": "Analizando…",
+                "sending": "Enviando…",
+                "loadingHint": "La IA está analizando este día…",
+                "loadingSubHint": "Suele tardar entre 5 y 20 segundos.",
+                "emptyHint": "Ejecuta una revisión del día para ver resumen, problemas y acciones sugeridas.",
+                "youLabel": "Tú",
+                "aiLabel": "REXTEN AI Dispatcher",
+                "thinking": "Pensando…",
+                "routeUpdatedMemoryGeneric": "Ruta actualizada. Las estimaciones anteriores pueden quedar obsoletas: vuelve a consultar las herramientas antes de citar cifras.",
+                "applyOne": "Aplicar",
+                "actionSetIncludedHint": "Aplicar solo cambia qué visitas van en la ruta de este especialista hoy; no cambia el técnico asignado en la reserva. Para pasar el trabajo a otro, reasigna en Agenda o en la reserva.",
+                "dismiss": "Ignorar",
+                "applyAll": "Aplicar todo",
+                "applySuccess": "Cambios aplicados.",
+                "actionApplied": "Aplicado.",
+                "applyFailed": "No se pudieron aplicar los cambios.",
+                "askLabel": "Pregunta",
+                "askPlaceholder": "p. ej., ¿cómo reducir retrasos?",
+                "send": "Enviar",
+                "limitReached": "Límite mensual de IA alcanzado. Se restablece el {date}.",
+                "limitUnknown": "en el próximo periodo",
+                "openBooking": "Abrir reserva #{id}",
+                "miShort": "mi",
+                "errorTitle": "REXTEN AI Dispatcher",
+                "genericError": "Algo salió mal. Inténtalo de nuevo.",
+                "quotaErrorTitle": "Límite de IA",
+                "quotaErrorBody": "Alcanzaste el límite mensual de solicitudes o tokens de IA.",
+                "quotaErrorLink": "Suscripción",
+                "outdatedData": "Los datos de la ruta cambiaron. Revisa el estado actualizado e intenta de nuevo.",
+                "applyBookingsInvalid": "Las visitas sugeridas ya no son válidas (reservas: {ids}). Actualiza la lista y vuelve a ejecutar Revisar este día.",
+                "removeConfirmTitle": "¿Quitar visitas de la ruta?",
+                "removeConfirmBody": "Se excluirán las reservas: {ids}.",
+                "removeConfirmApply": "Sí, aplicar",
+                "removeConfirmCancel": "Cancelar"
             },
             "status": {
                 "draft": "Borrador",
@@ -1581,6 +1637,9 @@
                 "saved": "Guardadas"
             },
             "metricsLine": "{mi} mi · {duration} · {visits} visitas",
+            "metricsVisits": "{count, plural, one {# visita} other {# visitas}}",
+            "headerLateness": "Retraso vs ventana: {duration}",
+            "headerIdle": "Espera antes de la cita: {duration}",
             "actions": "Acciones",
             "noRouteShort": "Aún no hay ruta",
             "savedRoutesGroups": {
@@ -3071,6 +3130,7 @@
                 "analytics": "Analíticas avanzadas",
                 "prioritySupport": "Soporte prioritario",
                 "apiAccess": "Acceso a API",
+                "ai": "REXTEN AI Dispatcher (solicitudes al mes)",
                 "unlimited": "Ilimitado"
             },
             "cancelDialog": {
@@ -3132,6 +3192,9 @@
                 "included": "Incluido",
                 "notIncluded": "No incluido"
             },
+            "aiUsageResets": "Se restablece el {date}.",
+            "aiUpsellShort": "Disponible desde Starter en adelante.",
+            "aiUpsellLink": "Ver planes",
             "limitReached": {
                 "title": "Límite del plan alcanzado",
                 "description": "Mejora tu plan para añadir más.",
@@ -5645,6 +5708,8 @@
             "maxTeamMembers": "Máx. miembros del equipo",
             "maxServices": "Máx. servicios",
             "maxAdvertisements": "Máx. anuncios",
+            "aiMaxRequests": "Solicitudes de IA / mes (REXTEN AI Dispatcher)",
+            "aiMaxTokens": "Tokens de IA / mes (tope)",
             "analytics": "Analíticas",
             "prioritySupport": "Soporte prioritario",
             "apiAccess": "Acceso a API",
@@ -5791,7 +5856,9 @@
                 "listingsUnlimited": "Anuncios activos ilimitados",
                 "featAnalytics": "Analítica avanzada",
                 "featPriority": "Soporte prioritario",
-                "featApi": "Acceso a la API"
+                "featApi": "Acceso a la API",
+                "featAi": "REXTEN AI Dispatcher: {n} sol./mes",
+                "featAiNone": "REXTEN AI Dispatcher — no incluido"
             },
             "enterpriseDialog": {
                 "title": "Habla con ventas — plan Enterprise",

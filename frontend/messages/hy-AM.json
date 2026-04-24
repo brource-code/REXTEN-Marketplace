@@ -1525,6 +1525,18 @@
                 "waitUntilAppointment": "Սպասեք {duration} մինչև նշված ժամը",
                 "lateArrival": "Ուշացում՝ {duration}"
             },
+            "issues": {
+                "banner": "{count, plural, one {# խնդիր այս օրվա պլանում} other {# խնդիր այս օրվա պլանում}}",
+                "late": "Ուշացում պատուհանի նկատմամբ",
+                "infeasible": "Ժամկետին հնարավոր չէ ներկա մեկնարկի կամ պատուհանների դեպքում։ Դասավորեք ժամանակացույցը, հերթափոխը կամ հերթականությունը։",
+                "infeasibleWindowBeforeShiftStart": "Այցն ընդունված է {visitTime}-ին, սակայն հերթափոխը սկսվում է {shiftStart}-ին։ Տեղափոխեք այցը {shiftStart} կամ ավելի ուշ, կամ վաղ սկսեք հերթափոխը։",
+                "infeasibleLateOver4h": "Մինչ այս այցը կուտակվում է ավելի քան {lateDuration} ուշացում, ընթացիկ հերթականությամբ ժամանակին հասնելը հնարավոր չէ։ Փորձեք օպտիմիզացնել երթուղին կամ տեղափոխեք որոշ այցեր։",
+                "infeasibleNoGeocode": "Ամրագրումը չունի հասցեի կոորդինատներ։ Բացեք ամրագրումը և ճշտեք հասցեն։",
+                "infeasibleNoTime": "Ամրագրումը չունի այցի ժամ։ Նշեք ժամը, որպեսզի մտնի երթուղի։",
+                "no_geocode": "Հասցեն քարտեզի վրա չէ․ ավելացրեք geocode կամ ուղղեք հասցեն։",
+                "no_time": "Ամրագրման մեջ ժամ չի նշված",
+                "out_of_shift": "Դուրս է հերթափոխից կամ պատուհանից"
+            },
             "savedRoutes": {
                 "title": "Պահված երթուղիներ ըստ օրերի",
                 "hint": "Սեղմեք ամսաթիվը՝ այդ օրվա երթուղին բացելու համար։",
@@ -1534,6 +1546,8 @@
             },
             "preview": {
                 "title": "Օպտիմալացման նախադիտում",
+                "lateChange": "Ուշացում պատուհանների հանդեպ (մոտ.)",
+                "idleChange": "Դատարկ սպասում (մոտ.)",
                 "current": "Ընթացիկ հերթականություն",
                 "proposed": "Առաջարկված հերթականություն",
                 "routeSummaryLine": "{mi} մղոն · {duration}",
@@ -1550,6 +1564,48 @@
                 "summaryImproved": "HERE գնահատմամբ առաջարկվող հերթականությամբ ճանապարհը կարճ է։",
                 "summaryWorse": "HERE գնահատմամբ առաջարկվող հերթականությամբ ճանապարհը ավելի երկար է։ Կարող եք կիրառել կամ չեղարկել։",
                 "summaryTie": "Կկարգավորվեն կանգառները, բայց HERE գնահատմամբ հեռավորությունը մոտավորապես նույնն է։"
+            },
+            "assistant": {
+                "title": "REXTEN AI Dispatcher",
+                "usageLabel": "AI հարցումներ (այս ամիս)",
+                "pickSpecialist": "Ընտրեք մասնագետ՝ այս օրվա առաջարկությունների համար։",
+                "upsell": "REXTEN AI Dispatcher-ը հասանելի է ավելի բարձր տարաձևերում (սկսած Starter)։",
+                "upsellLink": "Բաժանորդագրություն",
+                "checkDay": "Ստուգել այս օրը",
+                "checkingDay": "Վերլուծվում է…",
+                "sending": "Ուղարկվում է…",
+                "loadingHint": "ԱԲ-ն վերլուծում է այս օրը…",
+                "loadingSubHint": "Սովորաբար տևում է 5–20 վայրկյան։",
+                "emptyHint": "Գործարկեք օրվա ստուգում՝ տեսնելու ամփոփում, խնդիրներ և առաջարկվող գործողություններ։",
+                "youLabel": "Դուք",
+                "aiLabel": "REXTEN AI Dispatcher",
+                "thinking": "Մտածում եմ…",
+                "routeUpdatedMemoryGeneric": "Երթուղին թարմացվել է։ Նախորդ գնահատականները կարող են հնանալ — նախքան թվեր հղումը կրկին կանչիր գործիքները։",
+                "applyOne": "Կիրառել",
+                "actionSetIncludedHint": "«Կիրառել»-ը փոխում է միայն այս մասնագետի երթուղու այցերի ցանկը տվյալ օրվա համար՝ չփոխելով ամրագրումը կցված մասնագետին։ Ուրիշ մասնագետ փոխելու համար արեք դա ժամանակացույցում կամ ամրագրում։",
+                "dismiss": "Անտեսել",
+                "applyAll": "Կիրառել բոլորը",
+                "applySuccess": "Փոփոխությունները կիրառվեցին։",
+                "actionApplied": "Կիրառված է։",
+                "applyFailed": "Չհաջողվեց կիրառել։",
+                "askLabel": "Հարց",
+                "askPlaceholder": "օր․ ինչպե՞ս նվազեցնել ուշացումները",
+                "send": "Ուղարկել",
+                "limitReached": "AI ամսական սահմանափակումը սպառվել է։ Վերակայում՝ {date}։",
+                "limitUnknown": "հաջորդ ժամանակաշրջանում",
+                "openBooking": "Բացել ամրագրում #{id}",
+                "miShort": "մղոն",
+                "errorTitle": "REXTEN AI Dispatcher",
+                "genericError": "Ինչ-որ բան սխալ է։ Փորձեք կրկին։",
+                "quotaErrorTitle": "AI սահմանափակում",
+                "quotaErrorBody": "Հասել եք ամսական AI հարցումների կամ թոքենների սահմանաչափին։",
+                "quotaErrorLink": "Բաժանորդագրություն",
+                "outdatedData": "Երթուղու տվյալները փոխվել են։ Թարմացրեք էջը/կրկին ստուգեք մասնագետ/օր և փորձեք նորից։",
+                "applyBookingsInvalid": "Առաջարկված այցերը հնացել են (ամրագրումներ՝ {ids}). Թարմացրեք ցուցակը և նորից գործարկեք «Ստուգել այս օրը»։",
+                "removeConfirmTitle": "Հանե՞լ այցերը երթուղուց",
+                "removeConfirmBody": "Կհանենք հերթագրումներ՝ {ids}։",
+                "removeConfirmApply": "Այո, կիրառել",
+                "removeConfirmCancel": "Չեղարկել"
             },
             "status": {
                 "draft": "Սևագիր",
@@ -1581,6 +1637,9 @@
                 "saved": "Պահպանված"
             },
             "metricsLine": "{mi} մղոն · {duration} · {visits} այց",
+            "metricsVisits": "{count, plural, one {# այց} other {# այց}}",
+            "headerLateness": "Ուշացում պատուհանի նկատմամբ՝ {duration}",
+            "headerIdle": "Սպասում մինչև այցի սկիզբ՝ {duration}",
             "actions": "Գործողություններ",
             "noRouteShort": "Երթուղի դեռ չկա",
             "savedRoutesGroups": {
@@ -3071,6 +3130,7 @@
                 "analytics": "Ընդլայնված վերլուծություններ",
                 "prioritySupport": "Առաջնահերթ աջակցություն",
                 "apiAccess": "API հասանելիություն",
+                "ai": "REXTEN AI Dispatcher (հարցումներ/ամիս)",
                 "unlimited": "Անսահմանափակ"
             },
             "cancelDialog": {
@@ -3132,6 +3192,9 @@
                 "included": "Ներառված է",
                 "notIncluded": "Ներառված չէ"
             },
+            "aiUsageResets": "Թարմացում՝ {date}։",
+            "aiUpsellShort": "Հասանելի է Starter-ից և բարձր։",
+            "aiUpsellLink": "Դեպի պլաններ",
             "limitReached": {
                 "title": "Պլանի սահմանափակումը հասել է",
                 "description": "Թարմացրեք բաժանորդագրությունը՝ ավելացնելու համար:",
@@ -5014,11 +5077,11 @@
             },
             "reports": {
                 "stripeOff": "Stripe-ը միացված չէ — հաշվետվություններ չկան։",
-                "forecastTitle": "Պրոգնոզ",
+                "forecastTitle": "Կանխատեսում",
                 "forecastHint": "Վերջին 7 օրվա միջինի հիման վրա",
                 "last7": "Վերջին 7 օր",
                 "dailyAvg": "Օրական միջին",
-                "projected": "30-օրյա прогноз",
+                "projected": "30-օրյա կանխատեսում",
                 "adSpendTitle": "Գովազդի ծախս",
                 "thisMonth": "Այս ամիս",
                 "lastMonth": "Անցած ամիս",
@@ -5645,6 +5708,8 @@
             "maxTeamMembers": "Մաքս. թիմի անդամներ",
             "maxServices": "Մաքս. ծառայություններ",
             "maxAdvertisements": "Մաքս. հայտարարություններ",
+            "aiMaxRequests": "AI հարցումներ / ամիս (REXTEN AI Dispatcher)",
+            "aiMaxTokens": "AI թոքեններ / ամիս (ուղեցուց)",
             "analytics": "Վերլուծություն",
             "prioritySupport": "Առաջնային աջակցություն",
             "apiAccess": "API հասանելիություն",
@@ -5806,7 +5871,9 @@
                 "listingsUnlimited": "Անսահմանափակ ակտիվ հայտարարություններ",
                 "featAnalytics": "Ընդլայնված վերլուծություն",
                 "featPriority": "Առաջնայն աջակցություն",
-                "featApi": "API մուտք"
+                "featApi": "API մուտք",
+                "featAi": "REXTEN AI Dispatcher՝ {n} հարցում/ամիս",
+                "featAiNone": "REXTEN AI Dispatcher — միացված չէ"
             },
             "enterpriseDialog": {
                 "title": "Կապ վաճառքի թիմի հետ — Enterprise սակագին",

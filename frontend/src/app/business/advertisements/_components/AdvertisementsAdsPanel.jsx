@@ -901,7 +901,21 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                                                 className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
                                             >
                                                 <img
-                                                    src={normalizeImageUrl(item.image || item.url || item)}
+                                                    src={
+                                                        normalizeImageUrl(
+                                                            (Array.isArray(item.images)
+                                                                ? item.images.find(
+                                                                      (x) =>
+                                                                          x != null &&
+                                                                          String(x).trim() !== '',
+                                                                  )
+                                                                : null) ??
+                                                                item.imageUrl ??
+                                                                item.image ??
+                                                                item.url ??
+                                                                item,
+                                                        ) || FALLBACK_IMAGE
+                                                    }
                                                     alt=""
                                                     className="h-full w-full object-cover"
                                                     onError={(e) => {

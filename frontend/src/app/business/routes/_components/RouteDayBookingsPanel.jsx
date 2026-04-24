@@ -1,6 +1,6 @@
 'use client'
 
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import Checkbox from '@/components/ui/Checkbox'
 import Button from '@/components/ui/Button'
@@ -27,7 +27,6 @@ export default function RouteDayBookingsPanel({
     displayTimezone,
 }) {
     const t = useTranslations('business.routes')
-    const intlLocale = useLocale()
 
     const allIds = dayBookings.map((b) => b.id)
 
@@ -84,14 +83,15 @@ export default function RouteDayBookingsPanel({
 
     return (
         <div className="flex flex-col gap-3 min-h-0">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex shrink-0 items-center justify-between gap-2">
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('dayBookingsTitle')}</p>
                 {updatingSelection ? (
                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('savingSelection')}</span>
                 ) : null}
             </div>
 
-            <ul className="flex flex-col gap-2.5 pr-1 -mr-1">
+            <div className="min-h-0 max-md:max-h-[min(260px,50vh)] max-md:overflow-y-auto max-md:overflow-x-hidden max-md:pr-1 max-md:-mr-0.5">
+                <ul className="flex flex-col gap-2.5 pr-1 -mr-1">
                 {dayBookings.map((b) => {
                     const checked = isIncluded(b.id)
                     return (
@@ -116,7 +116,6 @@ export default function RouteDayBookingsPanel({
                                             {formatRouteIsoTime(
                                                 b.time_window_start,
                                                 displayTimezone ?? undefined,
-                                                intlLocale,
                                             )}
                                         </span>
                                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
@@ -169,9 +168,10 @@ export default function RouteDayBookingsPanel({
                         </li>
                     )
                 })}
-            </ul>
+                </ul>
+            </div>
 
-            <p className="text-sm font-bold text-gray-900 dark:text-gray-100 pt-1 border-t border-gray-200 dark:border-gray-700">
+            <p className="shrink-0 border-t border-gray-200 pt-1 text-sm font-bold text-gray-900 dark:border-gray-700 dark:text-gray-100">
                 {t('includedCount', { included: includedCount, total: allIds.length })}
             </p>
         </div>

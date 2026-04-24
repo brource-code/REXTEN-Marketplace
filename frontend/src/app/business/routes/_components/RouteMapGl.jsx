@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useId, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { PiHouse } from 'react-icons/pi'
 import Map, { Marker, NavigationControl, Popup, Source, Layer } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -50,27 +50,39 @@ function lineFeatureFromCoords(coords) {
     }
 }
 
-function RouteMapPopupCard({ marker, displayTimezone, intlLocale, onOpenBooking, onClose }) {
+function RouteMapPopupCard({ marker, displayTimezone, onOpenBooking, onClose }) {
     const t = useTranslations('business.routes')
     const tDur = useTranslations('common.durationMinutes')
     const booking = marker?.booking ?? null
     const visitNum = marker?.label ?? ''
     const colorHex = marker?.markerColorHex || '#2563eb'
 
-    const eta = marker?.eta ? formatRouteIsoTime(marker.eta, displayTimezone, intlLocale) || null : null
-    const winStart = booking?.time_window_start
-        ? formatRouteIsoTime(booking.time_window_start, displayTimezone, intlLocale) || null
+    const etaIso = marker?.eta
+    const winStartIso = booking?.time_window_start
+    const winEndIso = booking?.time_window_end
+
+    const eta = etaIso ? formatRouteIsoTime(etaIso, displayTimezone) || null : null
+    const winStart = winStartIso
+        ? formatRouteIsoTime(winStartIso, displayTimezone) || null
         : null
-    const winEnd = booking?.time_window_end
-        ? formatRouteIsoTime(booking.time_window_end, displayTimezone, intlLocale) || null
-        : null
-    const timeLine = eta
-        ? winStart && winEnd
-            ? `${eta} (${winStart}–${winEnd})`
-            : eta
-        : winStart && winEnd
-          ? `${winStart}–${winEnd}`
-          : null
+    const winEnd = winEndIso ? formatRouteIsoTime(winEndIso, displayTimezone) || null : null
+
+    const etaMatchesWindowStart = (() => {
+        if (!etaIso || !winStartIso) return false
+        try {
+            return new Date(etaIso).getTime() === new Date(winStartIso).getTime()
+        } catch {
+            return false
+        }
+    })()
+
+    let timeLine = null
+    if (winStart && winEnd) {
+        timeLine =
+            eta && !etaMatchesWindowStart ? `${eta} (${winStart}–${winEnd})` : `${winStart}–${winEnd}`
+    } else if (eta) {
+        timeLine = eta
+    }
 
     const priceVal = typeof booking?.total_price === 'number' ? booking.total_price : null
     const priceText = priceVal != null ? formatCurrency(priceVal, booking?.currency || 'USD') : null
@@ -185,7 +197,6 @@ export default function RouteMapGl({
     displayTimezone,
 }) {
     const t = useTranslations('business.routes')
-    const intlLocale = useLocale()
     const mapRef = useRef(null)
     const baseId = useId().replace(/:/g, '')
     const isDark = useAppDark()
@@ -445,7 +456,6 @@ export default function RouteMapGl({
                             <RouteMapPopupCard
                                 marker={popupMarker}
                                 displayTimezone={displayTimezone}
-                                intlLocale={intlLocale}
                                 onOpenBooking={onOpenBooking}
                                 onClose={() => setPopupKey(null)}
                             />

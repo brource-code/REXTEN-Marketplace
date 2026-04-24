@@ -41,12 +41,17 @@ export function normalizeImageUrl(imageUrl) {
     }
 
     if (typeof imageUrl !== 'string') {
-        if (typeof imageUrl === 'object') {
+        if (typeof imageUrl === 'object' && imageUrl !== null) {
+            const fromImages = Array.isArray(imageUrl.images)
+                ? imageUrl.images.find((x) => x != null && String(x).trim() !== '')
+                : undefined
             const nested =
+                fromImages ??
                 imageUrl.url ??
                 imageUrl.src ??
                 imageUrl.path ??
                 imageUrl.href ??
+                imageUrl.imageUrl ??
                 imageUrl.image
             if (typeof nested === 'string' && nested) {
                 return normalizeImageUrl(nested)
@@ -177,12 +182,18 @@ export function denormalizeImageUrl(imageUrl) {
     }
 
     if (typeof imageUrl !== 'string') {
-        if (typeof imageUrl === 'object') {
+        if (typeof imageUrl === 'object' && imageUrl !== null) {
+            const fromImages = Array.isArray(imageUrl.images)
+                ? imageUrl.images.find((x) => x != null && String(x).trim() !== '')
+                : undefined
             const nested =
+                fromImages ??
                 imageUrl.url ??
                 imageUrl.src ??
                 imageUrl.path ??
-                imageUrl.href
+                imageUrl.href ??
+                imageUrl.imageUrl ??
+                imageUrl.image
             if (typeof nested === 'string' && nested) {
                 return denormalizeImageUrl(nested)
             }

@@ -9,6 +9,7 @@ import RouteFilters from './RouteFilters'
 import RouteDayBookingsPanel from './RouteDayBookingsPanel'
 import RouteSavedRoutesPanel from './RouteSavedRoutesPanel'
 import RouteTimeline from './RouteTimeline'
+import RouteFeasibilityBanner from './RouteFeasibilityBanner'
 import SpecialistHomeCard from './SpecialistHomeCard'
 import Checkbox from '@/components/ui/Checkbox'
 
@@ -120,7 +121,7 @@ export default function RouteSidebar({
                     role="tabpanel"
                     className={classNames('tab-content min-h-0', tab === 'route' && 'tab-content-active')}
                 >
-                        <div className="flex flex-col gap-4">
+                        <div className="flex min-h-0 flex-col gap-4">
                             {route ? (
                                 <>
                                     <RouteDayBookingsPanel
@@ -159,6 +160,10 @@ export default function RouteSidebar({
                                         <p className="text-xs font-bold text-amber-800/90 dark:text-amber-200/90 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 rounded-lg px-3 py-2">
                                             {t('optimizeSingleVisitHint')}
                                         </p>
+                                    ) : null}
+
+                                    {route?.feasibility_issues && route.feasibility_issues.length > 0 ? (
+                                        <RouteFeasibilityBanner issues={route.feasibility_issues} />
                                     ) : null}
 
                                     {bookingStopsCount > 0 ? (

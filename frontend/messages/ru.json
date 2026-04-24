@@ -1539,6 +1539,18 @@
                 "waitUntilAppointment": "Ожидание {duration} до начала записи",
                 "lateArrival": "Опоздание: {duration}"
             },
+            "issues": {
+                "banner": "{count, plural, one {# проблема в плане дня} few {# проблемы в плане дня} many {# проблем в плане дня} other {# проблемы в плане дня}}",
+                "late": "Опоздание к окну",
+                "infeasible": "Невозможно уложиться вовремя при текущем начале дня или окнах. Скорректируйте расписание, смену или порядок.",
+                "infeasibleWindowBeforeShiftStart": "Визит назначен на {visitTime}, но смена начинается в {shiftStart}. Перенесите визит на {shiftStart} или позже либо сдвиньте начало смены раньше.",
+                "infeasibleLateOver4h": "До этого визита накопилось больше {lateDuration} опоздания — приехать вовремя в текущем порядке нельзя. Попробуйте оптимизацию маршрута или перенесите часть визитов.",
+                "infeasibleNoGeocode": "У бронирования не определены координаты адреса. Откройте бронирование и уточните адрес.",
+                "infeasibleNoTime": "У бронирования не задано время визита. Укажите время, чтобы он попал в маршрут.",
+                "no_geocode": "Адрес не на карте — геокодируйте визит или исправьте адрес.",
+                "no_time": "В бронировании нет времени визита",
+                "out_of_shift": "Вне смены специалиста или окна визита"
+            },
             "savedRoutes": {
                 "title": "Сохранённые маршруты по дням",
                 "hint": "Нажмите дату, чтобы открыть маршрут за этот день.",
@@ -1548,6 +1560,8 @@
             },
             "preview": {
                 "title": "Предпросмотр оптимизации",
+                "lateChange": "Опоздание к окнам (оц.)",
+                "idleChange": "Простой / ожидание (оц.)",
                 "current": "Текущий порядок",
                 "proposed": "Предлагаемый порядок",
                 "routeSummaryLine": "{mi} миль · {duration}",
@@ -1564,6 +1578,48 @@
                 "summaryImproved": "По оценке HERE дорожный пробег с предлагаемым порядком короче.",
                 "summaryWorse": "По оценке HERE дорожный пробег с предлагаемым порядком длиннее. Можно применить или оставить текущий порядок.",
                 "summaryTie": "Порядок остановок изменится, но по оценке HERE расстояние примерно то же."
+            },
+            "assistant": {
+                "title": "REXTEN AI Dispatcher",
+                "usageLabel": "AI-запросы (этот месяц)",
+                "pickSpecialist": "Выберите специалиста, чтобы получить подсказки на выбранный день.",
+                "upsell": "REXTEN AI Dispatcher доступен на тарифах от Starter и выше.",
+                "upsellLink": "К подписке",
+                "checkDay": "Проверить день",
+                "checkingDay": "Анализирую…",
+                "sending": "Отправляю…",
+                "loadingHint": "ИИ анализирует этот день…",
+                "loadingSubHint": "Обычно занимает 5–20 секунд.",
+                "emptyHint": "Запустите проверку дня, чтобы увидеть краткое резюме, проблемы и предлагаемые действия.",
+                "youLabel": "Вы",
+                "aiLabel": "REXTEN AI Dispatcher",
+                "thinking": "Думаю…",
+                "routeUpdatedMemoryGeneric": "Маршрут обновлён. Прежние оценки могут устареть — задайте новый вопрос или снова нажмите «Проверить день».",
+                "applyOne": "Применить",
+                "actionSetIncludedHint": "«Применить» меняет только состав визитов на маршруте этого специалиста за день; исполнителя в брони не меняет. Чтобы передать заказ другому мастеру, смените исполнителя в расписании или в карточке брони.",
+                "dismiss": "Игнорировать",
+                "applyAll": "Применить все",
+                "applySuccess": "Изменения применены.",
+                "actionApplied": "Применено.",
+                "applyFailed": "Не удалось применить изменения.",
+                "askLabel": "Вопрос",
+                "askPlaceholder": "напр., как сократить опоздания?",
+                "send": "Отправить",
+                "limitReached": "Месячный лимит AI исчерпан. Сброс: {date}.",
+                "limitUnknown": "в следующем периоде",
+                "openBooking": "Открыть бронь #{id}",
+                "miShort": "ми",
+                "errorTitle": "REXTEN AI Dispatcher",
+                "genericError": "Что-то пошло не так. Попробуйте снова.",
+                "quotaErrorTitle": "Лимит AI",
+                "quotaErrorBody": "Достигнут месячный лимит запросов или токенов AI.",
+                "quotaErrorLink": "Подписка",
+                "outdatedData": "Данные маршрута изменились. Проверьте обновлённое состояние и попробуйте снова.",
+                "applyBookingsInvalid": "Предложенные визиты устарели (брони: {ids}). Обновите список и снова нажмите «Проверить этот день».",
+                "removeConfirmTitle": "Исключить визиты из маршрута?",
+                "removeConfirmBody": "Будут исключены брони: {ids}.",
+                "removeConfirmApply": "Да, применить",
+                "removeConfirmCancel": "Отмена"
             },
             "status": {
                 "draft": "Черновик",
@@ -1595,6 +1651,9 @@
                 "saved": "Сохранённые"
             },
             "metricsLine": "{mi} миль · {duration} · визитов: {visits}",
+            "metricsVisits": "{count, plural, one {# визит} few {# визита} many {# визитов} other {# визитов}}",
+            "headerLateness": "Опоздание к окну: {duration}",
+            "headerIdle": "Ожидание до начала записи: {duration}",
             "actions": "Действия",
             "noRouteShort": "Маршрута ещё нет",
             "savedRoutesGroups": {
@@ -2233,6 +2292,7 @@
                 "analytics": "Расширенная аналитика",
                 "prioritySupport": "Приоритетная поддержка",
                 "apiAccess": "Доступ к API",
+                "ai": "REXTEN AI Dispatcher (запросов в месяц)",
                 "unlimited": "Безлимит"
             },
             "cancelDialog": {
@@ -2294,6 +2354,9 @@
                 "included": "Включено",
                 "notIncluded": "Не включено"
             },
+            "aiUsageResets": "Обновляется {date}.",
+            "aiUpsellShort": "Доступно с тарифа Starter и выше.",
+            "aiUpsellLink": "К тарифам",
             "limitReached": {
                 "title": "Достигнут лимит тарифа",
                 "description": "Оформите более высокий тариф, чтобы добавить ещё.",
@@ -5654,6 +5717,8 @@
             "maxTeamMembers": "Макс. членов команды",
             "maxServices": "Макс. услуг",
             "maxAdvertisements": "Макс. объявлений",
+            "aiMaxRequests": "AI-запросов / мес. (REXTEN AI Dispatcher)",
+            "aiMaxTokens": "AI-токенов / мес. (потолок)",
             "analytics": "Аналитика",
             "prioritySupport": "Приоритетная поддержка",
             "apiAccess": "Доступ к API",
@@ -5800,7 +5865,9 @@
                 "listingsUnlimited": "Неограниченно активных объявлений",
                 "featAnalytics": "Расширенная аналитика",
                 "featPriority": "Приоритетная поддержка",
-                "featApi": "Доступ к API"
+                "featApi": "Доступ к API",
+                "featAi": "REXTEN AI Dispatcher: {n} запр./мес",
+                "featAiNone": "REXTEN AI Dispatcher — нет в тарифе"
             },
             "enterpriseDialog": {
                 "title": "Связаться с продажами — тариф Enterprise",

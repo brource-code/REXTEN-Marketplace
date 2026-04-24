@@ -210,7 +210,7 @@ function RoutesPageInner() {
     return (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-4">
+                <div className="flex min-w-0 flex-col gap-4">
                     <div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">

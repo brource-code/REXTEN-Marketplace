@@ -1525,6 +1525,18 @@
                 "waitUntilAppointment": "Очікування {duration} до початку запису",
                 "lateArrival": "Запізнення: {duration}"
             },
+            "issues": {
+                "banner": "{count, plural, one {# проблема в плані дня} few {# проблеми в плані дня} many {# проблем у плані дня} other {# проблеми в плані дня}}",
+                "late": "Запізнення до вікна",
+                "infeasible": "Неможливо встигнути вчасно з поточним початком дня чи вікнами. Скоригуйте розклад, зміну або порядок.",
+                "infeasibleWindowBeforeShiftStart": "Візит призначено на {visitTime}, але зміна починається о {shiftStart}. Перенесіть візит на {shiftStart} або пізніше, або зсуньте початок зміни раніше.",
+                "infeasibleLateOver4h": "До цього візиту накопичилося більше {lateDuration} запізнення — приїхати вчасно у поточному порядку неможливо. Спробуйте оптимізацію маршруту або перенесіть частину візитів.",
+                "infeasibleNoGeocode": "У бронювання немає координат адреси. Відкрийте бронювання та уточніть адресу.",
+                "infeasibleNoTime": "У бронюванні не задано час візиту. Вкажіть час, щоб він потрапив у маршрут.",
+                "no_geocode": "Адреса не на карті — додайте геокодування візиту або виправте адресу.",
+                "no_time": "У бронюванні немає часу візиту",
+                "out_of_shift": "Поза зміною спеціаліста або вікном візиту"
+            },
             "savedRoutes": {
                 "title": "Збережені маршрути за днями",
                 "hint": "Натисніть дату, щоб відкрити маршрут за цей день.",
@@ -1534,6 +1546,8 @@
             },
             "preview": {
                 "title": "Попередній перегляд оптимізації",
+                "lateChange": "Запізнення до вікон (орієнт.)",
+                "idleChange": "Простій / очікування (орієнт.)",
                 "current": "Поточний порядок",
                 "proposed": "Запропонований порядок",
                 "routeSummaryLine": "{mi} миль · {duration}",
@@ -1550,6 +1564,48 @@
                 "summaryImproved": "За оцінкою HERE дорожній пробіг із запропонованим порядком коротший.",
                 "summaryWorse": "За оцінкою HERE дорожній пробіг із запропонованим порядком довший. Можна застосувати або залишити поточний порядок.",
                 "summaryTie": "Порядок зупинок зміниться, але за оцінкою HERE відстань приблизно така сама."
+            },
+            "assistant": {
+                "title": "REXTEN AI Dispatcher",
+                "usageLabel": "AI-запити (цей місяць)",
+                "pickSpecialist": "Оберіть фахівця, щоб отримати підказки на цей день.",
+                "upsell": "REXTEN AI Dispatcher доступний на вищих тарифах (від Starter).",
+                "upsellLink": "До підписки",
+                "checkDay": "Перевірити день",
+                "checkingDay": "Аналізую…",
+                "sending": "Надсилаю…",
+                "loadingHint": "ІІ аналізує цей день…",
+                "loadingSubHint": "Зазвичай займає 5–20 секунд.",
+                "emptyHint": "Запустіть перевірку дня, щоб побачити підсумок, проблеми й запропоновані дії.",
+                "youLabel": "Ви",
+                "aiLabel": "REXTEN AI Dispatcher",
+                "thinking": "Думаю…",
+                "routeUpdatedMemoryGeneric": "Маршрут оновлено. Попередні оцінки можуть застаріти — знову виклич інструменти перед цифрами.",
+                "applyOne": "Застосувати",
+                "actionSetIncludedHint": "«Застосувати» змінює лише склад візитів на маршруті цього спеціаліста за день; виконавця в бронюванні не змінює. Щоб передати замовлення іншому майстру, змініть виконавця в розкладі або в картці бронювання.",
+                "dismiss": "Ігнорувати",
+                "applyAll": "Застосувати все",
+                "applySuccess": "Зміни застосовано.",
+                "actionApplied": "Застосовано.",
+                "applyFailed": "Не вдалося застосувати зміни.",
+                "askLabel": "Питання",
+                "askPlaceholder": "напр., як зменшити запізнення?",
+                "send": "Надіслати",
+                "limitReached": "Місячний лиміт AI вичерпано. Скидання: {date}.",
+                "limitUnknown": "у наступному періоді",
+                "openBooking": "Відкрити бронювання #{id}",
+                "miShort": "миль",
+                "errorTitle": "REXTEN AI Dispatcher",
+                "genericError": "Щось пішло не так. Спробуйте знову.",
+                "quotaErrorTitle": "Ліміт AI",
+                "quotaErrorBody": "Досягнуто місячного ліміту запитів або токенів AI.",
+                "quotaErrorLink": "Підписка",
+                "outdatedData": "Дані маршруту змінилися. Оновіть вигляд і спробуйте знову.",
+                "applyBookingsInvalid": "Запропоновані візити застаріли (броні: {ids}). Оновіть список і знову запустіть «Перевірити цей день».",
+                "removeConfirmTitle": "Прибрати візити з маршруту?",
+                "removeConfirmBody": "Буде виключено броні: {ids}.",
+                "removeConfirmApply": "Так, застосувати",
+                "removeConfirmCancel": "Скасувати"
             },
             "status": {
                 "draft": "Чернетка",
@@ -1581,6 +1637,9 @@
                 "saved": "Збережені"
             },
             "metricsLine": "{mi} миль · {duration} · візитів: {visits}",
+            "metricsVisits": "{count, plural, one {# візит} few {# візити} many {# візитів} other {# візитів}}",
+            "headerLateness": "Запізнення до вікна: {duration}",
+            "headerIdle": "Очікування до початку запису: {duration}",
             "actions": "Дії",
             "noRouteShort": "Маршруту ще немає",
             "savedRoutesGroups": {
@@ -3071,6 +3130,7 @@
                 "analytics": "Розширена аналітика",
                 "prioritySupport": "Пріоритетна підтримка",
                 "apiAccess": "Доступ до API",
+                "ai": "REXTEN AI Dispatcher (запитів/місяць)",
                 "unlimited": "Безліміт"
             },
             "cancelDialog": {
@@ -3132,6 +3192,9 @@
                 "included": "Включено",
                 "notIncluded": "Не включено"
             },
+            "aiUsageResets": "Оновлюється {date}.",
+            "aiUpsellShort": "Доступно з тарифу Starter і вище.",
+            "aiUpsellLink": "До тарифів",
             "limitReached": {
                 "title": "Ліміт тарифу досягнуто",
                 "description": "Оновіть підписку, щоб додати більше.",
@@ -5645,6 +5708,8 @@
             "maxTeamMembers": "Макс. членів команди",
             "maxServices": "Макс. послуг",
             "maxAdvertisements": "Макс. оголошень",
+            "aiMaxRequests": "AI-запитів / міс. (REXTEN AI Dispatcher)",
+            "aiMaxTokens": "AI токенів / міс. (стеля)",
             "analytics": "Аналітика",
             "prioritySupport": "Пріоритетна підтримка",
             "apiAccess": "Доступ до API",
@@ -5806,7 +5871,9 @@
                 "listingsUnlimited": "Необмежено активних оголошень",
                 "featAnalytics": "Розширена аналітика",
                 "featPriority": "Пріоритетна підтримка",
-                "featApi": "Доступ до API"
+                "featApi": "Доступ до API",
+                "featAi": "REXTEN AI Dispatcher: {n} з./міс",
+                "featAiNone": "REXTEN AI Dispatcher — не входить у тариф"
             },
             "enterpriseDialog": {
                 "title": "Зв'язатися з відділом продажів — тариф Enterprise",

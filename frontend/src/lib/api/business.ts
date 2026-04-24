@@ -1712,6 +1712,23 @@ export interface BusinessRouteStop {
     distance_from_prev_meters: number | null
     duration_from_prev_seconds: number | null
     status: 'pending' | 'arrived' | 'completed' | 'skipped'
+    /** Опоздание относительно начала окна (сервер) */
+    late_seconds?: number
+    /** Слишком поздно относительно окон/смены (сервер) */
+    is_infeasible?: boolean
+    /** Конкретная причина невозможности (для UI/AI) */
+    infeasible_reason?:
+        | 'no_geocode'
+        | 'no_time'
+        | 'window_before_shift_start'
+        | 'late_over_4h'
+        | null
+    /** ISO начала смены специалиста — для подстановки в текст ошибки */
+    shift_start_iso?: string | null
+    /** ISO начала окна (=booking_time) — для подстановки в текст ошибки */
+    window_start_iso?: string | null
+    /** Опоздание в минутах (округлено вверх), для текстов «опоздание {duration}» */
+    late_minutes?: number
     booking?: {
         id: number
         client_name: string | null
@@ -1719,8 +1736,8 @@ export interface BusinessRouteStop {
         address: string
         execution_type?: string
         offsite_address_missing?: boolean
-        time_window_start: string
-        time_window_end: string
+        time_window_start: string | null
+        time_window_end: string | null
         priority: number
         duration_minutes: number
         total_price?: number
@@ -1737,8 +1754,10 @@ export interface BusinessRouteDayBooking {
     address: string
     execution_type: string
     offsite_address_missing: boolean
-    time_window_start: string
-    time_window_end: string
+    time_window_start: string | null
+    time_window_end: string | null
+    /** true если нет валидного booking_time (окно нельзя отобразить) */
+    time_window_unavailable?: boolean
     priority: number
     duration_minutes: number
     has_coordinates: boolean
@@ -1764,10 +1783,27 @@ export interface BusinessRouteSavedSummary {
     booking_stops_count: number
 }
 
+export type BusinessRouteFeasibilityIssueType =
+    | 'late'
+    | 'infeasible'
+    | 'no_geocode'
+    | 'no_time'
+    | 'out_of_shift'
+
+export interface BusinessRouteFeasibilityIssue {
+    type: BusinessRouteFeasibilityIssueType
+    booking_id?: number
+    stop_id?: number
+    minutes?: number
+    message?: string
+}
+
 export interface BusinessRoute {
     id: string
     specialist_id: number
     route_date: string
+    /** Версія кешу маршруту на бекенді; для AI apply (expected_version) */
+    cache_version?: number
     /** IANA (например America/Los_Angeles) — отображение ETA в таймлайне маршрута */
     display_timezone?: string
     status: 'draft' | 'stale' | 'optimizing' | 'ready' | 'in_progress' | 'completed'
@@ -1779,6 +1815,14 @@ export interface BusinessRoute {
     included_booking_ids: number[] | null
     /** Включать возврат домой в расчёт маршрута */
     include_return_leg?: boolean
+    /** Старт дня маршрута (смена специалиста) для проверок «вне смены» */
+    day_start_iso?: string
+    /** Сводка проблем по визитам/окнам (детерминировано на сервере) */
+    feasibility_issues?: BusinessRouteFeasibilityIssue[]
+    /** Сумма опозданий по визитам (мин, округление как у AI-снимка) */
+    late_minutes_total?: number
+    /** Суммарное ожидание до окна по визитам (мин) */
+    idle_minutes_total?: number
     specialist: BusinessRouteSpecialistInfo
     day_bookings: BusinessRouteDayBooking[]
     stops: BusinessRouteStop[]
@@ -1791,6 +1835,10 @@ export interface BusinessRoutePreview {
         distance_change_meters: number
         duration_change_seconds: number
         distance_change_percent: number
+        /** current late_seconds − proposed (positive = less late in proposed) */
+        late_change_seconds?: number
+        /** current idle_seconds − proposed */
+        idle_change_seconds?: number
         jobs_reordered: boolean
         locked_jobs: number
         outcome?:

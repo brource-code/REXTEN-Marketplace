@@ -462,6 +462,44 @@ function EditPlanDialog({ plan, onClose, onSave, loading, t }) {
                                 <label className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('maxAdvertisements')}</label>
                                 <Input type="number" value={form.features?.max_advertisements ?? 0} onChange={(e) => setForm({ ...form, features: { ...form.features, max_advertisements: parseInt(e.target.value) || 0 } })} />
                             </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    {t('aiMaxRequests')}
+                                </label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    value={form.features?.ai_max_requests_per_month ?? 0}
+                                    onChange={(e) =>
+                                        setForm({
+                                            ...form,
+                                            features: {
+                                                ...form.features,
+                                                ai_max_requests_per_month: parseInt(e.target.value) || 0,
+                                            },
+                                        })
+                                    }
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                    {t('aiMaxTokens')}
+                                </label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    value={form.features?.ai_max_tokens_per_month ?? 0}
+                                    onChange={(e) =>
+                                        setForm({
+                                            ...form,
+                                            features: {
+                                                ...form.features,
+                                                ai_max_tokens_per_month: parseInt(e.target.value) || 0,
+                                            },
+                                        })
+                                    }
+                                />
+                            </div>
                             <div className="flex items-center gap-2">
                                 <Switcher checked={form.features?.analytics ?? false} onChange={(val) => setForm({ ...form, features: { ...form.features, analytics: val } })} />
                                 <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('analytics')}</span>
@@ -536,6 +574,8 @@ function CreatePlanDialog({ isOpen, onClose, onSave, loading, t }) {
             max_team_members: 1,
             max_services: 5,
             max_advertisements: 1,
+            ai_max_requests_per_month: 0,
+            ai_max_tokens_per_month: 0,
             analytics: false,
             priority_support: false,
             api_access: false,

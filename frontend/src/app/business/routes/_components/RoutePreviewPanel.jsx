@@ -47,6 +47,10 @@ export default function RoutePreviewPanel({ preview, onApply, onCancel, applying
     const pctRaw = Number(preview.comparison?.distance_change_percent ?? 0)
     const pctDisplay = Math.abs(pctRaw).toFixed(2)
     const miDisplay = formatMilesDeltaFromMeters(Math.abs(dm))
+    const lateCh = preview.comparison?.late_change_seconds
+    const idleCh = preview.comparison?.idle_change_seconds
+    const showWindowMetrics =
+        (typeof lateCh === 'number' && lateCh !== 0) || (typeof idleCh === 'number' && idleCh !== 0)
 
     return (
         <div className="space-y-3">
@@ -108,6 +112,28 @@ export default function RoutePreviewPanel({ preview, onApply, onCancel, applying
             {outcome === 'tie' && (
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{tp('summaryTie')}</p>
             )}
+            {showWindowMetrics ? (
+                <div className="text-sm font-bold text-gray-500 dark:text-gray-400 space-y-1">
+                    {typeof lateCh === 'number' && lateCh !== 0 ? (
+                        <p>
+                            {tp('lateChange')}:{' '}
+                            <span className="text-gray-900 dark:text-gray-100 tabular-nums">
+                                {lateCh > 0 ? '−' : '+'}
+                                {formatDurationMinutesI18n(Math.max(1, Math.round(Math.abs(lateCh) / 60)), tDur)}
+                            </span>
+                        </p>
+                    ) : null}
+                    {typeof idleCh === 'number' && idleCh !== 0 ? (
+                        <p>
+                            {tp('idleChange')}:{' '}
+                            <span className="text-gray-900 dark:text-gray-100 tabular-nums">
+                                {idleCh > 0 ? '−' : '+'}
+                                {formatDurationMinutesI18n(Math.max(1, Math.round(Math.abs(idleCh) / 60)), tDur)}
+                            </span>
+                        </p>
+                    ) : null}
+                </div>
+            ) : null}
             <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{confLabel}</p>
             {outcome === 'improved' && (
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{tp('summaryImproved')}</p>

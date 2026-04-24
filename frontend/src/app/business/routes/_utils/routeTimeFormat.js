@@ -1,19 +1,22 @@
 import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
 
+/** Локаль для отображения времени на экране маршрутов (US 12h). */
+const ROUTE_TIME_LOCALE = 'en-US'
+
 /**
- * Время из ISO в таймзоне бизнеса и локали UI (как в попапе карты и списке визитов).
+ * Время из ISO в таймзоне бизнеса, 12-часовой американский формат (независимо от языка UI).
  * @param {string|undefined|null} iso
  * @param {string|undefined|null} timeZone IANA
- * @param {string|undefined|null} intlLocale BCP47 (useLocale)
  */
-export function formatRouteIsoTime(iso, timeZone, intlLocale) {
+export function formatRouteIsoTime(iso, timeZone) {
     if (!iso) return ''
     try {
         const d = new Date(iso)
         if (Number.isNaN(d.getTime())) return ''
-        return new Intl.DateTimeFormat(intlLocale || undefined, {
+        return new Intl.DateTimeFormat(ROUTE_TIME_LOCALE, {
             hour: 'numeric',
             minute: '2-digit',
+            hour12: true,
             timeZone: timeZone || undefined,
         }).format(d)
     } catch {

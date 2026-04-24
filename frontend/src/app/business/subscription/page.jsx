@@ -836,6 +836,53 @@ function SubscriptionContent() {
                                             </Tag>
                                         </span>
                                     </div>
+                                    {usageData.ai ? (
+                                        <div className="mt-2 rounded-md border border-gray-200 dark:border-gray-600/80 bg-white/60 dark:bg-gray-900/30 p-2">
+                                            <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                                <PiLightning className="h-4 w-4 text-amber-500" aria-hidden />
+                                                {t('features.ai')}
+                                            </div>
+                                            {usageData.ai.allowed ? (
+                                                <>
+                                                    <div className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+                                                        {usageData.ai.requests_used} / {usageData.ai.requests_limit}
+                                                    </div>
+                                                    {usageData.ai.requests_limit > 0 ? (
+                                                        <div className="mt-1 h-1 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                                                            <div
+                                                                className="h-1 rounded-full bg-amber-500"
+                                                                style={{
+                                                                    width: `${Math.min(
+                                                                        100,
+                                                                        (usageData.ai.requests_used /
+                                                                            usageData.ai.requests_limit) *
+                                                                            100,
+                                                                    )}%`,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ) : null}
+                                                    {usageData.ai.period_end_iso ? (
+                                                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                                            {t('aiUsageResets', {
+                                                                date: usShortDate(usageData.ai.period_end_iso),
+                                                            })}
+                                                        </p>
+                                                    ) : null}
+                                                </>
+                                            ) : (
+                                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                                    {t('aiUpsellShort')}{' '}
+                                                    <Link
+                                                        href="/business/subscription"
+                                                        className="text-primary font-bold hover:underline"
+                                                    >
+                                                        {t('aiUpsellLink')}
+                                                    </Link>
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : null}
                                 </div>
                             </div>
                         ) : null}

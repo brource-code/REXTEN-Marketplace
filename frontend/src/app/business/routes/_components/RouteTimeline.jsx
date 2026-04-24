@@ -69,6 +69,7 @@ function formatEtaUs(iso, timeZone) {
  */
 export default function RouteTimeline({ route, includeReturnLeg = true }) {
     const t = useTranslations('business.routes.timeline')
+    const tIssues = useTranslations('business.routes.issues')
     const tDur = useTranslations('common.durationMinutes')
     const { settings } = useBusinessStore()
     const specialist = route.specialist
@@ -241,11 +242,77 @@ export default function RouteTimeline({ route, includeReturnLeg = true }) {
                                         </p>
                                         {(() => {
                                             if (!isBooking) return null
-                                            const lateMin = computeLateMinutes(
-                                                stop.eta,
-                                                stop.arrived_at,
-                                                stop.booking?.time_window_start,
-                                            )
+                                            if (stop.is_infeasible) {
+                                                const reason = stop.infeasible_reason
+                                                const fmtTime = (iso) => {
+                                                    if (!iso) return ''
+                                                    try {
+                                                        return new Intl.DateTimeFormat(US_LOCALE, {
+                                                            timeZone: displayTz,
+                                                            hour: 'numeric',
+                                                            minute: '2-digit',
+                                                            hour12: true,
+                                                        }).format(new Date(iso))
+                                                    } catch {
+                                                        return ''
+                                                    }
+                                                }
+                                                let text = tIssues('infeasible')
+                                                if (reason === 'window_before_shift_start') {
+                                                    text = tIssues('infeasibleWindowBeforeShiftStart', {
+                                                        visitTime: fmtTime(stop.window_start_iso || stop.booking?.time_window_start),
+                                                        shiftStart: fmtTime(stop.shift_start_iso),
+                                                    })
+                                                } else if (reason === 'late_over_4h') {
+                                                    const lm = Number(stop.late_minutes ?? 0)
+                                                    text = tIssues('infeasibleLateOver4h', {
+                                                        lateDuration: formatDurationMinutesI18n(
+                                                            Math.max(1, lm),
+                                                            tDur,
+                                                        ),
+                                                    })
+                                                } else if (reason === 'no_geocode') {
+                                                    text = tIssues('infeasibleNoGeocode')
+                                                } else if (reason === 'no_time') {
+                                                    text = tIssues('infeasibleNoTime')
+                                                }
+                                                const lateMinInfeas =
+                                                    Number(stop.late_minutes ?? 0) > 0
+                                                        ? Number(stop.late_minutes)
+                                                        : stop.late_seconds != null && stop.late_seconds > 0
+                                                          ? Math.max(1, Math.ceil(Number(stop.late_seconds) / 60))
+                                                          : 0
+                                                const showLateUnderInfeasible =
+                                                    lateMinInfeas > 0 && reason !== 'late_over_4h'
+                                                return (
+                                                    <>
+                                                        <p className="text-xs font-bold text-red-600 dark:text-red-400 mt-1">
+                                                            {text}
+                                                        </p>
+                                                        {showLateUnderInfeasible ? (
+                                                            <p className="text-xs font-bold text-red-600 dark:text-red-400 mt-0.5">
+                                                                {t('lateArrival', {
+                                                                    duration: formatDurationMinutesI18n(
+                                                                        lateMinInfeas,
+                                                                        tDur,
+                                                                    ),
+                                                                })}
+                                                            </p>
+                                                        ) : null}
+                                                    </>
+                                                )
+                                            }
+                                            const lateMinFromApi =
+                                                stop.late_seconds != null && stop.late_seconds > 0
+                                                    ? Math.max(1, Math.ceil(Number(stop.late_seconds) / 60))
+                                                    : null
+                                            const lateMin =
+                                                lateMinFromApi ??
+                                                computeLateMinutes(
+                                                    stop.eta,
+                                                    stop.arrived_at,
+                                                    stop.booking?.time_window_start,
+                                                )
                                             const hasWait = (stop.wait_before_seconds ?? 0) > 0 && stop.arrived_at
                                             if (lateMin > 0) {
                                                 return (

@@ -228,6 +228,8 @@ export interface SubscriptionPlanFeatures {
     max_team_members: number
     max_services: number
     max_advertisements: number
+    ai_max_requests_per_month?: number
+    ai_max_tokens_per_month?: number
     analytics: boolean
     priority_support: boolean
     api_access: boolean
@@ -290,6 +292,16 @@ export interface SubscriptionUsageBoolean {
     allowed: boolean
 }
 
+export interface SubscriptionUsageAi {
+    allowed: boolean
+    requests_used: number
+    requests_limit: number
+    tokens_used: number
+    tokens_limit: number
+    period: string
+    period_end_iso: string | null
+}
+
 export interface SubscriptionUsage {
     team_members: SubscriptionUsageNumeric
     services: SubscriptionUsageNumeric
@@ -298,6 +310,9 @@ export interface SubscriptionUsage {
     api_access: SubscriptionUsageBoolean
     priority_support: SubscriptionUsageBoolean
     routes: SubscriptionUsageBoolean
+    ai?: SubscriptionUsageAi
+    current_period_end?: string | null
+    plan?: string | null
     grace_period_ends_at?: string | null
     grace_period_active?: boolean
     is_over_limit?: boolean

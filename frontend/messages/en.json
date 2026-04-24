@@ -1525,6 +1525,18 @@
                 "waitUntilAppointment": "Wait {duration} until scheduled start",
                 "lateArrival": "Late by {duration}"
             },
+            "issues": {
+                "banner": "{count, plural, one {# issue in this day’s plan} other {# issues in this day’s plan}}",
+                "late": "Late vs window",
+                "infeasible": "Not feasible on time with the current start time or time windows. Adjust the schedule, shift, or order.",
+                "infeasibleWindowBeforeShiftStart": "The visit is scheduled at {visitTime}, but the shift starts at {shiftStart}. Move the visit to {shiftStart} or later, or shift the start of the workday earlier.",
+                "infeasibleLateOver4h": "More than {lateDuration} of delay piles up before this visit — there is no way to arrive on time in the current order. Try optimizing the route or move some visits.",
+                "infeasibleNoGeocode": "The booking has no address coordinates. Open the booking and set a precise address.",
+                "infeasibleNoTime": "The booking has no appointment time. Set a visit time so it fits into the route.",
+                "no_geocode": "Address not on the map — geocode the visit or fix the address.",
+                "no_time": "No appointment time on the booking",
+                "out_of_shift": "Falls outside the specialist’s shift or window"
+            },
             "savedRoutes": {
                 "title": "Saved routes by day",
                 "hint": "Click a date to open that day’s route.",
@@ -1534,6 +1546,8 @@
             },
             "preview": {
                 "title": "Optimization preview",
+                "lateChange": "Lateness vs windows (approx.)",
+                "idleChange": "Idle / wait (approx.)",
                 "current": "Current order",
                 "proposed": "Proposed order",
                 "routeSummaryLine": "{mi} mi · {duration}",
@@ -1550,6 +1564,48 @@
                 "summaryImproved": "Road distance is shorter with the proposed order (HERE estimate).",
                 "summaryWorse": "Road distance is longer with the proposed order (HERE estimate). You can still apply it or cancel.",
                 "summaryTie": "Stop order would change, but road distance is about the same (HERE estimate)."
+            },
+            "assistant": {
+                "title": "REXTEN AI Dispatcher",
+                "usageLabel": "AI requests (this month)",
+                "pickSpecialist": "Select a specialist to get suggestions for this day.",
+                "upsell": "REXTEN AI Dispatcher is available on higher plans (Starter and up).",
+                "upsellLink": "View subscription",
+                "checkDay": "Review this day",
+                "checkingDay": "Reviewing…",
+                "sending": "Sending…",
+                "loadingHint": "AI is analyzing this day…",
+                "loadingSubHint": "Usually takes 5–20 seconds.",
+                "emptyHint": "Run a day review to see a summary, issues, and suggested actions.",
+                "youLabel": "You",
+                "aiLabel": "REXTEN AI Dispatcher",
+                "thinking": "Thinking…",
+                "routeUpdatedMemoryGeneric": "Route was updated. Earlier estimates may be stale — re-fetch tools before quoting numbers.",
+                "applyOne": "Apply",
+                "actionSetIncludedHint": "Apply only changes which visits are on this specialist's route for the day — it does not change who owns the booking. To give a job to another technician, reassign in Schedule or the booking.",
+                "dismiss": "Ignore",
+                "applyAll": "Apply all",
+                "applySuccess": "Changes applied.",
+                "actionApplied": "Applied.",
+                "applyFailed": "Could not apply changes.",
+                "askLabel": "Question",
+                "askPlaceholder": "e.g. How can I reduce late arrivals?",
+                "send": "Send",
+                "limitReached": "Monthly AI limit reached. It resets on {date}.",
+                "limitUnknown": "the next period",
+                "openBooking": "Open booking #{id}",
+                "miShort": "mi",
+                "errorTitle": "REXTEN AI Dispatcher",
+                "genericError": "Something went wrong. Try again.",
+                "quotaErrorTitle": "AI limit",
+                "quotaErrorBody": "You have reached the monthly AI request or token limit.",
+                "quotaErrorLink": "Subscription",
+                "outdatedData": "Route data changed. Please review the updated state and try again.",
+                "applyBookingsInvalid": "Suggested visits are out of date (bookings: {ids}). Run Review this day again after the list refreshes.",
+                "removeConfirmTitle": "Remove visits from the route?",
+                "removeConfirmBody": "These bookings will be left out: {ids}.",
+                "removeConfirmApply": "Yes, apply",
+                "removeConfirmCancel": "Cancel"
             },
             "status": {
                 "draft": "Draft",
@@ -1581,6 +1637,9 @@
                 "saved": "Saved"
             },
             "metricsLine": "{mi} mi · {duration} · {visits} visits",
+            "metricsVisits": "{count, plural, one {# visit} other {# visits}}",
+            "headerLateness": "Late vs windows: {duration}",
+            "headerIdle": "Idle before visits: {duration}",
             "actions": "Actions",
             "noRouteShort": "No route yet",
             "savedRoutesGroups": {
@@ -3071,6 +3130,7 @@
                 "analytics": "Advanced analytics",
                 "prioritySupport": "Priority support",
                 "apiAccess": "API access",
+                "ai": "REXTEN AI Dispatcher (monthly requests)",
                 "unlimited": "Unlimited"
             },
             "cancelDialog": {
@@ -3132,6 +3192,9 @@
                 "included": "Included",
                 "notIncluded": "Not included"
             },
+            "aiUsageResets": "Resets on {date}.",
+            "aiUpsellShort": "Available on Starter and higher.",
+            "aiUpsellLink": "View plans",
             "limitReached": {
                 "title": "Plan limit reached",
                 "description": "Upgrade your subscription to add more.",
@@ -4965,6 +5028,8 @@
             "maxTeamMembers": "Max Team Members",
             "maxServices": "Max Services",
             "maxAdvertisements": "Max Advertisements",
+            "aiMaxRequests": "AI requests / month (REXTEN AI Dispatcher)",
+            "aiMaxTokens": "AI tokens / month (cap)",
             "analytics": "Analytics",
             "prioritySupport": "Priority Support",
             "apiAccess": "API Access",
@@ -5791,7 +5856,9 @@
                 "listingsUnlimited": "Unlimited active listings",
                 "featAnalytics": "Advanced analytics",
                 "featPriority": "Priority support",
-                "featApi": "API access"
+                "featApi": "API access",
+                "featAi": "REXTEN AI Dispatcher: {n} requests/mo",
+                "featAiNone": "REXTEN AI Dispatcher — not included"
             },
             "enterpriseDialog": {
                 "title": "Talk to sales — Enterprise plan",

@@ -31,8 +31,10 @@ export function useScheduleReferenceData() {
         staleTime: STALE_TIME_MS,
     })
 
+    // Тот же queryKey, что в календаре / TeamTab — иначе после создания специалиста
+    // инвалидируется только ['business-team'], а дроуэр брони держит устаревший список.
     const teamMembers = useQuery({
-        queryKey: ['business-team-members'],
+        queryKey: ['business-team'],
         queryFn: () => getTeamMembers(),
         staleTime: STALE_TIME_MS,
     })

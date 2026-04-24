@@ -13,6 +13,7 @@ import {
     PiChartLineUp,
     PiHeadset,
     PiCode,
+    PiLightning,
     PiArrowUpRight,
 } from 'react-icons/pi'
 import Button from '@/components/ui/Button'
@@ -50,6 +51,7 @@ function buildPlanRows(plan, tFrom) {
     const team = f.max_team_members
     const services = f.max_services
     const ads = f.max_advertisements
+    const aiReq = f.ai_max_requests_per_month
 
     return [
         {
@@ -93,6 +95,15 @@ function buildPlanRows(plan, tFrom) {
             kind: 'flag',
             included: !!f.api_access,
             label: tFrom('featApi'),
+        },
+        {
+            Icon: PiLightning,
+            kind: 'capacity',
+            included: num(aiReq) > 0,
+            label:
+                num(aiReq) > 0
+                    ? tFrom('featAi', { n: num(aiReq) })
+                    : tFrom('featAiNone'),
         },
     ]
 }

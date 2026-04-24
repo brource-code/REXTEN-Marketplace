@@ -34,13 +34,17 @@ export default function useSubscriptionLimits(options = {}) {
 
     const hasFeature = useCallback(
         (feature) => {
+            // Не показывать ложный «нет доступа» при сбое API (бейдж/FeatureLock)
+            if (isError) {
+                return true
+            }
             if (!usage) {
                 return false
             }
             const block = usage[feature]
             return block?.allowed === true
         },
-        [usage],
+        [usage, isError],
     )
 
     const isOverLimit = Boolean(usage?.is_over_limit)
