@@ -133,7 +133,7 @@ class SubscriptionPlan extends Model
                 'routes' => true,
                 'analytics' => true,
                 'api_access' => false,
-                'priority_support' => true,
+                'priority_support' => false,
             ],
             'enterprise' => [
                 'routes' => true,

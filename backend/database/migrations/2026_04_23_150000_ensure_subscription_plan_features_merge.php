@@ -39,7 +39,7 @@ return new class extends Migration
                 'max_services' => 50,
                 'max_advertisements' => 20,
                 'analytics' => true,
-                'priority_support' => true,
+                'priority_support' => false,
                 'api_access' => false,
                 'routes' => true,
             ],
