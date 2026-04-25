@@ -49,7 +49,7 @@ export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTe
             ) : (
                 <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
                     <h5 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-100">{t('team.title')}</h5>
-                    <div className="max-h-[min(55vh,28rem)] min-h-0 divide-y divide-gray-200 overflow-y-auto overflow-x-hidden overscroll-contain dark:divide-gray-700 sm:space-y-2 sm:divide-y-0 sm:pr-1">
+                    <div className="booking-modal-scroll max-h-[min(55vh,28rem)] min-h-0 divide-y divide-gray-200 overflow-y-auto overflow-x-hidden overscroll-contain dark:divide-gray-700 sm:space-y-2 sm:divide-y-0 sm:pr-1">
                         {companyTeam.map((member) => {
                             const currentTeamIds = Array.isArray(formData.team)
                                 ? formData.team.map((m) => (typeof m === 'object' ? m.id || m : m))

@@ -631,7 +631,7 @@ export function AdvertisementsRegularPanel({ queryEnabled = true }) {
                             </h4>
                         </div>
 
-                        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
+                        <div className="booking-modal-scroll flex-1 space-y-4 overflow-y-auto px-6 py-4">
                             {selectedAd.image ? (
                                 <div className="relative h-64 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                     <img

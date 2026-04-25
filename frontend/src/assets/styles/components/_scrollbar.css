@@ -213,18 +213,21 @@
 	.booking-modal-scroll::-webkit-scrollbar-thumb:hover {
 		background: rgba(156, 163, 175, 0.7);
 	}
-	.dark .booking-modal-scroll::-webkit-scrollbar-thumb {
-		background: rgba(75, 85, 99, 0.5);
+	.dark .booking-modal-scroll::-webkit-scrollbar-thumb,
+	html.dark .booking-modal-scroll::-webkit-scrollbar-thumb {
+		background: rgba(107, 114, 128, 0.55);
 	}
-	.dark .booking-modal-scroll::-webkit-scrollbar-thumb:hover {
-		background: rgba(75, 85, 99, 0.7);
+	.dark .booking-modal-scroll::-webkit-scrollbar-thumb:hover,
+	html.dark .booking-modal-scroll::-webkit-scrollbar-thumb:hover {
+		background: rgba(156, 163, 175, 0.55);
 	}
 	.booking-modal-scroll {
 		scrollbar-width: thin;
 		scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 	}
-	.dark .booking-modal-scroll {
-		scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+	.dark .booking-modal-scroll,
+	html.dark .booking-modal-scroll {
+		scrollbar-color: rgba(107, 114, 128, 0.55) transparent;
 	}
 	
 	/* Скроллбар для таблиц (горизонтальный) */
