@@ -2572,6 +2572,21 @@
                     "endDate": "End Date",
                     "endDateHint": "Leave empty for indefinite placement"
                 },
+                "validation": {
+                    "titleRequired": "Enter an advertisement name.",
+                    "categoryRequired": "Select a category.",
+                    "stateRequired": "Select a state.",
+                    "cityRequired": "Select a city.",
+                    "priceFromRequired": "Enter the minimum price for this listing.",
+                    "priceToRequired": "Enter the maximum price for this listing.",
+                    "pricesNumeric": "Prices must be valid numbers.",
+                    "pricesNonNegative": "Prices cannot be negative.",
+                    "priceRangeInvalid": "The maximum price must be greater than or equal to the minimum.",
+                    "servicesRequired": "Add at least one service with a name (or template), price, and duration.",
+                    "servicePriceRequired": "Each service must have a valid price.",
+                    "servicePriceNonNegative": "Service price cannot be negative.",
+                    "serviceDurationRequired": "Each service must have a positive duration."
+                },
                 "pricing": {
                     "title": "Pricing",
                     "hint": "Price range for services on this listing (from–to).",

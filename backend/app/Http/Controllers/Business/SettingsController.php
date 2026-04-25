@@ -1708,8 +1708,11 @@ class SettingsController extends Controller
             ]);
         }
 
+        $statusRaw = $request->input('status', 'pending');
+        $isDraft = is_string($statusRaw) && strtolower(trim($statusRaw)) === 'draft';
+
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'title' => ($isDraft ? 'nullable' : 'required') . '|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:advertisement,regular',
             'image' => 'nullable|string',
@@ -1717,14 +1720,16 @@ class SettingsController extends Controller
             'placement' => 'nullable|in:homepage,services,sidebar,banner',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'city' => 'nullable|string',
-            'state' => ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
-            'priceFrom' => 'nullable|numeric',
-            'priceTo' => 'nullable|numeric',
+            'city' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
+            'state' => $isDraft
+                ? ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())]
+                : ['required', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
+            'priceFrom' => $isDraft ? 'nullable|numeric' : 'required|numeric|min:0',
+            'priceTo' => $isDraft ? 'nullable|numeric' : ['required', 'numeric', 'min:0', 'gte:priceFrom'],
             'currency' => 'nullable|string',
-            'category_id' => 'nullable|integer|exists:service_categories,id',
-            'services' => 'nullable|array',
-            'services.*.service_id' => 'nullable|integer', // Убираем exists проверку, так как новые услуги еще не в БД
+            'category_id' => $isDraft ? 'nullable|integer|exists:service_categories,id' : 'required|integer|exists:service_categories,id',
+            'services' => $isDraft ? 'nullable|array' : 'required|array|min:1',
+            'services.*.service_id' => 'nullable|integer',
             'services.*.id' => 'nullable',
             'services.*.name' => 'nullable|string|max:255',
             'services.*.price' => 'nullable|numeric|min:0',
@@ -1736,7 +1741,7 @@ class SettingsController extends Controller
             'portfolio' => 'nullable|array',
             'schedule' => 'nullable|array',
             'slot_step_minutes' => 'nullable|integer|min:15|max:240',
-            'status' => 'nullable|string|in:draft,pending,approved,rejected', // Добавляем статус в валидацию
+            'status' => 'nullable|string|in:draft,pending,approved,rejected',
         ]);
 
         if ($validator->fails()) {
@@ -1747,42 +1752,15 @@ class SettingsController extends Controller
             ], 422);
         }
 
-        // ВАЖНО: Проверяем, что в team есть хотя бы один специалист
-        // НО: для драфтов (status: 'draft') команда опциональна - полностью пропускаем проверку
-        $status = $request->input('status', 'pending');
-        $isDraft = ($status === 'draft' || (is_string($status) && strtolower(trim($status)) === 'draft'));
-        
-        // Логируем для отладки
-        \Log::info('Advertisement create validation', [
-            'status' => $status,
-            'statusType' => gettype($status),
-            'isDraft' => $isDraft,
-            'hasTeam' => $request->has('team'),
-            'teamValue' => $request->input('team'),
-            'requestAll' => $request->all(),
-        ]);
-        
-        // Для драфтов полностью пропускаем проверку команды
         if (!$isDraft) {
-            $team = $request->input('team', []);
-            $teamArray = is_array($team) ? $team : (json_decode($team, true) ?? []);
-            
-            // Фильтруем пустые элементы и проверяем наличие хотя бы одного валидного специалиста
-            $validTeamMembers = array_filter($teamArray, function($member) {
-                return !empty($member['name']) || !empty($member['id']);
-            });
-            
-            // Для не-драфтов команда обязательна
-            if (empty($validTeamMembers)) {
+            $publishErrors = $this->validateAdvertisementPublishServices($request->input('services', []));
+            if (!empty($publishErrors)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'В объявлении должен быть указан хотя бы один исполнитель (специалист)',
-                    'errors' => ['team' => ['В объявлении должен быть указан хотя бы один исполнитель (специалист)']],
+                    'message' => 'Validation error',
+                    'errors' => $publishErrors,
                 ], 422);
             }
-        } else {
-            // Для драфтов логируем, что проверка пропущена
-            \Log::debug('Advertisement create: Draft detected, skipping team validation');
         }
 
         $company = Company::find($companyId);
@@ -2053,6 +2031,8 @@ class SettingsController extends Controller
             ]);
         }
 
+        $isDraftSave = $request->has('status') && strtolower(trim((string) $request->input('status'))) === 'draft';
+
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -2069,11 +2049,12 @@ class SettingsController extends Controller
             'currency' => 'nullable|string',
             'category_id' => 'nullable|integer|exists:service_categories,id',
             'services' => 'nullable|array',
-            'services.*.service_id' => 'nullable|integer|exists:services,id',
+            'services.*.service_id' => 'nullable|integer',
             'team' => 'nullable|array',
             'portfolio' => 'nullable|array',
             'schedule' => 'nullable|array',
             'slot_step_minutes' => 'nullable|integer|min:15|max:240',
+            'status' => 'nullable|string|in:draft,pending,approved,rejected',
         ]);
 
         if ($validator->fails()) {
@@ -2084,63 +2065,15 @@ class SettingsController extends Controller
             ], 422);
         }
 
-        // ВАЖНО: Проверяем, что в team есть хотя бы один специалист
-        // НО: для драфтов (status: 'draft') команда опциональна - полностью пропускаем проверку
-        $status = $request->input('status', $advertisement->status ?? 'pending');
-        $isDraft = ($status === 'draft' || (is_string($status) && strtolower(trim($status)) === 'draft'));
-        
-        // Логируем для отладки
-        \Log::info('Advertisement update validation', [
-            'status' => $status,
-            'statusType' => gettype($status),
-            'isDraft' => $isDraft,
-            'hasTeam' => $request->has('team'),
-            'teamValue' => $request->input('team'),
-            'requestAll' => $request->all(),
-        ]);
-        
-        // Для драфтов полностью пропускаем проверку команды
-        if (!$isDraft) {
-            // Если team передается в запросе, проверяем его
-            if ($request->has('team')) {
-                $team = $request->input('team', []);
-                $teamArray = is_array($team) ? $team : (json_decode($team, true) ?? []);
-                
-                // Фильтруем пустые элементы и проверяем наличие хотя бы одного валидного специалиста
-                $validTeamMembers = array_filter($teamArray, function($member) {
-                    return !empty($member['name']) || !empty($member['id']);
-                });
-                
-                if (empty($validTeamMembers)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'В объявлении должен быть указан хотя бы один исполнитель (специалист)',
-                        'errors' => ['team' => ['В объявлении должен быть указан хотя бы один исполнитель (специалист)']],
-                    ], 422);
-                }
-            } else {
-                // Если team не передается в запросе, проверяем существующий team в объявлении
-                $existingTeam = is_array($advertisement->team) ? $advertisement->team : (json_decode($advertisement->team, true) ?? []);
-                $validTeamMembers = array_filter($existingTeam, function($member) {
-                    if (is_array($member)) {
-                        return !empty($member['name']) || !empty($member['id']);
-                    }
-                    return false;
-                });
-                
-                // Если в существующем объявлении нет команды, это ошибка только если мы обновляем другие поля
-                // Но если мы обновляем только services (например, добавляем дополнительные услуги), не требуем команду
-                if (empty($validTeamMembers) && $request->hasAny(['title', 'description', 'type', 'image', 'link', 'placement', 'city', 'state', 'priceFrom', 'priceTo', 'currency', 'schedule', 'slot_step_minutes'])) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'В объявлении должен быть указан хотя бы один исполнитель (специалист)',
-                        'errors' => ['team' => ['В объявлении должен быть указан хотя бы один исполнитель (специалист)']],
-                    ], 422);
-                }
+        if (!$isDraftSave) {
+            $publishErrors = $this->validateAdvertisementPublishForUpdate($request, $advertisement);
+            if (!empty($publishErrors)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $publishErrors,
+                ], 422);
             }
-        } else {
-            // Для драфтов логируем, что проверка пропущена
-            \Log::debug('Advertisement update: Draft detected, skipping team validation');
         }
 
         // Нормализуем link (генерируем slug из title, если нужно)
@@ -3075,6 +3008,173 @@ public function deleteAdvertisement(Request $request, $id)
                 'reviews' => (bool) $company->notification_reviews,
             ],
         ]);
+    }
+
+    private function advertisementDisplayDurationToMinutes($value, ?string $unit): int
+    {
+        $unit = $unit === 'days' ? 'days' : 'hours';
+        $raw = str_replace(',', '.', trim((string) $value));
+        if ($raw === '') {
+            return 0;
+        }
+        $n = (float) $raw;
+        if (! is_finite($n) || $n < 0) {
+            return 0;
+        }
+
+        return $unit === 'days' ? (int) round($n * 24 * 60) : (int) round($n * 60);
+    }
+
+    /**
+     * @param  mixed  $raw
+     * @return array<int, mixed>
+     */
+    private function decodeAdvertisementServicesJson($raw): array
+    {
+        if (is_array($raw)) {
+            return $raw;
+        }
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    }
+
+    /**
+     * At least one meaningful service row: name or company template id, numeric price ≥ 0, positive duration in minutes.
+     *
+     * @param  array<int, mixed>  $services
+     * @return array<string, array<int, string>>
+     */
+    private function validateAdvertisementPublishServices(array $services): array
+    {
+        if (! is_array($services)) {
+            return ['services' => ['Add at least one complete service (name, price, duration).']];
+        }
+
+        $errors = [];
+        $foundMeaningful = false;
+
+        foreach ($services as $idx => $s) {
+            if (! is_array($s)) {
+                continue;
+            }
+
+            $name = trim((string) ($s['name'] ?? ''));
+            $sid = isset($s['service_id']) ? (int) $s['service_id'] : 0;
+            if ($sid >= 1000000) {
+                $sid = 0;
+            }
+
+            $meaningful = ($name !== '') || ($sid > 0);
+            if (! $meaningful) {
+                continue;
+            }
+
+            $foundMeaningful = true;
+
+            $price = $s['price'] ?? null;
+            if ($price === null || $price === '' || ! is_numeric($price)) {
+                $errors['services.' . $idx . '.price'] = ['Each service must have a valid price.'];
+
+                continue;
+            }
+
+            if ((float) $price < 0) {
+                $errors['services.' . $idx . '.price'] = ['Price cannot be negative.'];
+
+                continue;
+            }
+
+            // Клиент отправляет duration в минутах (см. mapAdvertisementServiceForSubmit); иначе — отображаемое число + unit.
+            $durRaw = $s['duration'] ?? null;
+            if (is_numeric($durRaw)) {
+                $minutes = max(0, (int) round((float) $durRaw));
+            } else {
+                $unit = (($s['duration_unit'] ?? 'hours') === 'days') ? 'days' : 'hours';
+                $minutes = $this->advertisementDisplayDurationToMinutes($durRaw, $unit);
+            }
+            if ($minutes < 1) {
+                $errors['services.' . $idx . '.duration'] = ['Each service must have a positive duration.'];
+            }
+        }
+
+        if (! $foundMeaningful) {
+            return ['services' => ['Add at least one complete service (name, price, and duration).']];
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Full publish snapshot for update (not draft save): title, category, state, city, prices, services.
+     *
+     * @return array<string, array<int, string>>
+     */
+    private function validateAdvertisementPublishForUpdate(Request $request, Advertisement $advertisement): array
+    {
+        $errors = [];
+
+        $title = trim((string) ($request->has('title') ? $request->input('title') : ($advertisement->title ?? '')));
+        if ($title === '') {
+            $errors['title'] = ['Advertisement title is required.'];
+        }
+
+        $categoryId = $request->input('category_id');
+        if (($categoryId === null || $categoryId === '') && $advertisement->category_slug) {
+            $categoryId = ServiceCategory::where('slug', $advertisement->category_slug)->value('id');
+        }
+        if (! $categoryId) {
+            $errors['category_id'] = ['Select a category.'];
+        } elseif (! ServiceCategory::where('id', (int) $categoryId)->exists()) {
+            $errors['category_id'] = ['Invalid category.'];
+        }
+
+        $state = $request->has('state')
+            ? UsStateCodes::normalizeNullableStateInput($request->input('state'))
+            : UsStateCodes::normalizeNullableStateInput($advertisement->state ?? null);
+
+        if ($state === null || $state === '' || strlen((string) $state) !== 2 || ! in_array($state, UsStateCodes::ids(), true)) {
+            $errors['state'] = ['Select a valid US state.'];
+        }
+
+        $city = trim((string) ($request->has('city') ? $request->input('city') : ($advertisement->city ?? '')));
+        if ($city === '') {
+            $errors['city'] = ['City is required.'];
+        }
+
+        $pf = $request->has('priceFrom') ? $request->input('priceFrom') : $advertisement->price_from;
+        $pt = $request->has('priceTo') ? $request->input('priceTo') : $advertisement->price_to;
+
+        if ($pf === null || $pf === '') {
+            $errors['priceFrom'] = ['Price from is required.'];
+        }
+        if ($pt === null || $pt === '') {
+            $errors['priceTo'] = ['Price to is required.'];
+        }
+
+        if (! isset($errors['priceFrom']) && ! isset($errors['priceTo'])) {
+            $nFrom = (float) $pf;
+            $nTo = (float) $pt;
+            if (! is_finite($nFrom) || ! is_finite($nTo)) {
+                $errors['priceFrom'] = ['Prices must be valid numbers.'];
+            } elseif ($nFrom < 0 || $nTo < 0) {
+                $errors['priceFrom'] = ['Prices cannot be negative.'];
+            } elseif ($nFrom > $nTo) {
+                $errors['priceTo'] = ['Maximum price must be greater than or equal to minimum price.'];
+            }
+        }
+
+        $services = $request->has('services')
+            ? $request->input('services', [])
+            : $this->decodeAdvertisementServicesJson($advertisement->services);
+
+        $svcErrors = $this->validateAdvertisementPublishServices(is_array($services) ? $services : []);
+
+        return array_merge($errors, $svcErrors);
     }
 
 }

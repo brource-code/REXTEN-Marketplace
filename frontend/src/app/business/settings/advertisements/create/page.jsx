@@ -39,6 +39,7 @@ import { AdvertisementCreatePortfolioSection } from './_components/Advertisement
 import { AdvertisementCreateTeamSection } from './_components/AdvertisementCreateTeamSection'
 import {
     advertisementMinutesToDisplay,
+    advertisementDisplayToMinutes,
     mapAdvertisementServiceForSubmit,
     sortAdvertisementServicesNewestFirst,
     nextAdvertisementServiceTempId,
@@ -49,6 +50,72 @@ const ALLOWED_SLOT_STEP_MINUTES = [60, 90, 120, 180, 240]
 function normalizeSlotStepMinutes(value) {
     const n = Number(value) || 60
     return ALLOWED_SLOT_STEP_MINUTES.includes(n) ? n : 60
+}
+
+/** Финальная публикация: минимум полей (без портфолио и части «общей»). */
+function validateAdvertisementForPublish(formData, t) {
+    const title = (formData.title || '').trim()
+    if (!title) {
+        return { section: 'general', message: t('validation.titleRequired') }
+    }
+    if (!formData.category_id) {
+        return { section: 'general', message: t('validation.categoryRequired') }
+    }
+    if (!formData.state || String(formData.state).trim() === '') {
+        return { section: 'general', message: t('validation.stateRequired') }
+    }
+    if (!formData.city || String(formData.city).trim() === '') {
+        return { section: 'general', message: t('validation.cityRequired') }
+    }
+
+    const pf = formData.priceFrom
+    const pt = formData.priceTo
+    if (pf === '' || pf == null) {
+        return { section: 'pricing', message: t('validation.priceFromRequired') }
+    }
+    if (pt === '' || pt == null) {
+        return { section: 'pricing', message: t('validation.priceToRequired') }
+    }
+    const nFrom = Number(pf)
+    const nTo = Number(pt)
+    if (!Number.isFinite(nFrom) || !Number.isFinite(nTo)) {
+        return { section: 'pricing', message: t('validation.pricesNumeric') }
+    }
+    if (nFrom < 0 || nTo < 0) {
+        return { section: 'pricing', message: t('validation.pricesNonNegative') }
+    }
+    if (nFrom > nTo) {
+        return { section: 'pricing', message: t('validation.priceRangeInvalid') }
+    }
+
+    const services = Array.isArray(formData.services) ? formData.services : []
+    const hasRealTemplateId = (s) => {
+        const sid = s.service_id != null ? Number(s.service_id) : 0
+        return sid > 0 && sid < 1_000_000
+    }
+    const isMeaningfulRow = (s) => (s.name || '').trim() !== '' || hasRealTemplateId(s)
+
+    const meaningful = services.filter(isMeaningfulRow)
+    if (meaningful.length === 0) {
+        return { section: 'services', message: t('validation.servicesRequired') }
+    }
+
+    for (const s of meaningful) {
+        const price = s.price
+        if (price === '' || price == null || Number.isNaN(Number(price))) {
+            return { section: 'services', message: t('validation.servicePriceRequired') }
+        }
+        if (Number(price) < 0) {
+            return { section: 'services', message: t('validation.servicePriceNonNegative') }
+        }
+        const unit = s.duration_unit === 'days' ? 'days' : 'hours'
+        const mins = advertisementDisplayToMinutes(s.duration, unit)
+        if (mins < 1) {
+            return { section: 'services', message: t('validation.serviceDurationRequired') }
+        }
+    }
+
+    return null
 }
 
 export default function CreateAdvertisementPage() {
@@ -436,7 +503,6 @@ export default function CreateAdvertisementPage() {
             // Для драфтов команда опциональна - формируем только если есть выбранная команда или доступные участники
             let teamData = null // null означает, что поле не будет отправлено
             if (Array.isArray(formData.team) && formData.team.length > 0) {
-                // Если команда выбрана, используем её
                 teamData = formData.team.map(id => {
                     const member = companyTeam.find(m => m.id === id)
                     return member ? {
@@ -447,23 +513,10 @@ export default function CreateAdvertisementPage() {
                         avatar: member.img || ''
                     } : null
                 }).filter(Boolean)
-                // Если после фильтрации команда пуста, не отправляем поле
                 if (teamData.length === 0) {
                     teamData = null
                 }
-            } else if (Array.isArray(companyTeam) && companyTeam.length > 0) {
-                // Если команда не выбрана, но есть доступные участники, берем первого
-                // Это нужно для прохождения валидации бэкенда (если бэкенд требует команду)
-                const firstMember = companyTeam[0]
-                teamData = [{
-                    id: firstMember.id,
-                    name: firstMember.name,
-                    role: firstMember.role || '',
-                    description: firstMember.email || '',
-                    avatar: firstMember.img || ''
-                }]
             }
-            // Если teamData остался null, поле team не будет включено в запрос (для драфтов это допустимо)
             
             const draftData = {
                 type: 'regular',
@@ -518,10 +571,6 @@ export default function CreateAdvertisementPage() {
                 return response.id
             }
         } catch (error) {
-            // Если ошибка валидации о команде, не блокируем работу - пользователь выберет команду на следующем шаге
-            if (error.response?.status === 422 && error.response?.data?.message?.includes('исполнитель')) {
-                return null
-            }
             // Если ошибка 401 (Unauthorized), LaravelAxios должен автоматически обновить токен
             // Но если это не помогло, просто пропускаем сохранение драфта
             if (error.response?.status === 401) {
@@ -553,6 +602,17 @@ export default function CreateAdvertisementPage() {
         
         // Защита от двойного вызова
         if (createMutation.isPending || updateMutation.isPending) {
+            return
+        }
+
+        const publishCheck = validateAdvertisementForPublish(formData, t)
+        if (publishCheck) {
+            toast.push(
+                <Notification title={tCommon('error')} type="danger">
+                    {publishCheck.message}
+                </Notification>,
+            )
+            setActiveSection(publishCheck.section)
             return
         }
 
@@ -836,11 +896,11 @@ export default function CreateAdvertisementPage() {
         return (
             <PermissionGuard permission="manage_settings">
                 <Container>
-                <AdaptiveCard bodyClass="!p-0 sm:!p-5">
-                    <div className="flex min-h-[400px] items-center justify-center px-3 sm:px-0">
-                        <Loading loading />
-                    </div>
-                </AdaptiveCard>
+                    <AdaptiveCard>
+                        <div className="flex min-h-[400px] items-center justify-center">
+                            <Loading loading />
+                        </div>
+                    </AdaptiveCard>
                 </Container>
             </PermissionGuard>
         )
@@ -849,12 +909,12 @@ export default function CreateAdvertisementPage() {
     return (
         <PermissionGuard permission="manage_settings">
             <Container>
-                <AdaptiveCard bodyClass="!p-0 sm:!p-5">
-                    <div className="flex max-w-full min-w-0 flex-col gap-4 overflow-x-hidden px-3 sm:px-0">
+                <AdaptiveCard>
+                    <div className="flex min-w-0 max-w-full flex-col gap-4 overflow-x-hidden">
                         <AdvertisementCreatePageHeader isEdit={isEdit} />
 
                 <form
-                    className="border-t border-gray-200 pt-4 dark:border-gray-700 max-sm:-mx-3 max-sm:px-0"
+                    className="border-t border-gray-200 pt-4 dark:border-gray-700"
                     onSubmit={handleSubmit}
                     onKeyDown={async (e) => {
                     // Предотвращаем отправку формы при нажатии Enter на промежуточных шагах

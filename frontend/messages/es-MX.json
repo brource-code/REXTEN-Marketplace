@@ -2572,6 +2572,21 @@
                     "endDate": "Fecha de fin",
                     "endDateHint": "Déjala vacía para publicación indefinida"
                 },
+                "validation": {
+                    "titleRequired": "Ingresa el nombre del anuncio.",
+                    "categoryRequired": "Selecciona una categoría.",
+                    "stateRequired": "Selecciona un estado.",
+                    "cityRequired": "Selecciona una ciudad.",
+                    "priceFromRequired": "Ingresa el precio mínimo de este anuncio.",
+                    "priceToRequired": "Ingresa el precio máximo de este anuncio.",
+                    "pricesNumeric": "Los precios deben ser números válidos.",
+                    "pricesNonNegative": "Los precios no pueden ser negativos.",
+                    "priceRangeInvalid": "El precio máximo debe ser mayor o igual al mínimo.",
+                    "servicesRequired": "Agrega al menos un servicio con nombre (o plantilla), precio y duración.",
+                    "servicePriceRequired": "Cada servicio debe tener un precio válido.",
+                    "servicePriceNonNegative": "El precio del servicio no puede ser negativo.",
+                    "serviceDurationRequired": "Cada servicio debe tener una duración mayor que cero."
+                },
                 "pricing": {
                     "title": "Precios",
                     "hint": "Rango de precios de los servicios en este anuncio (desde–hasta).",

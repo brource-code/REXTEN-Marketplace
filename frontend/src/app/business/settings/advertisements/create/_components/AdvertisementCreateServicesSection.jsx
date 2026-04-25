@@ -115,7 +115,7 @@ export function AdvertisementCreateServicesSection({
                                 />
                             </FormItem>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                <FormItem label={t('services.price')}>
+                                <FormItem label={t('services.price')} required>
                                     <AmountInput
                                         size="sm"
                                         value={
@@ -131,7 +131,7 @@ export function AdvertisementCreateServicesSection({
                                     />
                                 </FormItem>
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-2">
-                                    <FormItem label={t('services.duration')}>
+                                    <FormItem label={t('services.duration')} required>
                                         <Input
                                             size="sm"
                                             type="number"

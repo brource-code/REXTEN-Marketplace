@@ -51,7 +51,7 @@ export function AdvertisementCreateGeneralSection({
                 />
             </FormItem>
 
-            <FormItem label={t('general.category')}>
+            <FormItem label={t('general.category')} required>
                 <Select
                     size="sm"
                     isSearchable={false}
@@ -83,7 +83,7 @@ export function AdvertisementCreateGeneralSection({
             </FormItem>
 
             <div className="grid grid-cols-2 gap-4">
-                <FormItem label={t('general.state')}>
+                <FormItem label={t('general.state')} required>
                     <Select
                         size="sm"
                         isSearchable={false}
@@ -117,7 +117,7 @@ export function AdvertisementCreateGeneralSection({
                         placeholder={t('general.statePlaceholder')}
                     />
                 </FormItem>
-                <FormItem label={t('general.city')}>
+                <FormItem label={t('general.city')} required>
                     <Select
                         size="sm"
                         isSearchable={false}

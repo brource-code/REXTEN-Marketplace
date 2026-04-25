@@ -15,7 +15,7 @@ export function AdvertisementCreatePricingSection({ formData, setFormData }) {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormItem label={t('pricing.priceFrom')}>
+                <FormItem label={t('pricing.priceFrom')} required>
                     <AmountInput
                         size="sm"
                         value={
@@ -32,7 +32,7 @@ export function AdvertisementCreatePricingSection({ formData, setFormData }) {
                     />
                 </FormItem>
 
-                <FormItem label={t('pricing.priceTo')}>
+                <FormItem label={t('pricing.priceTo')} required>
                     <AmountInput
                         size="sm"
                         value={formData.priceTo === '' || formData.priceTo == null ? null : Number(formData.priceTo)}
