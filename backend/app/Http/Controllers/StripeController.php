@@ -891,6 +891,43 @@ class StripeController extends Controller
             $seenPaymentIntentIds = [];
             $seenChargeIds = [];
 
+            // Собираем ID объявлений из сессий и charge до циклов — один whereIn вместо N find().
+            $advertisementIdSet = [];
+            foreach ($sessions->data as $session) {
+                if ($session->payment_status !== 'paid') {
+                    continue;
+                }
+                $metaScan = $session->metadata ?? (object) [];
+                if (isset($metaScan->advertisement_id)) {
+                    $advertisementIdSet[(int) $metaScan->advertisement_id] = true;
+                }
+            }
+
+            $company = Company::query()->with('owner')->find($companyId);
+            $stripeCustomerId = $company?->owner?->stripe_customer_id;
+
+            $charges = null;
+            if ($stripeCustomerId) {
+                $chargeLimit = min(100, (int) $request->input('limit', 100));
+                $charges = Charge::all([
+                    'customer' => $stripeCustomerId,
+                    'limit' => $chargeLimit,
+                    'expand' => ['data.refunds'],
+                ]);
+                foreach ($charges->data as $chargeScan) {
+                    $mdScan = $chargeScan->metadata ?? (object) [];
+                    if (isset($mdScan->advertisement_id)) {
+                        $advertisementIdSet[(int) $mdScan->advertisement_id] = true;
+                    }
+                }
+            }
+
+            $advertisementIds = array_keys($advertisementIdSet);
+            $advertisementsById = $advertisementIds === []
+                ? collect()
+                : Advertisement::query()->whereIn('id', $advertisementIds)->get()->keyBy('id');
+            $plansBySlug = SubscriptionPlan::query()->get()->keyBy('slug');
+
             foreach ($sessions->data as $session) {
                 // Пропускаем неоплаченные сессии
                 if ($session->payment_status !== 'paid') {
@@ -923,7 +960,7 @@ class StripeController extends Controller
                     
                     if ($shouldInclude) {
                         // Получаем информацию об объявлении для описания
-                        $advertisement = Advertisement::find($advertisementId);
+                        $advertisement = $advertisementsById->get((int) $advertisementId);
                         if ($advertisement) {
                             $description = "Реклама: {$advertisement->title} ({$packageId})";
                         } else {
@@ -937,7 +974,7 @@ class StripeController extends Controller
                 ) {
                     $transactionType = 'subscription';
                     $planSlug = isset($metadata->plan) ? (string) $metadata->plan : '';
-                    $planModel = $planSlug !== '' ? SubscriptionPlan::findBySlug($planSlug) : null;
+                    $planModel = $planSlug !== '' ? $plansBySlug->get($planSlug) : null;
                     $description = $planModel
                         ? 'Subscription: '.$planModel->name
                         : ($planSlug !== '' ? 'Subscription: '.$planSlug : 'Subscription payment');
@@ -1019,17 +1056,7 @@ class StripeController extends Controller
             }
 
             // Инвойсы подписки (прорация при смене плана и т.п.) идут как Charge без Checkout Session.
-            $company = Company::query()->with('owner')->find($companyId);
-            $stripeCustomerId = $company?->owner?->stripe_customer_id;
-
-            if ($stripeCustomerId) {
-                $chargeLimit = min(100, (int) $request->input('limit', 100));
-                $charges = Charge::all([
-                    'customer' => $stripeCustomerId,
-                    'limit' => $chargeLimit,
-                    'expand' => ['data.refunds'],
-                ]);
-
+            if ($charges !== null) {
                 foreach ($charges->data as $charge) {
                     $piId = null;
                     if (! empty($charge->payment_intent)) {
@@ -1051,7 +1078,7 @@ class StripeController extends Controller
                         $transactionType = 'advertisement';
                         $advertisementId = $md->advertisement_id;
                         $packageId = $md->package_id ?? 'unknown';
-                        $advertisement = Advertisement::find($advertisementId);
+                        $advertisement = $advertisementsById->get((int) $advertisementId);
                         if ($advertisement) {
                             $baseDescription = "Реклама: {$advertisement->title} ({$packageId})";
                         } else {
@@ -1064,14 +1091,14 @@ class StripeController extends Controller
                     ) {
                         $transactionType = 'subscription';
                         $planSlug = isset($md->plan) ? (string) $md->plan : '';
-                        $planModel = $planSlug !== '' ? SubscriptionPlan::findBySlug($planSlug) : null;
+                        $planModel = $planSlug !== '' ? $plansBySlug->get($planSlug) : null;
                         $baseDescription = $planModel
                             ? 'Subscription: '.$planModel->name
                             : ($planSlug !== '' ? 'Subscription: '.$planSlug : 'Subscription payment');
                     } elseif ($charge->invoice !== null) {
                         $transactionType = 'subscription';
                         $planSlug = isset($md->plan) ? (string) $md->plan : '';
-                        $planModel = $planSlug !== '' ? SubscriptionPlan::findBySlug($planSlug) : null;
+                        $planModel = $planSlug !== '' ? $plansBySlug->get($planSlug) : null;
                         $baseDescription = $planModel
                             ? 'Subscription: '.$planModel->name
                             : ((string) ($charge->description ?? '') !== ''
