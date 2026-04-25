@@ -4,7 +4,7 @@ export const metadata = {
 }
 
 // Полностью изолированный layout для Vasilisa
-// Не использует общие компоненты платформы ECME (PublicLayout, NavigationProvider и т.д.)
+// Не использует общие компоненты платформы REXTEN (PublicLayout, NavigationProvider и т.д.)
 // Этот layout оборачивается в root layout, но имеет собственную изоляцию
 export default function VasilisaLayout({ children }) {
     return (

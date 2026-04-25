@@ -2,7 +2,7 @@ import { COLOR_1, COLOR_2, COLOR_4, COLORS } from '@/constants/chart.constant'
 
 /** Hex colors aligned with booking status palette (ScheduleEventContent) */
 export const REPORT_STATUS_CHART_COLORS = {
-    new: '#0ea5e9',
+    new: '#114fee',
     pending: '#f59e0b',
     confirmed: '#f97316',
     completed: '#10b981',

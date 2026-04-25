@@ -23,7 +23,7 @@ function formatPctChange(v) {
 }
 
 /**
- * Правая колонка дашборда: цель по бронированиям и топ услуг (как в шаблоне Ecme).
+ * Правая колонка дашборда: цель по бронированиям и топ услуг (как в шаблоне REXTEN).
  */
 export default function DashboardInsightsColumn({ stats }) {
     const t = useTranslations('business.dashboard')

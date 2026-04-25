@@ -12,7 +12,7 @@ const HeaderLogo = ({ mode }) => {
                 type="full"
                 mode={mode || defaultMode}
                 forceSvg={true}
-                imgClass="max-h-14"
+                imgClass="max-h-10"
                 className="hidden lg:block"
             />
         </Link>

@@ -1,5 +1,7 @@
 /**
- * Цвет марки Rexten (три слоя, фавикон): sky-500, голубоватый — не «королевский» синий #2563EB.
- * Держать в sync с `src/app/icon.svg` / `apple-icon.svg`.
+ * Основной синий цвет нового знака REXTEN.
+ * Палитра бренда: #333333, #114fee, #2ddaff, #ffffff. Шрифт логотипа: Russo One.
  */
-export const REXTEN_MARK_COLOR = '#0ea5e9'
+export const REXTEN_MARK_COLOR = '#114fee'
+export const REXTEN_MARK_ACCENT_COLOR = '#2ddaff'
+export const REXTEN_LOGO_TEXT_COLOR = '#333333'

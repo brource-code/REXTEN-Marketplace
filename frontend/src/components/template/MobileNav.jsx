@@ -45,8 +45,7 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }) => {
 
     const { navigationTree } = useNavigation()
 
-    // Логотип для заголовка Drawer - полный логотип с иконкой и текстом, как в развернутом десктопном меню
-    // Используем SVG компоненты напрямую для надежного рендеринга
+    // Логотип для заголовка Drawer - полный логотип с иконкой и текстом.
     const LogoComponent = defaultMode === 'dark' ? RextenMarketplaceLogoDark : RextenMarketplaceLogoLight
     
     const drawerTitle = (
@@ -56,9 +55,9 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }) => {
             onClick={handleDrawerClose}
         >
             <LogoComponent
-                className="max-h-10 w-auto"
+                className="max-h-8 w-auto"
                 customText="REXTEN"
-                customColor={defaultMode === 'dark' ? '#FFFFFF' : '#0F172A'}
+                customColor={defaultMode === 'dark' ? '#ffffff' : '#333333'}
                 customSize={26}
                 customIconColor={REXTEN_MARK_COLOR}
             />
