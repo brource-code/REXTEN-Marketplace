@@ -3,15 +3,24 @@
 namespace App\Http\Controllers\Business;
 
 use App\Helpers\DatabaseHelper;
+use App\Http\Controllers\Concerns\ResolvesKnowledgeLocale;
 use App\Http\Controllers\Controller;
+use App\Models\AdditionalService;
 use App\Models\Advertisement;
 use App\Models\Booking;
+use App\Models\KnowledgeArticle;
+use App\Models\Notification;
+use App\Models\Payment;
+use App\Models\PersonalAccessToken;
 use App\Models\PromoCode;
 use App\Models\RecurringBookingChain;
 use App\Models\Review;
 use App\Models\Service;
+use App\Models\SubscriptionPlan;
+use App\Models\SupportTicket;
 use App\Models\TeamMember;
 use App\Models\User;
+use App\Services\SubscriptionLimitService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +28,11 @@ use Illuminate\Support\Facades\Schema;
 
 class SearchController extends Controller
 {
+    use ResolvesKnowledgeLocale;
+
     private const LIMIT = 15;
+
+    private const SECONDARY_LIMIT = 10;
 
     /**
      * Быстрый поиск по данным текущей компании (тенант).
@@ -41,6 +54,138 @@ class SearchController extends Controller
         $routesNav = $this->routesNavigationShortcut($request, $companyId, $q);
         if ($routesNav !== null) {
             $sections[] = $routesNav;
+        }
+
+        $knowledge = $this->searchKnowledgeArticles($request, $q);
+        if ($knowledge->isNotEmpty()) {
+            $sections[] = [
+                'key' => 'knowledge',
+                'items' => $knowledge->map(function (KnowledgeArticle $article) {
+                    $topic = $article->topic;
+                    $topicSlug = $topic?->slug ?? 'topic';
+                    $path = '/business/knowledge/'.$topicSlug.'/'.$article->slug;
+
+                    return [
+                        'key' => 'knowledge-article-'.$article->id,
+                        'path' => $path,
+                        'title' => $article->title,
+                        'subtitle' => trim(implode(' · ', array_filter([
+                            $topic?->title,
+                            $article->excerpt ? mb_substr(strip_tags($article->excerpt), 0, 72) : null,
+                        ]))),
+                        'icon' => 'guide',
+                    ];
+                })->values()->all(),
+            ];
+        }
+
+        $tickets = $this->searchSupportTickets($companyId, $q);
+        if ($tickets->isNotEmpty()) {
+            $sections[] = [
+                'key' => 'support',
+                'items' => $tickets->map(function (SupportTicket $t) {
+                    return [
+                        'key' => 'support-ticket-'.$t->id,
+                        'path' => '/business/support?ticket='.$t->id,
+                        'title' => $t->subject ?: 'Ticket #'.$t->id,
+                        'subtitle' => trim(($t->category ?? '').' · '.($t->status ?? '')),
+                        'icon' => 'support',
+                    ];
+                })->values()->all(),
+            ];
+        }
+
+        $plans = $this->searchSubscriptionPlans($q);
+        if ($plans->isNotEmpty()) {
+            $sections[] = [
+                'key' => 'subscription',
+                'items' => $plans->map(function (SubscriptionPlan $plan) {
+                    $desc = $plan->description ? mb_substr(strip_tags($plan->description), 0, 80) : '';
+
+                    return [
+                        'key' => 'subscription-plan-'.$plan->id,
+                        'path' => '/business/subscription',
+                        'title' => $plan->name,
+                        'subtitle' => $desc,
+                        'icon' => 'subscription',
+                    ];
+                })->values()->all(),
+            ];
+        }
+
+        $apiTokens = $this->searchApiTokens($request, $companyId, $q);
+        if ($apiTokens->isNotEmpty()) {
+            $sections[] = [
+                'key' => 'api_tokens',
+                'items' => $apiTokens->map(function (PersonalAccessToken $token) {
+                    return [
+                        'key' => 'api-token-'.$token->id,
+                        'path' => '/business/api',
+                        'title' => $token->name,
+                        'subtitle' => (string) ($token->token_prefix ?? ''),
+                        'icon' => 'code',
+                    ];
+                })->values()->all(),
+            ];
+        }
+
+        $payments = $this->searchPayments($companyId, $q);
+        if ($payments->isNotEmpty()) {
+            $sections[] = [
+                'key' => 'payments',
+                'items' => $payments->map(function (Payment $p) {
+                    $amount = $p->amount !== null
+                        ? number_format(((int) $p->amount) / 100, 2).' '.strtoupper((string) ($p->currency ?? 'USD'))
+                        : '';
+                    $bookingPart = $p->booking_id ? 'Booking #'.$p->booking_id : '';
+
+                    return [
+                        'key' => 'payment-'.$p->id,
+                        'path' => '/business/billing',
+                        'title' => 'Payment #'.$p->id,
+                        'subtitle' => trim($bookingPart.($bookingPart && $amount ? ' · ' : '').$amount.' · '.($p->status ?? '')),
+                        'icon' => 'billing',
+                    ];
+                })->values()->all(),
+            ];
+        }
+
+        $notifications = $this->searchNotifications($request, $companyId, $q);
+        if ($notifications->isNotEmpty()) {
+            $sections[] = [
+                'key' => 'notifications',
+                'items' => $notifications->map(function (Notification $n) {
+                    $path = $n->link && is_string($n->link) && str_starts_with($n->link, '/')
+                        ? $n->link
+                        : '/business/notifications';
+
+                    return [
+                        'key' => 'notification-'.$n->id,
+                        'path' => $path,
+                        'title' => $n->title ?: 'Notification #'.$n->id,
+                        'subtitle' => $n->message ? mb_substr(strip_tags($n->message), 0, 100) : '',
+                        'icon' => 'notifications',
+                    ];
+                })->values()->all(),
+            ];
+        }
+
+        $addOns = $this->searchAdditionalServices($companyId, $q);
+        if ($addOns->isNotEmpty()) {
+            $sections[] = [
+                'key' => 'additional_services',
+                'items' => $addOns->map(function (AdditionalService $row) {
+                    return [
+                        'key' => 'addon-'.$row->id,
+                        'path' => '/business/settings?tab=services',
+                        'title' => $row->name,
+                        'subtitle' => $row->description
+                            ? mb_substr(strip_tags($row->description), 0, 80)
+                            : '',
+                        'icon' => 'products',
+                    ];
+                })->values()->all(),
+            ];
         }
 
         $clients = $this->searchClients($companyId, $q);
@@ -381,6 +526,163 @@ class SearchController extends Controller
             })
             ->orderBy('id', 'desc')
             ->limit(self::LIMIT)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, KnowledgeArticle>
+     */
+    private function searchKnowledgeArticles(Request $request, string $search)
+    {
+        $locale = $this->resolveKnowledgeLocale($request);
+
+        return KnowledgeArticle::with(['topic' => function ($q) {
+            $q->select('id', 'slug', 'title', 'locale', 'is_published');
+        }])
+            ->where('locale', $locale)
+            ->where('is_published', true)
+            ->whereHas('topic', function ($t) use ($locale) {
+                $t->where('is_published', true)->where('locale', $locale);
+            })
+            ->where(function ($query) use ($search) {
+                DatabaseHelper::whereLike($query, 'title', "%{$search}%");
+                DatabaseHelper::whereLike($query, 'excerpt', "%{$search}%", 'or', true);
+                DatabaseHelper::whereLike($query, 'body', "%{$search}%", 'or', true);
+            })
+            ->orderBy('title')
+            ->limit(self::SECONDARY_LIMIT)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, SupportTicket>
+     */
+    private function searchSupportTickets(int $companyId, string $search)
+    {
+        return SupportTicket::where('company_id', $companyId)
+            ->where(function ($q) use ($search) {
+                DatabaseHelper::whereLike($q, 'subject', "%{$search}%");
+                DatabaseHelper::whereLike($q, 'body', "%{$search}%", 'or', true);
+                DatabaseHelper::whereLike($q, 'category', "%{$search}%", 'or');
+                DatabaseHelper::whereLike($q, 'area_section', "%{$search}%", 'or');
+            })
+            ->orderByDesc('id')
+            ->limit(self::SECONDARY_LIMIT)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, SubscriptionPlan>
+     */
+    private function searchSubscriptionPlans(string $search)
+    {
+        return SubscriptionPlan::query()
+            ->where('is_active', true)
+            ->where(function ($q) use ($search) {
+                DatabaseHelper::whereLike($q, 'name', "%{$search}%");
+                DatabaseHelper::whereLike($q, 'slug', "%{$search}%", 'or');
+                DatabaseHelper::whereLike($q, 'description', "%{$search}%", 'or', true);
+                DatabaseHelper::whereLike($q, 'badge_text', "%{$search}%", 'or');
+            })
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->limit(self::SECONDARY_LIMIT)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, PersonalAccessToken>
+     */
+    private function searchApiTokens(Request $request, int $companyId, string $search)
+    {
+        $user = $request->user();
+        if (! $user instanceof User) {
+            return collect();
+        }
+        if (! SubscriptionLimitService::hasAccess($companyId, 'api_access')) {
+            return collect();
+        }
+        if (! $user->hasPermissionInCompany($companyId, 'manage_settings')) {
+            return collect();
+        }
+
+        return PersonalAccessToken::query()
+            ->where('tokenable_type', $user->getMorphClass())
+            ->where('tokenable_id', $user->id)
+            ->where('company_id', $companyId)
+            ->where(function ($q) use ($search) {
+                DatabaseHelper::whereLike($q, 'name', "%{$search}%");
+                DatabaseHelper::whereLike($q, 'token_prefix', "%{$search}%", 'or');
+            })
+            ->orderByDesc('id')
+            ->limit(self::SECONDARY_LIMIT)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, Payment>
+     */
+    private function searchPayments(int $companyId, string $search)
+    {
+        return Payment::where('company_id', $companyId)
+            ->where(function ($q) use ($search) {
+                if (ctype_digit($search)) {
+                    $sid = (int) $search;
+                    $q->where('id', $sid)->orWhere('booking_id', $sid);
+                }
+                $bool = ctype_digit($search) ? 'or' : 'and';
+                DatabaseHelper::whereLike($q, 'stripe_payment_intent_id', "%{$search}%", $bool);
+                DatabaseHelper::whereLike($q, 'stripe_charge_id', "%{$search}%", 'or');
+                DatabaseHelper::whereLike($q, 'stripe_transfer_id', "%{$search}%", 'or');
+                DatabaseHelper::whereLike($q, 'status', "%{$search}%", 'or');
+            })
+            ->orderByDesc('id')
+            ->limit(self::SECONDARY_LIMIT)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, Notification>
+     */
+    private function searchNotifications(Request $request, int $companyId, string $search)
+    {
+        $user = $request->user();
+        if (! $user instanceof User) {
+            return collect();
+        }
+
+        return Notification::query()
+            ->where('user_id', $user->id)
+            ->where(function ($q) use ($companyId) {
+                $q->whereNull('company_id')
+                    ->orWhere('company_id', $companyId);
+            })
+            ->where(function ($q) use ($search) {
+                DatabaseHelper::whereLike($q, 'title', "%{$search}%");
+                DatabaseHelper::whereLike($q, 'message', "%{$search}%", 'or', true);
+                DatabaseHelper::whereLike($q, 'type', "%{$search}%", 'or');
+            })
+            ->orderByDesc('id')
+            ->limit(self::SECONDARY_LIMIT)
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, AdditionalService>
+     */
+    private function searchAdditionalServices(int $companyId, string $search)
+    {
+        return AdditionalService::query()
+            ->whereHas('service', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            })
+            ->where(function ($q) use ($search) {
+                DatabaseHelper::whereLike($q, 'name', "%{$search}%");
+                DatabaseHelper::whereLike($q, 'description', "%{$search}%", 'or', true);
+            })
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->limit(self::SECONDARY_LIMIT)
             ->get();
     }
 }
