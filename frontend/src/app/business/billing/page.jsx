@@ -102,7 +102,8 @@ function BillingPageContent() {
         gcTime: 15 * 60 * 1000,
     })
 
-    const isLoading = stripeLoading || bookingLoading
+    /** Таблица активной вкладки не должна ждать второй источник (Stripe часто медленнее БД). */
+    const tableLoading = activeSection === 'earnings' ? bookingLoading : stripeLoading
 
     const earningsTransactions = useMemo(() => {
         const bookings = (bookingData?.payments || []).map((p) => ({
@@ -592,7 +593,7 @@ function BillingPageContent() {
                                 }}
                                 options={statusOptions}
                                 isSearchable={false}
-                                isDisabled={isLoading}
+                                isDisabled={tableLoading}
                             />
                         </div>
                         <div className="flex flex-wrap gap-2 shrink-0">
@@ -601,7 +602,7 @@ function BillingPageContent() {
                                 variant="outline"
                                 size="sm"
                                 icon={<PiFileCsv className="text-lg" />}
-                                disabled={isLoading}
+                                disabled={tableLoading}
                                 onClick={() => runExport('csv')}
                             >
                                 {t('export.csv')}
@@ -611,7 +612,7 @@ function BillingPageContent() {
                                 variant="outline"
                                 size="sm"
                                 icon={<PiFileXls className="text-lg" />}
-                                disabled={isLoading || exportingExcel}
+                                disabled={tableLoading || exportingExcel}
                                 loading={exportingExcel}
                                 onClick={() => runExport('excel')}
                             >
@@ -622,7 +623,7 @@ function BillingPageContent() {
 
                     {/* Transactions table */}
                     <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                    {isLoading ? (
+                    {tableLoading ? (
                         <div className="flex items-center justify-center min-h-[280px] py-8">
                             <Loading loading />
                         </div>
