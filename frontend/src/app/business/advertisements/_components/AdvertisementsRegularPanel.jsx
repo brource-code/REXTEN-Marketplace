@@ -459,26 +459,8 @@ export function AdvertisementsRegularPanel({ queryEnabled = true }) {
 
     return (
         <>
-            <div className="flex min-w-0 flex-col gap-4">
+            <div className="flex min-w-0 flex-col gap-3">
                 <SubscriptionLimitAlert resource="advertisements" />
-                <div className="flex min-w-0 flex-wrap justify-end gap-2">
-                    <Link href="/business/advertisements/purchase">
-                        <Button variant="outline" size="sm" icon={<PiMegaphone />}>
-                            {t('buyAds')}
-                        </Button>
-                    </Link>
-                    {canCreate('advertisements') ? (
-                        <Link href="/business/settings/advertisements/create">
-                            <Button variant="outline" size="sm">
-                                {t('createButton')}
-                            </Button>
-                        </Link>
-                    ) : (
-                        <Button variant="outline" size="sm" disabled>
-                            {t('createButton')}
-                        </Button>
-                    )}
-                </div>
 
                 {advertisements.length === 0 ? (
                     regularEmptyState

@@ -609,15 +609,7 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
 
     return (
         <>
-            <div className="flex min-w-0 flex-col gap-4">
-                <div className="flex min-w-0 flex-wrap justify-end gap-2">
-                    <Link href="/business/advertisements/purchase">
-                        <Button variant="solid" size="sm" icon={<PiMegaphone />} className="bg-blue-600 hover:bg-blue-700">
-                            {t('buyAds')}
-                        </Button>
-                    </Link>
-                </div>
-
+            <div className="flex min-w-0 flex-col gap-3">
                 {advertisements.length === 0 ? (
                     adsEmptyState
                 ) : (
