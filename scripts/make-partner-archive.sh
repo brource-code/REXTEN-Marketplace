@@ -38,11 +38,11 @@ tar czf "$OUT" \
   --exclude="$NAME/translations_review*.xlsx" \
   --exclude="$NAME/*.log" \
   --exclude="$NAME/.DS_Store" \
-  --exclude="$NAME/frontend/ecme-marketplace-deploy-*" \
-  --exclude="$NAME/frontend/ecme-marketplace-light-*" \
-  --exclude="$NAME/frontend/ecme-marketplace-*.tar.gz" \
-  --exclude="$NAME/frontend/ECME-*.tar.gz" \
-  --exclude="$NAME/frontend/ecme-marketplace-*.zip" \
+  --exclude="$NAME/frontend/REXTEN-DEPLOY-*" \
+  --exclude="$NAME/frontend/rexten-light-*" \
+  --exclude="$NAME/frontend/rexten-*.tar.gz" \
+  --exclude="$NAME/frontend/REXTEN-*.tar.gz" \
+  --exclude="$NAME/frontend/rexten-*.zip" \
   --exclude="$NAME/frontend/mobile.zip" \
   --exclude="$NAME/backend/storage" \
   "$NAME"

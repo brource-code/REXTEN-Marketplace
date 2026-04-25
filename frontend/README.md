@@ -1,8 +1,8 @@
-# Ecme - The Ultimate Next.js & TypeScript Web Template
+# REXTEN - The Ultimate Next.js & TypeScript Web Template
 
-Ecme is a modern and responsive admin dashboard template built with Next.js and TypeScript. Designed to provide a highly customizable and easy-to-use platform for building admin interfaces, it includes a variety of reusable components, pre-designed pages, and dynamic features. 
+REXTEN is a modern and responsive admin dashboard template built with Next.js and TypeScript. Designed to provide a highly customizable and easy-to-use platform for building admin interfaces, it includes a variety of reusable components, pre-designed pages, and dynamic features. 
 
-This template is perfect for developing dashboards, web applications, CRM systems, e-commerce backends, and more. Whether you're building a small-scale admin panel or a large-scale enterprise application, Ecme is designed to be flexible and scalable.
+This template is perfect for developing dashboards, web applications, CRM systems, e-commerce backends, and more. Whether you're building a small-scale admin panel or a large-scale enterprise application, REXTEN is designed to be flexible and scalable.
 
 Key Features:
 - **Next.js Framework**: Built with the powerful Next.js framework, offering server-side rendering (SSR) out of the box.

@@ -21,7 +21,7 @@ cd "$PROJECT_ROOT"
 OUTPUT_DIR="${1:-$(pwd)}"
 
 # Имя архива с датой (КАПС для заметности)
-ARCHIVE_NAME="ECME-MARKETPLACE-DEPLOY-$(date +%Y%m%d_%H%M%S)"
+ARCHIVE_NAME="REXTEN-DEPLOY-$(date +%Y%m%d_%H%M%S)"
 TEMP_DIR="/tmp/${ARCHIVE_NAME}"
 
 echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
@@ -61,9 +61,8 @@ rsync -av \
   --exclude='*.sqlite' \
   --exclude='*.sqlite.backup*' \
   --exclude='backups' \
-  --exclude='logo-temp' \
-  --exclude='ecme-marketplace-light-*' \
-  --exclude='ecme-marketplace-deploy-*' \
+  --exclude='rexten-light-*' \
+  --exclude='REXTEN-DEPLOY-*' \
   --exclude='*.zip' \
   --exclude='*.tar.gz' \
   --exclude='*.tar' \
@@ -112,7 +111,7 @@ touch "${TEMP_DIR}/backend/bootstrap/cache/.gitkeep"
 
 # Создаем README для архива деплоя
 cat > "${TEMP_DIR}/DEPLOY_README.md" << 'EOF'
-# Ecme Marketplace - Архив для деплоя
+# REXTEN - Архив для деплоя
 
 Это архив проекта для развертывания на сервере.
 
@@ -133,8 +132,8 @@ cat > "${TEMP_DIR}/DEPLOY_README.md" << 'EOF'
 ### 1. Распакуйте архив
 
 ```bash
-tar -xzf ECME-MARKETPLACE-DEPLOY-*.tar.gz
-cd ECME-MARKETPLACE-DEPLOY-*
+tar -xzf REXTEN-DEPLOY-*.tar.gz
+cd REXTEN-DEPLOY-*
 ```
 
 ### 2. Установите зависимости Backend

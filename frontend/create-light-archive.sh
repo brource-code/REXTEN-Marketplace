@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 OUTPUT_DIR="${1:-$(pwd)}"
 
 # Имя архива с датой
-ARCHIVE_NAME="ecme-marketplace-light-$(date +%Y%m%d_%H%M%S)"
+ARCHIVE_NAME="rexten-light-$(date +%Y%m%d_%H%M%S)"
 TEMP_DIR="/tmp/${ARCHIVE_NAME}"
 
 echo -e "${BLUE}════════════════════════════════════════════════════${NC}"
@@ -58,8 +58,7 @@ if [ "$USE_RSYNC" = true ]; then
       --exclude='backups' \
       --exclude='*.zip' \
       --exclude='*.tar.gz' \
-      --exclude='ecme-marketplace-light-*.zip' \
-      --exclude='logo-temp' \
+      --exclude='rexten-light-*.zip' \
       --exclude='.idea' \
       --exclude='.vscode' \
       --exclude='.DS_Store' \
@@ -101,8 +100,7 @@ else
       ! -path "*/backups/*" \
       ! -name "*.zip" \
       ! -name "*.tar.gz" \
-      ! -name "ecme-marketplace-light-*.zip" \
-      ! -path "*/logo-temp/*" \
+      ! -name "rexten-light-*.zip" \
       ! -path "*/.idea/*" \
       ! -path "*/.vscode/*" \
       ! -name ".DS_Store" \
@@ -131,7 +129,7 @@ touch "${TEMP_DIR}/backend/storage/logs/.gitkeep"
 
 # Создаем README для архива
 cat > "${TEMP_DIR}/ARCHIVE_README.md" << 'EOF'
-# Ecme Marketplace - Легкая версия для показа
+# REXTEN - Легкая версия для показа
 
 Это легкая версия проекта без зависимостей и временных файлов.
 

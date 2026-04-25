@@ -42,7 +42,7 @@ DB_USERNAME="${DB_USERNAME:-root}"
 DB_PASSWORD="${DB_PASSWORD:-}"
 
 # Имя файла дампа с датой
-DUMP_NAME="ECME-MARKETPLACE-DB-DUMP-$(date +%Y%m%d_%H%M%S).sql"
+DUMP_NAME="REXTEN-DB-DUMP-$(date +%Y%m%d_%H%M%S).sql"
 DUMP_FILE="${PROJECT_ROOT}/${DUMP_NAME}"
 
 echo -e "${YELLOW}Тип БД: ${DB_CONNECTION}${NC}"
@@ -82,7 +82,7 @@ if [ "$DB_CONNECTION" = "sqlite" ]; then
     
     # Добавляем заголовок с информацией о дампе
     {
-        echo "-- Ecme Marketplace Database Dump"
+        echo "-- REXTEN Database Dump"
         echo "-- Created: $(date)"
         echo "-- Source: SQLite database (converted to MySQL)"
         echo "-- Database: ecme_marketplace"
@@ -175,7 +175,7 @@ elif [ "$DB_CONNECTION" = "mysql" ]; then
     
     # Добавляем заголовок
     {
-        echo "-- Ecme Marketplace Database Dump"
+        echo "-- REXTEN Database Dump"
         echo "-- Created: $(date)"
         echo "-- Source: MySQL database"
         echo "-- Host: ${DB_HOST}:${DB_PORT}"

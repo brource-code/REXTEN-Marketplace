@@ -22,7 +22,7 @@
 
 - **`node_modules`**, **`vendor`**, **`.next`**, **`.git`**, **`.cursor`**
 - **`ecme-admin.zip`** в корне репозитория (часто **~2 ГБ**)
-- **`frontend/ecme-marketplace-*`** — старые снимки/архивы шаблона ECME
+- **`frontend/rexten-*`** — старые снимки/архивы шаблона REXTEN
 - **`backend/storage/app/backups`**, логи, кеш/сессии/views во `storage/framework`
 
 Загруженные файлы пользователей остаются в **`backend/storage/app/public`** (если нужны — не исключаем).

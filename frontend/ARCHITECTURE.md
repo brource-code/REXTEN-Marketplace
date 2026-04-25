@@ -1,8 +1,8 @@
-# Архитектура проекта Ecme Marketplace
+# Архитектура проекта REXTEN
 
 ## Общая информация
 
-**Ecme Marketplace** - это платформа для маркетплейса услуг с multi-tenant архитектурой, состоящая из:
+**REXTEN** - это платформа для маркетплейса услуг с multi-tenant архитектурой, состоящая из:
 - **Frontend**: Next.js 15 + React 19 (веб-приложение)
 - **Backend**: Laravel 10 + PHP 8.1+ (REST API)
 - **Mobile**: React Native + Expo (мобильное приложение)
