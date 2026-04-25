@@ -1,6 +1,6 @@
-# Ecme Marketplace Backend API
+# REXTEN Backend API
 
-Laravel API для платформы Ecme Marketplace.
+Laravel API для платформы REXTEN.
 
 ## Требования
 

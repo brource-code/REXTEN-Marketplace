@@ -37,7 +37,7 @@ return [
 
     /*
     | Исключения при упаковке каталога проекта (tar -C project_root --exclude)
-    | Цель: минуты на tar+S3, без гигабайтных артефактов и шаблонов ECME.
+    | Цель: минуты на tar+S3, без гигабайтных артефактов и шаблонов REXTEN.
     */
     'project_exclude' => [
         'node_modules',
@@ -61,9 +61,9 @@ return [
         'frontend/mobile.zip',
         /* Тяжёлые артефакты в корне репозитория (~2 ГБ+) */
         'ecme-admin.zip',
-        /* Снимки/деплой-пакеты ECME в frontend (сотни МБ; tar — регистрозависимый) */
-        'frontend/ecme-marketplace-*',
-        'frontend/ECME-*',
+        /* Снимки/деплой-пакеты REXTEN в frontend (сотни МБ; tar — регистрозависимый) */
+        'frontend/rexten-*',
+        'frontend/REXTEN-*',
         'rexten-backup-*.tar.gz',
     ],
 

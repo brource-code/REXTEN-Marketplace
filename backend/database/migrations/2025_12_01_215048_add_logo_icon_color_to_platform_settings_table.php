@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('platform_settings', function (Blueprint $table) {
-            $table->string('logo_icon_color_light')->default('#2563EB')->after('logo_size');
-            $table->string('logo_icon_color_dark')->default('#696cff')->after('logo_icon_color_light');
+            $table->string('logo_icon_color_light')->default('#114fee')->after('logo_size');
+            $table->string('logo_icon_color_dark')->default('#114fee')->after('logo_icon_color_light');
         });
     }
 

@@ -23,11 +23,11 @@ class SettingsController extends Controller
                 'success' => true,
                 'data' => [
                     'logoText' => $settings->logo_text ?? 'REXTEN',
-                    'logoColorLight' => $settings->logo_color_light ?? '#0F172A',
-                    'logoColorDark' => $settings->logo_color_dark ?? '#FFFFFF',
+                    'logoColorLight' => $settings->logo_color_light ?? '#333333',
+                    'logoColorDark' => $settings->logo_color_dark ?? '#ffffff',
                     'logoSize' => $settings->logo_size ?? 26,
-                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#0ea5e9',
-                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#0ea5e9',
+                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#114fee',
+                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#114fee',
                     'maintenanceMode' => (bool) ($settings->maintenance_mode ?? false),
                     'registrationEnabled' => (bool) ($settings->registration_enabled ?? true),
                     'stripePaymentsEnabled' => (bool) ($settings->stripe_enabled ?? true),
@@ -71,11 +71,11 @@ class SettingsController extends Controller
                     'logoIconLight' => $settings->logo_icon_light,
                     'logoIconDark' => $settings->logo_icon_dark,
                     'logoText' => $settings->logo_text ?? 'REXTEN',
-                    'logoColorLight' => $settings->logo_color_light ?? '#0F172A',
-                    'logoColorDark' => $settings->logo_color_dark ?? '#FFFFFF',
+                    'logoColorLight' => $settings->logo_color_light ?? '#333333',
+                    'logoColorDark' => $settings->logo_color_dark ?? '#ffffff',
                     'logoSize' => $settings->logo_size ?? 26,
-                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#0ea5e9',
-                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#0ea5e9',
+                    'logoIconColorLight' => $settings->logo_icon_color_light ?? '#114fee',
+                    'logoIconColorDark' => $settings->logo_icon_color_dark ?? '#114fee',
                 ],
             ]);
         } catch (\Exception $e) {
@@ -586,7 +586,7 @@ class SettingsController extends Controller
         }
 
         $id = DB::table('platform_settings')->insertGetId([
-            'site_name' => 'Ecme Marketplace',
+            'site_name' => 'REXTEN',
             'site_description' => 'Платформа для управления бизнесом',
             'timezone' => 'America/Los_Angeles',
             'currency' => 'USD',
@@ -605,11 +605,11 @@ class SettingsController extends Controller
             'log_level' => 'info',
             'api_rate_limit' => 100,
             'logo_text' => 'REXTEN',
-            'logo_color_light' => '#0F172A',
-            'logo_color_dark' => '#FFFFFF',
+            'logo_color_light' => '#333333',
+            'logo_color_dark' => '#ffffff',
             'logo_size' => 26,
-            'logo_icon_color_light' => '#0ea5e9',
-            'logo_icon_color_dark' => '#0ea5e9',
+            'logo_icon_color_light' => '#114fee',
+            'logo_icon_color_dark' => '#114fee',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

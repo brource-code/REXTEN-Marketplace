@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('platform_settings', function (Blueprint $table) {
             $table->string('logo_text')->default('REXTEN')->after('logo_icon_dark');
-            $table->string('logo_color_light')->default('#0F172A')->after('logo_text');
-            $table->string('logo_color_dark')->default('#FFFFFF')->after('logo_color_light');
+            $table->string('logo_color_light')->default('#333333')->after('logo_text');
+            $table->string('logo_color_dark')->default('#ffffff')->after('logo_color_light');
             $table->integer('logo_size')->default(26)->after('logo_color_dark');
         });
     }

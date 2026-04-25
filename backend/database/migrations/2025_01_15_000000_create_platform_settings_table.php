@@ -27,7 +27,7 @@ return new class extends Migration
 
         // Вставляем начальные настройки
         DB::table('platform_settings')->insert([
-            'site_name' => 'Ecme Marketplace',
+            'site_name' => 'REXTEN',
             'site_description' => 'Платформа для управления бизнесом',
             'created_at' => now(),
             'updated_at' => now(),

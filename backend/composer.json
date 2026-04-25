@@ -1,7 +1,7 @@
 {
     "name": "ecme/marketplace-api",
     "type": "project",
-    "description": "Laravel API for Ecme Marketplace platform",
+    "description": "Laravel API for REXTEN platform",
     "keywords": ["laravel", "marketplace", "api"],
     "license": "MIT",
     "require": {
