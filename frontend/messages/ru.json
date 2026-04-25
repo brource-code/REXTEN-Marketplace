@@ -1902,9 +1902,11 @@
                 },
                 "pricing": {
                     "title": "Ценообразование",
+                    "hint": "Диапазон цен услуг в объявлении (от — до).",
                     "priceFrom": "Цена от",
                     "priceTo": "Цена до",
-                    "currency": "Валюта"
+                    "currency": "Валюта",
+                    "allUsd": "Все цены в этом объявлении указаны в долларах США (USD)."
                 },
                 "services": {
                     "title": "Услуги",
@@ -1921,6 +1923,7 @@
                     "serviceNamePlaceholder": "Введите название услуги",
                     "price": "Цена",
                     "duration": "Длительность",
+                    "durationPlaceholder": "например, 1",
                     "durationUnit": "Единица",
                     "hours": "Часы",
                     "days": "Дни",
@@ -1978,8 +1981,13 @@
                     "descriptionPlaceholder": "Описание услуги",
                     "price": "Цена ($)",
                     "pricePlaceholder": "например, 25.50",
-                    "duration": "Длительность (мин)",
-                    "durationPlaceholder": "например, 30",
+                    "duration": "Длительность",
+                    "durationUnit": "Единица",
+                    "unitHours": "Часы",
+                    "unitDays": "Дни",
+                    "durationPlaceholder": "например, 1",
+                    "durationCompactHours": "{n} ч",
+                    "durationCompactDays": "{n} д",
                     "sortOrder": "Порядок сортировки",
                     "isActive": "Активна",
                     "showInBooking": "Показывать при бронировании",

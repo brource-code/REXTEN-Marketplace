@@ -2574,9 +2574,11 @@
                 },
                 "pricing": {
                     "title": "Precios",
+                    "hint": "Rango de precios de los servicios en este anuncio (desde–hasta).",
                     "priceFrom": "Precio desde",
                     "priceTo": "Precio hasta",
-                    "currency": "Moneda"
+                    "currency": "Moneda",
+                    "allUsd": "Todos los precios de este anuncio están en dólares estadounidenses (USD)."
                 },
                 "services": {
                     "title": "Servicios",
@@ -2593,6 +2595,7 @@
                     "serviceNamePlaceholder": "Ingresa el nombre del servicio",
                     "price": "Precio",
                     "duration": "Duración",
+                    "durationPlaceholder": "p. ej. 1",
                     "durationUnit": "Unidad",
                     "hours": "Horas",
                     "days": "Días",
@@ -2650,8 +2653,13 @@
                     "descriptionPlaceholder": "Descripción del servicio",
                     "price": "Precio ($)",
                     "pricePlaceholder": "p. ej. 25.50",
-                    "duration": "Duración (min)",
-                    "durationPlaceholder": "p. ej. 30",
+                    "duration": "Duración",
+                    "durationUnit": "Unidad",
+                    "unitHours": "Horas",
+                    "unitDays": "Días",
+                    "durationPlaceholder": "p. ej. 1",
+                    "durationCompactHours": "{n} h",
+                    "durationCompactDays": "{n} d",
                     "sortOrder": "Orden",
                     "isActive": "Activo",
                     "showInBooking": "Mostrar en la reserva",

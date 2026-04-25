@@ -2574,9 +2574,11 @@
                 },
                 "pricing": {
                     "title": "Ціни",
+                    "hint": "Діапазон цін послуг у цьому оголошенні (від — до).",
                     "priceFrom": "Ціна від",
                     "priceTo": "Ціна до",
-                    "currency": "Валюта"
+                    "currency": "Валюта",
+                    "allUsd": "Усі ціни в цьому оголошенні вказані в доларах США (USD)."
                 },
                 "services": {
                     "title": "Послуги",
@@ -2593,6 +2595,7 @@
                     "serviceNamePlaceholder": "Введіть назву послуги",
                     "price": "Ціна",
                     "duration": "Тривалість",
+                    "durationPlaceholder": "напр. 1",
                     "durationUnit": "Одиниця",
                     "hours": "Години",
                     "days": "Дні",
@@ -2650,8 +2653,13 @@
                     "descriptionPlaceholder": "Опис послуги",
                     "price": "Ціна ($)",
                     "pricePlaceholder": "напр. 25.50",
-                    "duration": "Тривалість (хв)",
-                    "durationPlaceholder": "напр. 30",
+                    "duration": "Тривалість",
+                    "durationUnit": "Одиниця",
+                    "unitHours": "Години",
+                    "unitDays": "Дні",
+                    "durationPlaceholder": "напр. 1",
+                    "durationCompactHours": "{n} год",
+                    "durationCompactDays": "{n} д",
                     "sortOrder": "Порядок сортування",
                     "isActive": "Активні",
                     "showInBooking": "Показувати в бронюванні",

@@ -2574,9 +2574,11 @@
                 },
                 "pricing": {
                     "title": "Pricing",
+                    "hint": "Price range for services on this listing (from–to).",
                     "priceFrom": "Price From",
                     "priceTo": "Price To",
-                    "currency": "Currency"
+                    "currency": "Currency",
+                    "allUsd": "All prices on this listing are in US dollars (USD)."
                 },
                 "services": {
                     "title": "Services",
@@ -2593,6 +2595,7 @@
                     "serviceNamePlaceholder": "Enter service name",
                     "price": "Price",
                     "duration": "Duration",
+                    "durationPlaceholder": "e.g. 1",
                     "durationUnit": "Unit",
                     "hours": "Hours",
                     "days": "Days",
@@ -2650,8 +2653,13 @@
                     "descriptionPlaceholder": "Service description",
                     "price": "Price ($)",
                     "pricePlaceholder": "e.g. 25.50",
-                    "duration": "Duration (min)",
-                    "durationPlaceholder": "e.g. 30",
+                    "duration": "Duration",
+                    "durationUnit": "Unit",
+                    "unitHours": "Hours",
+                    "unitDays": "Days",
+                    "durationPlaceholder": "e.g. 1",
+                    "durationCompactHours": "{n} h",
+                    "durationCompactDays": "{n} d",
                     "sortOrder": "Sort order",
                     "isActive": "Active",
                     "showInBooking": "Show in booking",

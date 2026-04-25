@@ -2574,9 +2574,11 @@
                 },
                 "pricing": {
                     "title": "Գնավորում",
+                    "hint": "Ծառայությունների գների միջակայք այս հայտարարությունում (սկսած–մինչև)։",
                     "priceFrom": "Գինից",
                     "priceTo": "Գինը մինչև",
-                    "currency": "Արժույթ"
+                    "currency": "Արժույթ",
+                    "allUsd": "Այս հայտարարության բոլոր գները նշված են ԱՄՆ դոլարով (USD)։"
                 },
                 "services": {
                     "title": "Ծառայություններ",
@@ -2593,6 +2595,7 @@
                     "serviceNamePlaceholder": "Մուտքագրեք ծառայության անունը",
                     "price": "Գին",
                     "duration": "Տևողություն",
+                    "durationPlaceholder": "օր.՝ 1",
                     "durationUnit": "Միավոր",
                     "hours": "ժամ",
                     "days": "Օրեր",
@@ -2650,8 +2653,13 @@
                     "descriptionPlaceholder": "Ծառայության նկարագրություն",
                     "price": "Գին ($)",
                     "pricePlaceholder": "օր.՝ 25.50",
-                    "duration": "Տևողություն (րոպե)",
-                    "durationPlaceholder": "օր.՝ 30",
+                    "duration": "Տևողություն",
+                    "durationUnit": "Միավոր",
+                    "unitHours": "Ժամ",
+                    "unitDays": "Օր",
+                    "durationPlaceholder": "օր.՝ 1",
+                    "durationCompactHours": "{n} ժ",
+                    "durationCompactDays": "{n} օր",
                     "sortOrder": "Դասավորման կարգ",
                     "isActive": "Ակտիվ",
                     "showInBooking": "Ցուցադրել ամրագրման մեջ",
