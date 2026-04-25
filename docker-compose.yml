@@ -12,8 +12,9 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/snippets:/etc/nginx/snippets:ro
-      - ./nginx/brand-assets/favicon-32x32.png:/var/www/brand-assets/favicon-32x32.png:ro
+      - ./frontend/src/app/favicon.ico:/var/www/brand-assets/favicon.ico:ro
       - ./frontend/src/app/icon.svg:/var/www/brand-assets/icon.svg:ro
+      - ./frontend/src/app/apple-icon.svg:/var/www/brand-assets/apple-icon.svg:ro
       - ./backend/public:/var/www/html/public:ro
       - ./backend/storage:/var/www/html/storage:ro
     depends_on:

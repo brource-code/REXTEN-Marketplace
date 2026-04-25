@@ -1,5 +1,6 @@
 /**
- * Собирает PNG-фавикон из app/icon.svg для отдачи nginx (таб/502 без Next).
+ * Собирает PNG favicon-32x32 из app/icon.svg (резерв/доки). В проде /favicon.ico
+ * отдаёт nginx с диска из frontend/src/app/favicon.ico (см. docker-compose + default.conf).
  * Запуск: node scripts/render-nginx-favicon.mjs
  */
 import fs from 'fs'
