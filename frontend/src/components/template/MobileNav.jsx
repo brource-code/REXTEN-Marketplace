@@ -55,10 +55,10 @@ const MobileNav = ({ translationSetup = appConfig.activeNavTranslation }) => {
             onClick={handleDrawerClose}
         >
             <LogoComponent
-                className="max-h-8 w-auto"
+                className="max-h-7 w-auto"
                 customText="REXTEN"
                 customColor={defaultMode === 'dark' ? '#ffffff' : '#333333'}
-                customSize={26}
+                customSize={22}
                 customIconColor={REXTEN_MARK_COLOR}
             />
         </Link>

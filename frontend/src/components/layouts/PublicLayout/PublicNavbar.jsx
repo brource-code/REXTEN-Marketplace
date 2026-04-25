@@ -87,7 +87,7 @@ const PublicNavbar = () => {
                         type="full"
                         mode={mode}
                         forceSvg={true}
-                        imgClass="h-7 w-auto max-w-[130px]"
+                        imgClass="h-7 w-auto max-w-[120px]"
                     />
                 </Link>
 

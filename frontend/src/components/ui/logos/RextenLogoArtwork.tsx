@@ -1,5 +1,5 @@
 import * as React from 'react'
-import classNames from 'classnames'
+import classNames from '@/utils/classNames'
 
 export const REXTEN_LOGO_ICON_PRIMARY = '#114fee'
 export const REXTEN_LOGO_ICON_SECONDARY = '#2ddaff'
