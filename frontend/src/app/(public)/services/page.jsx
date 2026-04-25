@@ -887,7 +887,7 @@ function ServicesPage() {
     }
 
     return (
-        <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24 [overflow-anchor:none]">
+        <main className="text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24 [overflow-anchor:none]">
             {/* Hero: поиск-first, превью карточек справа (desktop) */}
             <section className="relative overflow-x-hidden pt-6 pb-6 md:pt-8 md:pb-10 lg:pb-12 bg-white dark:bg-gray-900">
                 <div
@@ -896,7 +896,7 @@ function ServicesPage() {
                         backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='50' height='50' fill='none' stroke='${'#e5e7eb'}'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
                     }}
                 />
-                <Container className="max-w-7xl">
+                <Container className="max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 lg:gap-10 lg:grid-cols-12 lg:items-start">
                         <div
                             className={classNames(
@@ -1067,7 +1067,7 @@ function ServicesPage() {
             </section>
 
             <section ref={layoutSectionRef} className="pb-16 overflow-x-hidden">
-                <Container className="max-w-7xl px-0 md:px-4">
+                <Container className="max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Кнопка фильтров для мобильных */}
                     <div className="lg:hidden mb-4">
                         <button

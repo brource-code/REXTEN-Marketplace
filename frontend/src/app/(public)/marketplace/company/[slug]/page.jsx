@@ -46,7 +46,7 @@ export default function CompanyProfilePage() {
 
     if (isLoading) {
         return (
-            <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
+            <main className="text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
                 <Container className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <Loading loading />
                 </Container>
@@ -56,7 +56,7 @@ export default function CompanyProfilePage() {
 
     if (error || !profile) {
         return (
-            <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
+            <main className="text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
                 <Container className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <NotFound404 />
                     <div className="text-center mt-8">
@@ -106,7 +106,7 @@ export default function CompanyProfilePage() {
 
     return (
         <>
-            <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24 pb-24 md:pb-12">
+            <main className="text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24 pb-24 md:pb-12">
             <Container className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Хлебные крошки */}
                 <div className="pb-4">

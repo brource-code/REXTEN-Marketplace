@@ -63,7 +63,7 @@ const getInitials = (name) => {
 // Skeleton компонент для загрузки
 const ServiceProfileSkeleton = () => {
     return (
-        <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden">
+        <main className="text-base bg-white dark:bg-gray-900 overflow-x-hidden">
             <Container className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Хлебные крошки skeleton */}
                 <div className="pt-6 pb-4">
@@ -751,7 +751,7 @@ export default function MarketplaceProfilePage() {
 
     if (!profile || !profile.service) {
         return (
-            <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 min-h-screen">
+            <main className="text-base bg-white dark:bg-gray-900 min-h-screen">
                 <section className="relative overflow-hidden py-24">
                     <div
                         className="absolute inset-0 pointer-events-none select-none opacity-70"
@@ -759,7 +759,7 @@ export default function MarketplaceProfilePage() {
                             backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='50' height='50' fill='none' stroke='${'#eaeaea'}'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
                         }}
                     ></div>
-                    <Container>
+                    <Container className="px-4 sm:px-6 lg:px-8">
                         <div className="relative text-center max-w-3xl mx-auto py-20">
                             <div className="mb-8 flex justify-center">
                                 <NotFound404 height={200} width={200} />
@@ -888,7 +888,7 @@ export default function MarketplaceProfilePage() {
     const showOnlineBookingBadge = profile?.allowBooking !== false
 
     return (
-        <main className="px-4 lg:px-0 text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
+        <main className="text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
             <Container className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Хлебные крошки */}
                 <div className="pb-4">
