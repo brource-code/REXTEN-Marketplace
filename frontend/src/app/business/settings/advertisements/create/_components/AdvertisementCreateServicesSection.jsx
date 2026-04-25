@@ -6,7 +6,6 @@ import Input from '@/components/ui/Input'
 import AmountInput from '@/components/ui/AmountInput/AmountInput'
 import Select from '@/components/ui/Select'
 import { FormItem } from '@/components/ui/Form'
-import Card from '@/components/ui/Card'
 import { PiPlus, PiTrash } from 'react-icons/pi'
 import { ServiceAdditionalServicesManager } from './ServiceAdditionalServicesManager'
 
@@ -21,6 +20,9 @@ export function AdvertisementCreateServicesSection({
     handleClearServiceSelection,
 }) {
     const t = useTranslations('business.advertisements.create')
+    /** Порядок в массиве: новее сверху (prepend + сортировка при загрузке). Номер в UI — по порядку добавления: #1 первая, сверху последняя = #N. */
+    const services = Array.isArray(formData.services) ? formData.services : []
+    const serviceCount = services.length
 
     return (
         <div className="space-y-4">
@@ -31,12 +33,17 @@ export function AdvertisementCreateServicesSection({
                 </Button>
             </div>
 
-            <div className="space-y-4">
-                {(formData.services || []).map((service, index) => (
-                    <Card key={service.id} className="p-4">
+            <div className="divide-y divide-gray-200 dark:divide-gray-700 sm:space-y-4 sm:divide-y-0">
+                {services.map((service, index) => (
+                    <div
+                        key={service.id}
+                        className="space-y-3 py-4 sm:space-y-3 sm:rounded-xl sm:border sm:border-gray-200 sm:p-4 sm:py-4 dark:sm:border-gray-700"
+                    >
                         <div className="mb-4 flex items-start justify-between">
                             <h5 className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                {t('services.serviceNumber', { number: index + 1 })}
+                                {t('services.serviceNumber', {
+                                    number: serviceCount - index,
+                                })}
                             </h5>
                             <Button
                                 size="sm"
@@ -107,7 +114,7 @@ export function AdvertisementCreateServicesSection({
                                     disabled={false}
                                 />
                             </FormItem>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <FormItem label={t('services.price')}>
                                     <AmountInput
                                         size="sm"
@@ -133,7 +140,7 @@ export function AdvertisementCreateServicesSection({
                                             onChange={(e) =>
                                                 updateService(service.id, 'duration', e.target.value)
                                             }
-                                            placeholder="1"
+                                            placeholder={t('services.durationPlaceholder')}
                                             disabled={false}
                                         />
                                     </FormItem>
@@ -194,14 +201,14 @@ export function AdvertisementCreateServicesSection({
                                 }}
                             />
                         </div>
-                    </Card>
-                ))}
-                {!formData.services || formData.services.length === 0 ? (
-                    <div className="py-8 text-center text-sm font-bold text-gray-500 dark:text-gray-400">
-                        {t('services.noServices')}
                     </div>
-                ) : null}
+                ))}
             </div>
+            {serviceCount === 0 ? (
+                <div className="py-8 text-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                    {t('services.noServices')}
+                </div>
+            ) : null}
         </div>
     )
 }

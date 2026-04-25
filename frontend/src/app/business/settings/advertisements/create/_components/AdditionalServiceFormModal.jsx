@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
 import { FormItem } from '@/components/ui/Form'
 import Dialog from '@/components/ui/Dialog'
 import Checkbox from '@/components/ui/Checkbox'
+import { advertisementDisplayToMinutes, advertisementMinutesToDisplay } from './advertisementFormDuration'
 
 export function AdditionalServiceFormModal({ isOpen, onClose, additionalService, onSave }) {
     const tAdd = useTranslations('business.advertisements.create.additionalServices')
@@ -15,6 +17,7 @@ export function AdditionalServiceFormModal({ isOpen, onClose, additionalService,
         description: '',
         price: '',
         duration: '',
+        duration_unit: 'hours',
         is_active: true,
         sort_order: 0,
     })
@@ -22,6 +25,8 @@ export function AdditionalServiceFormModal({ isOpen, onClose, additionalService,
     useEffect(() => {
         if (isOpen) {
             if (additionalService) {
+                const mins = Number(additionalService.duration ?? 0) || 0
+                const { value, unit } = advertisementMinutesToDisplay(mins, 'hours')
                 setFormData({
                     name: additionalService.name || '',
                     description: additionalService.description || '',
@@ -31,12 +36,8 @@ export function AdditionalServiceFormModal({ isOpen, onClose, additionalService,
                         additionalService.price !== 0
                             ? additionalService.price
                             : '',
-                    duration:
-                        additionalService.duration !== undefined &&
-                        additionalService.duration !== null &&
-                        additionalService.duration !== 0
-                            ? additionalService.duration
-                            : '',
+                    duration: mins > 0 ? value : '',
+                    duration_unit: mins > 0 ? unit : 'hours',
                     is_active:
                         additionalService.is_active !== undefined ? additionalService.is_active : true,
                     sort_order: additionalService.sort_order || 0,
@@ -47,6 +48,7 @@ export function AdditionalServiceFormModal({ isOpen, onClose, additionalService,
                     description: '',
                     price: '',
                     duration: '',
+                    duration_unit: 'hours',
                     is_active: true,
                     sort_order: 0,
                 })
@@ -71,11 +73,21 @@ export function AdditionalServiceFormModal({ isOpen, onClose, additionalService,
             return
         }
 
+        const durationMinutes = advertisementDisplayToMinutes(
+            formData.duration,
+            formData.duration_unit || 'hours',
+        )
+        if (!durationMinutes || durationMinutes < 1) {
+            alert(tAdd('validation.durationRequired'))
+            return
+        }
+
         const submitData = {
             ...formData,
             price: parseFloat(formData.price) || 0,
-            duration: parseInt(formData.duration, 10) || 0,
+            duration: durationMinutes,
         }
+        delete submitData.duration_unit
 
         onSave(submitData)
     }
@@ -136,6 +148,7 @@ export function AdditionalServiceFormModal({ isOpen, onClose, additionalService,
                                     size="sm"
                                     type="number"
                                     min="0"
+                                    step="any"
                                     value={formData.duration}
                                     onChange={(e) =>
                                         setFormData((prev) => ({
@@ -148,6 +161,30 @@ export function AdditionalServiceFormModal({ isOpen, onClose, additionalService,
                                 />
                             </FormItem>
                         </div>
+
+                        <FormItem label={tAdd('durationUnit')}>
+                            <Select
+                                size="sm"
+                                isSearchable={false}
+                                value={{
+                                    value: formData.duration_unit || 'hours',
+                                    label:
+                                        formData.duration_unit === 'days'
+                                            ? tAdd('unitDays')
+                                            : tAdd('unitHours'),
+                                }}
+                                onChange={(option) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        duration_unit: option?.value || 'hours',
+                                    }))
+                                }
+                                options={[
+                                    { value: 'hours', label: tAdd('unitHours') },
+                                    { value: 'days', label: tAdd('unitDays') },
+                                ]}
+                            />
+                        </FormItem>
 
                         <FormItem label={tAdd('sortOrder')}>
                             <Input

@@ -5,8 +5,16 @@ import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import Switcher from '@/components/ui/Switcher'
-import Badge from '@/components/ui/Badge'
-import { normalizeImageUrl } from '@/utils/imageUtils'
+import Avatar from '@/components/ui/Avatar'
+
+function getTeamMemberInitials(name) {
+    if (!name) return 'U'
+    const parts = name.trim().split(' ')
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
+    return name[0].toUpperCase()
+}
 
 export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTeamMember }) {
     const t = useTranslations('business.advertisements.create')
@@ -26,8 +34,8 @@ export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTe
             </div>
 
             {companyTeam.length === 0 ? (
-                <Card className="p-6">
-                    <div className="py-8 text-center">
+                <Card bodyClass="!p-0 sm:!p-6">
+                    <div className="px-3 py-8 text-center sm:px-6">
                         <p className="mb-4 text-sm font-bold text-gray-500 dark:text-gray-400">
                             {t('team.emptyDescription')}
                         </p>
@@ -39,9 +47,9 @@ export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTe
                     </div>
                 </Card>
             ) : (
-                <Card className="p-4">
-                    <h5 className="mb-4 text-sm font-bold text-gray-900 dark:text-gray-100">{t('team.title')}</h5>
-                    <div className="space-y-3">
+                <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+                    <h5 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-100">{t('team.title')}</h5>
+                    <div className="max-h-[min(55vh,28rem)] min-h-0 divide-y divide-gray-200 overflow-y-auto overflow-x-hidden overscroll-contain dark:divide-gray-700 sm:space-y-2 sm:divide-y-0 sm:pr-1">
                         {companyTeam.map((member) => {
                             const currentTeamIds = Array.isArray(formData.team)
                                 ? formData.team.map((m) => (typeof m === 'object' ? m.id || m : m))
@@ -50,20 +58,25 @@ export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTe
                             return (
                                 <div
                                     key={member.id}
-                                    className="flex flex-col gap-3 rounded-lg border border-gray-200 p-3 transition hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600 sm:flex-row sm:items-center sm:gap-4"
+                                    className="flex min-w-0 items-center gap-2 py-2.5 sm:gap-3 sm:rounded-lg sm:border sm:border-gray-200 sm:p-3 sm:py-3 sm:transition sm:hover:border-gray-300 dark:sm:border-gray-700 dark:sm:hover:border-gray-600"
                                 >
-                                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                                    <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                                         <Switcher
                                             checked={isSelected}
                                             onChange={() => toggleTeamMember(member.id)}
                                         />
                                         {member.img ? (
-                                            <img
-                                                src={normalizeImageUrl(member.img)}
-                                                alt={member.name}
-                                                className="h-10 w-10 flex-shrink-0 rounded-full object-cover sm:h-12 sm:w-12"
+                                            <Avatar
+                                                size={44}
+                                                shape="circle"
+                                                src={member.img}
+                                                alt={member.name || ''}
                                             />
-                                        ) : null}
+                                        ) : (
+                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                                                {getTeamMemberInitials(member.name)}
+                                            </div>
+                                        )}
                                         <div
                                             className="min-w-0 flex-1 cursor-pointer"
                                             onClick={() => toggleTeamMember(member.id)}
@@ -91,16 +104,11 @@ export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTe
                                             ) : null}
                                         </div>
                                     </div>
-                                    {isSelected ? (
-                                        <Badge className="flex-shrink-0" variant="solid" color="blue">
-                                            {t('team.selected')}
-                                        </Badge>
-                                    ) : null}
                                 </div>
                             )
                         })}
                     </div>
-                </Card>
+                </div>
             )}
         </div>
     )

@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import Card from '@/components/ui/Card'
 import Upload from '@/components/ui/Upload'
 import toast from '@/components/ui/toast'
 import LaravelAxios from '@/services/axios/LaravelAxios'
@@ -27,9 +26,8 @@ export function AdvertisementCreatePortfolioSection({
 
     return (
         <div className="space-y-6">
-            <Card className="p-4">
-                <div className="space-y-4">
-                    <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="space-y-4">
+                    <div className="mb-4 flex items-start justify-between gap-3 sm:gap-4">
                         <div className="min-w-0 flex-1">
                             <h4 className="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100">
                                 {t('portfolio.title')}
@@ -76,13 +74,13 @@ export function AdvertisementCreatePortfolioSection({
                     </div>
 
                     {formData.portfolio && formData.portfolio.length > 0 ? (
-                        <div className="mb-4 space-y-4">
+                        <div className="mb-4 divide-y divide-gray-200 dark:divide-gray-700 sm:space-y-4 sm:divide-y-0">
                             {formData.portfolio.map((item, index) => {
                                 const images = item.images || (item.imageUrl ? [item.imageUrl] : [])
                                 return (
                                     <div
                                         key={item.id || index}
-                                        className="w-full max-w-full space-y-3 overflow-x-hidden rounded-lg border border-gray-200 p-3 dark:border-gray-700 sm:space-y-4 sm:p-4"
+                                        className="w-full max-w-full space-y-3 overflow-x-hidden py-4 sm:space-y-4 sm:rounded-lg sm:border sm:border-gray-200 sm:p-4 sm:py-4 dark:sm:border-gray-700"
                                     >
                                         <div className="flex w-full max-w-full items-start justify-between gap-2 sm:gap-3">
                                             <div className="min-w-0 flex-1 space-y-3">
@@ -280,7 +278,7 @@ export function AdvertisementCreatePortfolioSection({
                     ) : null}
 
                     {showAddPortfolioForm ? (
-                        <div className="mb-4 w-full max-w-full overflow-x-hidden rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50 sm:p-4">
+                        <div className="mb-4 w-full max-w-full overflow-x-hidden border-t border-gray-200 pt-4 dark:border-gray-700 sm:rounded-lg sm:border sm:bg-gray-50 sm:p-4 sm:pt-4 dark:sm:bg-gray-800/50">
                             <div className="space-y-3">
                                 <FormItem label={t('portfolio.images')} required>
                                     <Upload
@@ -380,7 +378,7 @@ export function AdvertisementCreatePortfolioSection({
                                     </Upload>
                                 </FormItem>
 
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <FormItem label={t('portfolio.itemTitle')}>
                                         <Input
                                             size="sm"
@@ -420,8 +418,7 @@ export function AdvertisementCreatePortfolioSection({
                             </div>
                         </div>
                     ) : null}
-                </div>
-            </Card>
+            </div>
         </div>
     )
 }

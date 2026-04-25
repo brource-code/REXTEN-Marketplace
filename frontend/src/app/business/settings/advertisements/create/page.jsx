@@ -7,7 +7,6 @@ import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import PermissionGuard from '@/components/shared/PermissionGuard'
 import Button from '@/components/ui/Button'
-import Card from '@/components/ui/Card'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { 
     createBusinessAdvertisement, 
@@ -38,6 +37,19 @@ import { AdvertisementCreateServicesSection } from './_components/AdvertisementC
 import { AdvertisementCreateScheduleSection } from './_components/AdvertisementCreateScheduleSection'
 import { AdvertisementCreatePortfolioSection } from './_components/AdvertisementCreatePortfolioSection'
 import { AdvertisementCreateTeamSection } from './_components/AdvertisementCreateTeamSection'
+import {
+    advertisementMinutesToDisplay,
+    mapAdvertisementServiceForSubmit,
+    sortAdvertisementServicesNewestFirst,
+    nextAdvertisementServiceTempId,
+} from './_components/advertisementFormDuration'
+
+const ALLOWED_SLOT_STEP_MINUTES = [60, 90, 120, 180, 240]
+
+function normalizeSlotStepMinutes(value) {
+    const n = Number(value) || 60
+    return ALLOWED_SLOT_STEP_MINUTES.includes(n) ? n : 60
+}
 
 export default function CreateAdvertisementPage() {
     const router = useRouter()
@@ -193,19 +205,22 @@ export default function CreateAdvertisementPage() {
             // Устанавливаем draftId при загрузке объявления для редактирования
             setDraftId(advertisement.id)
             // Загружаем услуги из БД (если они есть)
-            const servicesData = Array.isArray(advertisement.services) 
-                ? advertisement.services.map(service => ({
-                    id: service.id || service.service_id || Date.now() + Math.random(), // ID для формы
-                    service_id: service.service_id || service.id || null, // ID из БД для дополнительных услуг
+            const servicesData = sortAdvertisementServicesNewestFirst(advertisement.services).map((service) => {
+                const totalMinutes = Number(service.duration ?? service.duration_minutes ?? 0) || 0
+                const { value: durValue, unit: durUnit } = advertisementMinutesToDisplay(
+                    totalMinutes,
+                    service.duration_unit || 'hours',
+                )
+                return {
+                    id: service.id || service.service_id || Date.now() + Math.random(),
+                    service_id: service.service_id || service.id || null,
                     name: service.name || '',
                     price: service.price || '',
-                    duration: service.duration || service.duration_minutes || '',
-                    duration_unit: service.duration_unit || 'hours',
+                    duration: durValue,
+                    duration_unit: durUnit,
                     description: service.description || '',
-                    // Дополнительные услуги теперь загружаются из БД через API
-                    // Убираем additional_services из JSON
-                }))
-                : []
+                }
+            })
             
             setFormData({
                 type: 'regular', // Всегда обычное объявление
@@ -239,7 +254,7 @@ export default function CreateAdvertisementPage() {
                 state: parseUsStateCode(advertisement.state ?? '') ?? '',
                 priceFrom: advertisement.price_from || '',
                 priceTo: advertisement.price_to || '',
-                currency: advertisement.currency || 'USD',
+                currency: 'USD',
                 services: servicesData,
                 // Преобразуем team в массив ID для работы с формой
                 team: (() => {
@@ -257,7 +272,7 @@ export default function CreateAdvertisementPage() {
                     saturday: { enabled: false, from: '09:00', to: '18:00' },
                     sunday: { enabled: false, from: '09:00', to: '18:00' },
                 },
-                slot_step_minutes: advertisement.slot_step_minutes || 60,
+                slot_step_minutes: normalizeSlotStepMinutes(advertisement.slot_step_minutes),
                 portfolio: Array.isArray(advertisement.portfolio) 
                     ? advertisement.portfolio.map(item => ({
                         ...item,
@@ -414,21 +429,8 @@ export default function CreateAdvertisementPage() {
         
         try {
             // Подготавливаем данные для черновика
-            const servicesData = Array.isArray(formData.services) 
-                ? formData.services.map(service => {
-                    const { additional_services, ...serviceWithoutAdditional } = service
-                    let serviceId = null
-                    if (service.service_id && typeof service.service_id === 'number' && service.service_id < 1000000) {
-                        serviceId = service.service_id
-                    } else if (service.id && typeof service.id === 'number' && service.id < 1000000) {
-                        serviceId = service.id
-                    }
-                    return {
-                        ...serviceWithoutAdditional,
-                        service_id: serviceId,
-                        id: service.id || null,
-                    }
-                })
+            const servicesData = Array.isArray(formData.services)
+                ? formData.services.map((service) => mapAdvertisementServiceForSubmit(service))
                 : []
             
             // Для драфтов команда опциональна - формируем только если есть выбранная команда или доступные участники
@@ -475,10 +477,10 @@ export default function CreateAdvertisementPage() {
                 placement: 'services',
                 services: servicesData,
                 schedule: formData.schedule || null,
-                slot_step_minutes: formData.slot_step_minutes || 60,
+                slot_step_minutes: normalizeSlotStepMinutes(formData.slot_step_minutes),
                 priceFrom: formData.priceFrom !== '' && formData.priceFrom != null ? formData.priceFrom : null,
                 priceTo: formData.priceTo !== '' && formData.priceTo != null ? formData.priceTo : null,
-                currency: formData.currency || 'USD',
+                currency: 'USD',
                 portfolio: Array.isArray(formData.portfolio) 
                     ? formData.portfolio.map(item => ({
                         ...item,
@@ -556,27 +558,12 @@ export default function CreateAdvertisementPage() {
 
         // Подготавливаем данные для отправки из актуального состояния
         // Дополнительные услуги теперь хранятся в БД, не отправляем их в JSON
-        const servicesData = Array.isArray(formData.services) 
-            ? formData.services.map(service => {
-                // Убираем additional_services из данных - они хранятся в БД отдельно
-                const { additional_services, ...serviceWithoutAdditional } = service
-                
-                // Определяем service_id: если это реальный ID из БД (< 1000000), используем его
-                // Если это временный ID для новой услуги, не передаем service_id
-                let serviceId = null
-                if (service.service_id && typeof service.service_id === 'number' && service.service_id < 1000000) {
-                    serviceId = service.service_id
-                } else if (service.id && typeof service.id === 'number' && service.id < 1000000) {
-                    serviceId = service.id
-                }
-                
-                // Убеждаемся, что service_id передается только для реальных услуг из БД
-                return {
-                    ...serviceWithoutAdditional,
-                    service_id: serviceId, // null для новых услуг
-                    id: service.id || null, // ID для идентификации при обновлении
-                }
-            })
+        const servicesData = Array.isArray(formData.services)
+            ? formData.services.map((service) => {
+                  const mapped = mapAdvertisementServiceForSubmit(service)
+                  const { additional_services: _a, ...withoutAdditional } = mapped
+                  return withoutAdditional
+              })
             : []
         
         // Отправляем данные на бэкенд
@@ -609,10 +596,10 @@ export default function CreateAdvertisementPage() {
                 )
                 : [],
             schedule: formData.schedule || null,
-            slot_step_minutes: formData.slot_step_minutes || 60,
+            slot_step_minutes: normalizeSlotStepMinutes(formData.slot_step_minutes),
             priceFrom: formData.priceFrom !== '' && formData.priceFrom != null ? formData.priceFrom : null,
             priceTo: formData.priceTo !== '' && formData.priceTo != null ? formData.priceTo : null,
-            currency: formData.currency || 'USD',
+            currency: 'USD',
             portfolio: Array.isArray(formData.portfolio) 
                 ? formData.portfolio.map(item => ({
                     ...item,
@@ -664,19 +651,22 @@ export default function CreateAdvertisementPage() {
     }
 
     const addService = () => {
-        setFormData({
-            ...formData,
-            services: [...(formData.services || []), { 
-                id: Date.now(), 
-                name: '', 
-                price: '', 
-                duration: '', 
-                duration_unit: 'hours', // По умолчанию часы
-                description: '', 
-                service_id: null,
-                additional_services: [] // Локальные дополнительные услуги для этой услуги
-            }]
-        })
+        setFormData((prev) => ({
+            ...prev,
+            services: [
+                {
+                    id: nextAdvertisementServiceTempId(),
+                    name: '',
+                    price: '',
+                    duration: '',
+                    duration_unit: 'hours',
+                    description: '',
+                    service_id: null,
+                    additional_services: [],
+                },
+                ...(prev.services || []),
+            ],
+        }))
     }
 
     const removeService = (id) => {
@@ -706,13 +696,19 @@ export default function CreateAdvertisementPage() {
 
         // Обновляем услугу в форме
         const updatedServices = [...(formData.services || [])]
+        const templateMinutes =
+            Number(selectedService.duration_minutes ?? selectedService.duration ?? 0) || 0
+        const { value: tplDur, unit: tplUnit } = advertisementMinutesToDisplay(
+            templateMinutes,
+            selectedService.duration_unit || 'hours',
+        )
         updatedServices[serviceIndex] = {
             ...updatedServices[serviceIndex],
             service_id: selectedService.id,
             name: selectedService.name || updatedServices[serviceIndex].name,
             price: selectedService.price || updatedServices[serviceIndex].price,
-            duration: selectedService.duration_minutes || selectedService.duration || updatedServices[serviceIndex].duration,
-            duration_unit: selectedService.duration_unit || updatedServices[serviceIndex].duration_unit || 'hours',
+            duration: tplDur,
+            duration_unit: tplUnit,
             description: selectedService.description || updatedServices[serviceIndex].description,
         }
 
@@ -840,11 +836,11 @@ export default function CreateAdvertisementPage() {
         return (
             <PermissionGuard permission="manage_settings">
                 <Container>
-                    <AdaptiveCard>
-                        <div className="flex min-h-[400px] items-center justify-center">
-                            <Loading loading />
-                        </div>
-                    </AdaptiveCard>
+                <AdaptiveCard bodyClass="!p-0 sm:!p-5">
+                    <div className="flex min-h-[400px] items-center justify-center px-3 sm:px-0">
+                        <Loading loading />
+                    </div>
+                </AdaptiveCard>
                 </Container>
             </PermissionGuard>
         )
@@ -853,12 +849,12 @@ export default function CreateAdvertisementPage() {
     return (
         <PermissionGuard permission="manage_settings">
             <Container>
-                <AdaptiveCard>
-                    <div className="flex max-w-full min-w-0 flex-col gap-4 overflow-x-hidden">
+                <AdaptiveCard bodyClass="!p-0 sm:!p-5">
+                    <div className="flex max-w-full min-w-0 flex-col gap-4 overflow-x-hidden px-3 sm:px-0">
                         <AdvertisementCreatePageHeader isEdit={isEdit} />
 
                 <form
-                    className="border-t border-gray-200 pt-4 dark:border-gray-700"
+                    className="border-t border-gray-200 pt-4 dark:border-gray-700 max-sm:-mx-3 max-sm:px-0"
                     onSubmit={handleSubmit}
                     onKeyDown={async (e) => {
                     // Предотвращаем отправку формы при нажатии Enter на промежуточных шагах
@@ -884,7 +880,7 @@ export default function CreateAdvertisementPage() {
                         }
                     }
                 }}>
-                    <div className="grid lg:grid-cols-12 gap-4 sm:gap-6 w-full max-w-full overflow-x-hidden items-start">
+                    <div className="grid w-full max-w-full grid-cols-1 items-start gap-3 overflow-x-hidden sm:gap-6 lg:grid-cols-12">
                         <AdvertisementCreateSectionNav
                             sections={SECTIONS}
                             activeSection={activeSection}
@@ -892,9 +888,8 @@ export default function CreateAdvertisementPage() {
                             saveDraft={saveDraft}
                         />
 
-                        <div className="lg:col-span-9 min-w-0">
-                            <Card>
-                                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-x-hidden">
+                        <div className="min-w-0 lg:col-span-9">
+                            <div className="min-w-0 space-y-4 overflow-x-hidden sm:space-y-6 sm:rounded-2xl sm:border sm:border-gray-200 sm:bg-white sm:p-6 dark:sm:border-gray-700 dark:sm:bg-gray-800">
                                     {activeSection === 'general' && (
                                         <AdvertisementCreateGeneralSection
                                             formData={formData}
@@ -1023,9 +1018,8 @@ export default function CreateAdvertisementPage() {
                                         </div>
                                     </div>
                                 </div>
-                            </Card>
+                            </div>
                         </div>
-                    </div>
                 </form>
                     </div>
                 </AdaptiveCard>

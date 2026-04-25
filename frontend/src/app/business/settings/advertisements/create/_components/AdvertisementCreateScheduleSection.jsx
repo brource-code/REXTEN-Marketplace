@@ -1,14 +1,27 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import Input from '@/components/ui/Input'
+import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
+import MobileTimePicker from '@/components/business/booking/parts/MobileTimePicker'
 import Select from '@/components/ui/Select'
 import { FormItem } from '@/components/ui/Form'
-import Card from '@/components/ui/Card'
 import Switcher from '@/components/ui/Switcher'
+import { TIME_FORMAT_12H } from '@/utils/timeFormat'
+
+const SLOT_OPTIONS = [60, 90, 120, 180, 240]
+
+function slotLabel(t, minutes) {
+    if (minutes === 90) return t('schedule.hours15')
+    if (minutes === 120) return t('schedule.hours2')
+    if (minutes === 180) return t('schedule.hours3')
+    if (minutes === 240) return t('schedule.hours4')
+    return t('schedule.hour1')
+}
 
 export function AdvertisementCreateScheduleSection({ formData, setFormData, updateSchedule }) {
     const t = useTranslations('business.advertisements.create')
+    const step = SLOT_OPTIONS.includes(formData.slot_step_minutes) ? formData.slot_step_minutes : 60
+    const scheduleStepMinutes = Number(formData.slot_step_minutes) || 60
 
     return (
         <div className="space-y-6">
@@ -21,31 +34,13 @@ export function AdvertisementCreateScheduleSection({ formData, setFormData, upda
                 <Select
                     size="sm"
                     isSearchable={false}
-                    options={[
-                        { value: 15, label: t('schedule.minutes15') },
-                        { value: 30, label: t('schedule.minutes30') },
-                        { value: 60, label: t('schedule.hour1') },
-                        { value: 90, label: t('schedule.hours15') },
-                        { value: 120, label: t('schedule.hours2') },
-                        { value: 180, label: t('schedule.hours3') },
-                        { value: 240, label: t('schedule.hours4') },
-                    ]}
+                    options={SLOT_OPTIONS.map((value) => ({
+                        value,
+                        label: slotLabel(t, value),
+                    }))}
                     value={{
-                        value: formData.slot_step_minutes || 60,
-                        label:
-                            formData.slot_step_minutes === 15
-                                ? t('schedule.minutes15')
-                                : formData.slot_step_minutes === 30
-                                  ? t('schedule.minutes30')
-                                  : formData.slot_step_minutes === 90
-                                    ? t('schedule.hours15')
-                                    : formData.slot_step_minutes === 120
-                                      ? t('schedule.hours2')
-                                      : formData.slot_step_minutes === 180
-                                        ? t('schedule.hours3')
-                                        : formData.slot_step_minutes === 240
-                                          ? t('schedule.hours4')
-                                          : t('schedule.hour1'),
+                        value: step,
+                        label: slotLabel(t, step),
                     }}
                     onChange={(option) =>
                         setFormData({ ...formData, slot_step_minutes: option?.value || 60 })
@@ -56,9 +51,9 @@ export function AdvertisementCreateScheduleSection({ formData, setFormData, upda
                 </p>
             </FormItem>
 
-            <Card className="p-4">
-                <h5 className="mb-4 text-sm font-bold text-gray-900 dark:text-gray-100">{t('schedule.workDays')}</h5>
-                <div className="space-y-3">
+            <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+                <h5 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-100">{t('schedule.workDays')}</h5>
+                <div className="divide-y divide-gray-200 dark:divide-gray-700 sm:space-y-3 sm:divide-y-0">
                     {Object.entries(formData.schedule || {}).map(([day, schedule]) => {
                         if (!schedule) return null
                         const dayLabels = {
@@ -73,7 +68,7 @@ export function AdvertisementCreateScheduleSection({ formData, setFormData, upda
                         return (
                             <div
                                 key={day}
-                                className="flex flex-col gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700 sm:flex-row sm:items-center sm:gap-4"
+                                className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:gap-4 sm:rounded-lg sm:border sm:border-gray-200 sm:p-3 sm:py-3 dark:sm:border-gray-700"
                             >
                                 <div className="flex w-full shrink-0 items-center sm:w-40">
                                     <Switcher
@@ -86,30 +81,52 @@ export function AdvertisementCreateScheduleSection({ formData, setFormData, upda
                                 </div>
                                 {schedule.enabled ? (
                                     <div className="flex w-full flex-1 items-center gap-2 sm:w-auto">
-                                        <Input
-                                            size="sm"
-                                            type="time"
-                                            value={schedule.from || '09:00'}
-                                            onChange={(e) => updateSchedule(day, 'from', e.target.value)}
-                                            className="w-full sm:w-auto"
-                                        />
-                                        <span className="flex-shrink-0 text-sm font-bold text-gray-900 dark:text-gray-100">
+                                        <div className="min-w-0 flex-1 sm:hidden">
+                                            <MobileTimePicker
+                                                value={schedule.from || '09:00'}
+                                                onChange={(v) => updateSchedule(day, 'from', v)}
+                                                stepMinutes={scheduleStepMinutes}
+                                                format={TIME_FORMAT_12H}
+                                                size="sm"
+                                            />
+                                        </div>
+                                        <div className="min-w-0 flex-1 hidden sm:block">
+                                            <BookingTimePicker
+                                                value={schedule.from || '09:00'}
+                                                onChange={(v) => updateSchedule(day, 'from', v)}
+                                                stepMinutes={scheduleStepMinutes}
+                                                format={TIME_FORMAT_12H}
+                                                size="sm"
+                                            />
+                                        </div>
+                                        <span className="shrink-0 text-sm font-bold text-gray-400 dark:text-gray-500">
                                             —
                                         </span>
-                                        <Input
-                                            size="sm"
-                                            type="time"
-                                            value={schedule.to || '18:00'}
-                                            onChange={(e) => updateSchedule(day, 'to', e.target.value)}
-                                            className="w-full sm:w-auto"
-                                        />
+                                        <div className="min-w-0 flex-1 sm:hidden">
+                                            <MobileTimePicker
+                                                value={schedule.to || '18:00'}
+                                                onChange={(v) => updateSchedule(day, 'to', v)}
+                                                stepMinutes={scheduleStepMinutes}
+                                                format={TIME_FORMAT_12H}
+                                                size="sm"
+                                            />
+                                        </div>
+                                        <div className="min-w-0 flex-1 hidden sm:block">
+                                            <BookingTimePicker
+                                                value={schedule.to || '18:00'}
+                                                onChange={(v) => updateSchedule(day, 'to', v)}
+                                                stepMinutes={scheduleStepMinutes}
+                                                format={TIME_FORMAT_12H}
+                                                size="sm"
+                                            />
+                                        </div>
                                     </div>
                                 ) : null}
                             </div>
                         )
                     })}
                 </div>
-            </Card>
+            </div>
         </div>
     )
 }

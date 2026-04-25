@@ -6,8 +6,8 @@ import classNames from '@/utils/classNames'
 export function AdvertisementCreateSectionNav({ sections, activeSection, setActiveSection, saveDraft }) {
     return (
         <div className="min-w-0 lg:col-span-3">
-            <Card className="sticky top-20">
-                <div className="space-y-1 p-4">
+            <Card className="sticky top-20" bodyClass="!p-0">
+                <div className="space-y-1 px-2 py-2 sm:p-4">
                     {sections.map((section) => {
                         const Icon = section.icon
                         return (

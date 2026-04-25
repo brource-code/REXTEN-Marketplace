@@ -9,7 +9,7 @@ import {
     updateAdditionalService,
     deleteAdditionalService,
 } from '@/lib/api/additionalServices'
-import { formatDurationMinutesI18n } from '@/utils/formatDurationMinutesI18n'
+import { formatStoredDurationMinutesLabel } from './advertisementFormDuration'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
@@ -29,7 +29,6 @@ export function ServiceAdditionalServicesManager({
 }) {
     const tAdd = useTranslations('business.advertisements.create.additionalServices')
     const tCommon = useTranslations('business.common')
-    const tDur = useTranslations('common.durationMinutes')
     const queryClient = useQueryClient()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isFormModalOpen, setIsFormModalOpen] = useState(false)
@@ -341,7 +340,7 @@ export function ServiceAdditionalServicesManager({
                                                     </span>
                                                     {addService.duration ? (
                                                         <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                                                            {formatDurationMinutesI18n(addService.duration, tDur)}
+                                                            {formatStoredDurationMinutesLabel(addService.duration, tAdd)}
                                                         </span>
                                                     ) : null}
                                                     <span
