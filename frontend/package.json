@@ -100,6 +100,7 @@
     "eslint-config-next": "15.3.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "form-data": "^4.0.5",
+    "png-to-ico": "^2.1.8",
     "postcss": "^8.4.45",
     "postcss-nesting": "^13.0.0",
     "prettier": "^3.4.2",

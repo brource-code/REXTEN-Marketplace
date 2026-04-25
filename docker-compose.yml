@@ -12,6 +12,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/snippets:/etc/nginx/snippets:ro
+      # Источник: frontend/src/app/icon.svg → npm run assets:nginx-favicon (пишет favicon.ico + nginx PNG)
       - ./frontend/src/app/favicon.ico:/var/www/brand-assets/favicon.ico:ro
       - ./frontend/src/app/icon.svg:/var/www/brand-assets/icon.svg:ro
       - ./frontend/src/app/apple-icon.svg:/var/www/brand-assets/apple-icon.svg:ro
