@@ -41,44 +41,49 @@ const statusColors = {
     inactive: 'bg-gray-200 dark:bg-gray-200 text-gray-900 dark:text-gray-900',
 }
 
-/** Показы, клики, CTR — отдельный визуальный блок, не сливается с описанием. */
-function AdsStatsMini({ row, impressionsLabel, clicksLabel, ctrLabel, statsHeading, className }) {
+/** Показы, клики, CTR — плоская строка без карточек (колонка таблицы уже даёт заголовок). */
+function AdsStatsMini({
+    row,
+    impressionsLabel,
+    clicksLabel,
+    ctrLabel,
+    statsHeading,
+    className,
+    showHeading = false,
+}) {
     const ctr = row.impressions > 0 ? ((row.clicks / row.impressions) * 100).toFixed(2) : '0'
+    const StatItem = ({ icon: Icon, iconClassName, label, value }) => (
+        <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                {Icon ? (
+                    <Icon className={classNames('shrink-0', iconClassName)} size={12} aria-hidden />
+                ) : null}
+                {label}
+            </span>
+            <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">{value}</span>
+        </div>
+    )
     return (
-        <div
-            className={classNames(
-                'rounded-lg border border-gray-200 bg-gray-50/95 p-2 shadow-sm dark:border-gray-600 dark:bg-gray-800/70',
-                className,
-            )}
-            role="group"
-            aria-label={statsHeading}
-        >
-            <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                {statsHeading}
-            </div>
-            <div className="flex flex-wrap gap-2">
-                <div className="flex min-w-0 flex-1 basis-[28%] flex-col gap-0.5 rounded-md border border-gray-200 bg-white px-2 py-1.5 dark:border-gray-600 dark:bg-gray-900/50">
-                    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        <PiEye className="shrink-0 text-emerald-600 dark:text-emerald-400" size={12} aria-hidden />
-                        {impressionsLabel}
-                    </span>
-                    <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                        {(row.impressions || 0).toLocaleString()}
-                    </span>
+        <div className={classNames('min-w-0', className)} role="group" aria-label={statsHeading}>
+            {showHeading ? (
+                <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    {statsHeading}
                 </div>
-                <div className="flex min-w-0 flex-1 basis-[28%] flex-col gap-0.5 rounded-md border border-gray-200 bg-white px-2 py-1.5 dark:border-gray-600 dark:bg-gray-900/50">
-                    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        <PiCursorClick className="shrink-0 text-blue-600 dark:text-blue-400" size={12} aria-hidden />
-                        {clicksLabel}
-                    </span>
-                    <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">{row.clicks || 0}</span>
-                </div>
-                <div className="flex min-w-0 flex-1 basis-[28%] flex-col gap-0.5 rounded-md border border-gray-200 bg-white px-2 py-1.5 dark:border-gray-600 dark:bg-gray-900/50">
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        {ctrLabel}
-                    </span>
-                    <span className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">{ctr}%</span>
-                </div>
+            ) : null}
+            <div className="flex min-w-0 flex-wrap items-stretch gap-x-4 gap-y-2 sm:gap-x-5">
+                <StatItem
+                    icon={PiEye}
+                    iconClassName="text-emerald-600 dark:text-emerald-400"
+                    label={impressionsLabel}
+                    value={(row.impressions || 0).toLocaleString()}
+                />
+                <StatItem
+                    icon={PiCursorClick}
+                    iconClassName="text-blue-600 dark:text-blue-400"
+                    label={clicksLabel}
+                    value={String(row.clicks || 0)}
+                />
+                <StatItem label={ctrLabel} value={`${ctr}%`} />
             </div>
         </div>
     )
@@ -164,6 +169,7 @@ const TitleColumn = ({
                         clicksLabel={clicksLabel}
                         ctrLabel={ctrLabel}
                         statsHeading={statsHeading}
+                        showHeading
                         className="mt-2"
                     />
                 ) : null}
@@ -684,6 +690,7 @@ export function AdvertisementsAdsPanel({ queryEnabled = true }) {
                                                             clicksLabel={t('stats.clicks')}
                                                             ctrLabel={t('viewModal.ctr')}
                                                             statsHeading={t('columns.stats')}
+                                                            showHeading
                                                             className="mt-2"
                                                         />
                                                         {ad.created_at ? (
