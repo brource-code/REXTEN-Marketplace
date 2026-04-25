@@ -1,4 +1,5 @@
 import * as React from 'react'
+import classNames from 'classnames'
 
 export const REXTEN_LOGO_ICON_PRIMARY = '#114fee'
 export const REXTEN_LOGO_ICON_SECONDARY = '#2ddaff'
@@ -38,26 +39,32 @@ type RextenFullLogoArtworkProps = React.SVGProps<SVGSVGElement> & {
 }
 
 export function RextenFullLogoArtwork({
-    title = 'REXTEN Logo',
-    textColor = REXTEN_LOGO_TEXT_LIGHT,
-    width = 158,
-    height = 41,
-    ...props
+  title = 'REXTEN Logo',
+  textColor = REXTEN_LOGO_TEXT_LIGHT,
+  width = 144,
+  height = 37,
+  className,
+  style,
+  ...rest
 }: RextenFullLogoArtworkProps) {
-    const titleId = React.useId()
+  const titleId = React.useId()
 
-    return (
-        <svg
-            {...props}
-            width={width}
-            height={height}
-            viewBox="0 0 219.66920684814454 55.205373992919924"
-            preserveAspectRatio="xMinYMid meet"
-            xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-labelledby={titleId}
-            style={props.style}
-        >
+  return (
+    <svg
+      {...rest}
+      viewBox="0 0 219.66920684814454 55.205373992919924"
+      preserveAspectRatio="xMinYMid meet"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-labelledby={titleId}
+      width={width}
+      height={height}
+      className={classNames(
+        'block h-auto w-auto max-w-full shrink-0',
+        className,
+      )}
+      style={style}
+    >
             <title id={titleId}>{title}</title>
             <g transform="translate(2.104600067138672 2.104598159790039)">
                 <g transform="scale(0.5099617528685346)">
@@ -76,19 +83,23 @@ type RextenIconArtworkProps = React.SVGProps<SVGSVGElement> & {
 }
 
 export function RextenIconArtwork({
-    title = 'REXTEN Icon',
-    ...props
+  title = 'REXTEN Icon',
+  className,
+  style,
+  ...rest
 }: RextenIconArtworkProps) {
-    const titleId = React.useId()
+  const titleId = React.useId()
 
-    return (
-        <svg
-            {...props}
-            viewBox="-0.005629400257021189 0 80.00563049316406 100"
-            xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-labelledby={titleId}
-        >
+  return (
+    <svg
+      {...rest}
+      viewBox="-0.005629400257021189 0 80.00563049316406 100"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-labelledby={titleId}
+      className={classNames('block h-auto w-auto max-w-full shrink-0', className)}
+      style={style}
+    >
             <title id={titleId}>{title}</title>
             <RextenBrandMarkPaths />
         </svg>

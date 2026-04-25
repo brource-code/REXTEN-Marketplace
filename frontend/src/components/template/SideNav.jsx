@@ -76,11 +76,10 @@ const SideNav = ({
                     sideNavCollapse ? 'justify-center' : classNames('justify-start', LOGO_X_GUTTER, 'ltr:pl-8 rtl:pr-8')
                 )}>
                     <Logo
-                        imgClass={sideNavCollapse ? "max-h-8 w-8" : "max-h-14"}
+                        imgClass={sideNavCollapse ? 'max-h-7 w-7' : 'max-h-10 w-auto'}
                         mode={mode || defaultMode}
-                        type={sideNavCollapse ? "icon" : "full"}
-                        forceSvg={true}
-                        className="flex-shrink-0"
+                        type={sideNavCollapse ? 'icon' : 'full'}
+                        className="min-w-0 shrink-0"
                     />
                 </div>
             </Link>

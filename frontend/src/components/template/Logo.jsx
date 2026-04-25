@@ -33,7 +33,7 @@ const Logo = (props) => {
     return (
         <div className={classNames('logo flex items-center', className)} style={style}>
             <LogoComponent
-                className={classNames('h-auto max-w-full', imgClass)}
+                className={classNames(imgClass)}
                 role="img"
                 aria-label={`${APP_NAME} logo`}
             />
