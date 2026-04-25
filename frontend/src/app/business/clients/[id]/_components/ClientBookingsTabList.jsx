@@ -10,8 +10,10 @@ import { usePermission } from '@/hooks/usePermission'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import {
+    PiArrowRight,
     PiCalendar,
     PiCalendarBlank,
+    PiCalendarDuotone,
     PiClock,
     PiCreditCardFill,
     PiCurrencyDollar,
@@ -158,7 +160,7 @@ export default function ClientBookingsTabList({ clientId, bookings = [], timezon
                         key={booking.id}
                         onClick={() => openBookingDrawer(booking.id)}
                         className={classNames(
-                            'group relative flex w-full items-stretch overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 text-left transition-all hover:shadow-md sm:rounded-xl sm:hover:-translate-y-0.5',
+                            'relative flex w-full cursor-pointer items-stretch overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 sm:rounded-xl',
                             isCancelled && 'opacity-60',
                         )}
                     >
@@ -300,13 +302,17 @@ export default function ClientBookingsTabList({ clientId, bookings = [], timezon
                                     variant="plain"
                                     title={tBookings('openInSchedule')}
                                     aria-label={tBookings('openInSchedule')}
-                                    className="inline-flex shrink-0 items-center gap-1 self-end sm:self-center max-sm:px-1.5 max-sm:py-1"
+                                    className="inline-flex shrink-0 items-center justify-center gap-0.5 self-end sm:self-center p-1.5 sm:p-2"
                                     onClick={(e) => openInSchedule(booking.id, e)}
                                 >
-                                    <PiCalendarBlank className="text-base text-gray-500 dark:text-gray-400 sm:hidden" aria-hidden />
-                                    <span className="hidden sm:inline whitespace-nowrap">
-                                        {tBookings('openInSchedule')}
-                                    </span>
+                                    <PiCalendarDuotone
+                                        className="text-xl shrink-0 text-gray-500 dark:text-gray-400"
+                                        aria-hidden
+                                    />
+                                    <PiArrowRight
+                                        className="text-sm shrink-0 text-gray-400 dark:text-gray-500 sm:text-base"
+                                        aria-hidden
+                                    />
                                 </Button>
                             </div>
                         </div>

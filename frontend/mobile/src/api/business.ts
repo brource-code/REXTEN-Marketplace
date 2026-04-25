@@ -170,6 +170,10 @@ export interface RecentBooking {
   title?: string | null;
   event_type?: string;
   specialist_name?: string | null;
+  recurring_chain_id?: string | number | null;
+  currency?: string;
+  platform_fee?: number | null;
+  net_amount?: number | null;
 }
 
 export async function getRecentBookings(limit = 5): Promise<RecentBooking[]> {
@@ -193,6 +197,10 @@ export async function getRecentBookings(limit = 5): Promise<RecentBooking[]> {
       title: row.title != null ? String(row.title) : null,
       event_type: row.event_type != null ? String(row.event_type) : 'booking',
       specialist_name: row.specialist_name != null ? String(row.specialist_name) : null,
+      recurring_chain_id: row.recurring_chain_id ?? null,
+      currency: row.currency != null ? String(row.currency) : undefined,
+      platform_fee: row.platform_fee == null || row.platform_fee === '' ? null : Number(row.platform_fee),
+      net_amount: row.net_amount == null || row.net_amount === '' ? null : Number(row.net_amount),
     }));
   } catch {
     return [];

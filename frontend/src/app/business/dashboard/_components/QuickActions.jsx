@@ -6,14 +6,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { getBusinessProfile, getScheduleSlots } from '@/lib/api/business'
-import {
-    PiCalendarPlus,
-    PiUserPlus,
-    PiGear,
-    PiClock,
-    PiArrowSquareOut,
-} from 'react-icons/pi'
+import { PiArrowSquareOut } from 'react-icons/pi'
 import { useTranslations } from 'next-intl'
+import navigationIcon from '@/configs/navigation-icon.config'
 import { usePermission } from '@/hooks/usePermission'
 import ClientCreateModal from '@/app/business/clients/_components/ClientCreateModal'
 import NewBookingWizard from '@/components/business/booking/NewBookingWizard'
@@ -56,39 +51,43 @@ const QuickActions = () => {
         setIsClientModalOpen(true)
     }, [canManageClients, router])
 
-    const actions = useMemo(
-        () => [
+    const actions = useMemo(() => {
+        const wrapNavIcon = (key) => (
+            <span className="flex items-center justify-center text-2xl leading-none [&_svg]:block [&_svg]:shrink-0">
+                {navigationIcon[key]}
+            </span>
+        )
+        return [
             {
                 title: t('newBooking'),
                 description: t('newBookingDesc'),
-                icon: <PiCalendarPlus className="text-2xl" />,
+                icon: wrapNavIcon('orderList'),
                 color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
                 onClick: openNewBooking,
             },
             {
                 title: t('addClient'),
                 description: t('addClientDesc'),
-                icon: <PiUserPlus className="text-2xl" />,
+                icon: wrapNavIcon('customers'),
                 color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
                 onClick: openAddClient,
             },
             {
                 title: t('settings'),
                 description: t('settingsDesc'),
-                icon: <PiGear className="text-2xl" />,
+                icon: wrapNavIcon('settings'),
                 color: 'bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400',
                 onClick: () => router.push('/business/settings'),
             },
             {
                 title: t('schedule'),
                 description: t('scheduleDesc'),
-                icon: <PiClock className="text-2xl" />,
+                icon: wrapNavIcon('calendar'),
                 color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400',
                 onClick: () => router.push('/business/schedule'),
             },
-        ],
-        [t, router, openNewBooking, openAddClient],
-    )
+        ]
+    }, [t, router, openNewBooking, openAddClient])
 
     const businessSlug =
         profile?.slug || profile?.name?.toLowerCase().replace(/\s+/g, '-') || 'my-business'

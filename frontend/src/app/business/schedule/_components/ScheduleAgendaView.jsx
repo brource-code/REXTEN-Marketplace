@@ -145,7 +145,7 @@ const ScheduleAgendaView = ({
                                     key={slot.id}
                                     onClick={() => onEventClick?.(slot)}
                                     className={classNames(
-                                        'group relative flex items-stretch overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 text-left transition-all hover:shadow-md hover:-translate-y-0.5',
+                                        'relative flex w-full cursor-pointer items-stretch overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50',
                                         isCancelled && 'opacity-60',
                                     )}
                                 >

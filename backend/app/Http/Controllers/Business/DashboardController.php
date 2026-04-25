@@ -330,7 +330,12 @@ class DashboardController extends Controller
             $bookings = Booking::where('company_id', $companyId)->withoutPendingPayment()
                 ->whereNotNull('booking_date')
                 ->whereIn('status', ['new', 'pending', 'confirmed', 'completed', 'cancelled']) // Включаем все статусы
-                ->with(['service:id,name', 'user.profile', 'specialist:id,name'])
+                ->with([
+                    'service:id,name',
+                    'user.profile',
+                    'specialist:id,name',
+                    'payment:id,booking_id,amount,application_fee,currency,status,capture_status',
+                ])
                 ->orderBy('booking_date', 'desc')
                 ->orderBy('booking_time', 'desc')
                 ->limit($limit)
@@ -397,6 +402,17 @@ class DashboardController extends Controller
                     'status' => $booking->status ?? 'new', // Используем 'new' как дефолт вместо 'pending'
                     'payment_status' => $booking->payment_status ?? 'unpaid',
                     'execution_type' => $booking->execution_type ?? 'onsite',
+                    'recurring_chain_id' => $booking->recurring_chain_id,
+                    'currency' => $booking->payment?->currency ?? 'USD',
+                    'platform_fee' => $booking->payment
+                        ? round((float) $booking->payment->application_fee / 100, 2)
+                        : null,
+                    'net_amount' => $booking->payment
+                        ? round(
+                            ((float) $booking->payment->amount - (float) $booking->payment->application_fee) / 100,
+                            2
+                        )
+                        : null,
                 ];
             });
 
