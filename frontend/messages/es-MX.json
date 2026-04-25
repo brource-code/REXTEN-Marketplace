@@ -499,6 +499,13 @@
             "pages": "Páginas",
             "clients": "Clientes",
             "bookings": "Reservas",
+            "knowledge": "Base de conocimiento",
+            "support": "Soporte",
+            "subscription": "Planes y suscripción",
+            "api_tokens": "Tokens de API",
+            "payments": "Pagos",
+            "notifications": "Notificaciones",
+            "additional_services": "Complementos",
             "services": "Servicios",
             "team": "Equipo",
             "advertisements": "Anuncios y publicidad",
@@ -2076,6 +2083,8 @@
                     "executionType": "Modalidad",
                     "onsite": "En sitio",
                     "offsite": "A domicilio",
+                    "executionFixedOnsite": "Este servicio es solo en sitio. La visita siempre es en tu negocio.",
+                    "executionFixedOffsite": "Este servicio es solo a domicilio. La visita siempre es en la dirección del cliente.",
                     "addressBlock": "Dirección del servicio",
                     "addressLine1": "Dirección",
                     "addressPlaceholder": "Empieza a escribir la dirección…",
@@ -2131,7 +2140,8 @@
                 "serviceHint": "Duración {duration} · Precio {price}",
                 "deleteConfirm": {
                     "title": "¿Eliminar esta reserva?",
-                    "body": "Esta acción no se puede deshacer."
+                    "message": "¿Seguro que deseas eliminar esta reserva? Esta acción no se puede deshacer.",
+                    "confirm": "Eliminar"
                 }
             },
             "wizard": {
@@ -2161,6 +2171,8 @@
                     "executionType": "Modalidad",
                     "onsite": "En sitio",
                     "offsite": "A domicilio",
+                    "executionFixedOnsite": "Este servicio es solo en sitio. La visita siempre es en tu negocio.",
+                    "executionFixedOffsite": "Este servicio es solo a domicilio. La visita siempre es en la dirección del cliente.",
                     "addressBlock": "Dirección del servicio",
                     "addressLine1": "Dirección",
                     "addressPlaceholder": "Empieza a escribir la dirección…",
@@ -2176,7 +2188,8 @@
                     "subtitleRestored": "El formulario se rellenó con tu borrador. Descartar para limpiar y usar solo el horario seleccionado.",
                     "continue": "Continuar",
                     "discard": "Descartar"
-                }
+                },
+                "fixFormErrors": "Corrige los campos marcados antes de crear la reserva."
             },
             "validation": {
                 "service_required": "Selecciona un servicio",
@@ -2187,7 +2200,9 @@
                 "duration_too_short": "Mínimo 15 minutos",
                 "invalid_generic": "Valor no válido",
                 "invalid_email": "Introduce un correo válido",
-                "price_negative": "El precio no puede ser negativo"
+                "price_negative": "El precio no puede ser negativo",
+                "execution_mismatch_onsite_service": "Este servicio es solo en sitio. No puedes guardar «a domicilio» para este servicio.",
+                "execution_mismatch_offsite_service": "Este servicio es solo a domicilio. No puedes guardar «en sitio» para este servicio."
             }
         },
         "reviews": {
@@ -2695,7 +2710,10 @@
                 "team": {
                     "title": "Miembros del equipo",
                     "selected": "Seleccionado",
-                    "noMembers": "Sin miembros en el equipo"
+                    "noMembers": "Sin miembros en el equipo",
+                    "manageButton": "Administrar equipo",
+                    "intro": "Selecciona miembros del equipo para este anuncio. Para agregar o editar personas, abre la configuración del negocio (pestaña Equipo) y regresa aquí.",
+                    "emptyDescription": "Aún no tienes miembros en el equipo. Agrégalos en la configuración del negocio y luego selecciónalos aquí."
                 }
             },
             "createButton": "Crear anuncio",
@@ -3382,14 +3400,18 @@
             "title": "Base de conocimiento",
             "description": "Guías e instrucciones del panel de negocio, organizadas por tema.",
             "hub": {
+                "heroBadge": "REXTEN · Guías de negocio",
                 "heroTitle": "Base de conocimiento",
-                "heroSubtitle": "Guías breves del panel: busca o abre un tema abajo.",
+                "heroSubtitle": "Guías breves del panel REXTEN para negocios: busca o abre un tema abajo.",
                 "searchPlaceholder": "Buscar artículos…",
                 "topicsSectionTitle": "Temas",
                 "articleCount": "{count, plural, one {# artículo} other {# artículos}}",
+                "topicArticleCount": "{count, plural, one {# artículo en este tema} other {# artículos en este tema}}",
                 "popularTitle": "Artículos populares",
+                "popularAsideHint": "Buenos puntos de partida",
                 "searchResultPrefix": "Resultados para:",
                 "noArticles": "No se encontraron artículos.",
+                "searchEmptyHint": "Prueba otras palabras o elige un tema en la lista de arriba.",
                 "topicEmpty": "Aún no hay artículos en este tema.",
                 "loadError": "No se pudo cargar la base de conocimiento. Inténtalo más tarde.",
                 "minRead": "{n} min de lectura",
@@ -3400,7 +3422,11 @@
             "article": {
                 "notFound": "Artículo no encontrado.",
                 "backToHub": "Volver a la base de conocimiento",
-                "updated": "Última actualización: {date}"
+                "updated": "Última actualización: {date}",
+                "onThisPage": "En esta página",
+                "supportTitle": "¿Necesitas más ayuda?",
+                "supportBody": "Abre Soporte y envía un ticket: respondemos en la app.",
+                "supportCta": "Abrir Soporte"
             }
         },
         "support": {

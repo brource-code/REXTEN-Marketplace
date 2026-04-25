@@ -499,6 +499,13 @@
             "pages": "Pages",
             "clients": "Clients",
             "bookings": "Bookings",
+            "knowledge": "Knowledge base",
+            "support": "Support",
+            "subscription": "Plans & subscription",
+            "api_tokens": "API tokens",
+            "payments": "Payments",
+            "notifications": "Notifications",
+            "additional_services": "Add-ons",
             "services": "Services",
             "team": "Team",
             "advertisements": "Listings & ads",
@@ -2076,6 +2083,8 @@
                     "executionType": "Execution",
                     "onsite": "On-site",
                     "offsite": "Off-site",
+                    "executionFixedOnsite": "This service is on-site only. Visits are always at your business.",
+                    "executionFixedOffsite": "This service is off-site only. The visit is always at the client's address.",
                     "addressBlock": "Service address",
                     "addressLine1": "Address",
                     "addressPlaceholder": "Start typing the address…",
@@ -2131,7 +2140,8 @@
                 "serviceHint": "Duration {duration} · Price {price}",
                 "deleteConfirm": {
                     "title": "Delete this booking?",
-                    "body": "This action cannot be undone."
+                    "message": "Are you sure you want to delete this booking? This action cannot be undone.",
+                    "confirm": "Delete"
                 }
             },
             "wizard": {
@@ -2161,6 +2171,8 @@
                     "executionType": "Execution",
                     "onsite": "On-site",
                     "offsite": "Off-site",
+                    "executionFixedOnsite": "This service is on-site only. Visits are always at your business.",
+                    "executionFixedOffsite": "This service is off-site only. The visit is always at the client's address.",
                     "addressBlock": "Service address",
                     "addressLine1": "Address",
                     "addressPlaceholder": "Start typing the address…",
@@ -2176,7 +2188,8 @@
                     "subtitleRestored": "The form was filled from your saved draft. Discard to clear it and use only the selected slot.",
                     "continue": "Continue",
                     "discard": "Discard"
-                }
+                },
+                "fixFormErrors": "Fix the highlighted fields before creating the booking."
             },
             "validation": {
                 "service_required": "Select a service",
@@ -2187,7 +2200,9 @@
                 "duration_too_short": "Duration must be at least 15 minutes",
                 "invalid_generic": "Invalid value",
                 "invalid_email": "Enter a valid email address",
-                "price_negative": "Price cannot be negative"
+                "price_negative": "Price cannot be negative",
+                "execution_mismatch_onsite_service": "This service is on-site only. You cannot save \"at client\" for this service.",
+                "execution_mismatch_offsite_service": "This service is off-site only. You cannot save \"at your business\" for this service."
             }
         },
         "reviews": {
@@ -2695,7 +2710,10 @@
                 "team": {
                     "title": "Team Members",
                     "selected": "Selected",
-                    "noMembers": "No team members"
+                    "noMembers": "No team members",
+                    "manageButton": "Manage team",
+                    "intro": "Select team members for this listing. To add or edit people, open Business settings (Team tab), then return here.",
+                    "emptyDescription": "You have no team members yet. Add them in Business settings, then select them above."
                 }
             },
             "createButton": "Create Advertisement",
@@ -3382,14 +3400,18 @@
             "title": "Knowledge base",
             "description": "Guides and how-tos for the business panel, organized by topic.",
             "hub": {
+                "heroBadge": "REXTEN · Business guides",
                 "heroTitle": "Knowledge base",
-                "heroSubtitle": "Short guides for the business panel — search or open a topic below.",
+                "heroSubtitle": "Short guides for the REXTEN business panel — search or open a topic below.",
                 "searchPlaceholder": "Search articles…",
                 "topicsSectionTitle": "Topics",
                 "articleCount": "{count, plural, one {# article} other {# articles}}",
+                "topicArticleCount": "{count, plural, one {# article in this topic} other {# articles in this topic}}",
                 "popularTitle": "Popular articles",
+                "popularAsideHint": "Good starting points",
                 "searchResultPrefix": "Results for:",
                 "noArticles": "No articles found.",
+                "searchEmptyHint": "Try different keywords or pick a topic from the list above.",
                 "topicEmpty": "No articles in this topic yet.",
                 "loadError": "Failed to load the knowledge base. Try again later.",
                 "minRead": "{n} min read",
@@ -3400,7 +3422,11 @@
             "article": {
                 "notFound": "Article not found.",
                 "backToHub": "Back to knowledge base",
-                "updated": "Last updated: {date}"
+                "updated": "Last updated: {date}",
+                "onThisPage": "On this page",
+                "supportTitle": "Need more help?",
+                "supportBody": "Open Support and send a ticket — we respond in the app.",
+                "supportCta": "Open Support"
             }
         },
         "support": {
