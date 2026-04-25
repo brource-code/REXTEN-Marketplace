@@ -41,6 +41,8 @@ export const BookingFormSchema = z
             .int()
             .min(15, { message: 'duration_too_short' }),
         specialist_id: z.union([z.string(), z.number()]).optional().nullable(),
+        /** Соответствует услуге; для валидации execution_type (onsite/offsite только у hybrid — оба варианта). */
+        service_type: z.enum(['onsite', 'offsite', 'hybrid']).optional().nullable(),
         execution_type: z.enum(['onsite', 'offsite']).optional().nullable(),
         status: z
             .enum(['new', 'pending', 'confirmed', 'completed', 'cancelled'])
@@ -76,6 +78,22 @@ export const BookingFormSchema = z
                 code: 'custom',
                 message: 'service_required',
                 path: ['service_id'],
+            })
+        }
+
+        const et = data.execution_type || 'onsite'
+        if (!isBlockOrCustom && data.service_type === 'onsite' && et === 'offsite') {
+            ctx.addIssue({
+                code: 'custom',
+                message: 'execution_mismatch_onsite_service',
+                path: ['execution_type'],
+            })
+        }
+        if (!isBlockOrCustom && data.service_type === 'offsite' && et === 'onsite') {
+            ctx.addIssue({
+                code: 'custom',
+                message: 'execution_mismatch_offsite_service',
+                path: ['execution_type'],
             })
         }
     })

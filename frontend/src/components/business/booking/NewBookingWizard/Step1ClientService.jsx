@@ -68,7 +68,7 @@ export default function Step1ClientService({
                 label={t('service')}
                 value={values.service_id}
                 onChange={(id, service) => {
-                    const patch = { service_id: id }
+                    const patch = { service_id: id, service_type: service?.service_type ?? null }
                     if (service) {
                         if (!values.duration_minutes || values.duration_minutes === 60) {
                             patch.duration_minutes = snapDurationToBookingPresetMinutes(

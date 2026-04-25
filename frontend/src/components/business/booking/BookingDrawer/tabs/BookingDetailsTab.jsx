@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import dayjs from 'dayjs'
 import Input from '@/components/ui/Input'
@@ -98,15 +98,36 @@ export default function BookingDetailsTab({
         return (services || []).find((s) => String(s.id) === sid) || null
     }, [services, values.service_id])
 
-    const serviceType = selectedService?.service_type || slot?.service?.service_type
+    const resolvedServiceType =
+        selectedService?.service_type || values.service_type || slot?.service?.service_type || null
+
     const onsiteLabel =
-        serviceType === 'hybrid'
+        resolvedServiceType === 'hybrid'
             ? tModalLabels('hybridOnsite')
             : t('onsite')
     const offsiteLabel =
-        serviceType === 'hybrid'
+        resolvedServiceType === 'hybrid'
             ? tModalLabels('hybridOffsite')
             : t('offsite')
+
+    const executionOptions = useMemo(() => {
+        const base = [
+            { value: 'onsite', label: onsiteLabel },
+            { value: 'offsite', label: offsiteLabel },
+        ]
+        if (resolvedServiceType === 'onsite') return [base[0]]
+        if (resolvedServiceType === 'offsite') return [base[1]]
+        return base
+    }, [resolvedServiceType, onsiteLabel, offsiteLabel])
+
+    /** Услуга только onsite или только offsite — выравниваем execution_type, иначе бэкенд сохранит иначе, чем ожидал пользователь. */
+    useEffect(() => {
+        if (!resolvedServiceType || resolvedServiceType === 'hybrid') return
+        const forced = resolvedServiceType === 'offsite' ? 'offsite' : 'onsite'
+        if ((values.execution_type || 'onsite') !== forced) {
+            setField('execution_type', forced)
+        }
+    }, [resolvedServiceType, values.execution_type, setField])
 
     const specialistName = useMemo(() => {
         if (values.specialist_id == null) return null
@@ -165,6 +186,7 @@ export default function BookingDetailsTab({
                         if (service && (values.price == null || values.price === '')) {
                             patch.price = service.price
                         }
+                        patch.service_type = service?.service_type ?? null
                         if (service?.service_type === 'offsite') {
                             patch.execution_type = 'offsite'
                         } else if (service?.service_type === 'onsite') {
@@ -276,20 +298,27 @@ export default function BookingDetailsTab({
             </div>
 
             {!isCustomEvent && (
-                <FormItem label={<span className={LABEL_CLS}>{t('executionType')}</span>}>
+                <FormItem
+                    label={<span className={LABEL_CLS}>{t('executionType')}</span>}
+                    invalid={Boolean(errors.execution_type)}
+                    errorMessage={err(errors.execution_type)}
+                >
                     <Select
-                        options={[
-                            { value: 'onsite', label: onsiteLabel },
-                            { value: 'offsite', label: offsiteLabel },
-                        ]}
+                        options={executionOptions}
                         value={
-                            (values.execution_type || 'onsite') === 'offsite'
-                                ? { value: 'offsite', label: offsiteLabel }
-                                : { value: 'onsite', label: onsiteLabel }
+                            executionOptions.find(
+                                (o) => o.value === (values.execution_type || 'onsite'),
+                            ) || executionOptions[0]
                         }
                         onChange={(opt) => setField('execution_type', opt?.value || 'onsite')}
                         isSearchable={false}
                     />
+                    {resolvedServiceType === 'onsite' && (
+                        <div className={`mt-1 ${HINT_CLS}`}>{t('executionFixedOnsite')}</div>
+                    )}
+                    {resolvedServiceType === 'offsite' && (
+                        <div className={`mt-1 ${HINT_CLS}`}>{t('executionFixedOffsite')}</div>
+                    )}
                 </FormItem>
             )}
 

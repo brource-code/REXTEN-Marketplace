@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import dayjs from 'dayjs'
 import Select from '@/components/ui/Select'
@@ -13,7 +13,7 @@ import BookingTimeSuggestions from '@/components/business/booking/parts/BookingT
 import BookingTimePicker from '@/components/business/booking/parts/BookingTimePicker'
 import { useBookingConflicts } from '@/components/business/booking/hooks/useBookingConflicts'
 import { useBookingTimeSuggestions } from '@/components/business/booking/hooks/useBookingTimeSuggestions'
-import { LABEL_CLS } from '@/components/business/booking/shared/bookingTypography'
+import { LABEL_CLS, HINT_CLS } from '@/components/business/booking/shared/bookingTypography'
 import { useBookingFormErrorMessage } from '@/components/business/booking/hooks/useBookingFormErrorMessage'
 import { TIME_FORMAT_12H } from '@/utils/timeFormat'
 import { formatBookingDurationMinutes } from '@/components/business/booking/shared/formatBookingDurationMinutes'
@@ -80,11 +80,30 @@ export default function Step2TimeAssignment({
         return (services || []).find((s) => String(s.id) === sid) || null
     }, [services, values.service_id])
 
-    const serviceType = selectedService?.service_type
+    const resolvedServiceType = selectedService?.service_type || values.service_type || null
+
     const onsiteLabel =
-        serviceType === 'hybrid' ? tModalLabels('hybridOnsite') : t('onsite')
+        resolvedServiceType === 'hybrid' ? tModalLabels('hybridOnsite') : t('onsite')
     const offsiteLabel =
-        serviceType === 'hybrid' ? tModalLabels('hybridOffsite') : t('offsite')
+        resolvedServiceType === 'hybrid' ? tModalLabels('hybridOffsite') : t('offsite')
+
+    const executionOptions = useMemo(() => {
+        const base = [
+            { value: 'onsite', label: onsiteLabel },
+            { value: 'offsite', label: offsiteLabel },
+        ]
+        if (resolvedServiceType === 'onsite') return [base[0]]
+        if (resolvedServiceType === 'offsite') return [base[1]]
+        return base
+    }, [resolvedServiceType, onsiteLabel, offsiteLabel])
+
+    useEffect(() => {
+        if (!resolvedServiceType || resolvedServiceType === 'hybrid') return
+        const forced = resolvedServiceType === 'offsite' ? 'offsite' : 'onsite'
+        if ((values.execution_type || 'onsite') !== forced) {
+            setField('execution_type', forced)
+        }
+    }, [resolvedServiceType, values.execution_type, setField])
 
     return (
         <div className="flex flex-col gap-4">
@@ -167,20 +186,27 @@ export default function Step2TimeAssignment({
                 />
             </FormItem>
 
-            <FormItem label={<span className={LABEL_CLS}>{t('executionType')}</span>}>
+            <FormItem
+                label={<span className={LABEL_CLS}>{t('executionType')}</span>}
+                invalid={Boolean(errors.execution_type)}
+                errorMessage={err(errors.execution_type)}
+            >
                 <Select
-                    options={[
-                        { value: 'onsite', label: onsiteLabel },
-                        { value: 'offsite', label: offsiteLabel },
-                    ]}
+                    options={executionOptions}
                     value={
-                        (values.execution_type || 'onsite') === 'offsite'
-                            ? { value: 'offsite', label: offsiteLabel }
-                            : { value: 'onsite', label: onsiteLabel }
+                        executionOptions.find(
+                            (o) => o.value === (values.execution_type || 'onsite'),
+                        ) || executionOptions[0]
                     }
                     onChange={(opt) => setField('execution_type', opt?.value || 'onsite')}
                     isSearchable={false}
                 />
+                {resolvedServiceType === 'onsite' && (
+                    <div className={`mt-1 ${HINT_CLS}`}>{t('executionFixedOnsite')}</div>
+                )}
+                {resolvedServiceType === 'offsite' && (
+                    <div className={`mt-1 ${HINT_CLS}`}>{t('executionFixedOffsite')}</div>
+                )}
             </FormItem>
 
             {isOffsite && (

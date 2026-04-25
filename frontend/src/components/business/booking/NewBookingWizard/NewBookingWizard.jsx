@@ -6,6 +6,8 @@ import useBusinessStore from '@/store/businessStore'
 import Drawer from '@/components/ui/Drawer'
 import Button from '@/components/ui/Button'
 import CloseButton from '@/components/ui/CloseButton'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 import { useScheduleReferenceData } from '@/hooks/api/useScheduleReferenceData'
 import { useBookingFormState } from '@/components/business/booking/hooks/useBookingFormState'
 import { useBookingDraft } from '@/components/business/booking/hooks/useBookingDraft'
@@ -44,6 +46,7 @@ function defaultValues(seed) {
         city: seed?.city || '',
         state: seed?.state || '',
         zip: seed?.zip || '',
+        service_type: seed?.service_type ?? null,
     }
 }
 
@@ -56,6 +59,7 @@ export default function NewBookingWizard({
 }) {
     const t = useTranslations('business.schedule.wizard')
     const tCommon = useTranslations('business.common')
+    const tVal = useTranslations('business.schedule.validation')
 
     const businessId = useBusinessStore((state) => state.businessId) || 'anon'
     const draftScope = 'new-booking'
@@ -174,14 +178,48 @@ export default function NewBookingWizard({
                 (Boolean(values.client_phone?.trim()) || Boolean(values.client_email?.trim()))))
 
     const goNext = () => {
-        if (step === 1 && isStep1Valid) setStep(2)
+        if (step === 1 && isStep1Valid) {
+            const sid = values.service_id != null ? String(values.service_id) : ''
+            const svc = sid ? (services || []).find((s) => String(s.id) === sid) : null
+            if (svc?.service_type) {
+                setFields({ service_type: svc.service_type })
+            }
+            setStep(2)
+        }
     }
     const goBack = () => {
         if (step === 2) setStep(1)
     }
 
+    useEffect(() => {
+        if (!open || !values.service_id || !services?.length) return
+        if (values.service_type) return
+        const sid = String(values.service_id)
+        const svc = services.find((s) => String(s.id) === sid)
+        if (svc?.service_type) {
+            setFields({ service_type: svc.service_type })
+        }
+    }, [open, values.service_id, values.service_type, services, setFields])
+
     const handleSubmit = async () => {
-        if (!isValid) return
+        if (!isValid) {
+            if (errors.execution_type) {
+                toast.push(
+                    <Notification title={tCommon('error')} type="danger">
+                        {tVal(errors.execution_type, { defaultValue: errors.execution_type })}
+                    </Notification>,
+                    { placement: 'top-end' },
+                )
+            } else {
+                toast.push(
+                    <Notification title={tCommon('error')} type="danger">
+                        {t('fixFormErrors')}
+                    </Notification>,
+                    { placement: 'top-end' },
+                )
+            }
+            return
+        }
         const payload = {
             service_id: values.service_id,
             booking_date: values.booking_date,
@@ -306,7 +344,7 @@ export default function NewBookingWizard({
                                 variant="solid"
                                 className="w-full sm:w-auto justify-center"
                                 loading={saving}
-                                disabled={!isValid}
+                                disabled={saving}
                                 onClick={handleSubmit}
                             >
                                 {t('create')}

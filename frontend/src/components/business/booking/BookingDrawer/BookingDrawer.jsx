@@ -5,9 +5,11 @@ import { useTranslations } from 'next-intl'
 import dayjs from 'dayjs'
 import Drawer from '@/components/ui/Drawer'
 import SegmentTabBar from '@/components/shared/SegmentTabBar'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import Button from '@/components/ui/Button'
 import classNames from '@/utils/classNames'
-import Dialog from '@/components/ui/Dialog'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 import { useScheduleReferenceData } from '@/hooks/api/useScheduleReferenceData'
 import { useBookingFormState } from '@/components/business/booking/hooks/useBookingFormState'
 import { useBookingHotkeys } from '@/components/business/booking/hooks/useBookingHotkeys'
@@ -46,6 +48,13 @@ function slotDateParts(slot) {
     }
 }
 
+/** Поле только для формы / zod; API слота его не принимает. */
+function omitServiceTypeForApi(obj) {
+    if (!obj || typeof obj !== 'object') return obj
+    const { service_type: _ignored, ...rest } = obj
+    return rest
+}
+
 function buildInitialValues(slot) {
     if (!slot) return {}
     const eventType =
@@ -79,6 +88,7 @@ function buildInitialValues(slot) {
         city,
         state,
         zip,
+        service_type: slot.service?.service_type ?? null,
     }
 }
 
@@ -96,6 +106,7 @@ export default function BookingDrawer({
 }) {
     const t = useTranslations('business.schedule.drawer')
     const tCommon = useTranslations('business.common')
+    const tVal = useTranslations('business.schedule.validation')
 
     const { services, scheduleSettings, teamMembers } = useScheduleReferenceData()
 
@@ -128,6 +139,17 @@ export default function BookingDrawer({
         }
     }, [isCustomEvent, tab])
 
+    /** Подставить service_type из справочника услуг, если в слоте не пришёл (старый API / кэш). */
+    useEffect(() => {
+        if (isCustomEvent || !open || !values.service_id || !services?.length) return
+        if (values.service_type) return
+        const sid = String(values.service_id)
+        const svc = services.find((s) => String(s.id) === sid)
+        if (svc?.service_type) {
+            setFields({ service_type: svc.service_type })
+        }
+    }, [open, isCustomEvent, values.service_id, values.service_type, services, setFields])
+
     const drawerTabItems = useMemo(() => {
         const items = [{ value: 'details', label: t('tabs.details') }]
         if (!isCustomEvent) {
@@ -139,9 +161,20 @@ export default function BookingDrawer({
     }, [isCustomEvent, t])
 
     const handleSave = async () => {
-        if (!isValid) return
+        if (!isValid) {
+            setTab('details')
+            if (errors.execution_type) {
+                toast.push(
+                    <Notification title={tCommon('error')} type="danger">
+                        {tVal(errors.execution_type, { defaultValue: errors.execution_type })}
+                    </Notification>,
+                    { placement: 'top-end' },
+                )
+            }
+            return
+        }
         const payload = {
-            ...values,
+            ...omitServiceTypeForApi(values),
             // Явно задаём заметки: иначе при undefined ключ может не попасть в JSON и Laravel не обновит поле.
             notes: values.notes ?? '',
             client_notes: values.client_notes ?? '',
@@ -161,8 +194,7 @@ export default function BookingDrawer({
     const handleApplyReschedule = async (patch) => {
         setFields(patch)
         await onSubmit?.({
-            ...values,
-            ...patch,
+            ...omitServiceTypeForApi({ ...values, ...patch }),
             additional_services: (selectedAdditional || []).map((s) => ({
                 id: s.id,
                 quantity: s.quantity || 1,
@@ -174,7 +206,7 @@ export default function BookingDrawer({
 
     const handleQuickStatus = async (newStatus) => {
         await onSubmit?.({
-            ...values,
+            ...omitServiceTypeForApi(values),
             status: newStatus,
             additional_services: (selectedAdditional || []).map((s) => ({
                 id: s.id,
@@ -369,41 +401,19 @@ export default function BookingDrawer({
                 </div>
             </Drawer>
 
-            <Dialog
+            <ConfirmDialog
                 isOpen={Boolean(pendingDelete)}
-                onClose={onCancelDelete}
-                onRequestClose={onCancelDelete}
+                type="danger"
+                title={t('deleteConfirm.title')}
+                confirmText={t('deleteConfirm.confirm')}
+                cancelText={tCommon('cancel')}
+                onCancel={onCancelDelete}
+                onConfirm={onConfirmDelete}
+                confirmButtonProps={{ loading: deleting }}
                 width={440}
             >
-                <div className="px-5 pt-6 pb-5 sm:px-6">
-                    <h5 className="mb-2 pr-8 text-base font-bold text-gray-900 dark:text-gray-100">
-                        {t('deleteConfirm.title')}
-                    </h5>
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-6">
-                        {t('deleteConfirm.body')}
-                    </p>
-                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-                        <Button
-                            size="sm"
-                            variant="default"
-                            className="w-full sm:w-auto justify-center"
-                            onClick={onCancelDelete}
-                        >
-                            {tCommon('cancel')}
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="solid"
-                            color="rose"
-                            className="w-full sm:w-auto justify-center"
-                            loading={deleting}
-                            onClick={onConfirmDelete}
-                        >
-                            {tCommon('delete')}
-                        </Button>
-                    </div>
-                </div>
-            </Dialog>
+                <p>{t('deleteConfirm.message')}</p>
+            </ConfirmDialog>
         </>
     )
 }

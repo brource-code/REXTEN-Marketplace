@@ -23,24 +23,26 @@ export function useBookingDrawerController({ refetchSlots } = {}) {
     const [slot, setSlot] = useState(null)
     const [pendingDelete, setPendingDelete] = useState(null)
 
-    const invalidate = useCallback(async () => {
+    /** Обновить кэш расписания в фоне — не await в onSuccess, иначе UI драуэра ждёт полный refetch слотов. */
+    const syncScheduleCachesInBackground = useCallback(() => {
         if (typeof refetchSlots === 'function') {
-            await refetchSlots()
+            void refetchSlots()
+        } else {
+            void queryClient.invalidateQueries({ queryKey: ['business-schedule-slots'] })
         }
-        await queryClient.invalidateQueries({ queryKey: ['business-schedule-slots'] })
     }, [queryClient, refetchSlots])
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }) => updateScheduleSlot(id, data),
-        onSuccess: async (response) => {
+        onSuccess: (response) => {
             const responseData = response?.data || response
-            await invalidate()
             if (responseData && responseData.id) {
                 setSlot((prev) => ({ ...(prev || {}), ...responseData }))
-                queryClient.invalidateQueries({
+                void queryClient.invalidateQueries({
                     queryKey: ['booking-activities', responseData.id],
                 })
             }
+            syncScheduleCachesInBackground()
             toast.push(
                 <Notification title={tCommon('success')} type="success">
                     {t('notifications.bookingUpdated')}
@@ -64,8 +66,8 @@ export function useBookingDrawerController({ refetchSlots } = {}) {
 
     const deleteMutation = useMutation({
         mutationFn: deleteScheduleSlot,
-        onSuccess: async () => {
-            await invalidate()
+        onSuccess: () => {
+            syncScheduleCachesInBackground()
             setOpen(false)
             setSlot(null)
             toast.push(
