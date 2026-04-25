@@ -148,24 +148,26 @@ const ScheduleSettings = () => {
                                         <span className="ml-2 text-sm">{day.label}</span>
                                     </div>
                                     {settings[day.key].enabled && (
-                                        <div className="flex items-center gap-2 flex-1">
-                                            <Input
-                                                type="time"
-                                                size="sm"
-                                                value={settings[day.key].from}
-                                                onChange={(e) =>
-                                                    handleDayChange(day.key, 'from', e.target.value)
-                                                }
-                                            />
-                                            <span className="text-gray-400">—</span>
-                                            <Input
-                                                type="time"
-                                                size="sm"
-                                                value={settings[day.key].to}
-                                                onChange={(e) =>
-                                                    handleDayChange(day.key, 'to', e.target.value)
-                                                }
-                                            />
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                            <div className="flex-1 min-w-0">
+                                                <BookingTimePicker
+                                                    value={settings[day.key].from}
+                                                    onChange={(v) => handleDayChange(day.key, 'from', v)}
+                                                    stepMinutes={breakStepMinutes}
+                                                    format={TIME_FORMAT_12H}
+                                                    size="sm"
+                                                />
+                                            </div>
+                                            <span className="text-gray-400 shrink-0">—</span>
+                                            <div className="flex-1 min-w-0">
+                                                <BookingTimePicker
+                                                    value={settings[day.key].to}
+                                                    onChange={(v) => handleDayChange(day.key, 'to', v)}
+                                                    stepMinutes={breakStepMinutes}
+                                                    format={TIME_FORMAT_12H}
+                                                    size="sm"
+                                                />
+                                            </div>
                                         </div>
                                     )}
                                 </div>

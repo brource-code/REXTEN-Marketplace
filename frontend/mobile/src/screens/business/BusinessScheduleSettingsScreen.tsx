@@ -180,20 +180,18 @@ export function BusinessScheduleSettingsScreen() {
                   </View>
                   {day.enabled && (
                     <View style={styles.timeRow}>
-                      <TextInput
-                        style={[styles.timeInput, { borderColor: colors.inputBorder, color: colors.text, backgroundColor: colors.inputBackground }]}
+                      <NativeHHmmTimeField
                         value={day.from}
-                        onChangeText={(t) => setDay(key, { from: t })}
+                        onChange={(v) => setDay(key, { from: v })}
+                        stepMinutes={breakStepMinutes}
                         placeholder="09:00"
-                        placeholderTextColor={colors.textMuted}
                       />
                       <Text style={[styles.timeSeparator, { color: colors.textSecondary }]}>—</Text>
-                      <TextInput
-                        style={[styles.timeInput, { borderColor: colors.inputBorder, color: colors.text, backgroundColor: colors.inputBackground }]}
+                      <NativeHHmmTimeField
                         value={day.to}
-                        onChangeText={(t) => setDay(key, { to: t })}
+                        onChange={(v) => setDay(key, { to: v })}
+                        stepMinutes={breakStepMinutes}
                         placeholder="18:00"
-                        placeholderTextColor={colors.textMuted}
                       />
                     </View>
                   )}
@@ -352,16 +350,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginTop: 10,
-  },
-  timeInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
   },
   timeSeparator: { fontWeight: '700', fontSize: 16 },
 

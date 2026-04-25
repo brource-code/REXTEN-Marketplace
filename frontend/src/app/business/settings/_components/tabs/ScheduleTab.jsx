@@ -184,25 +184,25 @@ const ScheduleTab = () => {
                                     </div>
                                     {schedule[day.key].enabled && (
                                         <div className="flex items-center gap-2 flex-1 w-full sm:w-auto">
-                                            <Input
-                                                type="time"
-                                                size="sm"
-                                                value={schedule[day.key].from}
-                                                onChange={(e) =>
-                                                    handleDayChange(day.key, 'from', e.target.value)
-                                                }
-                                                className="flex-1 min-w-0"
-                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <BookingTimePicker
+                                                    value={schedule[day.key].from}
+                                                    onChange={(v) => handleDayChange(day.key, 'from', v)}
+                                                    stepMinutes={breakStepMinutes}
+                                                    format={TIME_FORMAT_12H}
+                                                    size="sm"
+                                                />
+                                            </div>
                                             <span className="text-gray-400 dark:text-gray-500 shrink-0">—</span>
-                                            <Input
-                                                type="time"
-                                                size="sm"
-                                                value={schedule[day.key].to}
-                                                onChange={(e) =>
-                                                    handleDayChange(day.key, 'to', e.target.value)
-                                                }
-                                                className="flex-1 min-w-0"
-                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <BookingTimePicker
+                                                    value={schedule[day.key].to}
+                                                    onChange={(v) => handleDayChange(day.key, 'to', v)}
+                                                    stepMinutes={breakStepMinutes}
+                                                    format={TIME_FORMAT_12H}
+                                                    size="sm"
+                                                />
+                                            </div>
                                         </div>
                                     )}
                                 </div>
