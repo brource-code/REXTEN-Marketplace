@@ -1,0 +1,34 @@
+
+<svg
+  version="1.0"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="2400"
+  height="1800"
+>
+  
+  <rect
+    x="0"
+    y="0"
+    width="100%"
+    height="100%"
+    fill="#333333"
+    fill-opacity="1"
+  ></rect>
+  <svg
+    version="1.0"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    x="0"
+    y="0"
+    width="2400"
+    height="1800"
+    viewBox="0 0 340.000000 250.000000"
+    preserveAspectRatio="xMidYMid meet"
+    color-interpolation-filters="sRGB"
+  >
+    <defs><linearGradient id="92" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fa71cd"/> <stop offset="100%" stop-color="#9b59b6"/></linearGradient><linearGradient id="93" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f9d423"/> <stop offset="100%" stop-color="#f83600"/></linearGradient><linearGradient id="94" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0064d2"/> <stop offset="100%" stop-color="#1cb0f6"/></linearGradient><linearGradient id="95" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f00978"/> <stop offset="100%" stop-color="#3f51b1"/></linearGradient><linearGradient id="96" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7873f5"/> <stop offset="100%" stop-color="#ec77ab"/></linearGradient><linearGradient id="97" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f9d423"/> <stop offset="100%" stop-color="#e14fad"/></linearGradient><linearGradient id="98" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#009efd"/> <stop offset="100%" stop-color="#2af598"/></linearGradient><linearGradient id="99" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ffcc00"/> <stop offset="100%" stop-color="#00b140"/></linearGradient><linearGradient id="100" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#d51007"/> <stop offset="100%" stop-color="#ff8177"/></linearGradient><linearGradient id="102" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a2b6df"/> <stop offset="100%" stop-color="#0c3483"/></linearGradient><linearGradient id="103" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7ac5d8"/> <stop offset="100%" stop-color="#eea2a2"/></linearGradient><linearGradient id="104" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00ecbc"/> <stop offset="100%" stop-color="#007adf"/></linearGradient><linearGradient id="105" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#b88746"/> <stop offset="100%" stop-color="#fdf5a6"/></linearGradient></defs> <g fill="#ffffff" class="icon-text-wrapper icon-svg-group iconsvg" transform="translate(64.7699966430664,99.50191307067871)"><g class="iconsvg-imagesvg" transform="translate(0,0)"><g><rect fill="#ffffff" fill-opacity="0" stroke-width="2" x="0" y="0" width="40.79999999999998" height="50.996175286853465" class="image-rect"/> <svg x="0" y="0" width="40.79999999999998" height="50.996175286853465" filtersec="colorsb7268989995" class="image-svg-svg primary" style="overflow: visible;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.005629400257021189 0 80.00563049316406 100"><g fill-rule="evenodd"><path d="M80 3.77C59.39 19.79 5.22 27 0 46.84v31.38c0 8.5 2.88 15.55 10.74 21.78C.7 68.08 77.26 73.05 80 45.87z" fill="#114fee"/><path d="M51.69 17.48L51.59 0C29.1 15.36 2 18.09 0 46.84v31.38a27 27 0 0 0 2.39 11.67c-.34-34.1 49.56-20.5 49.4-52.8z" fill="#2ddaff" opacity=".8"/></g></svg></svg> </g></g> <g transform="translate(47.79999923706055,10.373086929321289)"><g fill-rule="" class="tp-name iconsvg-namesvg"><g transform="scale(1)"><g><path d="M2.59 0L2.59-30.25 20.74-30.25Q25.28-30.25 27.33-28.2 29.38-26.14 29.38-21.61L29.38-21.61 29.38-17.72Q29.38-14.13 28.2-12.14 27.01-10.15 24.41-9.51L24.41-9.51 29.82 0 21.39 0 16.42-9.07 10.37-9.07 10.37 0 2.59 0ZM21.61-17.72L21.61-21.61Q21.61-24.2 19.01-24.2L19.01-24.2 10.37-24.2 10.37-15.12 19.01-15.12Q21.61-15.12 21.61-17.72L21.61-17.72ZM56.69-6.05L56.69 0 32.71 0 32.71-30.25 56.69-30.25 56.69-24.2 40.48-24.2 40.48-18.37 53.23-18.37 53.23-12.32 40.48-12.32 40.48-6.05 56.69-6.05ZM70.81-20.74L76.65-30.25 85.29-30.25 75.57-15.12 85.5 0 76.86 0 70.81-9.51 64.76 0 56.12 0 66.06-15.12 56.34-30.25 64.94-30.25 70.81-20.74ZM101.36-24.2L101.36 0 93.58 0 93.58-24.2 84.5-24.2 84.5-30.25 110.43-30.25 110.43-24.2 101.36-24.2ZM136.44-6.05L136.44 0 112.46 0 112.46-30.25 136.44-30.25 136.44-24.2 120.23-24.2 120.23-18.37 132.98-18.37 132.98-12.32 120.23-12.32 120.23-6.05 136.44-6.05ZM165.25-30.25L165.25 0 157.04 0 146.67-18.15 146.67 0 138.9 0 138.9-30.25 147.11-30.25 157.48-12.1 157.48-30.25 165.25-30.25Z" transform="translate(-2.5900001525878906, 30.25)"/></g> </g></g> </g></g><defs v-gra="od"/>
+  </svg>
+</svg>
+
+
