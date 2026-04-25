@@ -51,20 +51,7 @@
                                 <tr>
                                     <td class="rexten-email-logo" style="width:48px;vertical-align:top;padding:0 16px 0 0;">
                                         {{-- cid: вложение — Gmail не показывает data:image; $message задаёт Mailer --}}
-                                        @php
-                                            $logoPath = public_path('images/rexten-logo.png');
-                                            $logoSrc = isset($message) && is_readable($logoPath) ? $message->embed($logoPath) : '';
-                                        @endphp
-                                        @if($logoSrc !== '')
-                                            <img
-                                                class="rexten-email-logo-img"
-                                                src="{{ $logoSrc }}"
-                                                width="40"
-                                                height="40"
-                                                alt=""
-                                                style="display:block;border:0;outline:none;text-decoration:none;width:40px;height:40px;"
-                                            >
-                                        @endif
+                                        @include('mail.rexten.partials.email-logo-embed')
                                     </td>
                                     <td style="vertical-align:top;padding:0;">
                                         <p class="rexten-text-heading" style="margin:0;font-family:Roboto,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:700;color:#111827 !important;-webkit-text-fill-color:#111827;letter-spacing:-0.02em;">

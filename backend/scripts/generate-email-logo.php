@@ -1,45 +1,21 @@
 <?php
 
 /**
- * Генерация PNG логотипа для писем (почтовые клиенты не показывают inline SVG).
- * Запуск: php scripts/generate-email-logo.php
+ * Генерация PNG-марки REXTEN для писем (та же геометрия, что и frontend/src/app/icon.svg).
+ * Почтовые клиенты не показывают inline SVG — используется вложение из Blade partial.
+ *
+ * Запуск из корня репозитория:
+ *   php backend/scripts/generate-email-logo.php
+ * или напрямую:
+ *   node backend/scripts/generate-rexten-email-icon.mjs
  */
 
-$size = 80;
-$srcView = 30;
-
-$im = imagecreatetruecolor($size, $size);
-imagealphablending($im, false);
-$transparent = imagecolorallocatealpha($im, 0, 0, 0, 127);
-imagefill($im, 0, 0, $transparent);
-imagealphablending($im, true);
-imagesavealpha($im, true);
-
-$s = static fn (float $x, float $y): array => [
-    (int) round($x * $size / $srcView),
-    (int) round($y * $size / $srcView),
-];
-
-$blue = imagecolorallocate($im, 37, 99, 235);
-$blueMid = imagecolorallocate($im, 59, 130, 246);
-$blueLight = imagecolorallocate($im, 96, 165, 250);
-
-// Порядок как в SVG: сначала нижние слои, сверху — третий
-$p1 = array_merge(...[$s(4, 8), $s(15, 2), $s(26, 8), $s(15, 14)]);
-imagefilledpolygon($im, $p1, $blue);
-
-$p2 = array_merge(...[$s(5, 16), $s(16, 10), $s(27, 16), $s(16, 22)]);
-imagefilledpolygon($im, $p2, $blueMid);
-
-$p3 = array_merge(...[$s(6, 24), $s(17, 18), $s(28, 24), $s(17, 30)]);
-imagefilledpolygon($im, $p3, $blueLight);
-
-$outDir = dirname(__DIR__) . '/public/images';
-if (! is_dir($outDir)) {
-    mkdir($outDir, 0755, true);
+$script = __DIR__ . '/generate-rexten-email-icon.mjs';
+if (! is_readable($script)) {
+    fwrite(STDERR, "Missing script: {$script}\n");
+    exit(1);
 }
-$path = $outDir . '/rexten-logo.png';
-imagepng($im, $path, 6);
-imagedestroy($im);
 
-echo "Written: {$path}\n";
+$node = PHP_OS_FAMILY === 'Windows' ? 'node.exe' : 'node';
+passthru(sprintf('%s %s', escapeshellarg($node), escapeshellarg($script)), $code);
+exit($code ?? 0);
