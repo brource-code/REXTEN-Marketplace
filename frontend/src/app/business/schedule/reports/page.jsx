@@ -65,7 +65,7 @@ function ReportsPageContent() {
         date_from: null,
         date_to: null,
     })
-    const [activeTab, setActiveTab] = useState('overview')
+    const [mobileTab, setMobileTab] = useState('overview')
 
     const handleFiltersChange = useCallback((newFilters) => {
         setFilters(newFilters)
@@ -113,7 +113,7 @@ function ReportsPageContent() {
             window.dispatchEvent(new Event('resize'))
         }, 120)
         return () => window.clearTimeout(id)
-    }, [activeTab, hasPeriod, filters.date_from, filters.date_to])
+    }, [mobileTab, hasPeriod, filters.date_from, filters.date_to])
 
     return (
         <Container>
@@ -136,10 +136,10 @@ function ReportsPageContent() {
                         />
                     ) : (
                         <>
-                            <div className="min-w-0 shrink-0 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600">
+                            <div className="lg:hidden">
                                 <SegmentTabBar
-                                    value={activeTab}
-                                    onChange={setActiveTab}
+                                    value={mobileTab}
+                                    onChange={setMobileTab}
                                     items={[
                                         { value: 'overview', label: t('tabs.overview') },
                                         { value: 'bookings', label: t('tabs.bookings') },
@@ -153,43 +153,55 @@ function ReportsPageContent() {
 
                             <div className="flex flex-col gap-6">
                                 <div
-                                    role="tabpanel"
-                                    className={classNames('tab-content', activeTab === 'overview' && 'tab-content-active')}
+                                    className={classNames(
+                                        mobileTab !== 'overview' && 'hidden',
+                                        'lg:block',
+                                    )}
                                 >
                                     <OverviewCards filters={filters} />
                                 </div>
 
                                 <div
-                                    role="tabpanel"
-                                    className={classNames('tab-content', activeTab === 'bookings' && 'tab-content-active')}
+                                    className={classNames(
+                                        mobileTab !== 'bookings' && 'hidden',
+                                        'lg:block',
+                                    )}
                                 >
                                     <BookingsReport filters={filters} />
                                 </div>
 
                                 <div
-                                    role="tabpanel"
-                                    className={classNames('tab-content', activeTab === 'clients' && 'tab-content-active')}
+                                    className={classNames(
+                                        mobileTab !== 'clients' && 'hidden',
+                                        'lg:block',
+                                    )}
                                 >
                                     <ClientsReport filters={filters} />
                                 </div>
 
                                 <div
-                                    role="tabpanel"
-                                    className={classNames('tab-content', activeTab === 'revenue' && 'tab-content-active')}
+                                    className={classNames(
+                                        mobileTab !== 'revenue' && 'hidden',
+                                        'lg:block',
+                                    )}
                                 >
                                     <RevenueReport filters={filters} />
                                 </div>
 
                                 <div
-                                    role="tabpanel"
-                                    className={classNames('tab-content', activeTab === 'specialists' && 'tab-content-active')}
+                                    className={classNames(
+                                        mobileTab !== 'specialists' && 'hidden',
+                                        'lg:block',
+                                    )}
                                 >
                                     <SpecialistsReport filters={filters} />
                                 </div>
 
                                 <div
-                                    role="tabpanel"
-                                    className={classNames('tab-content', activeTab === 'salary' && 'tab-content-active')}
+                                    className={classNames(
+                                        mobileTab !== 'salary' && 'hidden',
+                                        'lg:block',
+                                    )}
                                 >
                                     <SalaryReport filters={filters} />
                                 </div>

@@ -255,7 +255,7 @@
                     "noData": "Немає даних за обраний період",
                     "donutTotalBookings": "Бронювання",
                     "tabs": {
-                        "overview": "Аналітика",
+                        "overview": "Огляд",
                         "bookings": "Бронювання",
                         "clients": "Клієнти",
                         "revenue": "Дохід",

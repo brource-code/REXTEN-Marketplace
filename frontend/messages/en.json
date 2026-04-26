@@ -255,7 +255,7 @@
                     "noData": "No data for the selected period",
                     "donutTotalBookings": "Bookings",
                     "tabs": {
-                        "overview": "Analytics",
+                        "overview": "Overview",
                         "bookings": "Bookings",
                         "clients": "Clients",
                         "revenue": "Revenue",
