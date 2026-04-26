@@ -165,7 +165,7 @@ export default function SalaryReport({ filters }) {
                     </h4>
 
                     {data.bySpecialist && data.bySpecialist.length > 0 ? (
-                        <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+                        <div className="max-w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 [-webkit-overflow-scrolling:touch]">
                             <Table overflow={false}>
                             <thead>
                                 <tr className="border-b border-gray-200 bg-gray-50/80 dark:border-gray-700 dark:bg-gray-800/50">
@@ -181,7 +181,10 @@ export default function SalaryReport({ filters }) {
                                     <th className="px-4 py-3 text-right text-sm font-bold text-gray-500 dark:text-gray-400">
                                         {tSalary('columns.salary')}
                                     </th>
-                                    <th className="w-12 px-2 py-3" aria-hidden />
+                                    <th
+                                        className="sticky right-0 z-20 w-14 min-w-[3.25rem] bg-gray-50/95 px-2 py-3 text-center text-sm font-bold text-gray-500 dark:border-l dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-400 border-l border-gray-200 shadow-[-8px_0_12px_-6px_rgba(15,23,42,0.12)] dark:shadow-[-8px_0_12px_-6px_rgba(0,0,0,0.35)]"
+                                        aria-label={tSalary('settingsTooltip')}
+                                    />
                                 </tr>
                             </thead>
                             <tbody>
@@ -225,16 +228,27 @@ export default function SalaryReport({ filters }) {
                                                 />
                                             </span>
                                         </td>
-                                        <td className="px-2 py-3 text-center align-middle">
+                                        <td className="sticky right-0 z-10 w-14 min-w-[3.25rem] border-l border-gray-100 bg-white px-2 py-3 text-center align-middle shadow-[-8px_0_12px_-6px_rgba(15,23,42,0.08)] dark:border-gray-800 dark:bg-gray-950 dark:shadow-[-8px_0_12px_-6px_rgba(0,0,0,0.4)]">
                                             <Tooltip title={tSalary('settingsTooltip')}>
                                                 <div
-                                                    className="text-xl cursor-pointer select-none font-semibold hover:text-primary text-gray-600 dark:text-gray-400"
+                                                    className="inline-flex cursor-pointer select-none items-center justify-center text-xl font-semibold text-gray-600 hover:text-primary dark:text-gray-400"
                                                     role="button"
+                                                    tabIndex={0}
                                                     onClick={() => setSettingsModal({
                                                         isOpen: true,
                                                         specialistId: specialist.specialist_id,
                                                         specialistName: specialist.specialist_name,
                                                     })}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                            e.preventDefault()
+                                                            setSettingsModal({
+                                                                isOpen: true,
+                                                                specialistId: specialist.specialist_id,
+                                                                specialistName: specialist.specialist_name,
+                                                            })
+                                                        }
+                                                    }}
                                                 >
                                                     <PiGearSix />
                                                 </div>
