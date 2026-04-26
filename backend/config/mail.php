@@ -131,4 +131,11 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Manual test wizard completion report
+    |--------------------------------------------------------------------------
+    */
+    'manual_test_report_to' => env('MANUAL_TEST_REPORT_EMAIL', 'brource@gmail.com'),
+
 ];

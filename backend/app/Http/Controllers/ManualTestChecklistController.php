@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ManualTestReport;
+use App\Services\ManualTestWizardReportMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -22,10 +23,97 @@ class ManualTestChecklistController extends Controller
     {
         $version = (int) $request->input('v', 1);
 
+        if ($version === 3) {
+            $validated = $request->validate([
+                'v' => 'required|integer|in:3',
+                'current_step' => 'required|string|regex:/^[a-z0-9_]{1,48}$/',
+                'completed_steps' => 'nullable|array|max:40',
+                'skipped_steps' => 'nullable|array|max:40',
+                'answers' => 'nullable|array|max:40',
+                'answers.*' => 'nullable|array|max:60',
+                'answers.*.tasks' => 'nullable|array|max:50',
+                'answers.*.tasks.*' => 'boolean',
+                'answers.*.sentiment' => 'nullable|string|in:like,neutral,bad',
+                'answers.*.scenario' => 'nullable|string|in:ok,problem',
+                'answers.*.rating' => 'nullable|integer|min:1|max:5',
+                'answers.*.would' => 'nullable|string|in:yes,no,unsure',
+                'answers.*.comment' => 'nullable|string|max:2000',
+                'final' => 'nullable|array|max:20',
+                'final.rating' => 'nullable|integer|min:1|max:5',
+                'final.would' => 'nullable|string|in:yes,no,unsure',
+                'final.comment' => 'nullable|string|max:2000',
+            ]);
+
+            $completed = [];
+            foreach ($request->input('completed_steps', []) as $key => $value) {
+                if (is_string($key) && preg_match('/^[a-z0-9_]{1,48}$/', $key)) {
+                    $completed[$key] = (bool) $value;
+                }
+            }
+
+            $skipped = [];
+            foreach ($request->input('skipped_steps', []) as $key => $value) {
+                if (is_string($key) && preg_match('/^[a-z0-9_]{1,48}$/', $key)) {
+                    $skipped[$key] = (bool) $value;
+                }
+            }
+
+            $answers = [];
+            foreach ($request->input('answers', []) as $stepId => $block) {
+                if (! is_string($stepId) || ! preg_match('/^[a-z0-9_]{1,48}$/', $stepId) || ! is_array($block)) {
+                    continue;
+                }
+                $tasks = [];
+                if (isset($block['tasks']) && is_array($block['tasks'])) {
+                    foreach ($block['tasks'] as $tid => $tv) {
+                        if (is_string($tid) && preg_match('/^[a-z0-9_]{1,48}$/', $tid)) {
+                            $tasks[$tid] = (bool) $tv;
+                        }
+                    }
+                }
+                $answers[$stepId] = [
+                    'tasks' => $tasks,
+                    'sentiment' => $block['sentiment'] ?? null,
+                    'scenario' => $block['scenario'] ?? null,
+                    'rating' => $block['rating'] ?? null,
+                    'would' => $block['would'] ?? null,
+                    'comment' => $block['comment'] ?? null,
+                ];
+            }
+
+            $finalIn = $validated['final'] ?? [];
+            $final = [
+                'rating' => $finalIn['rating'] ?? null,
+                'would' => $finalIn['would'] ?? null,
+                'comment' => $finalIn['comment'] ?? null,
+            ];
+
+            $payload = [
+                'v' => 3,
+                'current_step' => $validated['current_step'],
+                'completed_steps' => $completed,
+                'skipped_steps' => $skipped,
+                'answers' => $answers,
+                'final' => $final,
+            ];
+
+            $user = auth('api')->user();
+            $previousChecklist = $user->manual_test_checklist;
+            $user->manual_test_checklist = $payload;
+            $user->save();
+
+            ManualTestWizardReportMailer::sendOnFinishTransition($user, $payload, $previousChecklist);
+
+            return response()->json([
+                'success' => true,
+                'data' => $user->manual_test_checklist,
+            ]);
+        }
+
         if ($version === 2) {
             $validated = $request->validate([
                 'v' => 'required|integer|in:2',
-                'scope' => 'required|string|in:dashboard,schedule,both',
+                'scope' => 'required|string|in:dashboard,schedule,both,bookings,analytics,clients',
                 'look_s' => 'nullable|string|in:like,neutral,bad',
                 'look_t' => 'nullable|string|max:2000',
                 'clarity_s' => 'nullable|string|in:like,neutral,bad',
@@ -69,7 +157,7 @@ class ManualTestChecklistController extends Controller
         }
 
         $validated = $request->validate([
-            'scope' => 'required|string|in:dashboard,schedule,both',
+            'scope' => 'required|string|in:dashboard,schedule,both,bookings,analytics,clients',
             'items' => 'nullable|array|max:200',
             'items.*' => 'string|in:ok,problem',
         ]);

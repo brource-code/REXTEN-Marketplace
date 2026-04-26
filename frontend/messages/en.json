@@ -688,6 +688,13 @@
         }
     },
     "public": {
+        "manualTest": {
+            "demoLogin": "Demo sign-in (REXTEN)",
+            "signInPrompt": "Sign in with the clean business account you create after the registration step so your progress and answers are saved on the server.",
+            "signIn": "Sign in",
+            "stepNavHint": "Click any step to open and review it.",
+            "stepsTitle": "Steps"
+        },
         "services": {
             "title": "All Services",
             "allServices": "All Services",

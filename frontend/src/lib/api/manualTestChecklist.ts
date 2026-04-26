@@ -1,6 +1,12 @@
 import LaravelAxios from '@/services/axios/LaravelAxios'
 
-export type ManualTestScope = 'dashboard' | 'schedule' | 'both'
+export type ManualTestScope =
+    | 'dashboard'
+    | 'schedule'
+    | 'both'
+    | 'bookings'
+    | 'analytics'
+    | 'clients'
 
 export type ManualTestItemStatus = 'ok' | 'problem'
 
@@ -29,7 +35,31 @@ export type ManualTestChecklistV2 = {
     why: string | null
 }
 
-export type ManualTestChecklistState = ManualTestChecklistV1 | ManualTestChecklistV2 | null
+/** Ответы по одному шагу мастера (v3) */
+export type ManualTestWizardStepAnswer = {
+    tasks?: Record<string, boolean>
+    sentiment?: Sentiment3 | null
+    scenario?: 'ok' | 'problem' | null
+    rating?: number | null
+    would?: 'yes' | 'no' | 'unsure' | null
+    comment?: string | null
+}
+
+/** Интерактивный мастер ручного тестирования (v3) */
+export type ManualTestChecklistV3 = {
+    v: 3
+    current_step: string
+    completed_steps: Record<string, boolean>
+    skipped_steps: Record<string, boolean>
+    answers: Record<string, ManualTestWizardStepAnswer>
+    final: {
+        rating: number | null
+        would: 'yes' | 'no' | 'unsure' | null
+        comment: string | null
+    }
+}
+
+export type ManualTestChecklistState = ManualTestChecklistV1 | ManualTestChecklistV2 | ManualTestChecklistV3 | null
 
 export type ManualTestReport = {
     id: number
@@ -45,12 +75,18 @@ export function isV2State(x: unknown): x is ManualTestChecklistV2 {
     return Boolean(x && typeof x === 'object' && (x as ManualTestChecklistV2).v === 2)
 }
 
+export function isV3State(x: unknown): x is ManualTestChecklistV3 {
+    return Boolean(x && typeof x === 'object' && (x as ManualTestChecklistV3).v === 3)
+}
+
 export async function fetchManualTestChecklist(): Promise<ManualTestChecklistState> {
     const { data } = await LaravelAxios.get<{ data: ManualTestChecklistState }>('/user/manual-test-checklist')
     return data?.data ?? null
 }
 
-export async function saveManualTestChecklist(payload: ManualTestChecklistV1 | ManualTestChecklistV2): Promise<unknown> {
+export async function saveManualTestChecklist(
+    payload: ManualTestChecklistV1 | ManualTestChecklistV2 | ManualTestChecklistV3,
+): Promise<unknown> {
     const { data } = await LaravelAxios.put<{ data: unknown }>('/user/manual-test-checklist', payload)
     return data.data
 }

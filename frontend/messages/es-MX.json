@@ -688,6 +688,13 @@
         }
     },
     "public": {
+        "manualTest": {
+            "demoLogin": "Entrar en demo (REXTEN)",
+            "signInPrompt": "Inicia sesión con la cuenta de negocio nueva que creaste después del paso de registro para que tu progreso y respuestas se guarden en el servidor.",
+            "signIn": "Iniciar sesión",
+            "stepNavHint": "Haz clic en cualquier paso de la lista para abrirlo y revisarlo.",
+            "stepsTitle": "Etapas"
+        },
         "services": {
             "title": "Todos los servicios",
             "allServices": "Todos los servicios",

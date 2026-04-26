@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
 import SegmentTabBar from '@/components/shared/SegmentTabBar'
@@ -26,9 +27,46 @@ import {
     PiListBullets,
 } from 'react-icons/pi'
 
-const SettingsTabs = () => {
+const VALID_SETTING_TABS = new Set([
+    'profile',
+    'users',
+    'roles',
+    'services',
+    'team',
+    'schedule',
+    'notifications',
+    'payments',
+    'marketplace',
+])
+
+function SettingsTabsInner() {
     const t = useTranslations('business.settings')
-    const [tab, setTab] = useState('profile')
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+
+    const tabFromUrl = useMemo(() => {
+        const raw = searchParams.get('tab')
+        if (raw && VALID_SETTING_TABS.has(raw)) return raw
+        return 'profile'
+    }, [searchParams])
+
+    const [tab, setTab] = useState(tabFromUrl)
+
+    useEffect(() => {
+        setTab(tabFromUrl)
+    }, [tabFromUrl])
+
+    const onTabChange = useCallback(
+        (next) => {
+            setTab(next)
+            const q = new URLSearchParams(searchParams.toString())
+            q.set('tab', next)
+            const qs = q.toString()
+            router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+        },
+        [pathname, router, searchParams],
+    )
 
     return (
         <AdaptiveCard>
@@ -42,7 +80,7 @@ const SettingsTabs = () => {
             <div className="mb-4 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600">
                 <SegmentTabBar
                     value={tab}
-                    onChange={setTab}
+                    onChange={onTabChange}
                     items={[
                         {
                             value: 'profile',
@@ -187,6 +225,12 @@ const SettingsTabs = () => {
         </AdaptiveCard>
     )
 }
+
+const SettingsTabs = () => (
+    <Suspense fallback={null}>
+        <SettingsTabsInner />
+    </Suspense>
+)
 
 export default SettingsTabs
 
