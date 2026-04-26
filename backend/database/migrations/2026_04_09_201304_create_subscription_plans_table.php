@@ -75,8 +75,8 @@ return new class extends Migration
             'slug' => 'starter',
             'name' => 'Starter',
             'description' => 'Perfect for small businesses',
-            'price_monthly_cents' => 2900,
-            'price_yearly_cents' => 29000,
+            'price_monthly_cents' => 3900,
+            'price_yearly_cents' => 39000,
             'features' => json_encode([
                 'max_team_members' => 3,
                 'max_services' => 20,
@@ -98,8 +98,8 @@ return new class extends Migration
             'slug' => 'professional',
             'name' => 'Professional',
             'description' => 'Advanced features for growing teams',
-            'price_monthly_cents' => 7900,
-            'price_yearly_cents' => 79000,
+            'price_monthly_cents' => 9900,
+            'price_yearly_cents' => 99000,
             'features' => json_encode([
                 'max_team_members' => 10,
                 'max_services' => 50,
@@ -122,8 +122,8 @@ return new class extends Migration
             'slug' => 'enterprise',
             'name' => 'Enterprise',
             'description' => 'Full power for large organizations',
-            'price_monthly_cents' => 19900,
-            'price_yearly_cents' => 199000,
+            'price_monthly_cents' => 24900,
+            'price_yearly_cents' => 249000,
             'features' => json_encode([
                 'max_team_members' => -1,
                 'max_services' => -1,
