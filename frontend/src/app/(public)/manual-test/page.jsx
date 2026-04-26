@@ -23,7 +23,10 @@ import Notification from '@/components/ui/Notification'
 import { SCOPE_OPTIONS, STEP_LIST, getStepIdsForScope } from './simpleConfig'
 
 function normalizeScope(v) {
-    return v === 'dashboard' || v === 'schedule' || v === 'both' ? v : 'both'
+    if (v === 'dashboard' || v === 'schedule') return v
+    // Старые сохранения с объединённым scope — в UI только два варианта
+    if (v === 'both') return 'dashboard'
+    return 'dashboard'
 }
 
 function trimToNull(s) {
@@ -427,7 +430,7 @@ export default function ManualTestPage() {
     const canSync = authReady && isAuthenticated && userId != null
     const queryClient = useQueryClient()
 
-    const [form, setForm] = useState(() => createDefaultForm('both'))
+    const [form, setForm] = useState(() => createDefaultForm('dashboard'))
     const saveTimerRef = useRef(null)
     const pendingRef = useRef(null)
 
@@ -449,7 +452,7 @@ export default function ManualTestPage() {
         if (!canSync || checklistQ.status !== 'success') return
         const data = checklistQ.data
         if (!data) {
-            setForm(createDefaultForm('both'))
+            setForm(createDefaultForm('dashboard'))
         } else if (isV2State(data)) {
             setForm(mergeV2FromServer(data))
         } else {
@@ -541,8 +544,8 @@ export default function ManualTestPage() {
         },
     })
 
-    const stepsForScope = STEP_LIST[form.scope] || STEP_LIST.both
-    const showFilter = form.scope === 'schedule' || form.scope === 'both'
+    const stepsForScope = STEP_LIST[form.scope] || STEP_LIST.dashboard
+    const showFilter = form.scope === 'schedule'
 
     const reports = reportsQ.data ?? []
     const freeNotes = useMemo(
@@ -566,29 +569,28 @@ export default function ManualTestPage() {
     return (
         <Container className="py-8">
             <div className="mx-auto max-w-3xl space-y-6">
-                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-5 shadow-sm">
+                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-5 shadow-sm space-y-2">
                     <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                        Быстрая проверка кабинета
+                        Быстрая проверка кабинета REXTEN
                     </h1>
-                    <p className="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400">
-                        <span className="text-gray-900 dark:text-gray-100">Что в продукте.</span> REXTEN — услуги и кабинет владельца: записи
-                        клиентов, сотрудники, цифры.{' '}
-                        <span className="text-gray-900 dark:text-gray-100">Главная</span> — обзор (цифры, график, быстрые вещи, недавние
-                        брони). <span className="text-gray-900 dark:text-gray-100">Расписание</span> — календарь, брони, слева фильтр
-                        сотрудников.
-                    </p>
-                    <p className="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400">
-                        <span className="text-gray-900 dark:text-gray-100">Что тут.</span> Отдельная форма по ссылке, не сам кабинет. Ниже —
-                        как выглядит, насколько понятно, сценарий по шагам (и фильтр, если смотрите расписание). Ответы в аккаунте, в конце
-                        — оценка, вопрос «пользовались бы?», заметка. В кабинете:{' '}
+                    <p className="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">
+                        <span className="text-gray-900 dark:text-gray-100">Проект.</span> REXTEN — маркетплейс услуг с онлайн-бронированием:
+                        клиент ищет услугу на сайте, бизнес ведёт записи, сотрудников и расписание в кабинете. Эта страница — только анкета
+                        для теста; сам кабинет открывай отдельно. Смотри{' '}
                         <code className="rounded bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-mono text-gray-900 dark:text-gray-100">
                             /business/dashboard
-                        </code>
-                        ,{' '}
+                        </code>{' '}
+                        (обзор) и{' '}
                         <code className="rounded bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-mono text-gray-900 dark:text-gray-100">
                             /business/schedule
-                        </code>
-                        .
+                        </code>{' '}
+                        (календарь), не публичный каталог.
+                    </p>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                        <span className="text-gray-900 dark:text-gray-100">Как тестировать.</span> Войди под тем же пользователем, что и в
+                        кабинете — ответы сохраняются в аккаунте. Держи кабинет во вкладке рядом: выбери «что смотрим», пройди блоки и шаги
+                        как владелец или менеджер. Если без подсказки непонятно, куда жать или что произошло после сохранения — отметь и
+                        кратко опиши; скрин сильно помогает.
                     </p>
                 </div>
 
@@ -623,11 +625,11 @@ export default function ManualTestPage() {
                     />
                 </div>
 
-                {/* 1) Внешний вид */}
+                {/* 1) Первое впечатление */}
                 <section className="space-y-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">1) Как смотрится</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">1) Первое впечатление</h2>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                        Удобно смотреть? Ничего не раздражает?
+                        Удобно смотреть? Ничего не режет глаз и не раздражает?
                     </p>
                     <SentimentRow
                         value={form.look_s}
@@ -648,11 +650,11 @@ export default function ManualTestPage() {
                     </div>
                 </section>
 
-                {/* 2) Понятность */}
+                {/* 2) Понятность действий */}
                 <section className="space-y-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">2) Понятно ли, куда жать</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">2) Понятность действий</h2>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                        Не потерялся? Всё вело туда, куда ожидал?
+                        Не потерялся? Подписи и кнопки вели туда, куда ожидал?
                     </p>
                     <SentimentRow
                         value={form.clarity_s}
@@ -673,11 +675,11 @@ export default function ManualTestPage() {
                     </div>
                 </section>
 
-                {/* 3) Сценарий */}
+                {/* 3) Реальный сценарий */}
                 <section className="space-y-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">3) Сценарий по шагам</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">3) Реальный сценарий</h2>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                        Сделай по списку и отметь галочки, что успел. Потом — «получилось» или «проблема».
+                        Реши задачу по списку и отметь «Сделал» там, где успел. Потом ответь: получилось как задумано или была проблема.
                     </p>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
                         <span className="text-gray-900 dark:text-gray-100">Про запись и бронь.</span> Если в шаге нужно создать запись или
@@ -742,7 +744,8 @@ export default function ManualTestPage() {
                     <section className="space-y-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4">
                         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Фильтр (сотрудники / ресурсы)</h2>
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                            Слева в расписании. Один сотрудник? Нажми «Пропустил».
+                            Слева в расписании: удобно ли переключать, понятно ли, что показывает сетка. Один сотрудник в бизнесе — нажми
+                            «Пропустил».
                         </p>
                         <FilterRow
                             value={form.filter}
@@ -765,7 +768,10 @@ export default function ManualTestPage() {
 
                 <section className="space-y-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Общая оценка</h2>
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">От 1 (плохо) до 5 (отлично) — эта часть кабинета.</p>
+                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                        От <span className="text-gray-900 dark:text-gray-100">1</span> (плохо) до{' '}
+                        <span className="text-gray-900 dark:text-gray-100">5</span> (отлично) — выбранный выше фрагмент кабинета.
+                    </p>
                     <RatingRow
                         value={form.rating}
                         disabled={!canSync}
@@ -774,9 +780,9 @@ export default function ManualTestPage() {
                 </section>
 
                 <section className="space-y-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Главный вопрос</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Можно ли этим пользоваться каждый день?</h2>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                        Ты бы реально пользовался таким расписанием/экраном?
+                        Представь, что этот экран — твой основной рабочий инструмент на неделю вперёд.
                     </p>
                     <WouldRow
                         value={form.would}
@@ -798,9 +804,9 @@ export default function ManualTestPage() {
                 </section>
 
                 <section className="space-y-3">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Свободная заметка + фото</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Свободная заметка и скриншоты</h2>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                        Всё остальное — сюда. <PiArrowDownBold className="ml-1 inline" />
+                        То, что не влезло выше: баги, мелочи, пожелания. Скрин сильно помогает. <PiArrowDownBold className="ml-1 inline" />
                     </p>
                     {canSync ? (
                         <ReportForm
