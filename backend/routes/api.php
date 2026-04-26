@@ -54,6 +54,7 @@ use App\Http\Controllers\Client\ClientDiscountsController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\Public\ReviewController;
 use App\Http\Controllers\Public\EnterpriseLeadController;
+use App\Http\Controllers\ManualTestChecklistController;
 use App\Http\Controllers\FamilyBudgetController;
 use App\Http\Controllers\FamilyBudget\FamilyBudgetApiController;
 use App\Http\Controllers\StripeController;
@@ -253,7 +254,14 @@ Route::middleware(['jwt.auth'])->group(function () {
     // Universal user profile routes (for BUSINESS_OWNER and SUPERADMIN only, not CLIENT)
     // Обновление языка пользователя (для всех авторизованных)
     Route::put('/user/locale', [\App\Http\Controllers\Client\ProfileController::class, 'updateLocale']);
-    
+
+    // Ручное тестирование UI (/manual-test): чеклист и заметки со скринами в профиле пользователя
+    Route::get('/user/manual-test-checklist', [ManualTestChecklistController::class, 'show']);
+    Route::put('/user/manual-test-checklist', [ManualTestChecklistController::class, 'update']);
+    Route::get('/user/manual-test-reports', [ManualTestChecklistController::class, 'listReports']);
+    Route::post('/user/manual-test-reports', [ManualTestChecklistController::class, 'storeReport']);
+    Route::delete('/user/manual-test-reports/{id}', [ManualTestChecklistController::class, 'destroyReport']);
+
     Route::prefix('user')->middleware(['role:BUSINESS_OWNER,SUPERADMIN'])->group(function () {
         Route::get('/profile', [\App\Http\Controllers\Client\ProfileController::class, 'show']);
         Route::put('/profile', [\App\Http\Controllers\Client\ProfileController::class, 'update']);
