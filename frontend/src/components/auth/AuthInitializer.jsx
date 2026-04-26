@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore, useUserStore } from '@/store'
+import useBusinessStore from '@/store/businessStore'
 import { authKeys, useCurrentUser } from '@/hooks/api/useAuth'
 
 /**
@@ -39,7 +40,9 @@ export default function AuthInitializer() {
         }
         if (String(user.id) !== String(jwtUserId)) {
             clearUser()
+            useBusinessStore.getState().clearBusiness()
             queryClient.removeQueries({ queryKey: authKeys.user() })
+            queryClient.removeQueries({ queryKey: ['business-profile'] })
         }
     }, [
         authReady,

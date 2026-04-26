@@ -81,7 +81,7 @@ export const questionList = {
         {
             title: 'Do you offer a free trial?',
             content:
-                'Yes, we provide a 14-day free trial for new users. During this period, you can access all the features of our subscription plan. If you continue after the trial, you will be charged based on the plan you selected.',
+                'Yes — new workspaces get a 14-day free trial on a paid plan. During the trial you can use the full feature set. After the trial ends, billing follows the plan you chose.',
             defaultExpand: false,
         },
         {

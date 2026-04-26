@@ -286,15 +286,15 @@
         }
     }
 
-    /* Fixed modal size only on desktop (no jumping between steps) */
+    /* Десктоп: ограничиваем max-height, высота по контенту (приветствие / «Готово» без пустоты) */
     @media (min-width: 768px) {
         .app-modal.onboarding-dialog {
-            height: min(92vh, 760px);
+            height: auto;
             max-height: min(92vh, 760px);
         }
 
         .onboarding-dialog .app-modal-content {
-            height: 100%;
+            height: auto;
         }
     }
 

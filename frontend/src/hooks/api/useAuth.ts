@@ -13,9 +13,9 @@ import {
     resendEmailCode,
     demoLoginPublic,
 } from '@/lib/api/auth'
-import { applyPendingBusinessProfileFromSession } from '@/utils/auth/applyPendingBusinessProfileFromSession'
 import { BUSINESS_OWNER } from '@/constants/roles.constant'
 import { useAuthStore, useUserStore, clearAuthPersistStorage } from '@/store'
+import useBusinessStore from '@/store/businessStore'
 
 // Query keys
 export const authKeys = {
@@ -62,6 +62,7 @@ export function useLogin() {
                 localStorage.removeItem('business-storage')
             }
             clearUser()
+            useBusinessStore.getState().clearBusiness()
             queryClient.clear()
             
             // Сохраняем авторизацию в store (синхронно)
@@ -121,6 +122,7 @@ export function useDemoMagicLogin() {
                 localStorage.removeItem('business-storage')
             }
             clearUser()
+            useBusinessStore.getState().clearBusiness()
             queryClient.clear()
 
             setAuth(
@@ -174,6 +176,7 @@ export function useRegister() {
                 localStorage.removeItem('business-storage')
             }
             clearUser()
+            useBusinessStore.getState().clearBusiness()
             queryClient.clear()
 
             if (pendingVerify) {
@@ -241,6 +244,7 @@ export function useLogout() {
             // Очищаем stores
             logoutStore()
             clearUser()
+            useBusinessStore.getState().clearBusiness()
             
             // Очищаем кэш React Query
             queryClient.clear()
@@ -258,6 +262,7 @@ export function useLogout() {
             
             logoutStore()
             clearUser()
+            useBusinessStore.getState().clearBusiness()
             queryClient.clear()
             
             // Редирект на страницу входа
@@ -280,6 +285,7 @@ export function useVerifyEmailCode() {
                 localStorage.removeItem('business-storage')
             }
             clearUser()
+            useBusinessStore.getState().clearBusiness()
             queryClient.clear()
 
             setAuth(
@@ -293,10 +299,6 @@ export function useVerifyEmailCode() {
             setUser(data.user)
 
             queryClient.setQueryData(authKeys.user(), data.user)
-
-            if (data.user?.role === BUSINESS_OWNER) {
-                await applyPendingBusinessProfileFromSession()
-            }
 
             const role = data.user.role
             const roleEntryPaths: Record<string, string> = {

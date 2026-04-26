@@ -15,8 +15,6 @@ import { PiArrowLeft } from 'react-icons/pi'
 import { useLocale, useTranslations } from 'next-intl'
 import { usPhoneToE164 } from '@/utils/usPhone'
 
-const PENDING_BUSINESS_PROFILE_KEY = 'rexten_pending_business_profile'
-
 const BusinessSignUpClient = () => {
     const router = useRouter()
     const registerMutation = useRegister()
@@ -39,15 +37,14 @@ const BusinessSignUpClient = () => {
             password_confirmation: values.confirmPassword,
             role: 'BUSINESS_OWNER',
             locale,
-        }
-
-        const companyData = {
-            name: values.businessName,
-            description: values.businessDescription || '',
-            address: values.businessAddress,
-            phone: usPhoneToE164(values.businessPhone),
-            email: values.businessEmail || values.email,
-            website: values.businessWebsite || '',
+            company: {
+                name: values.businessName,
+                description: values.businessDescription || '',
+                address: values.businessAddress,
+                phone: usPhoneToE164(values.businessPhone),
+                email: values.businessEmail || values.email,
+                website: values.businessWebsite || '',
+            },
         }
 
         const goAfterSignup = (requiresVerify, emailForVerify) => {
@@ -59,84 +56,16 @@ const BusinessSignUpClient = () => {
         }
 
         try {
-            if (typeof window !== 'undefined') {
-                sessionStorage.setItem(PENDING_BUSINESS_PROFILE_KEY, JSON.stringify(companyData))
-            }
-
             const data = await registerMutation.mutateAsync(registerData)
             const requiresVerify = Boolean(data.requires_email_verification)
-            const hasToken = Boolean(data.access_token)
 
-            if (!hasToken && requiresVerify) {
-                toast.push(
-                    <Notification title={t('messages.accountCreated')} type="success">
-                        {t('messages.welcomeRedirect')}
-                    </Notification>,
-                )
-                setTimeout(() => goAfterSignup(true, data.email || data.user?.email || values.email), 400)
-                return
-            }
-
-            if (data?.user?.id && data?.user?.role === 'BUSINESS_OWNER') {
-                try {
-                    await new Promise((resolve) => setTimeout(resolve, 100))
-
-                    const { getAccessToken } = await import('@/utils/auth/tokenStorage')
-                    let token = getAccessToken()
-                    if (!token) {
-                        await new Promise((resolve) => setTimeout(resolve, 500))
-                        token = getAccessToken()
-                        if (!token) {
-                            throw new Error('Token not available')
-                        }
-                    }
-
-                    const LaravelAxios = (await import('@/services/axios/LaravelAxios')).default
-
-                    const response = await LaravelAxios.put('/business/settings/profile', companyData)
-
-                    if (response?.data?.data) {
-                        toast.push(
-                            <Notification title={t('messages.accountCreated')} type="success">
-                                {t('messages.welcomeRedirect')}
-                            </Notification>,
-                        )
-                    } else {
-                        toast.push(
-                            <Notification title={t('messages.accountCreated')} type="success">
-                                {t('messages.welcomeRedirect')}
-                            </Notification>,
-                        )
-                    }
-                    if (typeof window !== 'undefined') {
-                        sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
-                    }
-                    setTimeout(() => goAfterSignup(requiresVerify, data.email || data.user?.email), 500)
-                } catch (error) {
-                    if (typeof window !== 'undefined') {
-                        sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
-                    }
-                    toast.push(
-                        <Notification title={t('messages.warning')} type="warning">
-                            {t('messages.accountCreatedButNotSaved')}
-                        </Notification>,
-                    )
-                    setTimeout(() => goAfterSignup(requiresVerify, data.email || data.user?.email), 1000)
-                }
-            } else {
-                if (typeof window !== 'undefined') {
-                    sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
-                }
-                toast.push(
-                    <Notification title={t('messages.accountCreated')} type="success">
-                        {t('messages.welcomeRedirect')}
-                    </Notification>,
-                )
-            }
+            toast.push(
+                <Notification title={t('messages.accountCreated')} type="success">
+                    {t('messages.welcomeRedirect')}
+                </Notification>,
+            )
+            setTimeout(() => goAfterSignup(requiresVerify, data.email || data.user?.email || values.email), 400)
         } catch (error) {
-            if (typeof window !== 'undefined') {
-                sessionStorage.removeItem(PENDING_BUSINESS_PROFILE_KEY)
-            }
             if (error?.response?.data?.errors) {
                 const validationErrors = error.response.data.errors
                 const allErrors = []
@@ -200,9 +129,7 @@ const BusinessSignUpClient = () => {
                     {t('backToSignUp')}
                 </button>
                 <h3 className="mb-1">{t('title')}</h3>
-                <p className="font-semibold heading-text">
-                    {t('subtitle')}
-                </p>
+                <p className="font-semibold heading-text">{t('subtitle')}</p>
             </div>
             {message && (
                 <Alert showIcon className="mb-4" type="danger">

@@ -22,6 +22,7 @@ import { useAuthStore } from '@/store'
 import { BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 import { ONBOARDING_TOUR_STEPS, type OnboardingStepConfig } from '@/configs/onboardingSteps'
 import WelcomeOnboardingModal from '@/components/onboarding/WelcomeOnboardingModal'
+import FinishOnboardingModal from '@/components/onboarding/FinishOnboardingModal'
 import OnboardingTourBackdrop from '@/components/onboarding/OnboardingTourBackdrop'
 import 'shepherd.js/dist/css/shepherd.css'
 import '@/assets/styles/onboarding-shepherd.css'
@@ -96,10 +97,11 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const t = useTranslations('business.onboardingTour')
-    const { userRole, authReady } = useAuthStore()
+    const { userRole, authReady, isAuthenticated, userId: jwtUserId } = useAuthStore()
     const isSuperAdmin = userRole === SUPERADMIN
 
     const [welcomeOpen, setWelcomeOpen] = useState(false)
+    const [finishOpen, setFinishOpen] = useState(false)
     const tourRef = useRef<{ cancel: () => void } | null>(null)
 
     /** Свой затемняющий слой вместо SVG-маски Shepherd (ровнее стыкуется с пунктами меню) */
@@ -107,10 +109,11 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
     const [tourBackdropSelector, setTourBackdropSelector] = useState<string | null>(null)
 
     const { data: profile, isLoading } = useQuery({
-        queryKey: ['business-profile'],
+        queryKey: ['business-profile', jwtUserId ?? 'guest'],
         queryFn: getBusinessProfile,
         staleTime: 5 * 60 * 1000,
         retry: 1,
+        enabled: authReady && isAuthenticated && Boolean(jwtUserId),
     })
 
     const setBusiness = useBusinessStore((s) => s.setBusiness)
@@ -213,10 +216,6 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
             })
 
             const syncBackdropFromStepId = (stepId: string) => {
-                if (stepId === 'done') {
-                    setTourBackdropSelector(null)
-                    return
-                }
                 const cfg = filteredStepsRef.current.find((s) => s.id === stepId)
                 if (!cfg?.attachSelector) {
                     setTourBackdropSelector(null)
@@ -296,7 +295,6 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
                         }
                     },
                     showOn: () => {
-                        if (step.id === 'done') return true
                         if (!step.attachSelector) return true
                         return !!document.querySelector(step.attachSelector)
                     },
@@ -316,8 +314,8 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
             })
 
             tour.on('complete', () => {
-                completeMutation.mutate()
                 destroyTour()
+                setFinishOpen(true)
             })
 
             tour.on('cancel', () => {
@@ -343,6 +341,17 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
         void buildAndStartTour(true)
     }, [buildAndStartTour])
 
+    const handleFinishGoToSettings = useCallback(() => {
+        setFinishOpen(false)
+        completeMutation.mutate()
+        router.push('/business/settings')
+    }, [completeMutation, router])
+
+    const handleFinishClose = useCallback(() => {
+        setFinishOpen(false)
+        completeMutation.mutate()
+    }, [completeMutation])
+
     const ctxValue = useMemo(() => ({ restartTour }), [restartTour])
 
     return (
@@ -353,6 +362,12 @@ function OnboardingRuntime({ children }: { children: ReactNode }) {
                 isOpen={welcomeOpen && !isLoading && Boolean(profile)}
                 onStart={handleStartWelcome}
                 onSkip={handleSkipWelcome}
+                isSubmitting={completeMutation.isPending}
+            />
+            <FinishOnboardingModal
+                isOpen={finishOpen}
+                onGoToSettings={handleFinishGoToSettings}
+                onClose={handleFinishClose}
                 isSubmitting={completeMutation.isPending}
             />
         </OnboardingContext.Provider>

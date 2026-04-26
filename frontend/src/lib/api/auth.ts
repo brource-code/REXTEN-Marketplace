@@ -13,6 +13,15 @@ export interface LoginCredentials {
     locale?: string
 }
 
+export interface RegisterCompanyPayload {
+    name: string
+    description?: string
+    address: string
+    phone: string
+    email?: string
+    website?: string
+}
+
 export interface RegisterData {
     first_name: string
     last_name: string
@@ -23,6 +32,8 @@ export interface RegisterData {
     role?: 'CLIENT' | 'BUSINESS_OWNER'
     /** Локаль UI — сохраняется в профиль и для языка письма с кодом */
     locale?: string
+    /** Для BUSINESS_OWNER — создаётся в одной транзакции с пользователем на бэкенде */
+    company?: RegisterCompanyPayload
 }
 
 export interface AuthResponse {

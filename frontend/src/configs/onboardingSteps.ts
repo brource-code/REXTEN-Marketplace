@@ -15,7 +15,6 @@ export type OnboardingStepId =
     | 'nav_settings'
     | 'workplace_schedule'
     | 'nav_knowledge'
-    | 'done'
 
 export type OnboardingStepConfig = {
     id: OnboardingStepId
@@ -102,8 +101,5 @@ export const ONBOARDING_TOUR_STEPS: OnboardingStepConfig[] = [
         route: '/business/dashboard',
         attachSelector: '[data-tour="nav-knowledge"]',
         attachOn: 'right',
-    },
-    {
-        id: 'done',
     },
 ]

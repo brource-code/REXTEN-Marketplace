@@ -3158,14 +3158,17 @@
             "active": "Activa",
             "cancel": "Cancelar",
             "renewsOn": "Se renueva el",
-            "trialBadge": "Prueba",
-            "trialEndsOn": "La prueba termina el",
+            "trialBadge": "Período gratis",
+            "trialEndsOn": "El período gratis termina el",
             "subscribeNow": "Suscribirme ahora",
             "trial": {
-                "bannerTitle": "Estás en una prueba gratuita de {plan}",
+                "bannerTitle": "Tienes un período gratuito de {plan}",
+                "periodShort": "período gratuito introductorio",
+                "compactHeadline": "{plan} — {period}: {status}.",
+                "compactHeadlinePlanOnly": "{plan} — {period}.",
                 "daysLeft": "{days, plural, one {Queda # día} other {Quedan # días}}",
-                "endsOn": "Termina el {date}",
-                "bannerHint": "Agrega un método de pago antes de que termine la prueba para conservar todas las funciones. De lo contrario, tu cuenta pasará al plan Gratis.",
+                "endsOn": "hasta el {date}",
+                "bannerHint": "Agrega un método de pago antes de que termine el período gratuito para conservar todas las funciones. Si no, tu cuenta pasará al plan Gratis.",
                 "bannerCta": "Suscribirme ahora"
             },
             "stripeDisabled": "Los pagos en línea están deshabilitados. Contacta a soporte.",
@@ -3248,8 +3251,8 @@
                 "a1": "Sí, puedes subir o bajar de plan en cualquier momento. Los cambios son inmediatos.",
                 "q2": "¿Qué métodos de pago aceptan?",
                 "a2": "Aceptamos las principales tarjetas (Visa, Mastercard, American Express) vía Stripe.",
-                "q3": "¿Hay prueba gratuita?",
-                "a3": "Ofrecemos 14 días de prueba gratis para cuentas nuevas. No se requiere tarjeta.",
+                "q3": "¿Hay un período gratuito al inicio?",
+                "a3": "Sí: 14 días gratis en un plan de pago para cada cuenta nueva. No se requiere tarjeta.",
                 "q4": "¿Qué pasa si cancelo?",
                 "a4": "Puedes cancelar en cualquier momento. Tu suscripción sigue activa hasta el fin del período."
             },
@@ -4128,6 +4131,43 @@
             "welcomePreviewScheduleText": "Pick a slot, see who’s booked, and open a booking—your day flows in one view.",
             "welcomePreviewClientsTitle": "Clients",
             "welcomePreviewClientsText": "CRM keeps contacts, notes, and history together so you always know who you’re serving.",
+            "welcomePreviewAnalyticsTitle": "Analytics",
+            "welcomePreviewAnalyticsText": "Ingresos, reservas y desempeño del equipo de un vistazo: ve qué funciona y dónde enfocarte.",
+            "welcomePreviewDiscountsTitle": "Descuentos",
+            "welcomePreviewDiscountsText": "Promociones y ofertas de temporada para atraer clientes nuevos y premiar a los habituales.",
+            "welcomePreviewReviewsTitle": "Reseñas",
+            "welcomePreviewReviewsText": "Recopila opiniones tras cada visita, responde en un clic y genera confianza en tu página del marketplace.",
+            "finishTitle": "Todo listo",
+            "finishSubtitle": "Sigue esta ruta para salir al aire: empieza en Configuración y avanza de izquierda a derecha.",
+            "finishCta": "Ir a Configuración",
+            "finishClose": "Cerrar",
+            "finishFooter": "Puedes abrir la base de conocimiento desde el menú cuando quieras y repetir el tour en Configuración → Perfil.",
+            "finishPath": {
+                "settings": {
+                    "title": "Configuración",
+                    "text": "Perfil de la empresa, marca y notificaciones."
+                },
+                "services": {
+                    "title": "Servicios",
+                    "text": "Crea lo que vendes: nombre, duración y precio."
+                },
+                "team": {
+                    "title": "Equipo",
+                    "text": "Agrega miembros al equipo y vincúlalos a los servicios."
+                },
+                "schedule": {
+                    "title": "Horario",
+                    "text": "Horas laborales, descansos y duración del slot."
+                },
+                "marketplace": {
+                    "title": "Marketplace",
+                    "text": "Crea un anuncio en REXTEN para que los clientes reserven en línea."
+                },
+                "payments": {
+                    "title": "Pagos",
+                    "text": "Conecta Stripe para cobrar en línea."
+                }
+            },
             "startTour": "Start tour",
             "skip": "Skip",
             "next": "Next",
@@ -4179,10 +4219,6 @@
                 "nav_knowledge": {
                     "title": "Knowledge base",
                     "text": "Open this when you need guides and how-tos. The page will grow with articles—we’ll highlight it here so you can find it again."
-                },
-                "done": {
-                    "title": "You're all set",
-                    "text": "Let's get to work. You can open the Knowledge base from the menu anytime, and replay this tour from Settings → Profile."
                 }
             }
         }
@@ -5791,13 +5827,13 @@
             "apiAccess": "Acceso a API",
             "isActive": "Activo",
             "isFree": "Plan gratuito",
-            "trialSection": "Prueba gratuita",
-            "trialDays": "Duración de la prueba (días)",
-            "trialDaysHint": "0 = sin prueba",
-            "isTrialDefault": "Plan de prueba por defecto",
-            "isTrialDefaultHint": "Si se activa, cada empresa nueva inicia con este plan y la duración de prueba indicada. Solo un plan puede ser el de prueba por defecto.",
-            "trialDefaultBadge": "Prueba {days}d",
-            "trialingCount": "{count} en prueba",
+            "trialSection": "Período gratuito",
+            "trialDays": "Duración del período gratuito (días)",
+            "trialDaysHint": "0 = sin período gratuito",
+            "isTrialDefault": "Plan predeterminado con período gratuito",
+            "isTrialDefaultHint": "Si se activa, cada empresa nueva inicia con este plan y la duración de período gratuito indicada. Solo un plan puede ser el predeterminado.",
+            "trialDefaultBadge": "{days}d gratis",
+            "trialingCount": "{count} en período gratuito",
             "cancel": "Cancelar",
             "save": "Guardar",
             "create": "Crear"
@@ -5906,13 +5942,13 @@
         },
         "pricing": {
             "sectionTitle": "Precios simples y transparentes",
-            "sectionLead": "Cuatro planes — de Free a Enterprise. Cualquier plan de pago empieza con <b>14 días gratis</b>.",
+            "sectionLead": "Cuatro planes — de Free a Enterprise. Cualquier plan de pago incluye un <b>período gratuito de 14 días</b> al inicio.",
             "chipPlans": "Free · Starter · Professional · Enterprise",
-            "chipTrial": "Primeros 14 días gratis en cualquier plan de pago",
+            "chipTrial": "Período gratuito de 14 días en cualquier plan de pago",
             "chipFree": "El plan Free sigue disponible, con límites",
             "chipUpgrade": "Límites y cambio de plan — en Suscripción",
             "cardTitlePlans": "Cuatro planes",
-            "cardTitleTrial": "14 días gratis",
+            "cardTitleTrial": "14 días de período gratuito",
             "cardTitleFree": "Gratis, siempre",
             "cardTitleUpgrade": "Cambia cuando quieras",
             "trialDaysLabel": "días",

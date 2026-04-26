@@ -396,6 +396,32 @@ function SubscriptionContent() {
     const activeSub = currentSub?.subscription
     const isLoading = plansLoading || subLoading
 
+    /** Подставляем месяц/год из подписки, но не во время бесплатного периода — там пользователь сам выбирает год при оплате. */
+    useEffect(() => {
+        if (!activeSub || activeSub.is_trial) return
+        if (activeSub.interval === 'year' || activeSub.interval === 'month') {
+            setBillingInterval(activeSub.interval)
+        }
+    }, [activeSub?.id, activeSub?.interval, activeSub?.is_trial])
+
+    /** Одна строка: план + бесплатный период + сроки (без дубля с баннером). */
+    const trialCompactHeadline = useMemo(() => {
+        if (!activeSub?.is_trial) return null
+        const planName = t(`plans.${activeSub.plan}.name`, { defaultValue: activeSub.plan })
+        const period = t('trial.periodShort')
+        const bits = []
+        if (activeSub.trial_days_left != null) {
+            bits.push(t('trial.daysLeft', { days: activeSub.trial_days_left }))
+        }
+        if (activeSub.trial_ends_at) {
+            bits.push(t('trial.endsOn', { date: usShortDate(activeSub.trial_ends_at) }))
+        }
+        const status = bits.join(' · ')
+        return status
+            ? t('trial.compactHeadline', { plan: planName, period, status })
+            : t('trial.compactHeadlinePlanOnly', { plan: planName, period })
+    }, [activeSub, t, usShortDate])
+
     const handleSubscribe = (planId) => {
         if (!stripeOn) {
             toast.push(
@@ -529,138 +555,99 @@ function SubscriptionContent() {
                             </p>
                         </div>
 
-                        {activeSub?.is_trial && (
-                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                <div className="p-4 rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/70 dark:bg-violet-900/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-violet-100 dark:bg-violet-900/40 flex-shrink-0">
-                                            <PiGift className="text-xl text-violet-600 dark:text-violet-300" />
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                {t('trial.bannerTitle', {
-                                                    plan: t(`plans.${activeSub.plan}.name`, {
-                                                        defaultValue: activeSub.plan,
-                                                    }),
-                                                })}
-                                            </div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5">
-                                                {activeSub.trial_days_left != null
-                                                    ? t('trial.daysLeft', {
-                                                          days: activeSub.trial_days_left,
-                                                      })
-                                                    : null}
-                                                {activeSub.trial_ends_at ? (
-                                                    <>
-                                                        {activeSub.trial_days_left != null ? ' · ' : null}
-                                                        {t('trial.endsOn', {
-                                                            date: usShortDate(activeSub.trial_ends_at),
-                                                        })}
-                                                    </>
-                                                ) : null}
-                                            </div>
-                                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                                {t('trial.bannerHint')}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {stripeOn && (
-                                        <Button
-                                            variant="solid"
-                                            size="sm"
-                                            icon={<PiArrowRight />}
-                                            loading={
-                                                checkoutMutation.isPending &&
-                                                checkoutMutation.variables?.plan === activeSub.plan
-                                            }
-                                            onClick={() =>
-                                                checkoutMutation.mutate({
-                                                    plan: activeSub.plan,
-                                                    interval: billingInterval,
-                                                })
-                                            }
-                                        >
-                                            {t('trial.bannerCta')}
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
                         {/* Текущая подписка */}
                         {activeSub && (
                             <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                <div
+                                    className={
+                                        activeSub.is_trial
+                                            ? 'p-4 rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/15'
+                                            : 'p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
+                                    }
+                                >
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${planColors[activeSub.plan]?.bg || 'bg-gray-100 dark:bg-gray-700'}`}>
-                                                {(() => {
-                                                    const Icon = planIcons[activeSub.plan] || PiCreditCard
-                                                    return <Icon className={`text-xl ${planColors[activeSub.plan]?.icon || 'text-gray-600'}`} />
-                                                })()}
+                                            <div
+                                                className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                                    activeSub.is_trial
+                                                        ? 'bg-violet-100 dark:bg-violet-900/40'
+                                                        : planColors[activeSub.plan]?.bg || 'bg-gray-100 dark:bg-gray-700'
+                                                }`}
+                                            >
+                                                {activeSub.is_trial ? (
+                                                    <PiGift className="text-xl text-violet-600 dark:text-violet-300" />
+                                                ) : (
+                                                    (() => {
+                                                        const Icon = planIcons[activeSub.plan] || PiCreditCard
+                                                        return (
+                                                            <Icon
+                                                                className={`text-xl ${planColors[activeSub.plan]?.icon || 'text-gray-600'}`}
+                                                            />
+                                                        )
+                                                    })()
+                                                )}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                    {t('currentPlan')}: {t(`plans.${activeSub.plan}.name`)}
-                                                </div>
-                                                <div className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5 flex-wrap">
-                                                    {activeSub.scheduled_plan && !activeSub.canceled_at ? (
-                                                        <>
-                                                            <Tag className="bg-indigo-100 text-indigo-900 dark:bg-indigo-900/40 dark:text-indigo-200">
-                                                                {t('downgrade.scheduledBadge', {
-                                                                    plan: t(`plans.${activeSub.scheduled_plan}.name`),
-                                                                })}
-                                                            </Tag>
-                                                            {activeSub.current_period_end && (
-                                                                <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
-                                                                    <PiCalendarCheck size={14} />
-                                                                    {t('downgrade.effectiveOn')}{' '}
-                                                                    {usShortDate(activeSub.current_period_end)}
-                                                                </span>
+                                                {activeSub.is_trial ? (
+                                                    <>
+                                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                            {trialCompactHeadline}
+                                                        </div>
+                                                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                                            {t('trial.bannerHint')}
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                            {t('currentPlan')}: {t(`plans.${activeSub.plan}.name`)}
+                                                        </div>
+                                                        <div className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5 flex-wrap">
+                                                            {activeSub.scheduled_plan && !activeSub.canceled_at ? (
+                                                                <>
+                                                                    <Tag className="bg-indigo-100 text-indigo-900 dark:bg-indigo-900/40 dark:text-indigo-200">
+                                                                        {t('downgrade.scheduledBadge', {
+                                                                            plan: t(`plans.${activeSub.scheduled_plan}.name`),
+                                                                        })}
+                                                                    </Tag>
+                                                                    {activeSub.current_period_end && (
+                                                                        <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
+                                                                            <PiCalendarCheck size={14} />
+                                                                            {t('downgrade.effectiveOn')}{' '}
+                                                                            {usShortDate(activeSub.current_period_end)}
+                                                                        </span>
+                                                                    )}
+                                                                </>
+                                                            ) : activeSub.cancellation_scheduled || activeSub.canceled_at ? (
+                                                                <>
+                                                                    <Tag className="bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+                                                                        {t('canceledBadge')}
+                                                                    </Tag>
+                                                                    {activeSub.current_period_end && (
+                                                                        <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
+                                                                            <PiCalendarCheck size={14} />
+                                                                            {t('activeUntil')}{' '}
+                                                                            {usShortDate(activeSub.current_period_end)}
+                                                                        </span>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Tag className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                                                        {t('active')}
+                                                                    </Tag>
+                                                                    {activeSub.current_period_end && (
+                                                                        <span className="flex items-center gap-1">
+                                                                            <PiCalendarCheck size={14} />
+                                                                            {t('renewsOn')}{' '}
+                                                                            {usShortDate(activeSub.current_period_end)}
+                                                                        </span>
+                                                                    )}
+                                                                </>
                                                             )}
-                                                        </>
-                                                    ) : activeSub.cancellation_scheduled || activeSub.canceled_at ? (
-                                                        <>
-                                                            <Tag className="bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
-                                                                {t('canceledBadge')}
-                                                            </Tag>
-                                                            {activeSub.current_period_end && (
-                                                                <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
-                                                                    <PiCalendarCheck size={14} />
-                                                                    {t('activeUntil')}{' '}
-                                                                    {usShortDate(activeSub.current_period_end)}
-                                                                </span>
-                                                            )}
-                                                        </>
-                                                    ) : activeSub.is_trial ? (
-                                                        <>
-                                                            <Tag className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 inline-flex items-center gap-1">
-                                                                <PiGift size={12} />
-                                                                {t('trialBadge')}
-                                                            </Tag>
-                                                            {activeSub.trial_ends_at && (
-                                                                <span className="flex items-center gap-1 text-gray-900 dark:text-gray-100">
-                                                                    <PiCalendarCheck size={14} />
-                                                                    {t('trialEndsOn')}{' '}
-                                                                    {usShortDate(activeSub.trial_ends_at)}
-                                                                </span>
-                                                            )}
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Tag className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                                                                {t('active')}
-                                                            </Tag>
-                                                            {activeSub.current_period_end && (
-                                                                <span className="flex items-center gap-1">
-                                                                    <PiCalendarCheck size={14} />
-                                                                    {t('renewsOn')}{' '}
-                                                                    {usShortDate(activeSub.current_period_end)}
-                                                                </span>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </div>
+                                                        </div>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -721,7 +708,7 @@ function SubscriptionContent() {
                                                         })
                                                     }
                                                 >
-                                                    {t('subscribeNow')}
+                                                    {t('trial.bannerCta')}
                                                 </Button>
                                             )}
                                             {activeSub.is_free &&
@@ -1025,31 +1012,31 @@ function SubscriptionContent() {
                             <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                                 {t('choosePlan')}
                             </h4>
-                            {!activeSub && (
-                                <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-gray-800">
-                                    <button
-                                        className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
-                                            billingInterval === 'month'
-                                                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                                                : 'text-gray-500 dark:text-gray-400'
-                                        }`}
-                                        onClick={() => setBillingInterval('month')}
-                                    >
-                                        {t('monthly')}
-                                    </button>
-                                    <button
-                                        className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1 ${
-                                            billingInterval === 'year'
-                                                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                                                : 'text-gray-500 dark:text-gray-400'
-                                        }`}
-                                        onClick={() => setBillingInterval('year')}
-                                    >
-                                        {t('yearly')}
-                                        <span className="text-emerald-600 dark:text-emerald-400">{t('savePercent')}</span>
-                                    </button>
-                                </div>
-                            )}
+                            <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-gray-800 self-start sm:self-auto">
+                                <button
+                                    type="button"
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
+                                        billingInterval === 'month'
+                                            ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                                            : 'text-gray-500 dark:text-gray-400'
+                                    }`}
+                                    onClick={() => setBillingInterval('month')}
+                                >
+                                    {t('monthly')}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1 ${
+                                        billingInterval === 'year'
+                                            ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                                            : 'text-gray-500 dark:text-gray-400'
+                                    }`}
+                                    onClick={() => setBillingInterval('year')}
+                                >
+                                    {t('yearly')}
+                                    <span className="text-emerald-600 dark:text-emerald-400">{t('savePercent')}</span>
+                                </button>
+                            </div>
                         </div>
 
                         {isLoading ? (

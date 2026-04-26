@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Constants\UsTimezones;
 use App\Http\Controllers\Auth\Concerns\IssuesAuthTokens;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\User;
 use App\Models\UserPresenceSession;
 use App\Models\UserProfile;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Services\ActivityService;
 use App\Services\EmailOtpService;
@@ -48,6 +53,13 @@ class AuthController extends Controller
             'last_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'locale' => 'nullable|string|in:en,ru,es-MX,hy-AM,uk-UA',
+            'company' => 'nullable|array',
+            'company.name' => 'required_if:role,BUSINESS_OWNER|string|max:255',
+            'company.address' => 'required_if:role,BUSINESS_OWNER|string|max:2000',
+            'company.phone' => 'required_if:role,BUSINESS_OWNER|string|max:30',
+            'company.description' => 'nullable|string|max:10000',
+            'company.email' => 'nullable|email|max:255',
+            'company.website' => 'nullable|string|max:255',
         ], [
             'email.unique' => 'Пользователь с таким email уже зарегистрирован',
             'email.email' => 'Введите корректный email адрес',
@@ -72,20 +84,65 @@ class AuthController extends Controller
 
         $uiLocale = PasswordResetMailLocale::normalizeUiLocale($request->input('locale'));
 
-        $user = User::create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'locale' => $uiLocale,
-            'email_verified_at' => $verifyRequired ? null : now(),
-        ]);
+        $role = $request->role;
+        $companyInput = is_array($request->input('company')) ? $request->input('company') : [];
 
-        UserProfile::create([
-            'user_id' => $user->id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone' => $request->phone,
-        ]);
+        if ($role === 'BUSINESS_OWNER' && $companyInput === []) {
+            return response()->json([
+                'success' => false,
+                'errors' => ['company' => ['Укажите данные компании при регистрации бизнеса.']],
+            ], 422);
+        }
+
+        try {
+            $user = DB::transaction(function () use ($request, $uiLocale, $verifyRequired, $role, $companyInput) {
+                $user = User::create([
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'role' => $role,
+                    'locale' => $uiLocale,
+                    'email_verified_at' => $verifyRequired ? null : now(),
+                ]);
+
+                UserProfile::create([
+                    'user_id' => $user->id,
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'phone' => $request->phone,
+                ]);
+
+                if ($role === 'BUSINESS_OWNER') {
+                    $website = $companyInput['website'] ?? null;
+                    if (is_string($website) && trim($website) === '') {
+                        $website = null;
+                    }
+                    $slug = $this->generateCompanySlugForRegister((string) $companyInput['name']);
+                    Company::create([
+                        'owner_id' => $user->id,
+                        'name' => $companyInput['name'],
+                        'slug' => $slug,
+                        'description' => $companyInput['description'] ?? null,
+                        'address' => $companyInput['address'],
+                        'phone' => $companyInput['phone'],
+                        'email' => $companyInput['email'] ?? $user->email,
+                        'website' => $website,
+                        'timezone' => UsTimezones::getByState(''),
+                        'status' => 'pending',
+                    ]);
+                }
+
+                return $user;
+            });
+        } catch (QueryException $e) {
+            \Illuminate\Support\Facades\Log::warning('Register transaction failed', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Не удалось завершить регистрацию. Попробуйте ещё раз или выберите другое название компании.',
+            ], 422);
+        }
 
         try {
             ActivityService::logRegister($user->fresh());
@@ -119,6 +176,21 @@ class AuthController extends Controller
         }
 
         return $this->tokenJsonResponse($user->fresh()->load('profile'))->setStatusCode(201);
+    }
+
+    private function generateCompanySlugForRegister(string $name): string
+    {
+        $base = Str::slug($name);
+        if ($base === '') {
+            $base = 'business';
+        }
+        $attempts = 0;
+        do {
+            $slug = $base.'-'.Str::lower(Str::random(6));
+            $attempts++;
+        } while (Company::where('slug', $slug)->exists() && $attempts < 25);
+
+        return $slug;
     }
 
     /**

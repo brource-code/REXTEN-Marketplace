@@ -3158,14 +3158,17 @@
             "active": "Ակտիվ",
             "cancel": "Չեղարկել",
             "renewsOn": "Թարմացման ամսաթիվ",
-            "trialBadge": "Փորձաշրջան",
-            "trialEndsOn": "Փորձաշրջանն ավարտվում է",
+            "trialBadge": "Անվճար ժամանակաշրջան",
+            "trialEndsOn": "Անվճար ժամանակաշրջանի ավարտ",
             "subscribeNow": "Բաժանորդագրվել հիմա",
             "trial": {
-                "bannerTitle": "Դուք օգտվում եք {plan}-ի անվճար փորձաշրջանից",
+                "bannerTitle": "Դուք {plan} պլանի անվճար ժամանակաշրջանում եք",
+                "periodShort": "անվճար ծանոթացման ժամանակաշրջան",
+                "compactHeadline": "{plan} — {period}: {status}.",
+                "compactHeadlinePlanOnly": "{plan} — {period}.",
                 "daysLeft": "{days, plural, one {Մնաց # օր} other {Մնացել է # օր}}",
-                "endsOn": "Ավարտվում է {date}-ին",
-                "bannerHint": "Մինչ փորձաշրջանի ավարտը ավելացրեք վճարման եղանակ՝ բոլոր հնարավորությունները պահպանելու համար։ Հակառակ դեպքում աշխատատարածքը կանցնի Free պլանի։",
+                "endsOn": "մինչև {date}",
+                "bannerHint": "Մինչ անվճար ժամանակաշրջանի ավարտը ավելացրեք վճարման եղանակ՝ բոլոր հնարավորությունները պահպանելու համար։ Հակառակ դեպքում աշխատատարածքը կանցնի Free պլանի։",
                 "bannerCta": "Բաժանորդագրվել հիմա"
             },
             "stripeDisabled": "Առցանց վճարումները ժամանակավորապես անջատված են։ Կապվել աջակցության ծառայությանը։",
@@ -3248,8 +3251,8 @@
                 "a1": "Այո, դուք կարող եք բարձրացնել կամ իջեցնել պլանը ցանկացած պահին: Փոփոխություններն ուժի մեջ մտնում են:",
                 "q2": "Ինչ վճարման եղանակներ եք ընդունում՞",
                 "a2": "Մենք ընդունում ենք բոլոր հիմնական քարտերը (Visa, Mastercard, American Express) Stripe-ի միջոցով:",
-                "q3": "Կա անվճար փորձաշրջան՞",
-                "a3": "Այո, 14-օրյա անվճար փորձաշրջան բոլոր նոր հաշիվների համար: Քարտ չի պահանջվում:",
+                "q3": "Կա՞ սկզբում անվճար ժամանակաշրջան",
+                "a3": "Այո՝ 14 օր անվճար վճարովի պլանի վրա յուրաքանչյուր նոր հաշվի համար։ Քարտ չի պահանջվում։",
                 "q4": "Ինչ կլինի, եթե չեղարկեմ բաժանորդագրությունը՞",
                 "a4": "Դուք կարող եք չեղարկել ցանկացած պահին: Բաժանորդագրությունը մնում է ակտիվ մինչև վճարված ժամանակաշրջանի ավարտը:"
             },
@@ -4128,6 +4131,43 @@
             "welcomePreviewScheduleText": "Pick a slot, see who’s booked, and open a booking—your day flows in one view.",
             "welcomePreviewClientsTitle": "Clients",
             "welcomePreviewClientsText": "CRM keeps contacts, notes, and history together so you always know who you’re serving.",
+            "welcomePreviewAnalyticsTitle": "Վերլուծություն",
+            "welcomePreviewAnalyticsText": "Եկամուտ, ամրագրումներ և թիմի արդյունավետություն՝ մեկ հայացքով. Տես՝ ինչն է աշխատում և ուր կենտրոնանալ։",
+            "welcomePreviewDiscountsTitle": "Զեղչեր",
+            "welcomePreviewDiscountsText": "Ակցիաներ և սեզոնային առաջարկներ՝ նոր հաճախորդներ գրավելու և հավատարիմներին պարգևատրելու համար։",
+            "welcomePreviewReviewsTitle": "Կարծիքներ",
+            "welcomePreviewReviewsText": "Հավաքեք հետադարձ կապ այցերից հետո, պատասխանեք մեկ սեղմումով և ամրապնդեք վստահությունը ձեր մարկետփլեյջի էջում։",
+            "finishTitle": "Ամեն ինչ պատրաստ է",
+            "finishSubtitle": "Այս ուղով գործարկեք բիզնեսը՝ սկսեք Կարգավորումներից և շարժվեք ձախից աջ։",
+            "finishCta": "Գնալ կարգավորումներ",
+            "finishClose": "Փակել",
+            "finishFooter": "Գիտելիքների բազան միշտ հասանելի է ընտրացանկից, տուրը կարող եք կրկնել Կարգավորումներ → Պրոֆիլ։",
+            "finishPath": {
+                "settings": {
+                    "title": "Կարգավորումներ",
+                    "text": "Ընկերության պրոֆիլ, բրենդինգ և ծանուցումներ։"
+                },
+                "services": {
+                    "title": "Ծառայություններ",
+                    "text": "Ստեղծեք, ինչ եք վաճառում՝ անուն, տևողություն և գին։"
+                },
+                "team": {
+                    "title": "Թիմ",
+                    "text": "Ավելացրեք թիմի անդամներ և կապեք ծառայությունները։"
+                },
+                "schedule": {
+                    "title": "Ժամանակացույց",
+                    "text": "Աշխատանքային ժամեր, ընդմիջումներ և slot-ի երկարություն։"
+                },
+                "marketplace": {
+                    "title": "Մարկետփլեյս",
+                    "text": "Ստեղծեք հայտարարություն REXTEN-ում, որպեսզի հաճախորդները առցանց ամրագրեն։"
+                },
+                "payments": {
+                    "title": "Վճարումներ",
+                    "text": "Միացրեք Stripe-ը առցանց վճարումներ ընդունելու համար։"
+                }
+            },
             "startTour": "Start tour",
             "skip": "Skip",
             "next": "Next",
@@ -4179,10 +4219,6 @@
                 "nav_knowledge": {
                     "title": "Knowledge base",
                     "text": "Open this when you need guides and how-tos. The page will grow with articles—we’ll highlight it here so you can find it again."
-                },
-                "done": {
-                    "title": "You're all set",
-                    "text": "Let's get to work. You can open the Knowledge base from the menu anytime, and replay this tour from Settings → Profile."
                 }
             }
         }
@@ -5791,13 +5827,13 @@
             "apiAccess": "API հասանելիություն",
             "isActive": "Ակտիվ",
             "isFree": "Անվճար պլան",
-            "trialSection": "Անվճար փորձաշրջան",
-            "trialDays": "Փորձաշրջանի տևողությունը (օր)",
-            "trialDaysHint": "0 — առանց փորձաշրջանի",
-            "isTrialDefault": "Կանխադրված փորձաշրջանի պլան",
-            "isTrialDefaultHint": "Միացված դեպքում յուրաքանչյուր նոր ընկերություն մեկնարկում է այս պլանով՝ վերոնշյալ փորձաշրջանով։ Միայն մեկ պլան կարող է լինել կանխադրված փորձաշրջանի համար։",
-            "trialDefaultBadge": "Փորձ. {days}օր",
-            "trialingCount": "{count} փորձաշրջանում",
+            "trialSection": "Անվճար ժամանակաշրջան",
+            "trialDays": "Անվճար ժամանակաշրջանի տևողություն (օր)",
+            "trialDaysHint": "0 — առանց անվճար ժամանակաշրջանի",
+            "isTrialDefault": "Կանխադրված պլան անվճար ժամանակաշրջանով",
+            "isTrialDefaultHint": "Միացված դեպքում յուրաքանչյուր նոր ընկերություն մեկնարկում է այս պլանով՝ վերոնշյալ անվճար ժամանակաշրջանով։ Միայն մեկ պլան կարող է լինել կանխադրված։",
+            "trialDefaultBadge": "{days}օր անվճար",
+            "trialingCount": "{count} անվճար ժամանակաշրջանում",
             "cancel": "Չեղարկել",
             "save": "Պահպանել",
             "create": "Ստեղծել"
@@ -5921,13 +5957,13 @@
         },
         "pricing": {
             "sectionTitle": "Սակագներ՝ ձեր աշխատանքի ձևին համապատասխան",
-            "sectionLead": "Չորս սակագին՝ Free-ից մինչև Enterprise։ Ցանկացած վճարովի սակագին սկսում է <b>առաջին 14 օրը՝ անվճար</b>։",
+            "sectionLead": "Չորս սակագին՝ Free-ից մինչև Enterprise։ Ցանկացած վճարովի սակագնի սկզբում կա <b>14-օրյա անվճար ժամանակաշրջան</b>։",
             "chipPlans": "Free · Starter · Professional · Enterprise",
-            "chipTrial": "Առաջին 14 օրը՝ անվճար, ցանկացած վճարովի սակագնի վրա",
+            "chipTrial": "14-օրյա անվճար ժամանակաշրջան ցանկացած վճարովի սակագնի վրա",
             "chipFree": "Free սակագինը մնում է հասանելի՝ սահմանաչափերով",
             "chipUpgrade": "Սահմանաչափեր և սակագնի փոփոխություն՝ «Բաժանորդագրություն» բաժնում",
             "cardTitlePlans": "Չորս սակագին",
-            "cardTitleTrial": "14 օր անվճար",
+            "cardTitleTrial": "14 օր անվճար ժամանակաշրջան",
             "cardTitleFree": "Անվճար՝ միշտ",
             "cardTitleUpgrade": "Փոխեք ցանկացած պահի",
             "trialDaysLabel": "օր",

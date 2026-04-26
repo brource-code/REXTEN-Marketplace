@@ -3158,14 +3158,17 @@
             "active": "Активна",
             "cancel": "Скасувати",
             "renewsOn": "Поновлення",
-            "trialBadge": "Пробний період",
-            "trialEndsOn": "Пробний період до",
+            "trialBadge": "Безкоштовний період",
+            "trialEndsOn": "Безкоштовний період до",
             "subscribeNow": "Оформити підписку",
             "trial": {
-                "bannerTitle": "У вас безкоштовний пробний період тарифу {plan}",
+                "bannerTitle": "У вас безкоштовний період тарифу {plan}",
+                "periodShort": "безкоштовний період",
+                "compactHeadline": "{plan} — {period}: {status}.",
+                "compactHeadlinePlanOnly": "{plan} — {period}.",
                 "daysLeft": "{days, plural, one {Залишився # день} few {Залишилось # дні} many {Залишилось # днів} other {Залишилось # днів}}",
-                "endsOn": "Завершується {date}",
-                "bannerHint": "Додайте спосіб оплати до завершення пробного періоду, щоб зберегти всі можливості. Інакше робочий простір перейде на план Free.",
+                "endsOn": "до {date}",
+                "bannerHint": "Додайте спосіб оплати до завершення безкоштовного періоду, щоб зберегти всі можливості. Інакше робочий простір перейде на план Free.",
                 "bannerCta": "Оформити підписку"
             },
             "stripeDisabled": "Онлайн-платежі тимчасово вимкнені. Зверніться до підтримки.",
@@ -3248,8 +3251,8 @@
                 "a1": "Так, ви можете підвищити або знизити план будь-коли. Зміни набувають чинності одразу.",
                 "q2": "Які способи оплати приймаються?",
                 "a2": "Ми приймаємо всі основні картки (Visa, Mastercard, American Express) через Stripe.",
-                "q3": "Чи є безкоштовний пробний період?",
-                "a3": "Так, 14-денний пробний період для всіх нових акаунтів. Картка не потрібна.",
+                "q3": "Чи є безкоштовний період на початку?",
+                "a3": "Так — 14 днів безкоштовно на платному тарифі для кожного нового акаунта. Картка не потрібна.",
                 "q4": "Що буде, якщо я скасую підписку?",
                 "a4": "Ви можете скасувати будь-коли. Підписка залишається активною до кінця оплаченого періоду."
             },
@@ -4128,6 +4131,43 @@
             "welcomePreviewScheduleText": "Pick a slot, see who’s booked, and open a booking—your day flows in one view.",
             "welcomePreviewClientsTitle": "Clients",
             "welcomePreviewClientsText": "CRM keeps contacts, notes, and history together so you always know who you’re serving.",
+            "welcomePreviewAnalyticsTitle": "Аналітика",
+            "welcomePreviewAnalyticsText": "Дохід, бронювання та ефективність команди в одному огляді — видно, що працює і куди звернути увагу.",
+            "welcomePreviewDiscountsTitle": "Знижки",
+            "welcomePreviewDiscountsText": "Акції та сезонні пропозиції — залучайте нових клієнтів і заохочуйте постійних.",
+            "welcomePreviewReviewsTitle": "Відгуки",
+            "welcomePreviewReviewsText": "Збирайте зворотний зв’язок після візитів, відповідайте в один клік і зміцнюйте довіру на сторінці маркетплейсу.",
+            "finishTitle": "Усе готово",
+            "finishSubtitle": "Щоб запустити бізнес, пройдіть кроки зліва направо. Почніть із налаштувань.",
+            "finishCta": "Перейти до налаштувань",
+            "finishClose": "Закрити",
+            "finishFooter": "Базу знань завжди можна відкрити з меню, тур — повторити в Налаштування → Профіль.",
+            "finishPath": {
+                "settings": {
+                    "title": "Налаштування",
+                    "text": "Профіль компанії, брендинг і сповіщення."
+                },
+                "services": {
+                    "title": "Послуги",
+                    "text": "Що продаєте — назва, тривалість і ціна."
+                },
+                "team": {
+                    "title": "Команда",
+                    "text": "Створіть виконавців і прив’яжіть послуги."
+                },
+                "schedule": {
+                    "title": "Розклад",
+                    "text": "Години роботи, перерви та довжина слота."
+                },
+                "marketplace": {
+                    "title": "Маркетплейс",
+                    "text": "Створіть оголошення на маркетплейсі REXTEN, щоб клієнти могли бронювати онлайн."
+                },
+                "payments": {
+                    "title": "Платежі",
+                    "text": "Підключіть Stripe для прийому оплати онлайн."
+                }
+            },
             "startTour": "Start tour",
             "skip": "Skip",
             "next": "Next",
@@ -4179,10 +4219,6 @@
                 "nav_knowledge": {
                     "title": "Knowledge base",
                     "text": "Open this when you need guides and how-tos. The page will grow with articles—we’ll highlight it here so you can find it again."
-                },
-                "done": {
-                    "title": "You're all set",
-                    "text": "Let's get to work. You can open the Knowledge base from the menu anytime, and replay this tour from Settings → Profile."
                 }
             }
         }
@@ -5791,13 +5827,13 @@
             "apiAccess": "Доступ до API",
             "isActive": "Активний",
             "isFree": "Безкоштовний план",
-            "trialSection": "Пробний період",
-            "trialDays": "Тривалість пробного періоду (днів)",
-            "trialDaysHint": "0 — без пробного періоду",
-            "isTrialDefault": "Пробний план за замовчуванням",
-            "isTrialDefaultHint": "Якщо увімкнено, кожна нова компанія автоматично отримує цей план із указаною тривалістю пробного періоду. Лише один план може бути пробним за замовчуванням.",
-            "trialDefaultBadge": "Пробний {days}д",
-            "trialingCount": "{count} у пробному",
+            "trialSection": "Безкоштовний період",
+            "trialDays": "Тривалість безкоштовного періоду (днів)",
+            "trialDaysHint": "0 — без безкоштовного періоду",
+            "isTrialDefault": "План за замовчуванням із безкоштовним періодом",
+            "isTrialDefaultHint": "Якщо увімкнено, кожна нова компанія автоматично отримує цей план із вказаною тривалістю безкоштовного періоду. Лише один план може бути за замовчуванням.",
+            "trialDefaultBadge": "{days} дн. безкоштовно",
+            "trialingCount": "{count} на безкоштовному періоді",
             "cancel": "Скасувати",
             "save": "Зберегти",
             "create": "Створити"
@@ -5921,13 +5957,13 @@
         },
         "pricing": {
             "sectionTitle": "Тарифи під ваш формат роботи",
-            "sectionLead": "Чотири тарифи — від Free до Enterprise. Будь-який платний — <b>перші 14 днів безкоштовно</b>.",
+            "sectionLead": "Чотири тарифи — від Free до Enterprise. У будь-якого платного на початку — <b>14 днів безкоштовного періоду</b>.",
             "chipPlans": "Free · Starter · Professional · Enterprise",
-            "chipTrial": "Перші 14 днів безкоштовно на будь-якому платному",
+            "chipTrial": "14 днів безкоштовного періоду на будь-якому платному тарифі",
             "chipFree": "Free лишається доступним, з лімітами",
             "chipUpgrade": "Ліміти та зміна тарифу — у розділі «Підписка»",
             "cardTitlePlans": "Чотири тарифи",
-            "cardTitleTrial": "14 днів безкоштовно",
+            "cardTitleTrial": "14 днів безкоштовного періоду",
             "cardTitleFree": "Free завжди доступний",
             "cardTitleUpgrade": "Змінюйте тариф будь-коли",
             "trialDaysLabel": "днів",

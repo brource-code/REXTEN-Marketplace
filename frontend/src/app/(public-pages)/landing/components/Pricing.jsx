@@ -284,7 +284,8 @@ const PlansVisual = ({ cardStyles }) => (
     </div>
 )
 
-const TrialVisual = ({ cardStyles, daysLabel, freeLabel }) => (
+/** Визуал блока «N дней бесплатно»; тексты — из next-intl (EN: «trial», др. локали — «период» и т.п.). */
+const FreePeriodVisual = ({ cardStyles, daysLabel, freeLabel }) => (
     <div
         className="rounded-lg md:rounded-xl bg-white dark:bg-gray-900 p-2 md:p-3 h-20 md:h-28 flex items-center justify-center"
         style={cardStyles}
@@ -384,7 +385,7 @@ const Pricing = () => {
                     <HeaderCard
                         delay={0.25}
                         visual={
-                            <TrialVisual
+                            <FreePeriodVisual
                                 cardStyles={cardStyles}
                                 daysLabel={t('trialDaysLabel')}
                                 freeLabel={t('trialFreeLabel')}

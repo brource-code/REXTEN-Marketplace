@@ -3163,9 +3163,12 @@
             "subscribeNow": "Subscribe now",
             "trial": {
                 "bannerTitle": "You're on a free {plan} trial",
+                "periodShort": "free trial",
+                "compactHeadline": "{plan} — {period}: {status}.",
+                "compactHeadlinePlanOnly": "{plan} — {period}.",
                 "daysLeft": "{days, plural, one {# day left} other {# days left}}",
                 "endsOn": "Ends on {date}",
-                "bannerHint": "Add a payment method before the trial ends to keep all features. Otherwise, your workspace switches to the Free plan.",
+                "bannerHint": "Add a payment method before your trial ends to keep all features. Otherwise, your workspace switches to the Free plan.",
                 "bannerCta": "Subscribe now"
             },
             "stripeDisabled": "Online payments are currently disabled. Contact support.",
@@ -3249,7 +3252,7 @@
                 "q2": "What payment methods do you accept?",
                 "a2": "We accept all major credit cards (Visa, Mastercard, American Express) via Stripe.",
                 "q3": "Is there a free trial?",
-                "a3": "We offer a 14-day free trial for all new accounts. No credit card required to start.",
+                "a3": "Yes — every new workspace gets a 14-day free trial on a paid plan. No credit card required to start.",
                 "q4": "What happens if I cancel?",
                 "a4": "You can cancel anytime. Your subscription remains active until the end of the billing period."
             },
@@ -4128,6 +4131,43 @@
             "welcomePreviewScheduleText": "Pick a slot, see who’s booked, and open a booking—your day flows in one view.",
             "welcomePreviewClientsTitle": "Clients",
             "welcomePreviewClientsText": "CRM keeps contacts, notes, and history together so you always know who you’re serving.",
+            "welcomePreviewAnalyticsTitle": "Analytics",
+            "welcomePreviewAnalyticsText": "Revenue, bookings, and team performance at a glance—see what’s working and where to focus.",
+            "welcomePreviewDiscountsTitle": "Discounts",
+            "welcomePreviewDiscountsText": "Run promos and seasonal offers to attract new clients and reward loyal ones.",
+            "welcomePreviewReviewsTitle": "Reviews",
+            "welcomePreviewReviewsText": "Collect feedback after visits, reply in one click, and build trust on your marketplace page.",
+            "finishTitle": "You’re all set",
+            "finishSubtitle": "Follow this path to go live—start with Settings and work left to right.",
+            "finishCta": "Go to Settings",
+            "finishClose": "Close",
+            "finishFooter": "You can open the Knowledge base from the menu anytime, and replay this tour from Settings → Profile.",
+            "finishPath": {
+                "settings": {
+                    "title": "Settings",
+                    "text": "Company profile, branding, and notifications."
+                },
+                "services": {
+                    "title": "Services",
+                    "text": "Create what you sell—name, duration, and price."
+                },
+                "team": {
+                    "title": "Team",
+                    "text": "Add team members and link them to services."
+                },
+                "schedule": {
+                    "title": "Schedule",
+                    "text": "Working hours, breaks, and slot length."
+                },
+                "marketplace": {
+                    "title": "Marketplace",
+                    "text": "Create a listing on REXTEN so clients can book you online."
+                },
+                "payments": {
+                    "title": "Payments",
+                    "text": "Connect Stripe to accept online payments."
+                }
+            },
             "startTour": "Start tour",
             "skip": "Skip",
             "next": "Next",
@@ -4179,10 +4219,6 @@
                 "nav_knowledge": {
                     "title": "Knowledge base",
                     "text": "Open this when you need guides and how-tos. The page will grow with articles—we’ll highlight it here so you can find it again."
-                },
-                "done": {
-                    "title": "You're all set",
-                    "text": "Let's get to work. You can open the Knowledge base from the menu anytime, and replay this tour from Settings → Profile."
                 }
             }
         }
@@ -5906,13 +5942,13 @@
         },
         "pricing": {
             "sectionTitle": "Simple and transparent pricing",
-            "sectionLead": "Four plans — from Free to Enterprise. Any paid plan starts with <b>14 days free</b>.",
+            "sectionLead": "Four plans — from Free to Enterprise. Any paid plan starts with a <b>14-day free trial</b>.",
             "chipPlans": "Free · Starter · Professional · Enterprise",
-            "chipTrial": "First 14 days free on any paid plan",
+            "chipTrial": "14-day free trial on any paid plan",
             "chipFree": "Free plan stays available, with limits",
             "chipUpgrade": "Limits and upgrades — in Subscription",
             "cardTitlePlans": "Four plans",
-            "cardTitleTrial": "14 days free",
+            "cardTitleTrial": "14-day free trial",
             "cardTitleFree": "Free, always",
             "cardTitleUpgrade": "Switch anytime",
             "trialDaysLabel": "days",
