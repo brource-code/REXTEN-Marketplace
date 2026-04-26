@@ -41,6 +41,9 @@ export default function FinishOnboardingModal({ isOpen, onGoToSettings, onClose,
                     </p>
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('finishTitle')}</h4>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2">{t('finishSubtitle')}</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-3 leading-snug">
+                        {t('finishShareHint')}
+                    </p>
                 </div>
 
                 <div className="px-6 sm:px-8 pb-4 pt-4 sm:pb-5 sm:pt-4">
