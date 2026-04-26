@@ -112,12 +112,22 @@ class SubscriptionController extends Controller
 
         $planModel = SubscriptionPlan::findBySlug($subscription->plan);
 
+        // Цена в строке подписки — снимок при создании. Пока нет Stripe-подписки, в UI показываем
+        // актуальную цену из каталога планов (админка), чтобы она совпадала с карточками тарифов.
+        $displayPrice = $subscription->price_cents / 100;
+        if ($planModel && ! $subscription->stripe_subscription_id) {
+            $interval = $subscription->interval ?: 'month';
+            $displayPrice = $interval === 'year'
+                ? $planModel->getPriceYearly()
+                : $planModel->getPriceMonthly();
+        }
+
         return response()->json([
             'subscription' => [
                 'id' => $subscription->id,
                 'plan' => $subscription->plan,
                 'status' => $subscription->status,
-                'price' => $subscription->price_cents / 100,
+                'price' => $displayPrice,
                 'currency' => $subscription->currency,
                 'interval' => $subscription->interval,
                 'current_period_start' => $subscription->current_period_start?->toISOString(),
@@ -749,9 +759,15 @@ class SubscriptionController extends Controller
         }
 
         if (!$isUpgrade) {
+            // Платный план + status active у новой компании бывает при бесплатном триале
+            // (trial_ends_at в будущем, без Stripe) — такой случай не считаем «уже оплачено».
             $existing = Subscription::where('company_id', $companyId)
                 ->where('status', Subscription::STATUS_ACTIVE)
                 ->whereHas('subscriptionPlan', fn ($q) => $q->where('is_free', false))
+                ->where(function ($q) {
+                    $q->whereNull('trial_ends_at')
+                        ->orWhere('trial_ends_at', '<=', now());
+                })
                 ->first();
 
             if ($existing) {
