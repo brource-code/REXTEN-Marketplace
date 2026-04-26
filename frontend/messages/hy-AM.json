@@ -255,7 +255,7 @@
                     "noData": "Ընտրված ժամանակահատվածի համար տվյալներ չկան",
                     "donutTotalBookings": "Ամրագրումներ",
                     "tabs": {
-                        "overview": "Ամփոփում",
+                        "overview": "Անալիտիկա",
                         "bookings": "Ամրագրումներ",
                         "clients": "Հաճախորդներ",
                         "revenue": "Եկամուտ",
@@ -1612,7 +1612,11 @@
                 "removeConfirmTitle": "Հանե՞լ այցերը երթուղուց",
                 "removeConfirmBody": "Կհանենք հերթագրումներ՝ {ids}։",
                 "removeConfirmApply": "Այո, կիրառել",
-                "removeConfirmCancel": "Չեղարկել"
+                "removeConfirmCancel": "Չեղարկել",
+                "floatingToggleOpen": "Բացել REXTEN AI Dispatcher",
+                "floatingToggleClose": "Փակել REXTEN AI Dispatcher",
+                "floatingDragHandle": "Քարշեք՝ դիսպետչերի պատուհանը տեղափոխելու համար",
+                "floatingFabLabel": "AI Dispatcher"
             },
             "status": {
                 "draft": "Սևագիր",

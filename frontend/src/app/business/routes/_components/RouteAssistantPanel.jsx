@@ -13,6 +13,7 @@ import { getSubscriptionUsage } from '@/lib/api/stripe'
 import { assistRouteRequest, applyAssistActionsRequest } from '@/lib/api/routeAssistant'
 import { keepProposedAction, keepRecommendation } from '@/lib/routeAssistantQuality'
 import { formatDate } from '@/utils/dateTime'
+import classNames from '@/utils/classNames'
 import { PiArrowsOutCardinal, PiChatCircle, PiCheck, PiX } from 'react-icons/pi'
 import useBusinessStore from '@/store/businessStore'
 
@@ -184,6 +185,10 @@ export default function RouteAssistantPanel({
     canManageRoutes = true,
     /** IANA таймзона ответа маршрута (как на карте); иначе из настроек бизнеса */
     displayTimezone = null,
+    /** Компактная колонка внутри плавающего окна (xl), без растягивания на всю высоту колонки страницы */
+    floatingLayout = false,
+    /** События перетаскивания плавающего окна (только с RouteAssistantFloating) */
+    floatingDragRegionProps = undefined,
 }) {
     const t = useTranslations('business.routes.assistant')
     const locale = useLocale()
@@ -436,7 +441,12 @@ export default function RouteAssistantPanel({
 
     if (!specialistId) {
         return (
-            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 p-3">
+            <div
+                className={classNames(
+                    'rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700',
+                    floatingLayout ? 'dark:bg-gray-950' : 'dark:bg-gray-900/40',
+                )}
+            >
                 <h4 className="text-base font-bold text-gray-900 dark:text-gray-100">
                     {t('title')}
                 </h4>
@@ -449,7 +459,12 @@ export default function RouteAssistantPanel({
 
     if (ai && !ai.allowed) {
         return (
-            <div className="rounded-lg border border-amber-200/80 dark:border-amber-700/50 bg-amber-50/90 dark:bg-amber-900/20 p-3">
+            <div
+                className={classNames(
+                    'rounded-lg border border-amber-200/80 bg-amber-50/90 p-3 dark:border-amber-700/50',
+                    floatingLayout ? 'dark:bg-amber-950' : 'dark:bg-amber-900/20',
+                )}
+            >
                 <h4 className="text-base font-bold text-gray-900 dark:text-gray-100">
                     {t('title')}
                 </h4>
@@ -482,7 +497,12 @@ export default function RouteAssistantPanel({
         const recs = (turn.recommendations || []).filter(keepRecommendation)
         const visible = visibleProposedActionsForTurn(turn)
         return (
-            <div className="min-w-0 max-w-full space-y-2 rounded-md border border-gray-200 dark:border-gray-700/90 bg-gray-50/80 p-2 dark:bg-gray-800/40">
+            <div
+                className={classNames(
+                    'min-w-0 max-w-full space-y-2 rounded-md border border-gray-200 bg-gray-50/80 p-2 dark:border-gray-700/90',
+                    floatingLayout ? 'dark:bg-gray-800' : 'dark:bg-gray-800/40',
+                )}
+            >
                 {turn.summary ? (
                     <p className="break-words text-sm font-bold text-gray-900 dark:text-gray-100">{turn.summary}</p>
                 ) : null}
@@ -641,13 +661,26 @@ export default function RouteAssistantPanel({
     }
 
     return (
-        <div className="flex min-h-0 min-w-0 max-w-full flex-col gap-3 overflow-hidden rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900/40 xl:h-full xl:flex-1">
-            <div className="flex shrink-0 items-start justify-between gap-2">
-                <h4 className="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+        <div
+            className={classNames(
+                'flex min-h-0 min-w-0 max-w-full flex-col gap-3 overflow-hidden rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700',
+                floatingLayout ? 'h-full max-h-full min-h-0 shadow-none dark:bg-gray-950' : 'dark:bg-gray-900/40 xl:h-full xl:flex-1',
+            )}
+        >
+            <div
+                className={classNames(
+                    'flex shrink-0 items-start justify-between gap-2',
+                    floatingLayout && floatingDragRegionProps
+                        ? 'cursor-grab touch-none rounded-md px-0.5 py-0.5 -mx-0.5 -my-0.5 active:cursor-grabbing'
+                        : null,
+                )}
+                {...(floatingLayout && floatingDragRegionProps ? floatingDragRegionProps : undefined)}
+            >
+                <h4 className="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5 min-w-0">
                     <PiChatCircle className="h-5 w-5 text-primary shrink-0" aria-hidden />
                     {t('title')}
                 </h4>
-                <div className="text-right text-sm max-w-[11rem]">
+                <div className="text-right text-sm max-w-[11rem] shrink-0">
                     <div className="text-xs font-bold text-gray-500 dark:text-gray-400 leading-tight">
                         {t('usageLabel')}
                     </div>
@@ -665,7 +698,10 @@ export default function RouteAssistantPanel({
 
             {removeConfirm && (
                 <div
-                    className="shrink-0 rounded-md border border-amber-200 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-900/20 p-2 space-y-2"
+                    className={classNames(
+                        'shrink-0 rounded-md border border-amber-200 bg-amber-50/80 p-2 space-y-2 dark:border-amber-700/60',
+                        floatingLayout ? 'dark:bg-amber-950' : 'dark:bg-amber-900/20',
+                    )}
                     role="alert"
                 >
                     <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
@@ -712,7 +748,12 @@ export default function RouteAssistantPanel({
 
             <div
                 ref={scrollRef}
-                className="min-h-[112px] max-h-[min(300px,44vh)] overflow-y-auto space-y-3 pr-0.5 xl:min-h-0 xl:max-h-none xl:flex-1 xl:overflow-y-auto"
+                className={classNames(
+                    'space-y-3 overflow-y-auto pr-0.5',
+                    floatingLayout
+                        ? 'min-h-0 flex-1'
+                        : 'min-h-[112px] max-h-[min(300px,44vh)] xl:min-h-0 xl:max-h-none xl:flex-1 xl:overflow-y-auto',
+                )}
                 aria-live="polite"
                 aria-busy={assistPending ? 'true' : 'false'}
             >

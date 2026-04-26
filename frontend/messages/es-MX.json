@@ -255,7 +255,7 @@
                     "noData": "No hay datos para el periodo seleccionado",
                     "donutTotalBookings": "Reservas",
                     "tabs": {
-                        "overview": "Resumen",
+                        "overview": "Análisis",
                         "bookings": "Reservas",
                         "clients": "Clientes",
                         "revenue": "Ingresos",
@@ -1612,7 +1612,11 @@
                 "removeConfirmTitle": "¿Quitar visitas de la ruta?",
                 "removeConfirmBody": "Se excluirán las reservas: {ids}.",
                 "removeConfirmApply": "Sí, aplicar",
-                "removeConfirmCancel": "Cancelar"
+                "removeConfirmCancel": "Cancelar",
+                "floatingToggleOpen": "Abrir REXTEN AI Dispatcher",
+                "floatingToggleClose": "Cerrar REXTEN AI Dispatcher",
+                "floatingDragHandle": "Arrastra para mover la ventana del despachador",
+                "floatingFabLabel": "Despachador IA"
             },
             "status": {
                 "draft": "Borrador",

@@ -14,7 +14,7 @@
                     "description": "Детальная аналитика по бронированиям, клиентам, заработку и исполнителям. Экспортируйте данные для дальнейшего анализа.",
                     "donutTotalBookings": "Бронирования",
                     "tabs": {
-                        "overview": "Обзор",
+                        "overview": "Аналитика",
                         "bookings": "Бронирования",
                         "clients": "Клиенты",
                         "revenue": "Доход",
@@ -1626,7 +1626,11 @@
                 "removeConfirmTitle": "Исключить визиты из маршрута?",
                 "removeConfirmBody": "Будут исключены брони: {ids}.",
                 "removeConfirmApply": "Да, применить",
-                "removeConfirmCancel": "Отмена"
+                "removeConfirmCancel": "Отмена",
+                "floatingToggleOpen": "Открыть REXTEN AI Dispatcher",
+                "floatingToggleClose": "Закрыть REXTEN AI Dispatcher",
+                "floatingDragHandle": "Перетащите, чтобы переместить окно диспетчера",
+                "floatingFabLabel": "ИИ-диспетчер"
             },
             "status": {
                 "draft": "Черновик",

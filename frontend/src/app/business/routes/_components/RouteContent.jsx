@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Loading from '@/components/shared/Loading'
 import Dialog from '@/components/ui/Dialog'
@@ -9,6 +9,7 @@ import RoutePreviewPanel from './RoutePreviewPanel'
 import RouteSidebar from './RouteSidebar'
 import RouteMapHeader from './RouteMapHeader'
 import RouteAssistantPanel from './RouteAssistantPanel'
+import RouteAssistantFloating from './RouteAssistantFloating'
 
 /**
  * @param {{
@@ -72,6 +73,21 @@ export default function RouteContent({
 }) {
     const t = useTranslations('business.routes')
     const ts = useTranslations('business.routes.status')
+
+    /** Узкий viewport: диспетчер в колонке под картой. xl+: только плавающий виджет (без двойного монтажа панели). */
+    const [stackAssistantBelowMap, setStackAssistantBelowMap] = useState(true)
+    const routeFrameRef = useRef(null)
+
+    useLayoutEffect(() => {
+        if (typeof window === 'undefined') {
+            return
+        }
+        const mq = window.matchMedia('(max-width: 1279px)')
+        const sync = () => setStackAssistantBelowMap(mq.matches)
+        sync()
+        mq.addEventListener('change', sync)
+        return () => mq.removeEventListener('change', sync)
+    }, [])
 
     const canShowReturnLegToggle = useMemo(() => {
         if (!route) return false
@@ -137,7 +153,10 @@ export default function RouteContent({
 
     return (
         <>
-            <div className="flex min-h-0 min-w-0 flex-col gap-4 xl:h-[calc(100dvh-220px)] xl:min-h-[560px] xl:max-h-[1600px] xl:flex-row xl:items-stretch xl:overflow-hidden">
+            <div
+                ref={routeFrameRef}
+                className="relative flex min-h-0 min-w-0 flex-col gap-4 xl:h-[calc(100dvh-220px)] xl:min-h-[560px] xl:max-h-[1600px] xl:flex-row xl:items-stretch xl:overflow-hidden"
+            >
                 <section className="order-1 flex min-h-0 min-w-0 flex-col gap-3 overflow-hidden xl:order-2 xl:h-full xl:flex-1 xl:basis-0">
                     {isLoading ? (
                         <div className="flex flex-1 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 min-h-[55vh] xl:min-h-0">
@@ -205,18 +224,30 @@ export default function RouteContent({
                         selectedDate={selectedDate}
                     />
                 </aside>
-                <aside className="order-3 flex min-h-0 w-full min-w-0 shrink-0 flex-col overflow-hidden xl:order-3 xl:h-full xl:min-h-0 xl:w-80 xl:max-w-[20rem] xl:flex-none">
-                    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden pr-0.5 max-xl:overflow-y-auto xl:h-full xl:overflow-hidden">
-                        <RouteAssistantPanel
-                            key={`${specialistId ?? 'none'}|${date}`}
-                            specialistId={specialistId}
-                            date={date}
-                            displayTimezone={route?.display_timezone ?? null}
-                            onOpenBooking={onOpenBooking}
-                            canManageRoutes={canManageRoutes}
-                        />
-                    </div>
-                </aside>
+                {stackAssistantBelowMap ? (
+                    <aside className="order-3 flex min-h-0 w-full min-w-0 shrink-0 flex-col overflow-hidden">
+                        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden pr-0.5 max-xl:overflow-y-auto xl:h-full xl:overflow-hidden">
+                            <RouteAssistantPanel
+                                key={`${specialistId ?? 'none'}|${date}`}
+                                specialistId={specialistId}
+                                date={date}
+                                displayTimezone={route?.display_timezone ?? null}
+                                onOpenBooking={onOpenBooking}
+                                canManageRoutes={canManageRoutes}
+                            />
+                        </div>
+                    </aside>
+                ) : null}
+                {route && !stackAssistantBelowMap ? (
+                    <RouteAssistantFloating
+                        layoutRef={routeFrameRef}
+                        specialistId={specialistId}
+                        date={date}
+                        displayTimezone={route.display_timezone ?? null}
+                        onOpenBooking={onOpenBooking}
+                        canManageRoutes={canManageRoutes}
+                    />
+                ) : null}
             </div>
 
             <Dialog isOpen={previewOpen && !!preview} onClose={onPreviewClose} width={560} closable>

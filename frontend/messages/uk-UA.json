@@ -255,7 +255,7 @@
                     "noData": "Немає даних за обраний період",
                     "donutTotalBookings": "Бронювання",
                     "tabs": {
-                        "overview": "Огляд",
+                        "overview": "Аналітика",
                         "bookings": "Бронювання",
                         "clients": "Клієнти",
                         "revenue": "Дохід",
@@ -1612,7 +1612,11 @@
                 "removeConfirmTitle": "Прибрати візити з маршруту?",
                 "removeConfirmBody": "Буде виключено броні: {ids}.",
                 "removeConfirmApply": "Так, застосувати",
-                "removeConfirmCancel": "Скасувати"
+                "removeConfirmCancel": "Скасувати",
+                "floatingToggleOpen": "Відкрити REXTEN AI Dispatcher",
+                "floatingToggleClose": "Закрити REXTEN AI Dispatcher",
+                "floatingDragHandle": "Перетягніть, щоб перемістити вікно диспетчера",
+                "floatingFabLabel": "AI-диспетчер"
             },
             "status": {
                 "draft": "Чернетка",
