@@ -1405,17 +1405,82 @@ class MarketplaceController extends Controller
     }
 
     /**
+     * Публичная витрина компании: тот же охват, что у карточки объявления в маркетплейсе.
+     * Принимает companies.slug (или числовой id) либо link объявления — как в URL /marketplace/{slug}.
+     */
+    private function resolveMarketplaceCompanyBySlug(string $slug): ?Company
+    {
+        $slug = trim($slug);
+        if ($slug === '') {
+            return null;
+        }
+
+        $company = Company::query()
+            ->where('is_visible_on_marketplace', true)
+            ->whereIn('status', ['active', 'pending'])
+            ->where(function ($q) use ($slug) {
+                $q->where('slug', $slug);
+                if (is_numeric($slug)) {
+                    $q->orWhere('id', (int) $slug);
+                }
+            })
+            ->first();
+
+        if ($company) {
+            return $company;
+        }
+
+        $cleanSlug = str_replace('/marketplace/', '', $slug);
+        $cleanSlug = ltrim($cleanSlug, '/');
+
+        $visibleCompany = function ($q) {
+            $q->where('is_visible_on_marketplace', true)
+                ->whereIn('status', ['active', 'pending']);
+        };
+
+        $advertisement = Advertisement::whereIn('type', ['regular', 'advertisement'])
+            ->where('is_active', true)
+            ->where('status', 'approved')
+            ->whereNotNull('status')
+            ->where(function ($q) use ($cleanSlug, $slug) {
+                $q->where('link', $cleanSlug)
+                    ->orWhere('link', '/marketplace/' . $cleanSlug)
+                    ->orWhere('link', 'marketplace/' . $cleanSlug)
+                    ->orWhere('link', $slug)
+                    ->orWhere('link', 'like', '%/' . $cleanSlug)
+                    ->orWhere('link', 'like', '%' . $cleanSlug);
+            })
+            ->whereHas('company', $visibleCompany)
+            ->first();
+
+        if (!$advertisement && is_numeric($cleanSlug)) {
+            $advertisement = Advertisement::whereIn('type', ['regular', 'advertisement'])
+                ->where('is_active', true)
+                ->where('status', 'approved')
+                ->whereNotNull('status')
+                ->where('id', $cleanSlug)
+                ->whereHas('company', $visibleCompany)
+                ->first();
+        }
+
+        if (!$advertisement) {
+            return null;
+        }
+
+        $c = $advertisement->company;
+        if (!$c || !$c->is_visible_on_marketplace || !in_array($c->status, ['active', 'pending'], true)) {
+            return null;
+        }
+
+        return $c;
+    }
+
+    /**
      * Get company profile with all advertisements (public endpoint).
      */
     public function getCompanyProfile($slug)
     {
-        $query = Company::where('slug', $slug);
-        if (is_numeric($slug)) {
-            $query->orWhere('id', $slug);
-        }
-        $company = $query->where('status', 'active')
-            ->where('is_visible_on_marketplace', true)
-            ->first();
+        $company = $this->resolveMarketplaceCompanyBySlug($slug);
 
         if (!$company) {
             return response()->json(['message' => 'Company not found'], 404);
