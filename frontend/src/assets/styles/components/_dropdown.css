@@ -4,7 +4,7 @@
   }
 
   .dropdown-menu {
-    @apply rounded-2xl bg-white dark:bg-gray-900 ring-0 shadow-[0px_48px_64px_-16px_rgba(0,0,0,0.25)] border border-gray-100 dark:border-gray-800 focus:outline-none p-3 z-30 outline-none;
+    @apply rounded-xl bg-white dark:bg-gray-900 ring-0 shadow-[0px_48px_64px_-16px_rgba(0,0,0,0.25)] border border-gray-100 dark:border-gray-800 focus:outline-none p-2 z-30 outline-none;
     
     /* Убираем focus outline у всех элементов внутри dropdown */
     & *:focus,

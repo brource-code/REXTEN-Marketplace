@@ -8,7 +8,7 @@ const Menu = (props) => {
         defaultActiveKeys = [],
         defaultExpandedKeys = [],
         defaultCollapseActiveKeys = [],
-        menuItemHeight = 48,
+        menuItemHeight = 40,
         onSelect,
         ref,
         sideCollapsed = false,

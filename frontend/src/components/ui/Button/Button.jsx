@@ -49,7 +49,7 @@ const Button = (props) => {
                     radiusShape[shape],
                     icon && !children
                         ? `${CONTROL_SIZES.lg.w} ${sizeIconClass} text-2xl`
-                        : 'px-8 py-2 text-base',
+                        : 'px-6 py-2 text-base',
                 )
                 break
             case SIZES.SM:
@@ -58,7 +58,7 @@ const Button = (props) => {
                     shape === 'round' ? 'rounded-xl' : radiusShape[shape],
                     icon && !children
                         ? `${CONTROL_SIZES.sm.w} ${sizeIconClass} text-lg`
-                        : 'px-3 py-2 text-sm',
+                        : 'px-3 py-1.5 text-sm',
                 )
                 break
             case SIZES.XS:
@@ -76,7 +76,7 @@ const Button = (props) => {
                     radiusShape[shape],
                     icon && !children
                         ? `${CONTROL_SIZES.md.w} ${sizeIconClass} text-xl`
-                        : 'px-5 py-2',
+                        : 'px-4 py-1.5',
                 )
                 break
         }

@@ -149,4 +149,46 @@
   td {
     word-wrap: break-word;
   }
+
+  /* Compact density: плотнее ячейки, sticky thead в прокрутке, кликабельные строки */
+  html[data-density="compact"] .table-scroll .table-default > thead {
+    @apply sticky top-0 z-[1];
+  }
+
+  html[data-density="compact"] .table-scroll .table-default > thead > tr > th {
+    @apply px-4 py-2.5 bg-gray-50 dark:bg-gray-800;
+  }
+
+  html[data-density="compact"] .table-scroll .table-default > tbody > tr > td {
+    @apply px-4 py-2.5 align-middle;
+  }
+
+  html[data-density="compact"] .table-scroll .table-default > tfoot > tr > td {
+    @apply px-4 py-2.5;
+  }
+
+  html[data-density="compact"] .table-scroll .table-flex .thead {
+    @apply sticky top-0 z-[1] bg-gray-50 dark:bg-gray-800;
+  }
+
+  html[data-density="compact"] .table-scroll .table-flex .thead .tr .th {
+    @apply px-4 py-2.5;
+  }
+
+  html[data-density="compact"] .table-scroll .table-flex .tbody .tr .td {
+    @apply px-4 py-2.5 align-middle;
+  }
+
+  html[data-density="compact"] .table-scroll .table-flex .tfoot .tr .td {
+    @apply px-4 py-2.5;
+  }
+
+  html[data-density="compact"] .table-default.table-hover > tbody > tr.cursor-pointer:active > *,
+  html[data-density="compact"] .table-flex.table-hover .tbody .tr.cursor-pointer:active .td {
+    @apply bg-black/[.06] dark:bg-white/[.08];
+  }
+
+  html[data-density="compact"] .table-default.table-hover > tbody > tr.cursor-pointer:focus-visible {
+    @apply outline-none ring-1 ring-inset ring-primary/40 dark:ring-white/30;
+  }
 }

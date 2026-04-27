@@ -8,7 +8,7 @@
   }
   
   .tab-nav {
-    @apply font-bold flex items-center justify-center text-gray-600 dark:text-gray-100 transition duration-200 ease-in-out cursor-pointer;
+    @apply font-bold flex items-center justify-center text-gray-600 dark:text-gray-100 transition-colors duration-150 ease-in-out cursor-pointer;
   
     &.tab-nav-disabled {
       @apply opacity-60 cursor-not-allowed;
@@ -16,11 +16,11 @@
   }
   
   .tab-nav-underline {
-    @apply py-3 px-5 border-b-2 border-transparent;
+    @apply py-2.5 px-4 border-b-2 border-transparent;
   }
   
   .tab-nav-pill {
-    @apply py-3 px-6 mr-1 rtl:ml-1 rounded-full;
+    @apply py-2 px-5 mr-1 rtl:ml-1 rounded-full;
   }
   
   .tab-nav-icon {

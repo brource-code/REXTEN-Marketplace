@@ -10,4 +10,12 @@
   .skeleton-block {
     @apply rounded h-2.5 w-full;
   }
+
+  html[data-density="compact"] .skeleton-circle {
+    @apply w-8 h-8;
+  }
+
+  html[data-density="compact"] .skeleton-block {
+    @apply h-2;
+  }
 }
