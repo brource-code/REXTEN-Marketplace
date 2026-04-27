@@ -620,7 +620,22 @@
             "subtotalBeforeDiscount": "Subtotal (antes del descuento)",
             "discountDetailLoyalty": "Lealtad ({tier})",
             "discountDetailPromo": "Promo ({code})",
-            "discount": "Descuento"
+            "discount": "Descuento",
+            "paymentStatus": {
+                "paid": "Pagado",
+                "authorized": "Pago retenido en la tarjeta",
+                "pending_payment": "Pendiente de pago",
+                "unpaid": "Sin pago en línea",
+                "refunded": "Reembolsado",
+                "partially_refunded": "Parcialmente reembolsado",
+                "cancelled": "Cancelado",
+                "pending": "En proceso",
+                "expired": "Vencido",
+                "disputed": "En disputa",
+                "transfer_reversed": "Transferencia revertida",
+                "reserved": "Tarjeta guardada",
+                "requires_capture": "Autorizado (aún no cobrado)"
+            }
         },
         "orders": {
             "title": "Mis pedidos",
@@ -938,7 +953,13 @@
             "showMoreReviews": "Mostrar más ({count} reseñas)",
             "showMoreServices": "Mostrar más ({count} reseñas)",
             "qualityServicesIn": "Servicios de calidad en {location}",
-            "professionalServices": "Servicios profesionales para ti"
+            "professionalServices": "Servicios profesionales para ti",
+            "ratingNotYet": "Sin calificación aún",
+            "locationNotSpecified": "Sin especificar",
+            "featuredReviewPlaceholderDescription": "Aquí aparecerá una reseña destacada de cinco estrellas con texto cuando los clientes publiquen comentarios.",
+            "noServicesSectionDescription": "Esta empresa aún no ha agregado una lista de servicios a su perfil.",
+            "reviewsEmptyTitle": "Aún no hay reseñas",
+            "reviewsEmptyDescription": "Las reseñas de los clientes aparecerán aquí después de publicarse."
         },
         "booking": {
             "title": "Reserva"
@@ -2025,7 +2046,7 @@
                 "offlinePaymentExplainer": "Esta reserva no tiene pago con tarjeta en línea a través de la plataforma: el anuncio no se cobró en línea. Efectivo, transferencia o pago presencial no se registran aquí; usa esta pestaña solo para cobros en línea (autorizar, capturar o reembolsar). No necesitas marcar pagos fuera de línea en este bloque.",
                 "statuses": {
                     "none": "Sin pago en línea",
-                    "authorized": "Autorizado",
+                    "authorized": "Pago retenido",
                     "paid": "Pagado",
                     "refunded": "Reembolsado",
                     "cancelled": "Cancelado",
@@ -2054,7 +2075,7 @@
                 "typeStatusChanged": "Estado cambiado: {from} → {to}",
                 "typeRescheduled": "Reserva reprogramada",
                 "typePriceChanged": "Precio cambiado: {from} → {to}",
-                "typePaymentAuthorized": "Pago autorizado",
+                "typePaymentAuthorized": "Pago retenido en la tarjeta",
                 "typePaymentCaptured": "Pago cobrado: {amount}",
                 "typePaymentRefunded": "Pago reembolsado"
             },
@@ -2589,7 +2610,6 @@
                     "stateRequired": "Selecciona un estado.",
                     "cityRequired": "Selecciona una ciudad.",
                     "priceFromRequired": "Ingresa el precio mínimo de este anuncio.",
-                    "priceToRequired": "Ingresa el precio máximo de este anuncio.",
                     "pricesNumeric": "Los precios deben ser números válidos.",
                     "pricesNonNegative": "Los precios no pueden ser negativos.",
                     "priceRangeInvalid": "El precio máximo debe ser mayor o igual al mínimo.",
@@ -2600,9 +2620,10 @@
                 },
                 "pricing": {
                     "title": "Precios",
-                    "hint": "Rango de precios de los servicios en este anuncio (desde–hasta).",
+                    "hint": "El precio mínimo es obligatorio para publicar. El máximo es opcional; si lo indicas, debe ser mayor o igual al mínimo.",
                     "priceFrom": "Precio desde",
                     "priceTo": "Precio hasta",
+                    "optional": "opcional",
                     "currency": "Moneda",
                     "allUsd": "Todos los precios de este anuncio están en dólares estadounidenses (USD)."
                 },
@@ -3369,7 +3390,7 @@
             },
             "statuses": {
                 "succeeded": "Exitoso",
-                "authorized": "Autorizado",
+                "authorized": "Pago retenido",
                 "pending": "Pendiente",
                 "failed": "Error",
                 "canceled": "Cancelado",
@@ -4361,7 +4382,10 @@
             "cancellationPolicyNote": "Cancelación gratuita hasta {hours} h antes de la cita. Después o si no asistes, se cobra el {percent}% del precio del servicio.",
             "successTitle": "Reserva confirmada",
             "successSubtitle": "El pago se registró y tu reserva quedó guardada.",
+            "successSubtitleHold": "Tu tarjeta fue autorizada. La reserva quedó guardada: el negocio cobra después de la visita.",
             "paymentSuccess": "Listo — tu reserva está confirmada y pagada.",
+            "paymentSuccessHold": "Listo — tu reserva está confirmada. El monto queda retenido en tu tarjeta hasta después de la visita.",
+            "great": "¡Genial!",
             "payment": {
                 "paymentNote": "Tienes 30 minutos para pagar y confirmar la reserva; hoy no se cobra en la tarjeta, pagas después de tu cita.",
                 "unexpectedStatus": "Estado de pago inesperado. Contacta soporte si el problema continúa.",
@@ -4419,7 +4443,26 @@
             "orderNumber": "Número de pedido",
             "amount": "Monto",
             "paymentHistory": "Historial de pagos",
-            "paid": "Pagado"
+            "paid": "Pagado",
+            "paymentStatusLabel": "Estado del pago",
+            "paymentMethodLabel": "Método de pago",
+            "paymentMethodCard": "Tarjeta",
+            "paidAtLabel": "Pagado el",
+            "paymentStatus": {
+                "paid": "Pagado",
+                "authorized": "Pago retenido en la tarjeta",
+                "pending_payment": "Pendiente de pago",
+                "unpaid": "Sin pago en línea",
+                "refunded": "Reembolsado",
+                "partially_refunded": "Parcialmente reembolsado",
+                "cancelled": "Cancelado",
+                "pending": "En proceso",
+                "expired": "Vencido",
+                "disputed": "En disputa",
+                "transfer_reversed": "Transferencia revertida",
+                "reserved": "Tarjeta guardada",
+                "requires_capture": "Autorizado (aún no cobrado)"
+            }
         }
     },
     "userDropdown": {

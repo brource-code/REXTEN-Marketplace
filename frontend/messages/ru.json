@@ -634,7 +634,22 @@
             "subtotalBeforeDiscount": "Промежуточная сумма (до скидки)",
             "discountDetailLoyalty": "Лояльность ({tier})",
             "discountDetailPromo": "Промокод ({code})",
-            "discount": "Скидка"
+            "discount": "Скидка",
+            "paymentStatus": {
+                "paid": "Оплачено",
+                "authorized": "Удержано на карте",
+                "pending_payment": "Ожидает оплаты",
+                "unpaid": "Не оплачено онлайн",
+                "refunded": "Возвращено",
+                "partially_refunded": "Частично возвращено",
+                "cancelled": "Отменено",
+                "pending": "В обработке",
+                "expired": "Истекло",
+                "disputed": "Оспаривается",
+                "transfer_reversed": "Перевод отменён",
+                "reserved": "Карта привязана",
+                "requires_capture": "Авторизовано (списание после визита)"
+            }
         },
         "orders": {
             "title": "Мои заказы",
@@ -952,7 +967,13 @@
             "showMoreReviews": "Показать еще ({count} отзывов)",
             "showMoreServices": "Показать еще ({count} услуг)",
             "qualityServicesIn": "Качественные услуги в {location}",
-            "professionalServices": "Профессиональные услуги для вас"
+            "professionalServices": "Профессиональные услуги для вас",
+            "ratingNotYet": "Рейтинг появится после отзывов",
+            "locationNotSpecified": "Не указано",
+            "featuredReviewPlaceholderDescription": "Здесь будет показан выделенный отзыв с оценкой 5 и текстом, когда клиенты оставят отзывы.",
+            "noServicesSectionDescription": "Список услуг в профиле компании пока не добавлен.",
+            "reviewsEmptyTitle": "Пока нет отзывов",
+            "reviewsEmptyDescription": "Отзывы клиентов появятся здесь после публикации."
         },
         "booking": {
             "title": "Бронирование"
@@ -1917,7 +1938,6 @@
                     "stateRequired": "Выберите штат.",
                     "cityRequired": "Выберите город.",
                     "priceFromRequired": "Укажите минимальную цену для этого объявления.",
-                    "priceToRequired": "Укажите максимальную цену для этого объявления.",
                     "pricesNumeric": "Цены должны быть числами.",
                     "pricesNonNegative": "Цены не могут быть отрицательными.",
                     "priceRangeInvalid": "Максимальная цена должна быть не меньше минимальной.",
@@ -1928,9 +1948,10 @@
                 },
                 "pricing": {
                     "title": "Ценообразование",
-                    "hint": "Диапазон цен услуг в объявлении (от — до).",
+                    "hint": "Минимальная цена обязательна для публикации. Максимальная — по желанию; если указана, она должна быть не меньше минимальной.",
                     "priceFrom": "Цена от",
                     "priceTo": "Цена до",
+                    "optional": "необязательно",
                     "currency": "Валюта",
                     "allUsd": "Все цены в этом объявлении указаны в долларах США (USD)."
                 },
@@ -2543,7 +2564,7 @@
             },
             "statuses": {
                 "succeeded": "Успешно",
-                "authorized": "Авторизовано",
+                "authorized": "Удержано на карте",
                 "pending": "В обработке",
                 "failed": "Ошибка",
                 "canceled": "Отменено",
@@ -3033,7 +3054,7 @@
                 "offlinePaymentExplainer": "По этой брони нет онлайн-оплаты картой через платформу: объявление/визит не оплачены онлайн. Наличные, перевод или оплата на месте здесь не отмечаются — эта вкладка только для оплаты через платформу (холд, списание, возврат). Отдельно «проставлять» офлайн-оплату в этом блоке не нужно.",
                 "statuses": {
                     "none": "Без онлайн-оплаты",
-                    "authorized": "Захолдировано",
+                    "authorized": "Удержано на карте",
                     "paid": "Оплачено",
                     "refunded": "Возвращено",
                     "cancelled": "Отменено",
@@ -3062,7 +3083,7 @@
                 "typeStatusChanged": "Статус изменён: {from} → {to}",
                 "typeRescheduled": "Бронирование перенесено",
                 "typePriceChanged": "Цена изменена: {from} → {to}",
-                "typePaymentAuthorized": "Оплата захолдирована",
+                "typePaymentAuthorized": "Сумма удержана на карте",
                 "typePaymentCaptured": "Оплата списана: {amount}",
                 "typePaymentRefunded": "Оплата возвращена"
             },
@@ -4370,7 +4391,10 @@
             "cancellationPolicyNote": "Бесплатная отмена не позже чем за {hours} ч до визита. Позже или при неявке удерживается {percent}% от стоимости услуги.",
             "successTitle": "Бронь подтверждена",
             "successSubtitle": "Оплата прошла, запись сохранена.",
+            "successSubtitleHold": "Карта авторизована. Запись сохранена — списание после визита у бизнеса.",
             "paymentSuccess": "Готово — бронь подтверждена и оплачена.",
+            "paymentSuccessHold": "Готово — бронь подтверждена. Сумма удержана на карте до визита.",
+            "great": "Отлично!",
             "payment": {
                 "paymentNote": "Оплатите в течение 30 минут — бронь подтвердится; с карты сегодня ничего не списывают, оплата после визита.",
                 "unexpectedStatus": "Неожиданный статус платежа. Обратитесь в поддержку, если проблема повторится.",
@@ -4428,7 +4452,26 @@
             "orderNumber": "Номер заказа",
             "amount": "Сумма",
             "paymentHistory": "История платежей",
-            "paid": "Оплачено"
+            "paid": "Оплачено",
+            "paymentStatusLabel": "Статус оплаты",
+            "paymentMethodLabel": "Способ оплаты",
+            "paymentMethodCard": "Карта",
+            "paidAtLabel": "Оплачено",
+            "paymentStatus": {
+                "paid": "Оплачено",
+                "authorized": "Удержано на карте",
+                "pending_payment": "Ожидает оплаты",
+                "unpaid": "Не оплачено онлайн",
+                "refunded": "Возвращено",
+                "partially_refunded": "Частично возвращено",
+                "cancelled": "Отменено",
+                "pending": "В обработке",
+                "expired": "Истекло",
+                "disputed": "Оспаривается",
+                "transfer_reversed": "Перевод отменён",
+                "reserved": "Карта привязана",
+                "requires_capture": "Авторизовано (списание после визита)"
+            }
         }
     },
     "userDropdown": {

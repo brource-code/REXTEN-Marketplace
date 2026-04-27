@@ -620,7 +620,22 @@
             "subtotalBeforeDiscount": "Subtotal (before discount)",
             "discountDetailLoyalty": "Loyalty ({tier})",
             "discountDetailPromo": "Promo ({code})",
-            "discount": "Discount"
+            "discount": "Discount",
+            "paymentStatus": {
+                "paid": "Paid",
+                "authorized": "Held on card",
+                "pending_payment": "Awaiting payment",
+                "unpaid": "Not paid online",
+                "refunded": "Refunded",
+                "partially_refunded": "Partially refunded",
+                "cancelled": "Cancelled",
+                "pending": "Processing",
+                "expired": "Expired",
+                "disputed": "Disputed",
+                "transfer_reversed": "Transfer reversed",
+                "reserved": "Card on file",
+                "requires_capture": "Authorized (not charged yet)"
+            }
         },
         "orders": {
             "title": "My Orders",
@@ -938,7 +953,13 @@
             "showMoreReviews": "Show more ({count} reviews)",
             "showMoreServices": "Show more ({count} services)",
             "qualityServicesIn": "Quality services in {location}",
-            "professionalServices": "Professional services for you"
+            "professionalServices": "Professional services for you",
+            "ratingNotYet": "No rating yet",
+            "locationNotSpecified": "Not specified",
+            "featuredReviewPlaceholderDescription": "A highlighted five-star review with text will appear here once clients publish feedback.",
+            "noServicesSectionDescription": "This company has not added a service list to its profile yet.",
+            "reviewsEmptyTitle": "No reviews yet",
+            "reviewsEmptyDescription": "Client reviews will appear here after they are published."
         },
         "booking": {
             "title": "Booking"
@@ -2025,7 +2046,7 @@
                 "offlinePaymentExplainer": "This booking is not linked to an online card payment: nothing was charged through the platform for the listing. Cash, bank transfer, or in-person payment is not recorded here — use this tab only when the client pays online (authorize, capture, or refund). You do not need to mark offline payment in this tab.",
                 "statuses": {
                     "none": "No online payment",
-                    "authorized": "Authorized",
+                    "authorized": "Held on card",
                     "paid": "Paid",
                     "refunded": "Refunded",
                     "cancelled": "Cancelled",
@@ -2054,7 +2075,7 @@
                 "typeStatusChanged": "Status changed: {from} → {to}",
                 "typeRescheduled": "Booking rescheduled",
                 "typePriceChanged": "Price changed: {from} → {to}",
-                "typePaymentAuthorized": "Payment authorized",
+                "typePaymentAuthorized": "Payment held on card",
                 "typePaymentCaptured": "Payment captured: {amount}",
                 "typePaymentRefunded": "Payment refunded"
             },
@@ -2589,7 +2610,6 @@
                     "stateRequired": "Select a state.",
                     "cityRequired": "Select a city.",
                     "priceFromRequired": "Enter the minimum price for this listing.",
-                    "priceToRequired": "Enter the maximum price for this listing.",
                     "pricesNumeric": "Prices must be valid numbers.",
                     "pricesNonNegative": "Prices cannot be negative.",
                     "priceRangeInvalid": "The maximum price must be greater than or equal to the minimum.",
@@ -2600,9 +2620,10 @@
                 },
                 "pricing": {
                     "title": "Pricing",
-                    "hint": "Price range for services on this listing (from–to).",
+                    "hint": "Minimum price is required to publish. Maximum price is optional; when set, it must be greater than or equal to the minimum.",
                     "priceFrom": "Price From",
                     "priceTo": "Price To",
+                    "optional": "optional",
                     "currency": "Currency",
                     "allUsd": "All prices on this listing are in US dollars (USD)."
                 },
@@ -3389,7 +3410,7 @@
             },
             "statuses": {
                 "succeeded": "Succeeded",
-                "authorized": "Authorized",
+                "authorized": "Held on card",
                 "pending": "Pending",
                 "failed": "Failed",
                 "canceled": "Canceled",
@@ -4361,7 +4382,10 @@
             "cancellationPolicyNote": "Free cancellation up to {hours} hours before the appointment. Later cancellations or no-shows are charged {percent}% of the service price.",
             "successTitle": "Booking confirmed",
             "successSubtitle": "Your payment went through and your booking is saved.",
+            "successSubtitleHold": "Your card was authorized. Your booking is saved — the business charges you after the visit.",
             "paymentSuccess": "You're all set — your booking is confirmed and paid.",
+            "paymentSuccessHold": "You're all set — your booking is confirmed. The amount is held on your card until after your visit.",
+            "great": "Great!",
             "payment": {
                 "paymentNote": "Pay within 30 minutes to confirm your booking — nothing is taken from your card today; you pay after your visit.",
                 "unexpectedStatus": "Unexpected payment status. Please contact support if the problem persists.",
@@ -4419,7 +4443,26 @@
             "orderNumber": "Order Number",
             "amount": "Amount",
             "paymentHistory": "Payment History",
-            "paid": "Paid"
+            "paid": "Paid",
+            "paymentStatusLabel": "Payment status",
+            "paymentMethodLabel": "Payment method",
+            "paymentMethodCard": "Card",
+            "paidAtLabel": "Paid at",
+            "paymentStatus": {
+                "paid": "Paid",
+                "authorized": "Held on card",
+                "pending_payment": "Awaiting payment",
+                "unpaid": "Not paid online",
+                "refunded": "Refunded",
+                "partially_refunded": "Partially refunded",
+                "cancelled": "Cancelled",
+                "pending": "Processing",
+                "expired": "Expired",
+                "disputed": "Disputed",
+                "transfer_reversed": "Transfer reversed",
+                "reserved": "Card on file",
+                "requires_capture": "Authorized (not charged yet)"
+            }
         }
     },
     "userDropdown": {

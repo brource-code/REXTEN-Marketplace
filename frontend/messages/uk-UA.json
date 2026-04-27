@@ -620,7 +620,22 @@
             "subtotalBeforeDiscount": "Підсумок (до знижки)",
             "discountDetailLoyalty": "Лояльність ({tier})",
             "discountDetailPromo": "Промо ({code})",
-            "discount": "Знижка"
+            "discount": "Знижка",
+            "paymentStatus": {
+                "paid": "Оплачено",
+                "authorized": "Утримано на карті",
+                "pending_payment": "Очікує оплати",
+                "unpaid": "Не сплачено онлайн",
+                "refunded": "Повернуто",
+                "partially_refunded": "Частково повернуто",
+                "cancelled": "Скасовано",
+                "pending": "В обробці",
+                "expired": "Прострочено",
+                "disputed": "Оскаржується",
+                "transfer_reversed": "Переказ скасовано",
+                "reserved": "Картку збережено",
+                "requires_capture": "Авторизовано (списання після візиту)"
+            }
         },
         "orders": {
             "title": "Мої замовлення",
@@ -938,7 +953,13 @@
             "showMoreReviews": "Показати більше ({count} відгуків)",
             "showMoreServices": "Показати більше ({count} послуг)",
             "qualityServicesIn": "Якісні послуги в {location}",
-            "professionalServices": "Професійні послуги для вас"
+            "professionalServices": "Професійні послуги для вас",
+            "ratingNotYet": "Рейтинг з’явиться після відгуків",
+            "locationNotSpecified": "Не вказано",
+            "featuredReviewPlaceholderDescription": "Тут з’явиться виділений відгук із оцінкою 5 і текстом, коли клієнти залишать відгуки.",
+            "noServicesSectionDescription": "Компанія ще не додала список послуг у профіль.",
+            "reviewsEmptyTitle": "Поки немає відгуків",
+            "reviewsEmptyDescription": "Відгуки клієнтів з’являться тут після публікації."
         },
         "booking": {
             "title": "Бронювання"
@@ -2025,7 +2046,7 @@
                 "offlinePaymentExplainer": "Це бронювання не пов’язане з онлайн-оплатою карткою через платформу: оголошення не оплачувалось онлайн. Готівка, переказ або оплата на місці тут не відмічаються — ця вкладка лише для онлайн-платежів (холд, списання, повернення). Окремо відмічати офлайн-оплату в цьому блоці не потрібно.",
                 "statuses": {
                     "none": "Без онлайн-оплати",
-                    "authorized": "Зарезервовано",
+                    "authorized": "У резерві на карті",
                     "paid": "Оплачено",
                     "refunded": "Повернено",
                     "cancelled": "Скасовано",
@@ -2054,7 +2075,7 @@
                 "typeStatusChanged": "Статус змінено: {from} → {to}",
                 "typeRescheduled": "Бронювання перенесено",
                 "typePriceChanged": "Ціну змінено: {from} → {to}",
-                "typePaymentAuthorized": "Оплату авторизовано",
+                "typePaymentAuthorized": "Сума в резерві на карті",
                 "typePaymentCaptured": "Оплату списано: {amount}",
                 "typePaymentRefunded": "Оплату повернено"
             },
@@ -2589,7 +2610,6 @@
                     "stateRequired": "Оберіть штат.",
                     "cityRequired": "Оберіть місто.",
                     "priceFromRequired": "Введіть мінімальну ціну для цього оголошення.",
-                    "priceToRequired": "Введіть максимальну ціну для цього оголошення.",
                     "pricesNumeric": "Ціни мають бути коректними числами.",
                     "pricesNonNegative": "Ціни не можуть бути від’ємними.",
                     "priceRangeInvalid": "Максимальна ціна має бути не меншою за мінімальну.",
@@ -2600,9 +2620,10 @@
                 },
                 "pricing": {
                     "title": "Ціни",
-                    "hint": "Діапазон цін послуг у цьому оголошенні (від — до).",
+                    "hint": "Мінімальна ціна обов’язкова для публікації. Максимальна — за бажанням; якщо вказана, має бути не меншою за мінімальну.",
                     "priceFrom": "Ціна від",
                     "priceTo": "Ціна до",
+                    "optional": "необов’язково",
                     "currency": "Валюта",
                     "allUsd": "Усі ціни в цьому оголошенні вказані в доларах США (USD)."
                 },
@@ -3369,7 +3390,7 @@
             },
             "statuses": {
                 "succeeded": "Успішно",
-                "authorized": "Авторизовано",
+                "authorized": "У резерві на карті",
                 "pending": "Очікує",
                 "failed": "Не вдалося",
                 "canceled": "Скасовано",
@@ -4361,7 +4382,10 @@
             "cancellationPolicyNote": "Безкоштовне скасування не пізніше ніж за {hours} год до візиту. Пізніше або у разі неявки утримується {percent}% від вартості послуги.",
             "successTitle": "Бронювання підтверджено",
             "successSubtitle": "Оплату зараховано, запис збережено.",
+            "successSubtitleHold": "Карту авторизовано. Запис збережено — списання після візиту у бізнесу.",
             "paymentSuccess": "Готово — бронювання підтверджено й оплачено.",
+            "paymentSuccessHold": "Готово — бронювання підтверджено. Сума утримана на карті до візиту.",
+            "great": "Чудово!",
             "payment": {
                 "paymentNote": "Сплатіть протягом 30 хвилин — бронювання підтвердиться; сьогодні з картки нічого не знімають, оплата після візиту.",
                 "unexpectedStatus": "Неочікуваний статус платежу. Зверніться в підтримку, якщо проблема повториться.",
@@ -4419,7 +4443,26 @@
             "orderNumber": "Номер замовлення",
             "amount": "Сума",
             "paymentHistory": "Історія платежів",
-            "paid": "Оплачено"
+            "paid": "Оплачено",
+            "paymentStatusLabel": "Статус оплати",
+            "paymentMethodLabel": "Спосіб оплати",
+            "paymentMethodCard": "Картка",
+            "paidAtLabel": "Оплачено",
+            "paymentStatus": {
+                "paid": "Оплачено",
+                "authorized": "Утримано на карті",
+                "pending_payment": "Очікує оплати",
+                "unpaid": "Не сплачено онлайн",
+                "refunded": "Повернуто",
+                "partially_refunded": "Частково повернуто",
+                "cancelled": "Скасовано",
+                "pending": "В обробці",
+                "expired": "Прострочено",
+                "disputed": "Оскаржується",
+                "transfer_reversed": "Переказ скасовано",
+                "reserved": "Картку збережено",
+                "requires_capture": "Авторизовано (списання після візиту)"
+            }
         }
     },
     "userDropdown": {

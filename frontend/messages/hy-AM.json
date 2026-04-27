@@ -620,7 +620,22 @@
             "subtotalBeforeDiscount": "Ենթահանրագումար (զեղչից առաջ)",
             "discountDetailLoyalty": "Հավատարմություն ({tier})",
             "discountDetailPromo": "Պրոմո ({code})",
-            "discount": "Զեղչ"
+            "discount": "Զեղչ",
+            "paymentStatus": {
+                "paid": "Վճարված",
+                "authorized": "Պահված քարտում",
+                "pending_payment": "Սպասում է վճարման",
+                "unpaid": "Առցանց չի վճարվել",
+                "refunded": "Վերադարձված",
+                "partially_refunded": "Մասնակի վերադարձ",
+                "cancelled": "Չեղարկված",
+                "pending": "Մշակման մեջ",
+                "expired": "Ժամկետանց",
+                "disputed": "Վիճարկվում է",
+                "transfer_reversed": "Փոխանցումը չեղարկվել է",
+                "reserved": "Քարտը պահված է",
+                "requires_capture": "Թույլատրված է (դեռ չի գանձվել)"
+            }
         },
         "orders": {
             "title": "Իմ պատվերները",
@@ -938,7 +953,13 @@
             "showMoreReviews": "Ցուցադրել ավելին ({count} կարծիք)",
             "showMoreServices": "Ցուցադրել ավելին ({count} ծառայություն)",
             "qualityServicesIn": "Որակյալ ծառայություններ {location}-ում",
-            "professionalServices": "Պրոֆեսիոնալ ծառայություններ ձեզ համար"
+            "professionalServices": "Պրոֆեսիոնալ ծառայություններ ձեզ համար",
+            "ratingNotYet": "Գնահատականը կհայտնվի ակնարկներից հետո",
+            "locationNotSpecified": "Նշված չէ",
+            "featuredReviewPlaceholderDescription": "Այստեղ կցուցադրվի 5 աստղանի ընդգծված ակնարկ տեքստով, երբ հաճախորդները կթողնեն ակնարկներ։",
+            "noServicesSectionDescription": "Ընկերությունը դեռ չի ավելացրել ծառայությունների ցանկը իր պրոֆիլում։",
+            "reviewsEmptyTitle": "Դեռ ակնարկներ չկան",
+            "reviewsEmptyDescription": "Հաճախորդների ակնարկները կհայտնվեն այստեղ հրապարակվելուց հետո։"
         },
         "booking": {
             "title": "Ամրագրում"
@@ -2025,7 +2046,7 @@
                 "offlinePaymentExplainer": "Այս ամրագումը կապված չէ առցանց քարտային վճարման հետ՝ հարթակում գովազդը առցանց չի գանձվել։ Կանխիկ, փոխանցում կամ վճարում տեղում այստեղ չի նշվում. այս ներդիրն օգտագործեք միայն առցանց վճարման համար (պահում, գանձում, վերադարձ)։ Առանց հարթակի վճարումը այս բլոկում նշելու կարիք չկա։",
                 "statuses": {
                     "none": "Առանց առցանց վճարման",
-                    "authorized": "Պահված",
+                    "authorized": "Պահված քարտում",
                     "paid": "Վճարված",
                     "refunded": "Վերադարձված",
                     "cancelled": "Չեղարկված",
@@ -2054,7 +2075,7 @@
                 "typeStatusChanged": "Կարգավիճակը փոխվեց՝ {from} → {to}",
                 "typeRescheduled": "Ամրագրումը տեղափոխվեց",
                 "typePriceChanged": "Գինը փոխվեց՝ {from} → {to}",
-                "typePaymentAuthorized": "Վճարումը պահվեց",
+                "typePaymentAuthorized": "Գումարը պահված է քարտում",
                 "typePaymentCaptured": "Վճարումը գանձվեց՝ {amount}",
                 "typePaymentRefunded": "Վճարումը վերադարձվեց"
             },
@@ -2589,7 +2610,6 @@
                     "stateRequired": "Ընտրեք նահանգը։",
                     "cityRequired": "Ընտրեք քաղաքը։",
                     "priceFromRequired": "Մուտքագրեք այս հայտարարության նվազագույն գինը։",
-                    "priceToRequired": "Մուտքագրեք այս հայտարարության առավելագույն գինը։",
                     "pricesNumeric": "Գները պետք է լինեն վավեր թվեր։",
                     "pricesNonNegative": "Գները չեն կարող բացասական լինել։",
                     "priceRangeInvalid": "Առավելագույն գինը պետք է լինի նվազագույնից մեծ կամ հավասար։",
@@ -2600,9 +2620,10 @@
                 },
                 "pricing": {
                     "title": "Գնավորում",
-                    "hint": "Ծառայությունների գների միջակայք այս հայտարարությունում (սկսած–մինչև)։",
+                    "hint": "Հրապարակման համար նվազագույն գինը պարտադիր է։ Առավելագույնը՝ ցանկության դեպքում. եթե նշված է, պետք է լինի նվազագույնից մեծ կամ հավասար։",
                     "priceFrom": "Գինից",
                     "priceTo": "Գինը մինչև",
+                    "optional": "պարտադիր չէ",
                     "currency": "Արժույթ",
                     "allUsd": "Այս հայտարարության բոլոր գները նշված են ԱՄՆ դոլարով (USD)։"
                 },
@@ -3372,7 +3393,7 @@
                 "pending": "Սպասում",
                 "failed": "Ձախողված",
                 "canceled": "Չեղարկված",
-                "authorized": "Թույլատրված",
+                "authorized": "Պահված քարտում",
                 "expired": "Ժամկետանց",
                 "refunded": "Վերադարձված",
                 "partially_refunded": "Մասնակի վերադարձ"
@@ -4386,7 +4407,10 @@
                 "paymentInitFailed": "Չհաջողվեց սկսել վճարումը։ Փորձեք կրկին կամ դիմեք աջակցության։"
             },
             "successTitle": "Ամրագրումը հաստատված է",
-            "successSubtitle": "Վճարումը գրանցվել է, ամրագրումը պահպանվել է։"
+            "successSubtitle": "Վճարումը գրանցվել է, ամրագրումը պահպանվել է։",
+            "successSubtitleHold": "Քարտը թույլատրվել է։ Ամրագրումը պահպանվել է — գանձումը բիզնեսը կկատարի այցից հետո։",
+            "paymentSuccessHold": "Պատրաստ է — ամրագրումը հաստատված է։ Գումարը պահված է քարտում մինչև այցելություն։",
+            "great": "Գերազանց։"
         },
         "serviceCard": {
             "viewDetails": "Մանրամասներ",
@@ -4419,7 +4443,26 @@
             "orderNumber": "Պատվերի համար",
             "amount": "Գումար",
             "paymentHistory": "Վճարման պատմություն",
-            "paid": "Վճարված է"
+            "paid": "Վճարված է",
+            "paymentStatusLabel": "Վճարման կարգավիճակ",
+            "paymentMethodLabel": "Վճարման եղանակ",
+            "paymentMethodCard": "Քարտ",
+            "paidAtLabel": "Վճարվել է",
+            "paymentStatus": {
+                "paid": "Վճարված",
+                "authorized": "Պահված քարտում",
+                "pending_payment": "Սպասում է վճարման",
+                "unpaid": "Առցանց չի վճարվել",
+                "refunded": "Վերադարձված",
+                "partially_refunded": "Մասնակի վերադարձ",
+                "cancelled": "Չեղարկված",
+                "pending": "Մշակման մեջ",
+                "expired": "Ժամկետանց",
+                "disputed": "Վիճարկվում է",
+                "transfer_reversed": "Փոխանցումը չեղարկվել է",
+                "reserved": "Քարտը պահված է",
+                "requires_capture": "Թույլատրված է (դեռ չի գանձվել)"
+            }
         }
     },
     "userDropdown": {
