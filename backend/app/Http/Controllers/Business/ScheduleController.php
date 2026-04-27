@@ -837,18 +837,6 @@ class ScheduleController extends Controller
             $statusChanged = false;
             
             if ($request->has('status')) {
-                if ($request->status === 'completed') {
-                    $bookingDateStr = $booking->booking_date instanceof \Carbon\Carbon
-                        ? $booking->booking_date->format('Y-m-d')
-                        : substr((string) $booking->booking_date, 0, 10);
-                    if ($bookingDateStr > now()->format('Y-m-d')) {
-                        return response()->json([
-                            'error' => 'Cannot mark a future booking as completed',
-                            'message' => 'Нельзя завершить бронирование с датой в будущем',
-                        ], 422);
-                    }
-                }
-
                 $statusChanged = $oldStatus !== $request->status;
                 $booking->status = $request->status;
                 

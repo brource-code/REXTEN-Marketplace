@@ -467,6 +467,7 @@ class SettingsController extends Controller
                 return [
                     'id' => $service->id,
                     'name' => $service->name,
+                    'category_id' => $service->category_id,
                     'category' => $service->category->name ?? '',
                     'duration' => $service->duration_minutes ?? 60,
                     'duration_unit' => $service->duration_unit ?? 'hours',
@@ -497,13 +498,20 @@ class SettingsController extends Controller
             ], 404);
         }
 
+        if (! $request->has('duration_minutes') && $request->has('duration')) {
+            $request->merge(['duration_minutes' => (int) $request->input('duration')]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'duration_minutes' => 'required|integer|min:1|max:720',
-            'category_id' => 'nullable|exists:service_categories,id',
-            'category' => 'nullable|string|max:255', // Для совместимости с фронтендом
+            'category_id' => [
+                'required',
+                'integer',
+                Rule::exists('service_categories', 'id')->where(fn ($q) => $q->where('is_active', true)),
+            ],
             'service_type' => 'nullable|in:onsite,offsite,hybrid',
         ]);
 
@@ -529,9 +537,11 @@ class SettingsController extends Controller
             'price' => $request->price,
             'duration_minutes' => $request->duration_minutes ?? $request->duration,
             'duration_unit' => $request->duration_unit ?? 'hours',
-            'category_id' => $request->category_id,
+            'category_id' => (int) $request->category_id,
             'service_type' => $request->service_type ?? 'onsite',
         ]);
+        $service->load('category');
+        $categoryLabel = $service->category?->name ?? '';
 
         // Если есть объявление типа 'regular', добавляем услугу в него
         // НЕ создаём объявление автоматически - только обновляем существующее
@@ -549,7 +559,7 @@ class SettingsController extends Controller
                 'service_id' => $service->id,
                 'name' => $service->name,
                 'description' => $service->description ?? '',
-                'category' => $request->category ?? '',
+                'category' => $categoryLabel,
                 'duration' => $service->duration_minutes ?? 60,
                 'duration_unit' => $service->duration_unit ?? 'hours',
                 'price' => $service->price,
@@ -575,7 +585,8 @@ class SettingsController extends Controller
             'data' => [
                 'id' => $service->id,
                 'name' => $service->name,
-                'category' => $request->category ?? '',
+                'category_id' => $service->category_id,
+                'category' => $categoryLabel,
                 'duration' => $service->duration_minutes ?? 60,
                 'price' => $service->price,
                 'status' => 'active',
@@ -617,14 +628,21 @@ class SettingsController extends Controller
             ], 404);
         }
 
+        if (! $request->has('duration_minutes') && $request->has('duration')) {
+            $request->merge(['duration_minutes' => (int) $request->input('duration')]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'price' => 'sometimes|numeric|min:0',
             'duration_minutes' => 'sometimes|integer|min:1|max:720',
             'duration' => 'sometimes|integer|min:1|max:720', // Для совместимости
-            'category_id' => 'nullable|exists:service_categories,id',
-            'category' => 'nullable|string|max:255', // Для совместимости
+            'category_id' => [
+                'sometimes',
+                'integer',
+                Rule::exists('service_categories', 'id')->where(fn ($q) => $q->where('is_active', true)),
+            ],
             'service_type' => 'nullable|in:onsite,offsite,hybrid',
         ]);
 
@@ -657,6 +675,10 @@ class SettingsController extends Controller
             $service->update($updateData);
         }
 
+        $service->refresh();
+        $service->load('category');
+        $categoryLabelForJson = $service->category?->name ?? '';
+
         // Обновляем услугу во всех объявлениях компании, где она используется
         $advertisements = Advertisement::where('company_id', $companyId)
             ->whereIn('type', ['regular', 'marketplace'])
@@ -674,7 +696,7 @@ class SettingsController extends Controller
                         'id' => (string) $service->id,
                         'service_id' => $service->id,
                         'name' => $service->name,
-                        'category' => $request->category ?? $services[$index]['category'] ?? '',
+                        'category' => $categoryLabelForJson,
                         'duration' => $service->duration_minutes ?? 60,
                         'price' => $service->price,
                         'service_type' => $service->service_type ?? 'onsite',
@@ -703,7 +725,8 @@ class SettingsController extends Controller
             'data' => [
                 'id' => $service->id,
                 'name' => $service->name,
-                'category' => $request->category ?? '',
+                'category_id' => $service->category_id,
+                'category' => $categoryLabelForJson,
                 'duration' => $service->duration_minutes ?? 60,
                 'price' => $service->price,
                 'status' => 'active',
