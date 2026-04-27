@@ -55,18 +55,19 @@ return [
             'access_until' => 'Access until',
             'effective_date' => 'Effective date',
             'total_charged' => 'Total charged',
+            'trial_ends' => 'Free trial period ends',
         ],
         'payment_first' => [
-            'subject' => 'Subscription activated — :plan',
-            'intro' => 'Your :plan subscription on :app is now active. Below is a summary of the payment.',
+            'subject' => 'Thank you — subscription activated — :plan',
+            'intro' => 'Thank you for your payment. Your :plan subscription on :app is now active. Below is a summary of your invoice.',
         ],
         'payment_renewed' => [
-            'subject' => 'Subscription renewed — :plan',
-            'intro' => 'Your :plan subscription on :app has been renewed for the next billing period.',
+            'subject' => 'Thank you — subscription renewed — :plan',
+            'intro' => 'Thank you for your payment. Your :plan subscription on :app has been renewed for the next billing period. Summary below.',
         ],
         'plan_changed' => [
             'subject' => 'Plan changed — :plan',
-            'intro' => 'Your :app subscription was changed to :plan. The proration for the remaining billing period was charged immediately. The breakdown is below.',
+            'intro' => 'Thank you for your payment. Your :app subscription was changed to :plan. The proration for the remaining billing period was charged immediately. The breakdown is below.',
         ],
         'canceled' => [
             'subject' => 'Subscription canceled',
@@ -75,6 +76,37 @@ return [
         'downgrade_scheduled' => [
             'subject' => 'Plan downgrade scheduled — :plan',
             'intro' => 'Your :app account is scheduled to switch from :from to :to at the end of the current billing period (:until). You can change or cancel this anytime in your subscription settings.',
+        ],
+        'trial_reminder_3d' => [
+            'subject' => 'Your free trial period ends in 3 days — :plan',
+            'intro' => 'Your free trial period for the :plan plan on :app ends on :until. Subscribe in billing to keep full access after it ends.',
+            'note' => 'You received this email because your :app business account has an active free trial period.',
+        ],
+        'trial_reminder_1d' => [
+            'subject' => 'Last day of your free trial period — :plan',
+            'intro' => 'Your free trial period for the :plan plan on :app ends on :until (final day). Subscribe today so your team does not lose paid features.',
+            'note' => 'You received this email because your :app business account free trial period is ending soon.',
+        ],
+    ],
+    'advertisement_purchase' => [
+        'preheader' => ':title — :app',
+        'open_list' => 'Open advertisements',
+        'note' => 'You received this email because you paid for advertising placement on :app.',
+        'footer' => 'This message was sent by :app.',
+        'subject' => 'Thank you for your advertising purchase — :app',
+        'intro' => 'Thank you for your purchase. Your advertising placement on :app is confirmed. Details are below.',
+        'fields' => [
+            'listing' => 'Listing',
+            'package' => 'Package',
+            'period' => 'Placement period',
+            'receipt' => 'Receipt (checkout session)',
+            'paid_at' => 'Paid at',
+            'amount' => 'Amount paid',
+        ],
+        'packages' => [
+            'basic' => 'Basic — 7 days',
+            'standard' => 'Standard — 14 days',
+            'premium' => 'Premium — 30 days',
         ],
     ],
 ];

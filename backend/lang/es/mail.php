@@ -55,18 +55,19 @@ return [
             'access_until' => 'Acceso hasta',
             'effective_date' => 'Fecha efectiva',
             'total_charged' => 'Total cobrado',
+            'trial_ends' => 'Fin del periodo de prueba gratuito',
         ],
         'payment_first' => [
-            'subject' => 'Suscripción activada — :plan',
-            'intro' => 'Tu suscripción :plan en :app está activa. A continuación verás un resumen del pago.',
+            'subject' => 'Gracias — suscripción activada — :plan',
+            'intro' => 'Gracias por tu pago. Tu suscripción :plan en :app está activa. A continuación verás un resumen de tu factura.',
         ],
         'payment_renewed' => [
-            'subject' => 'Suscripción renovada — :plan',
-            'intro' => 'Tu suscripción :plan en :app se ha renovado para el siguiente periodo de facturación.',
+            'subject' => 'Gracias — suscripción renovada — :plan',
+            'intro' => 'Gracias por tu pago. Tu suscripción :plan en :app se ha renovado para el siguiente periodo de facturación. Resumen abajo.',
         ],
         'plan_changed' => [
             'subject' => 'Plan cambiado — :plan',
-            'intro' => 'Tu suscripción de :app ha cambiado al plan :plan. La prorrata por el periodo restante se cobró de inmediato. El detalle está abajo.',
+            'intro' => 'Gracias por tu pago. Tu suscripción de :app ha cambiado al plan :plan. La prorrata por el periodo restante se cobró de inmediato. El detalle está abajo.',
         ],
         'canceled' => [
             'subject' => 'Suscripción cancelada',
@@ -75,6 +76,37 @@ return [
         'downgrade_scheduled' => [
             'subject' => 'Bajada de plan programada — :plan',
             'intro' => 'Tu cuenta de :app cambiará de :from a :to al final del periodo de facturación actual (:until). Puedes modificarlo o cancelarlo en cualquier momento desde los ajustes de suscripción.',
+        ],
+        'trial_reminder_3d' => [
+            'subject' => 'Tu periodo de prueba gratuito termina en 3 días — :plan',
+            'intro' => 'Tu periodo de prueba gratuito del plan :plan en :app finaliza el :until. Contrata la suscripción en facturación para conservar el acceso completo cuando termine.',
+            'note' => 'Recibes este correo porque la cuenta de negocio de :app tiene un periodo de prueba gratuito activo.',
+        ],
+        'trial_reminder_1d' => [
+            'subject' => 'Último día de tu periodo de prueba gratuito — :plan',
+            'intro' => 'Tu periodo de prueba gratuito del plan :plan en :app termina el :until (último día). Contrata hoy para que tu equipo no pierda las funciones de pago.',
+            'note' => 'Recibes este correo porque el periodo de prueba gratuito de tu cuenta de negocio en :app está a punto de terminar.',
+        ],
+    ],
+    'advertisement_purchase' => [
+        'preheader' => ':title — :app',
+        'open_list' => 'Abrir anuncios',
+        'note' => 'Recibes este correo porque pagaste un emplazamiento publicitario en :app.',
+        'footer' => 'Este mensaje fue enviado por :app.',
+        'subject' => 'Gracias por tu compra de publicidad — :app',
+        'intro' => 'Gracias por tu pago. Tu emplazamiento publicitario en :app está confirmado. Los detalles están abajo.',
+        'fields' => [
+            'listing' => 'Anuncio',
+            'package' => 'Paquete',
+            'period' => 'Periodo de publicación',
+            'receipt' => 'Recibo (sesión de pago)',
+            'paid_at' => 'Pagado el',
+            'amount' => 'Importe pagado',
+        ],
+        'packages' => [
+            'basic' => 'Basic — 7 días',
+            'standard' => 'Standard — 14 días',
+            'premium' => 'Premium — 30 días',
         ],
     ],
 ];

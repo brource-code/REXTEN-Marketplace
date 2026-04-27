@@ -29,6 +29,8 @@ class Subscription extends Model
         'cancel_at_period_end',
         'grace_period_ends_at',
         'trial_ends_at',
+        'trial_reminder_3d_sent_at',
+        'trial_reminder_1d_sent_at',
         'previous_plan',
     ];
 
@@ -39,6 +41,8 @@ class Subscription extends Model
         'cancel_at_period_end' => 'boolean',
         'grace_period_ends_at' => 'datetime',
         'trial_ends_at' => 'datetime',
+        'trial_reminder_3d_sent_at' => 'datetime',
+        'trial_reminder_1d_sent_at' => 'datetime',
     ];
 
     public const STATUS_ACTIVE = 'active';

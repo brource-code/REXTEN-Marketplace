@@ -47,6 +47,12 @@ class SubscriptionMailer
         $company = Company::find($sub->company_id);
         $owner = self::resolveOwner($company);
         $recipient = self::resolveRecipientEmail($company, $owner);
+        if (! $recipient && isset($stripeInvoice->customer_email)) {
+            $cand = trim((string) $stripeInvoice->customer_email);
+            if ($cand !== '' && filter_var($cand, FILTER_VALIDATE_EMAIL)) {
+                $recipient = $cand;
+            }
+        }
         if (! $recipient) {
             Log::warning('SubscriptionMailer: no recipient email for notifyPaymentSucceeded', [
                 'subscription_id' => $sub->id,
@@ -61,6 +67,8 @@ class SubscriptionMailer
         }
 
         $reason = (string) ($stripeInvoice->billing_reason ?? '');
+        // Stripe иногда не заполняет billing_reason; «продление» и «смена плана» задаём явно.
+        $isFirst = ! in_array($reason, [self::REASON_RENEWED, self::REASON_PLAN_CHANGED], true);
         $locale = self::ownerLocale($owner);
         $plan = SubscriptionPlan::findBySlug($sub->plan);
         $planName = $plan?->name ?? $sub->plan;
@@ -108,12 +116,11 @@ class SubscriptionMailer
             self::send($recipient, $locale, $subjectTemplate, $intro, $fields, [
                 'label' => __('mail.subscription.fields.total_charged', [], $locale),
                 'value' => $amount,
-            ], $invoiceId);
+            ], $invoiceId, null);
 
             return;
         }
 
-        $isFirst = $reason === self::REASON_FIRST;
         $subjectTemplate = __(
             $isFirst ? 'mail.subscription.payment_first.subject' : 'mail.subscription.payment_renewed.subject',
             ['plan' => $planName],
@@ -136,7 +143,7 @@ class SubscriptionMailer
         self::send($recipient, $locale, $subjectTemplate, $intro, $fields, [
             'label' => __('mail.subscription.fields.amount_paid', [], $locale),
             'value' => $amount,
-        ], $invoiceId);
+        ], $invoiceId, null);
     }
 
     public static function notifyCanceled(Subscription $sub): void
@@ -176,7 +183,7 @@ class SubscriptionMailer
             ['label' => __('mail.subscription.fields.access_until', [], $locale), 'value' => $until],
         ];
 
-        self::send($recipient, $locale, $subject, $intro, $fields, null, null);
+        self::send($recipient, $locale, $subject, $intro, $fields, null, null, null);
     }
 
     public static function notifyDowngradeScheduled(Subscription $sub, string $newPlanSlug): void
@@ -220,7 +227,48 @@ class SubscriptionMailer
             ['label' => __('mail.subscription.fields.effective_date', [], $locale), 'value' => $until],
         ];
 
-        self::send($recipient, $locale, $subject, $intro, $fields, null, null);
+        self::send($recipient, $locale, $subject, $intro, $fields, null, null, null);
+    }
+
+    /**
+     * Напоминание о конце триала (шаблон subscription-notification). $phase: «3d» или «1d».
+     */
+    public static function notifyTrialReminder(Subscription $sub, string $phase): bool
+    {
+        if ($phase !== '3d' && $phase !== '1d') {
+            return false;
+        }
+
+        $company = Company::find($sub->company_id);
+        $owner = self::resolveOwner($company);
+        $recipient = self::resolveRecipientEmail($company, $owner);
+        if (! $recipient) {
+            Log::warning('SubscriptionMailer: no recipient email for trial reminder', [
+                'subscription_id' => $sub->id,
+                'company_id' => $sub->company_id,
+                'phase' => $phase,
+            ]);
+
+            return false;
+        }
+
+        $locale = self::ownerLocale($owner);
+        $plan = SubscriptionPlan::findBySlug($sub->plan);
+        $planName = $plan?->name ?? $sub->plan;
+        $app = self::appName();
+        $until = self::formatDate($sub->trial_ends_at?->getTimestamp(), $locale, true);
+
+        $prefix = $phase === '3d' ? 'mail.subscription.trial_reminder_3d' : 'mail.subscription.trial_reminder_1d';
+        $subject = __($prefix.'.subject', ['plan' => $planName, 'app' => $app], $locale);
+        $intro = __($prefix.'.intro', ['app' => $app, 'plan' => $planName, 'until' => $until], $locale);
+        $note = __($prefix.'.note', ['app' => $app], $locale);
+
+        $fields = [
+            ['label' => __('mail.subscription.fields.plan', [], $locale), 'value' => $planName],
+            ['label' => __('mail.subscription.fields.trial_ends', [], $locale), 'value' => $until],
+        ];
+
+        return self::send($recipient, $locale, $subject, $intro, $fields, null, null, $note);
     }
 
     private static function send(
@@ -230,15 +278,16 @@ class SubscriptionMailer
         string $intro,
         array $fields,
         ?array $total,
-        ?string $releaseCacheInvoiceIdOnMailFailure = null
-    ): void {
+        ?string $releaseCacheInvoiceIdOnMailFailure = null,
+        ?string $noteTextOverride = null
+    ): bool {
         $base = rtrim((string) config('app.frontend_url'), '/');
         $actionPath = '/business/subscription';
         $actionUrl = $base === '' ? $actionPath : $base.$actionPath;
 
         $appName = self::appName();
         $preheader = __('mail.subscription.preheader', ['title' => $subject, 'app' => $appName], $locale);
-        $noteText = __('mail.subscription.note', ['app' => $appName], $locale);
+        $noteText = $noteTextOverride ?? __('mail.subscription.note', ['app' => $appName], $locale);
         $footerText = __('mail.subscription.footer', ['app' => $appName], $locale);
         $actionLabel = __('mail.subscription.open_subscription', [], $locale);
 
@@ -266,6 +315,8 @@ class SubscriptionMailer
                 'to' => $recipient,
                 'subject' => $subject,
             ]);
+
+            return true;
         } catch (\Throwable $e) {
             Log::error('SubscriptionMailer: failed to send email', [
                 'to' => $recipient,
@@ -275,6 +326,8 @@ class SubscriptionMailer
             if ($releaseCacheInvoiceIdOnMailFailure) {
                 Cache::forget('subscription_mailer:invoice:'.$releaseCacheInvoiceIdOnMailFailure);
             }
+
+            return false;
         }
     }
 

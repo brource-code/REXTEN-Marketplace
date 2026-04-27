@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Services\PlatformSettingsService;
 use App\Services\StripeSubscriptionService;
 use App\Services\SubscriptionLifecycleService;
+use App\Services\AdvertisementPurchaseMailer;
 use App\Services\SubscriptionMailer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1477,6 +1478,20 @@ class StripeController extends Controller
             'status' => 'approved',
             'is_active' => true,
         ]);
+
+        try {
+            AdvertisementPurchaseMailer::notifyPaymentCompleted(
+                $advertisement->fresh(),
+                $session,
+                (string) ($metadata->package_id ?? 'basic')
+            );
+        } catch (\Throwable $e) {
+            Log::warning('Advertisement purchase thank-you email failed', [
+                'advertisement_id' => $advertisementId,
+                'session_id' => $session->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         Log::info('Advertisement activated via payment', [
             'advertisement_id' => $advertisementId,

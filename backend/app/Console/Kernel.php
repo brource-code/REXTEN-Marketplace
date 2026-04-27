@@ -27,6 +27,9 @@ class Kernel extends ConsoleKernel
         // Подписки: даунгрейд по scheduled_plan и переход на free после окончания периода
         $schedule->command('subscription:finalize-expired')->hourly();
 
+        // Триал: письма за 3 и за 1 календарный день до окончания (без оформленной Stripe-подписки)
+        $schedule->command('subscription:send-trial-reminders')->hourly();
+
         // Stripe: expire uncaptured payment holds
         $schedule->command('stripe:expire-holds')->hourly();
 
