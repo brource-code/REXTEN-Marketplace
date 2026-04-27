@@ -8,6 +8,7 @@ import {
     PiCalendarDuotone,
     PiCreditCardDuotone,
     PiGearDuotone,
+    PiLinkSimpleDuotone,
     PiStorefrontDuotone,
     PiUsersThreeDuotone,
 } from 'react-icons/pi'
@@ -20,6 +21,7 @@ const PATH_STEPS = [
     { key: 'schedule', icon: PiCalendarDuotone, dot: 'bg-amber-500', ring: 'ring-amber-500/30' },
     { key: 'marketplace', icon: PiStorefrontDuotone, dot: 'bg-sky-500', ring: 'ring-sky-500/30' },
     { key: 'payments', icon: PiCreditCardDuotone, dot: 'bg-emerald-500', ring: 'ring-emerald-500/30' },
+    { key: 'share_link', icon: PiLinkSimpleDuotone, dot: 'bg-rose-500', ring: 'ring-rose-500/30' },
 ]
 
 export default function FinishOnboardingModal({ isOpen, onGoToSettings, onClose, isSubmitting }) {
@@ -31,7 +33,7 @@ export default function FinishOnboardingModal({ isOpen, onGoToSettings, onClose,
             isOpen={isOpen}
             onClose={onClose}
             closable
-            width={880}
+            width={960}
             contentClassName="p-0 overflow-hidden"
         >
             <div className="w-full max-w-full mx-auto">
@@ -41,17 +43,14 @@ export default function FinishOnboardingModal({ isOpen, onGoToSettings, onClose,
                     </p>
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('finishTitle')}</h4>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-2">{t('finishSubtitle')}</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-3 leading-snug">
-                        {t('finishShareHint')}
-                    </p>
                 </div>
 
                 <div className="px-6 sm:px-8 pb-4 pt-4 sm:pb-5 sm:pt-4">
                     <div className="overflow-x-auto pb-1 -mx-1 px-1">
-                        <div className="min-w-[640px] sm:min-w-0">
+                        <div className="min-w-[720px] sm:min-w-0">
                             <ol className="relative flex items-start justify-between gap-0.5 sm:gap-1 pt-1">
                                 <div
-                                    className="pointer-events-none absolute left-[6%] right-[6%] top-5 h-0.5 rounded-full bg-gradient-to-r from-blue-500 via-violet-500 via-amber-500 via-sky-500 to-emerald-500 opacity-75"
+                                    className="pointer-events-none absolute left-[5%] right-[5%] top-5 h-0.5 rounded-full bg-gradient-to-r from-blue-500 via-violet-500 via-amber-500 via-sky-500 via-emerald-500 to-rose-500 opacity-75"
                                     aria-hidden
                                 />
                                 {PATH_STEPS.map((step, i) => {
