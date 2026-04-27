@@ -18,6 +18,7 @@ import AddressAutocomplete from '@/components/shared/AddressAutocomplete'
 import { useTranslations } from 'next-intl'
 import { logClientApiError, logClientApiWarn } from '@/utils/logClientApiError'
 import { snapDurationToBookingPresetMinutes } from '@/components/business/booking/shared/bookingDurationPresets'
+import { normalizeImageUrl } from '@/utils/imageUtils'
 
 /**
  * Переиспользуемый компонент модалки бронирования
@@ -931,7 +932,10 @@ const BookingDialog = ({
                             )}
                         </div>
                         <div className="space-y-2">
-                            {team.map((member, idx) => (
+                            {team.map((member, idx) => {
+                                const teamPhoto = member.avatarUrl || member.avatar
+                                const teamPhotoSrc = teamPhoto ? normalizeImageUrl(teamPhoto) : ''
+                                return (
                                 <button
                                     key={member.id || `member-${idx}`}
                                     type="button"
@@ -947,10 +951,10 @@ const BookingDialog = ({
                                     )}
                                 >
                                     <div className="flex items-center gap-3">
-                                        {member.avatarUrl ? (
+                                        {teamPhotoSrc ? (
                                             <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0">
                                                 <img
-                                                    src={member.avatarUrl}
+                                                    src={teamPhotoSrc}
                                                     alt={member.name}
                                                     className="h-full w-full object-cover"
                                                 />
@@ -978,7 +982,8 @@ const BookingDialog = ({
                                         )}
                                     </div>
                                 </button>
-                            ))}
+                                )
+                            })}
                         </div>
                     </div>
                 )}

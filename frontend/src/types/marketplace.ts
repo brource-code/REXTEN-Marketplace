@@ -55,15 +55,20 @@ export interface Review {
 }
 
 export interface TeamMember {
-    id: number
+    id: number | string
     name: string
     role: string
-    description: string
-    rating: number
-    experience: string
-    languages: string
+    description?: string
+    /** С публичного API маркетплейса (объявление / компания) */
+    bio?: string | null
+    rating?: number
+    experience?: string
+    languages?: string
     avatarColor?: string
-    avatarUrl?: string
+    /** Устаревшее имя поля в некоторых ответах */
+    avatarUrl?: string | null
+    /** Текущее поле с бэкенда MarketplaceController */
+    avatar?: string | null
 }
 
 export interface ServiceProfile {

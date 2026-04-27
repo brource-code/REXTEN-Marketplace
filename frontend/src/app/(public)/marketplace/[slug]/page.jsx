@@ -1605,17 +1605,19 @@ export default function MarketplaceProfilePage() {
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {team.map((member, idx) => (
+                                    {team.map((member, idx) => {
+                                        const teamPhoto = member.avatarUrl || member.avatar
+                                        return (
                                     <div
                                         key={member.id || `member-${idx}`}
                                         className="rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm"
                                     >
                                         <div className="flex items-start gap-3">
-                                            {/* Аватар */}
-                                            {member.avatarUrl ? (
+                                            {/* API returns avatar; avatarUrl kept for compatibility */}
+                                            {teamPhoto ? (
                                                 <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200 dark:border-gray-700 relative">
                                                     <Image
-                                                        src={normalizeImageUrl(member.avatarUrl) || FALLBACK_IMAGE}
+                                                        src={normalizeImageUrl(teamPhoto) || FALLBACK_IMAGE}
                                                         alt={member.name}
                                                         fill
                                                         quality={90}
@@ -1641,7 +1643,7 @@ export default function MarketplaceProfilePage() {
                                                     {member.role}
                                                 </p>
                                                 <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
-                                                    {member.description}
+                                                    {member.description || member.bio}
                                                 </p>
                                                 
                                                 {/* Теги */}
@@ -1670,7 +1672,8 @@ export default function MarketplaceProfilePage() {
                                                 </div>
                                             </div>
                                         </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                             )}
                         </div>
