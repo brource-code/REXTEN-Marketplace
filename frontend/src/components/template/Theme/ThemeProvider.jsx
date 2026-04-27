@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import ThemeContext from './ThemeContext'
 import ConfigProvider from '@/components/ui/ConfigProvider'
 import appConfig from '@/configs/app.config'
@@ -11,13 +12,24 @@ import {
     MODE_DARK,
     MODE_LIGHT,
     THEME_MANUAL_OVERRIDE_SESSION_KEY,
+    resolveLayoutDensity,
 } from '@/constants/theme.constant'
 import { syncDocumentThemeMode } from '@/utils/syncDocumentThemeMode'
 
 const ThemeProvider = ({ children, theme, locale }) => {
+    const pathname = usePathname()
     const [themeState, setThemeState] = useState(theme)
     const [isInitialMount, setIsInitialMount] = useState(true)
     const pendingThemeRef = useRef(null) // Для хранения темы, которую нужно сохранить в cookies
+
+    /** data-density на document: compact для business/superadmin, иначе comfortable; можно переопределить через theme.layout.density */
+    useEffect(() => {
+        if (typeof document === 'undefined') {
+            return
+        }
+        const density = resolveLayoutDensity(pathname, themeState.layout?.density)
+        document.documentElement.setAttribute('data-density', density)
+    }, [pathname, themeState.layout?.density])
 
     // Восстанавливаем тему из localStorage при первой загрузке, если cookies нет
     useEffect(() => {
@@ -32,7 +44,8 @@ const ThemeProvider = ({ children, theme, locale }) => {
                             theme.mode !== parsedTheme.state.mode ||
                             theme.themeSchema !== parsedTheme.state.themeSchema ||
                             theme.direction !== parsedTheme.state.direction ||
-                            theme.layout?.contentWidth !== parsedTheme.state.layout?.contentWidth
+                            theme.layout?.contentWidth !== parsedTheme.state.layout?.contentWidth ||
+                            theme.layout?.density !== parsedTheme.state.layout?.density
                         
                         if (hasDiff) {
                             // Устанавливаем тему и помечаем, что это инициализация
@@ -87,6 +100,7 @@ const ThemeProvider = ({ children, theme, locale }) => {
                 prevTheme.layout?.type !== nextTheme.layout?.type ||
                 prevTheme.layout?.sideNavCollapse !== nextTheme.layout?.sideNavCollapse ||
                 prevTheme.layout?.contentWidth !== nextTheme.layout?.contentWidth ||
+                prevTheme.layout?.density !== nextTheme.layout?.density ||
                 prevTheme.panelExpand !== nextTheme.panelExpand
 
             if (!hasChanged) {

@@ -78,6 +78,13 @@
 		color-scheme: light;
 		supported-color-schemes: light;
 	}
+
+	/* Desktop compact: rem-шкала чуть плотнее (~6.25%), только при data-density и от lg */
+	@media (min-width: 1024px) {
+		html[data-density="compact"] {
+			font-size: 15px;
+		}
+	}
 	
 	html.dark {
 		background-color: #111827;

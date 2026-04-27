@@ -1,7 +1,13 @@
 'use client'
 import { useContext, useMemo, useCallback } from 'react'
 import ThemeContext from '@/components/template/Theme/ThemeContext'
-import { MODE_DARK, MODE_LIGHT, THEME_MANUAL_OVERRIDE_SESSION_KEY } from '@/constants/theme.constant'
+import {
+    MODE_DARK,
+    MODE_LIGHT,
+    THEME_MANUAL_OVERRIDE_SESSION_KEY,
+    DENSITY_COMFORTABLE,
+    DENSITY_COMPACT,
+} from '@/constants/theme.constant'
 import presetThemeSchemaConfig from '@/configs/preset-theme-schema.config'
 import applyTheme from '@/utils/applyThemeSchema'
 import { syncDocumentThemeMode } from '@/utils/syncDocumentThemeMode'
@@ -108,6 +114,27 @@ const useTheme = (selector) => {
         })
     }, [context.setTheme])
 
+    /** comfortable | compact | undefined (сброс → плотность по маршруту) */
+    const setDensity = useCallback((density) => {
+        context.setTheme((prevTheme) => {
+            const nextLayout = { ...prevTheme.layout }
+            if (density === undefined || density === null) {
+                delete nextLayout.density
+            } else if (density === DENSITY_COMFORTABLE || density === DENSITY_COMPACT) {
+                nextLayout.density = density
+            } else {
+                return prevTheme
+            }
+            if (prevTheme.layout?.density === nextLayout.density) {
+                return prevTheme
+            }
+            return {
+                ...prevTheme,
+                layout: nextLayout,
+            }
+        })
+    }, [context.setTheme])
+
     // Мемоизируем объект состояния, чтобы избежать лишних перерендеров
     const themeState = useMemo(() => ({
         ...context.theme,
@@ -118,7 +145,8 @@ const useTheme = (selector) => {
         setPanelExpand,
         setLayout,
         setContentWidth,
-    }), [context.theme, setSchema, setMode, setSideNavCollapse, setDirection, setPanelExpand, setLayout, setContentWidth])
+        setDensity,
+    }), [context.theme, setSchema, setMode, setSideNavCollapse, setDirection, setPanelExpand, setLayout, setContentWidth, setDensity])
 
     return selector(themeState)
 }

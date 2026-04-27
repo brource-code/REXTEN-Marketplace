@@ -94,6 +94,7 @@ export default async function RootLayout({ children }) {
                 className={theme.mode === 'dark' ? 'dark' : 'light'}
                 lang={locale}
                 dir={theme.direction}
+                data-density="comfortable"
                 suppressHydrationWarning
             >
                 <head>

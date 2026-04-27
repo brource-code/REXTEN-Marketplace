@@ -73,7 +73,7 @@ const SideNav = ({
             >
                 <div className={classNames(
                     'w-full flex items-center',
-                    sideNavCollapse ? 'justify-center' : classNames('justify-start', LOGO_X_GUTTER, 'ltr:pl-8 rtl:pr-8')
+                    sideNavCollapse ? 'justify-center' : classNames('justify-start', LOGO_X_GUTTER)
                 )}>
                     <Logo
                         imgClass={sideNavCollapse ? 'max-h-6 w-6' : 'max-h-9 w-auto'}
