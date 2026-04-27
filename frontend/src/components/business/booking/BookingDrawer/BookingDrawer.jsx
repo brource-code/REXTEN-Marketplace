@@ -103,6 +103,7 @@ export default function BookingDrawer({
     onConfirmDelete,
     onCancelDelete,
     deleting = false,
+    onPatchSlot,
 }) {
     const t = useTranslations('business.schedule.drawer')
     const tCommon = useTranslations('business.common')
@@ -364,7 +365,11 @@ export default function BookingDrawer({
                                     role="tabpanel"
                                     className={classNames('tab-content', tab === 'payment' && 'tab-content-active')}
                                 >
-                                    <BookingPaymentTab slot={slot} currency={currency} />
+                                    <BookingPaymentTab
+                                        slot={slot}
+                                        currency={currency}
+                                        onPaymentPatch={onPatchSlot}
+                                    />
                                 </div>
                             )}
 

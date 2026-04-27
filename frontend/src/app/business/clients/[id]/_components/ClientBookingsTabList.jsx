@@ -98,6 +98,7 @@ export default function ClientBookingsTabList({ clientId, bookings = [], timezon
             onConfirmDelete={drawer.confirmDelete}
             onCancelDelete={drawer.cancelDelete}
             deleting={drawer.deleting}
+            onPatchSlot={drawer.patchSlot}
         />
     )
 

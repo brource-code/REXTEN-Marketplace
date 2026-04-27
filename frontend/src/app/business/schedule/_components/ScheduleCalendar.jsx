@@ -890,6 +890,7 @@ const ScheduleCalendar = ({ initialSlots = [], initialOpenBookingId = null }) =>
                 onConfirmDelete={drawer.confirmDelete}
                 onCancelDelete={drawer.cancelDelete}
                 deleting={drawer.deleting}
+                onPatchSlot={drawer.patchSlot}
             />
 
             <NewBookingWizard

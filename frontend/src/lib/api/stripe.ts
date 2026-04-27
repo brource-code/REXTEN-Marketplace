@@ -73,6 +73,7 @@ export interface BookingPaymentResponse {
 export interface BookingPaymentCaptureResponse {
     status: 'captured' | string
     message: string
+    payment_status?: string
 }
 
 export interface RefundRequest {

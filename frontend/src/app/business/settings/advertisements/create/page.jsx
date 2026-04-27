@@ -73,19 +73,19 @@ function validateAdvertisementForPublish(formData, t) {
     if (pf === '' || pf == null) {
         return { section: 'pricing', message: t('validation.priceFromRequired') }
     }
-    if (pt === '' || pt == null) {
-        return { section: 'pricing', message: t('validation.priceToRequired') }
-    }
     const nFrom = Number(pf)
-    const nTo = Number(pt)
-    if (!Number.isFinite(nFrom) || !Number.isFinite(nTo)) {
+    if (!Number.isFinite(nFrom) || nFrom < 0) {
         return { section: 'pricing', message: t('validation.pricesNumeric') }
     }
-    if (nFrom < 0 || nTo < 0) {
-        return { section: 'pricing', message: t('validation.pricesNonNegative') }
-    }
-    if (nFrom > nTo) {
-        return { section: 'pricing', message: t('validation.priceRangeInvalid') }
+    const ptEmpty = pt === '' || pt == null
+    if (!ptEmpty) {
+        const nTo = Number(pt)
+        if (!Number.isFinite(nTo) || nTo < 0) {
+            return { section: 'pricing', message: t('validation.pricesNumeric') }
+        }
+        if (nFrom > nTo) {
+            return { section: 'pricing', message: t('validation.priceRangeInvalid') }
+        }
     }
 
     const services = Array.isArray(formData.services) ? formData.services : []

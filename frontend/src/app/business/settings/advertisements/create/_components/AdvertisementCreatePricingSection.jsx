@@ -32,7 +32,7 @@ export function AdvertisementCreatePricingSection({ formData, setFormData }) {
                     />
                 </FormItem>
 
-                <FormItem label={t('pricing.priceTo')} required>
+                <FormItem label={`${t('pricing.priceTo')} (${t('pricing.optional')})`}>
                     <AmountInput
                         size="sm"
                         value={formData.priceTo === '' || formData.priceTo == null ? null : Number(formData.priceTo)}

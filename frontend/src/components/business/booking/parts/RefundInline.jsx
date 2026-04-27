@@ -74,7 +74,8 @@ export default function RefundInline({
             await queryClient.invalidateQueries({ queryKey: ['business-schedule-slots'] })
             await queryClient.invalidateQueries({ queryKey: ['booking-payments'] })
             await queryClient.invalidateQueries({ queryKey: ['booking-activities', bookingId] })
-            onRefunded?.()
+            const paymentStatus = 'amount' in payload ? 'partially_refunded' : 'refunded'
+            onRefunded?.({ payment_status: paymentStatus })
         } catch (e) {
             const msg = e?.response?.data?.message || e?.message || t('error')
             setError(String(msg))

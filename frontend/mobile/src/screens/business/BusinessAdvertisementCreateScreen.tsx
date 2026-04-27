@@ -57,6 +57,7 @@ const T = {
     title: 'Ценовой диапазон',
     priceFrom: 'Цена от',
     priceTo: 'Цена до',
+    priceToHint: 'необязательно',
     currency: 'Валюта',
   },
   services: {
@@ -518,7 +519,9 @@ const navigation = useNavigation();
           />
         </View>
         <View style={styles.col}>
-          <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{T.pricing.priceTo}</Text>
+          <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
+            {T.pricing.priceTo} ({T.pricing.priceToHint})
+          </Text>
           <TextInput
             style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.text }]}
             value={formData.priceTo}

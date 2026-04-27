@@ -97,6 +97,12 @@ export function useBookingDrawerController({ refetchSlots } = {}) {
         setSlot(null)
     }, [])
 
+    /** Локально подмешать поля в открытый слот (например payment_status после capture без ожидания refetch). */
+    const patchSlot = useCallback((partial) => {
+        if (!partial || typeof partial !== 'object') return
+        setSlot((prev) => (prev ? { ...prev, ...partial } : prev))
+    }, [])
+
     const submitUpdate = useCallback(
         (data) => {
             if (!slot?.id) return Promise.resolve()
@@ -132,6 +138,7 @@ export function useBookingDrawerController({ refetchSlots } = {}) {
         confirmDelete,
         deleting: deleteMutation.isPending,
         pendingDelete,
+        patchSlot,
     }
 }
 

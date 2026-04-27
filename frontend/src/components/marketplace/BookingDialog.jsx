@@ -67,6 +67,7 @@ const BookingDialog = ({
     const [paymentClientSecret, setPaymentClientSecret] = useState(null)
     const [paymentAmount, setPaymentAmount] = useState(null)
     const [paymentSuccess, setPaymentSuccess] = useState(false)
+    const [stripePaymentIntentStatus, setStripePaymentIntentStatus] = useState(null)
     const [createdBookingId, setCreatedBookingId] = useState(null)
     const t = useTranslations('components.bookingDialog')
 
@@ -328,6 +329,12 @@ const BookingDialog = ({
             setAvailableSlotsData({})
             setCurrentStep(1)
             setSelectedAdditionalServices([])
+            setPaymentStep(false)
+            setPaymentClientSecret(null)
+            setPaymentAmount(null)
+            setPaymentSuccess(false)
+            setStripePaymentIntentStatus(null)
+            setCreatedBookingId(null)
         }
     }, [isOpen])
 
@@ -373,6 +380,7 @@ const BookingDialog = ({
         setPaymentClientSecret(null)
         setPaymentAmount(null)
         setPaymentSuccess(false)
+        setStripePaymentIntentStatus(null)
         setCreatedBookingId(null)
         onClose()
     }
@@ -729,6 +737,7 @@ const BookingDialog = ({
 
     // Модалка успешного бронирования с оплатой — стандартный стиль
     if (paymentSuccess) {
+        const isCardHold = stripePaymentIntentStatus === 'requires_capture'
         const successModalContent = (
             <div 
                 className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4"
@@ -767,12 +776,12 @@ const BookingDialog = ({
                         {t('successTitle')}
                     </h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        {t('successSubtitle')}
+                        {isCardHold ? t('successSubtitleHold') : t('successSubtitle')}
                     </p>
 
                     {/* Информация об успешной оплате */}
                     <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-3">
-                        {t('paymentSuccess')}
+                        {isCardHold ? t('paymentSuccessHold') : t('paymentSuccess')}
                     </p>
 
                     {/* Кнопка закрытия */}
@@ -1448,7 +1457,8 @@ const BookingDialog = ({
                             clientSecret={paymentClientSecret}
                             amount={paymentAmount}
                             currency={currency?.toLowerCase() || 'usd'}
-                            onSuccess={() => {
+                            onSuccess={(paymentIntent) => {
+                                setStripePaymentIntentStatus(paymentIntent?.status ?? null)
                                 setPaymentSuccess(true)
                                 setPaymentStep(false)
                             }}

@@ -25,7 +25,7 @@ function statusTagClass(status) {
     }
 }
 
-export default function BookingPaymentTab({ slot, currency = 'USD', onUpdated }) {
+export default function BookingPaymentTab({ slot, currency = 'USD', onPaymentPatch }) {
     const t = useTranslations('business.schedule.payment')
     const tCommon = useTranslations('business.common')
     const queryClient = useQueryClient()
@@ -42,7 +42,8 @@ export default function BookingPaymentTab({ slot, currency = 'USD', onUpdated })
         if (!slot?.id) return
         setCapturing(true)
         try {
-            await captureBookingPayment(slot.id)
+            const cap = await captureBookingPayment(slot.id)
+            onPaymentPatch?.({ payment_status: cap?.payment_status || 'paid' })
             toast.push(
                 <Notification type="success" title={tCommon('success')}>
                     {t('captureSuccess')}
@@ -52,7 +53,6 @@ export default function BookingPaymentTab({ slot, currency = 'USD', onUpdated })
             await queryClient.invalidateQueries({ queryKey: ['business-schedule-slots'] })
             await queryClient.invalidateQueries({ queryKey: ['booking-payments'] })
             await queryClient.invalidateQueries({ queryKey: ['booking-activities', slot.id] })
-            onUpdated?.()
         } catch (e) {
             const msg = e?.response?.data?.message || e?.message || t('captureError')
             toast.push(
@@ -118,9 +118,11 @@ export default function BookingPaymentTab({ slot, currency = 'USD', onUpdated })
                     totalAmount={totalAmount}
                     currency={currency}
                     onCancel={() => setRefundOpen(false)}
-                    onRefunded={() => {
+                    onRefunded={(patch) => {
                         setRefundOpen(false)
-                        onUpdated?.()
+                        if (patch && typeof patch === 'object') {
+                            onPaymentPatch?.(patch)
+                        }
                     }}
                 />
             )}

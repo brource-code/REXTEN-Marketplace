@@ -723,7 +723,7 @@ export default function CreateAdvertisementPage() {
                                                     />
                                                 </FormItem>
 
-                                                <FormItem label="Цена до">
+                                                <FormItem label="Цена до (необязательно)">
                                                     <Input
                                                         size="sm"
                                                         type="number"
