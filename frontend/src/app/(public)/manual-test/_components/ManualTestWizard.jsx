@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
@@ -33,6 +32,12 @@ import {
 
 const DEMO_LOGIN_URL = 'https://rexten.live/auth/demo-login'
 const MAX_SCREENSHOTS = 10
+/** Лимит как на бэкенде: `max:5120` (КБ) ≈ 5 МБ */
+const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024
+
+function fileDedupeKey(f) {
+    return `${f.name}\0${f.size}\0${f.lastModified}`
+}
 
 function openDemoLoginInNewTab(e) {
     if (e.button !== 0) return
@@ -62,11 +67,17 @@ function createDefaultV3() {
     }
 }
 
+/** Старые id шагов, объединённые в один `business_settings` (v3). */
+const LEGACY_BUSINESS_SETTINGS_STEPS = new Set(['business_profile', 'services', 'team', 'settings_rest'])
+
 function mergeV3FromServer(s) {
     const ids = new Set(getWizardStepIds())
     const base = createDefaultV3()
-    const current =
+    let current =
         typeof s.current_step === 'string' && ids.has(s.current_step) ? s.current_step : base.current_step
+    if (!ids.has(s.current_step) && LEGACY_BUSINESS_SETTINGS_STEPS.has(s.current_step)) {
+        current = ids.has('business_settings') ? 'business_settings' : base.current_step
+    }
 
     const completed = { ...base.completed_steps }
     for (const [k, v] of Object.entries(s.completed_steps || {})) {
@@ -385,15 +396,40 @@ function ReportForm({ title, onSubmit, submitting, onCancel, initialComment = ''
                         multiple
                         className="hidden"
                         onChange={(e) => {
-                            const picked = Array.from(e.target.files || []).slice(0, MAX_SCREENSHOTS)
-                            setFiles(picked)
+                            const selected = Array.from(e.target.files || [])
+                            const tooBig = selected.filter((f) => f.size > MAX_SCREENSHOT_BYTES)
+                            if (tooBig.length > 0) {
+                                toast.push(
+                                    <Notification title="Размер файла" type="warning">
+                                        Пропущено {tooBig.length} файл(ов) больше 5 МБ.
+                                    </Notification>,
+                                )
+                            }
+                            const withinLimit = selected.filter((f) => f.size <= MAX_SCREENSHOT_BYTES)
+                            setFiles((prev) => {
+                                const keys = new Set(prev.map(fileDedupeKey))
+                                const merged = [...prev]
+                                for (const f of withinLimit) {
+                                    if (merged.length >= MAX_SCREENSHOTS) break
+                                    const k = fileDedupeKey(f)
+                                    if (!keys.has(k)) {
+                                        keys.add(k)
+                                        merged.push(f)
+                                    }
+                                }
+                                return merged
+                            })
+                            e.target.value = ''
                         }}
                     />
                 </label>
+                <p className="text-xs font-bold text-gray-400 dark:text-gray-500">
+                    Можно выбрать несколько файлов сразу или добавлять партиями — до {MAX_SCREENSHOTS} шт.
+                </p>
                 {files.length > 0 && (
                     <ul className="max-h-32 overflow-y-auto rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/40 p-2 text-xs font-bold text-gray-600 dark:text-gray-300">
                         {files.map((f, i) => (
-                            <li key={`${f.name}-${i}`} className="truncate">
+                            <li key={fileDedupeKey(f)} className="truncate">
                                 {i + 1}. {f.name}
                             </li>
                         ))}
@@ -842,11 +878,16 @@ export default function ManualTestWizard() {
                     <div className="rounded-xl border border-amber-200 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-4">
                         <p className="text-sm font-bold text-amber-900 dark:text-amber-100">{tDemo('signInPrompt')}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
-                            <Link href={signInHref}>
-                                <Button variant="solid" size="sm">
-                                    {tDemo('signIn')}
-                                </Button>
-                            </Link>
+                            <Button
+                                asElement="a"
+                                href={buildAppUrl(signInHref)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                variant="solid"
+                                size="sm"
+                            >
+                                {tDemo('signIn')}
+                            </Button>
                         </div>
                     </div>
                 )}

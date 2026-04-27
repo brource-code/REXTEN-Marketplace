@@ -22,14 +22,14 @@ class ManualTestWizardReportMailer
     private const STEP_ORDER = [
         'welcome',
         'business_registration',
-        'business_profile',
-        'services',
-        'team',
+        'business_settings',
         'subscription',
         'dashboard',
         'schedule',
         'bookings',
         'routes',
+        'discounts_loyalty',
+        'advertisement_marketplace',
         'reports',
         'finish',
     ];
