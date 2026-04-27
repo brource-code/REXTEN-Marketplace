@@ -62,6 +62,164 @@ class ClientBookingNotificationTexts
     }
 
     /**
+     * Снимок даты/времени/длительности/специалиста до сохранения (для сравнения после update/save).
+     *
+     * @return array{booking_date: ?\Carbon\Carbon, booking_time: ?string, duration_minutes: int, specialist_id: int|string|null}
+     */
+    public static function captureBookingScheduleSnapshot(Booking $booking): array
+    {
+        $bd = $booking->booking_date;
+        $bdCopy = $bd instanceof \DateTimeInterface ? Carbon::instance($bd)->copy() : null;
+
+        return [
+            'booking_date' => $bdCopy,
+            'booking_time' => $booking->booking_time,
+            'duration_minutes' => (int) ($booking->duration_minutes ?? 60),
+            'specialist_id' => $booking->specialist_id,
+        ];
+    }
+
+    public static function bookingScheduleDiffersFromSnapshot(Booking $booking, array $before): bool
+    {
+        $oldDate = $before['booking_date'] ?? null;
+        $newDate = $booking->booking_date;
+        $dateChanged = ($oldDate instanceof \DateTimeInterface ? $oldDate->format('Y-m-d') : '') !== ($newDate ? $newDate->format('Y-m-d') : '');
+
+        $timeChanged = self::normalizeBookingTime((string) ($before['booking_time'] ?? ''))
+            !== self::normalizeBookingTime((string) ($booking->booking_time ?? ''));
+
+        $durChanged = (int) ($before['duration_minutes'] ?? 0) !== (int) ($booking->duration_minutes ?? 0);
+
+        $oldSpec = $before['specialist_id'] ?? null;
+        $newSpec = $booking->specialist_id;
+        $specChanged = (string) ($oldSpec ?? '') !== (string) ($newSpec ?? '');
+
+        return $dateChanged || $timeChanged || $durChanged || $specChanged;
+    }
+
+    /**
+     * @param  array{booking_date: ?\Carbon\Carbon, booking_time: ?string, duration_minutes: int, specialist_id: mixed}  $before
+     * @return array{title: string, message: string, link: string, serviceName: string, companyName: string, bookingDate: string, bookingTime: string}|null
+     */
+    public static function forBookingRescheduled(Booking $booking, array $before): ?array
+    {
+        if (! self::bookingScheduleDiffersFromSnapshot($booking, $before)) {
+            return null;
+        }
+
+        if (! $booking->user_id) {
+            return null;
+        }
+
+        $locale = NotificationLocale::forClientRecipient($booking->user_id);
+        $serviceName = self::resolveServiceName($booking, $locale);
+        $companyName = $booking->company?->name ?? self::defaultCompanyLabel($locale);
+
+        $oldDateStr = '';
+        $oldTimeStr = self::normalizeBookingTime((string) ($before['booking_time'] ?? ''));
+        if (! empty($before['booking_date']) && $before['booking_date'] instanceof \DateTimeInterface) {
+            $oldStart = Carbon::instance($before['booking_date'])->copy();
+            if ($oldTimeStr !== '') {
+                $parts = explode(':', $oldTimeStr);
+                $h = (int) ($parts[0] ?? 0);
+                $m = (int) ($parts[1] ?? 0);
+                $oldStart->setTime($h, $m, 0);
+            }
+            $oldDateStr = self::formatBookingDateLocalized($oldStart, $locale);
+        }
+
+        $newWindow = $booking->getTimeWindow();
+        $newStart = $newWindow['start'] ?? null;
+        $newDateStr = $newStart ? self::formatBookingDateLocalized($newStart, $locale) : '';
+        $newTimeStr = self::normalizeBookingTime((string) ($booking->booking_time ?? ''));
+
+        $oldDur = (int) ($before['duration_minutes'] ?? 0);
+        $newDur = (int) ($booking->duration_minutes ?? 0);
+        $durLine = '';
+        if ($oldDur !== $newDur) {
+            $durLine = self::rescheduleDurationLine($locale, $oldDur, $newDur);
+        }
+
+        $translations = self::rescheduleTranslationsTemplate(
+            $serviceName,
+            $companyName,
+            $oldDateStr,
+            $oldTimeStr,
+            $newDateStr,
+            $newTimeStr,
+            $durLine
+        );
+        $bucket = $translations[$locale] ?? $translations['en'];
+
+        return [
+            'title' => $bucket['title'],
+            'message' => $bucket['message'],
+            'link' => '/booking',
+            'serviceName' => $serviceName,
+            'companyName' => $companyName,
+            'bookingDate' => $newDateStr,
+            'bookingTime' => $newTimeStr,
+        ];
+    }
+
+    private static function normalizeBookingTime(string $t): string
+    {
+        $t = trim($t);
+        if (strlen($t) === 8 && substr($t, -3) === ':00') {
+            return substr($t, 0, 5);
+        }
+
+        return $t;
+    }
+
+    private static function rescheduleDurationLine(string $locale, int $oldMin, int $newMin): string
+    {
+        return match ($locale) {
+            'ru' => " Длительность: было {$oldMin} мин, стало {$newMin} мин.",
+            'es-mx' => " Duración: antes {$oldMin} min, ahora {$newMin} min.",
+            'hy-am' => " Տևողություն՝ նախկինում {$oldMin} ր, հիմա {$newMin} ր։",
+            'uk-ua' => " Тривалість: було {$oldMin} хв, стало {$newMin} хв.",
+            default => " Duration: was {$oldMin} min, now {$newMin} min.",
+        };
+    }
+
+    /**
+     * @return array<string, array{title: string, message: string}>
+     */
+    private static function rescheduleTranslationsTemplate(
+        string $serviceName,
+        string $companyName,
+        string $oldDateStr,
+        string $oldTimeStr,
+        string $newDateStr,
+        string $newTimeStr,
+        string $durLine
+    ): array {
+        return [
+            'ru' => [
+                'title' => 'Бронирование перенесено',
+                'message' => "Запись «{$serviceName}» в {$companyName} обновлена: было {$oldDateStr} в {$oldTimeStr}, стало {$newDateStr} в {$newTimeStr}.{$durLine}",
+            ],
+            'en' => [
+                'title' => 'Booking rescheduled',
+                'message' => "Your booking «{$serviceName}» at {$companyName} was updated: previously {$oldDateStr} at {$oldTimeStr}, now {$newDateStr} at {$newTimeStr}.{$durLine}",
+            ],
+            'es-mx' => [
+                'title' => 'Reserva reprogramada',
+                'message' => "Tu reserva «{$serviceName}» en {$companyName} se actualizó: antes el {$oldDateStr} a las {$oldTimeStr}, ahora el {$newDateStr} a las {$newTimeStr}.{$durLine}",
+            ],
+            'hy-am' => [
+                'title' => 'Ամրագրումը տեղափոխվել է',
+                'message' => "«{$serviceName}» ամրագրումը {$companyName}-ում թարմացվել է․ նախկինում՝ {$oldDateStr}, ժամը {$oldTimeStr}, հիմա՝ {$newDateStr}, ժամը {$newTimeStr}։{$durLine}",
+            ],
+            'uk-ua' => [
+                'title' => 'Бронювання перенесено',
+                'message' => "Запис «{$serviceName}» у {$companyName} оновлено: було {$oldDateStr} о {$oldTimeStr}, стало {$newDateStr} о {$newTimeStr}.{$durLine}",
+            ],
+        ];
+    }
+
+    /**
      * Дата в теле уведомления: ru — 14.04.2026; en — Apr 14, 2026; остальные — через ICU (месяц на языке локали).
      */
     private static function formatBookingDateLocalized(Carbon $date, string $locale): string

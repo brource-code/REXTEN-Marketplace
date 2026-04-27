@@ -8,7 +8,7 @@ use App\Models\Notification;
 use App\Services\BusinessOwnerMailer;
 use App\Services\BusinessOwnerNotificationPreferences;
 use App\Services\ClientBookingNotificationTexts;
-use App\Services\ClientNotificationMailer;
+use App\Services\MarketplaceClientBookingNotifier;
 use App\Support\MarketplaceClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -831,6 +831,9 @@ class ScheduleController extends Controller
             // Снимок окна до правок: при смене исполнителя/даты/времени/длительности проверяем пересечения с другими бронями
             $slotSnapshotBefore = $this->makeSlotSnapshotFromBooking($booking);
 
+            // Снимок даты/времени/длительности/специалиста до правок — для уведомления клиенту о переносе
+            $clientScheduleSnapshotBefore = ClientBookingNotificationTexts::captureBookingScheduleSnapshot($booking);
+
             // Обновляем статус, если передан
             // Разрешаем изменение статуса даже для прошедших дат
             $oldStatus = $booking->status;
@@ -1188,6 +1191,27 @@ class ScheduleController extends Controller
                 $this->sendBookingStatusNotification($booking, $oldStatus, $request->status);
             }
 
+            // Перенос / смена слота (дата, время, длительность, исполнитель) — почта, in-app, Telegram по профилю клиента
+            $reschedulePayload = ClientBookingNotificationTexts::forBookingRescheduled($booking, $clientScheduleSnapshotBefore);
+            if ($reschedulePayload !== null && $booking->user_id) {
+                try {
+                    MarketplaceClientBookingNotifier::notify(
+                        (int) $booking->user_id,
+                        (int) $booking->company_id,
+                        'booking',
+                        $reschedulePayload['title'],
+                        $reschedulePayload['message'],
+                        $reschedulePayload['link']
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('ScheduleController: client reschedule notification failed', [
+                        'booking_id' => $booking->id,
+                        'user_id' => $booking->user_id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
             // Возвращаем обновленное бронирование в формате для календаря
             $bookingDate = $booking->booking_date;
             if ($bookingDate instanceof \Carbon\Carbon) {
@@ -1429,40 +1453,26 @@ class ScheduleController extends Controller
         }
 
         try {
-            if (MarketplaceClient::isClientUserId((int) $booking->user_id)) {
-                Notification::create([
-                    'user_id' => $booking->user_id,
-                    'company_id' => $booking->company_id,
-                    'type' => 'booking',
-                    'title' => $payload['title'],
-                    'message' => $payload['message'],
-                    'link' => $payload['link'],
-                    'read' => false,
-                ]);
-
-                ClientNotificationMailer::bookingStatusIfEnabled(
-                    $booking->user_id,
+            if ($booking->user_id) {
+                MarketplaceClientBookingNotifier::notify(
+                    (int) $booking->user_id,
+                    (int) $booking->company_id,
+                    'booking',
                     $payload['title'],
                     $payload['message'],
                     $payload['link']
                 );
-
-                Log::info('ScheduleController: Notification sent', [
-                    'booking_id' => $booking->id,
-                    'user_id' => $booking->user_id,
-                    'old_status' => $oldStatus,
-                    'new_status' => $newStatus,
-                    'title' => $payload['title'],
-                ]);
-            } else {
-                Log::warning('ScheduleController: skip client booking status in-app/email — user_id is not a CLIENT', [
-                    'booking_id' => $booking->id,
-                    'user_id' => $booking->user_id,
-                    'new_status' => $newStatus,
-                ]);
             }
+
+            Log::info('ScheduleController: client booking status notification dispatched', [
+                'booking_id' => $booking->id,
+                'user_id' => $booking->user_id,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'title' => $payload['title'],
+            ]);
         } catch (\Exception $e) {
-            Log::error('ScheduleController: Failed to send notification', [
+            Log::error('ScheduleController: Failed to send client booking status notification', [
                 'booking_id' => $booking->id,
                 'user_id' => $booking->user_id,
                 'error' => $e->getMessage(),

@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
 use App\Services\ClientBookingNotificationTexts;
-use App\Services\ClientNotificationMailer;
 use App\Models\Booking;
-use App\Models\Notification;
 use App\Services\ActivityService;
+use App\Services\MarketplaceClientBookingNotifier;
 use App\Services\BookingService;
-use App\Support\MarketplaceClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -419,6 +417,8 @@ class BookingsController extends Controller
                 $booking->cancellation_reason = $request->cancellation_reason ?? 'Отменено администратором';
             }
 
+            $clientScheduleSnapshotBefore = ClientBookingNotificationTexts::captureBookingScheduleSnapshot($booking);
+
             // user_id не обновляем массово: иначе при PATCH можно подменить клиента и увести чужие клиентские уведомления в inbox владельца.
             $booking->update($request->only([
                 'service_id',
@@ -496,6 +496,26 @@ class BookingsController extends Controller
                 $this->sendBookingStatusNotification($booking, $oldStatus, $request->status);
             }
 
+            $reschedulePayload = ClientBookingNotificationTexts::forBookingRescheduled($booking, $clientScheduleSnapshotBefore);
+            if ($reschedulePayload !== null && $booking->user_id) {
+                try {
+                    MarketplaceClientBookingNotifier::notify(
+                        (int) $booking->user_id,
+                        (int) $booking->company_id,
+                        'booking',
+                        $reschedulePayload['title'],
+                        $reschedulePayload['message'],
+                        $reschedulePayload['link']
+                    );
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('BookingsController: client reschedule notification failed', [
+                        'booking_id' => $booking->id,
+                        'user_id' => $booking->user_id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
             if ($request->has('status') && $oldStatus !== $booking->status) {
                 try {
                     $newStatus = $booking->status;
@@ -570,29 +590,15 @@ class BookingsController extends Controller
             return;
         }
 
-        if (MarketplaceClient::isClientUserId((int) $booking->user_id)) {
-            Notification::create([
-                'user_id' => $booking->user_id,
-                'company_id' => $booking->company_id,
-                'type' => 'booking',
-                'title' => $payload['title'],
-                'message' => $payload['message'],
-                'link' => $payload['link'],
-                'read' => false,
-            ]);
-
-            ClientNotificationMailer::bookingStatusIfEnabled(
-                $booking->user_id,
+        if ($booking->user_id) {
+            MarketplaceClientBookingNotifier::notify(
+                (int) $booking->user_id,
+                (int) $booking->company_id,
+                'booking',
                 $payload['title'],
                 $payload['message'],
                 $payload['link']
             );
-        } else {
-            \Log::warning('BookingsController: skip client booking status in-app/email — user_id is not a CLIENT', [
-                'booking_id' => $booking->id,
-                'user_id' => $booking->user_id,
-                'new_status' => $newStatus,
-            ]);
         }
 
         $this->bookingService->notifyOwnerAboutBookingStatusChange($booking, $newStatus);
@@ -603,7 +609,6 @@ class BookingsController extends Controller
             'old_status' => $oldStatus,
             'new_status' => $newStatus,
             'title' => $payload['title'],
-            'delivered_to_client_portal' => MarketplaceClient::isClientUserId((int) $booking->user_id),
         ]);
     }
 }

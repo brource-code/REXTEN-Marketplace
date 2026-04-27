@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use App\Support\MarketplaceClient;
 use App\Support\NotificationLocale;
-use App\Services\ClientNotificationMailer;
 use Stripe\PaymentIntent;
 use Stripe\Refund;
 use Stripe\Stripe;
@@ -1058,24 +1057,10 @@ class BookingService
 
         $t = $translations[$locale] ?? $translations['en'];
 
-        try {
-            \App\Models\Notification::create([
-                'user_id' => $booking->user_id,
-                'type' => 'booking_payment',
-                'title' => $t['title'],
-                'message' => $t['message'],
-                'link' => '/booking',
-                'read' => false,
-            ]);
-        } catch (\Throwable $e) {
-            Log::warning('BookingService: client payment notification (in-app) failed', [
-                'booking_id' => $booking->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        ClientNotificationMailer::bookingStatusIfEnabled(
+        MarketplaceClientBookingNotifier::notify(
             (int) $booking->user_id,
+            (int) $booking->company_id,
+            'booking_payment',
             $t['title'],
             $t['message'],
             '/booking'
@@ -1134,8 +1119,10 @@ class BookingService
 
         $t = $translations[$locale] ?? $translations['en'];
 
-        ClientNotificationMailer::bookingStatusIfEnabled(
+        MarketplaceClientBookingNotifier::notify(
             (int) $booking->user_id,
+            (int) $booking->company_id,
+            'booking_payment',
             $t['title'],
             $t['message'],
             '/booking'
@@ -1199,8 +1186,10 @@ class BookingService
 
         $t = $translations[$locale] ?? $translations['en'];
 
-        ClientNotificationMailer::bookingStatusIfEnabled(
+        MarketplaceClientBookingNotifier::notify(
             (int) $booking->user_id,
+            (int) $booking->company_id,
+            'booking',
             $t['title'],
             $t['message'],
             '/booking'
