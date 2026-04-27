@@ -195,7 +195,14 @@ LaravelAxios.interceptors.request.use(
             const businessId = useBusinessStore.getState()?.businessId
             const companyParam = { current_company_id: businessId }
             if (config.method?.toLowerCase() === 'get') {
-                config.params = { ...config.params, ...companyParam }
+                config.params = { ...(config.params || {}) }
+                if (
+                    (config.params.current_company_id == null || config.params.current_company_id === '') &&
+                    businessId != null &&
+                    businessId !== ''
+                ) {
+                    config.params.current_company_id = businessId
+                }
             } else if (config.data instanceof FormData) {
                 // Важно: не заменять FormData объектом JSON — иначе пропадают файлы (Object.keys(FormData) пустой).
                 if (businessId != null && businessId !== '') {

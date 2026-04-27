@@ -28,6 +28,9 @@ function formatStripeDisabledReason(reason, t) {
     if (r === 'requirements.past_due') {
         return t('requirements.past_due')
     }
+    if (r === 'requirements.pending_verification') {
+        return t('requirements.pending_verification')
+    }
     return t('stripeDisabledReasonOther', { reason: r })
 }
 

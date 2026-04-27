@@ -313,10 +313,13 @@ class StripeConnectController extends Controller
     {
         $frontendUrl = $this->getFrontendUrl();
 
+        $companyId = (string) $this->getCompany($request)?->id;
+        $companyQs = $companyId !== '' ? '?current_company_id=' . rawurlencode($companyId) : '';
+
         return AccountLink::create([
             'account' => $accountId,
-            'refresh_url' => $frontendUrl . '/business/settings?tab=payments&stripe_refresh=true',
-            'return_url' => $frontendUrl . '/business/settings/stripe/callback',
+            'refresh_url' => $frontendUrl . '/business/settings?tab=payments&stripe_refresh=true&current_company_id=' . rawurlencode($companyId),
+            'return_url' => $frontendUrl . '/business/settings/stripe/callback' . $companyQs,
             'type' => 'account_onboarding',
         ]);
     }
@@ -326,7 +329,14 @@ class StripeConnectController extends Controller
      */
     private function determineAccountStatus(Account $account): string
     {
-        if ($account->requirements->disabled_reason) {
+        $disabledReason = $account->requirements->disabled_reason ?? null;
+        // Stripe иногда ставит requirements.pending_verification при ожидании проверки документов —
+        // это не «жёсткая» блокировка как при past_due / rejected.*, статус должен оставаться pending/restricted.
+        $isHardDisabled = $disabledReason !== null
+            && $disabledReason !== ''
+            && $disabledReason !== 'requirements.pending_verification';
+
+        if ($isHardDisabled) {
             return 'disabled';
         }
 
