@@ -14,6 +14,7 @@ import Button from '@/components/ui/Button'
 import { useQuery } from '@tanstack/react-query'
 import { getStripeTransactions, getBookingPayments } from '@/lib/api/stripe'
 import Loading from '@/components/shared/Loading'
+import Spinner from '@/components/ui/Spinner'
 import { formatDateLocalized } from '@/utils/dateTime'
 import Select from '@/components/ui/Select'
 import {
@@ -559,12 +560,27 @@ function BillingPageContent() {
                                     {t('sections.earnings')}
                                 </span>
                             </div>
-                            <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                                {formatAmount(earningsTotal, 'USD')}
-                            </div>
-                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                {earningsTransactions.length} {t('sections.transactions')}
-                            </div>
+                            {bookingLoading ? (
+                                <div className="flex items-center gap-2 min-h-[52px]">
+                                    <Spinner
+                                        size={22}
+                                        enableTheme={false}
+                                        className="shrink-0 text-gray-500 dark:text-gray-400"
+                                    />
+                                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {t('summary.loading')}
+                                    </span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                                        {formatAmount(earningsTotal, 'USD')}
+                                    </div>
+                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                        {earningsTransactions.length} {t('sections.transactions')}
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         <div
@@ -581,12 +597,27 @@ function BillingPageContent() {
                                     {t('sections.expenses')}
                                 </span>
                             </div>
-                            <div className="text-lg font-bold text-red-500 dark:text-red-400">
-                                {formatAmount(expensesTotal, 'USD')}
-                            </div>
-                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
-                                {expensesTransactions.length} {t('sections.transactions')}
-                            </div>
+                            {stripeLoading ? (
+                                <div className="flex items-center gap-2 min-h-[52px]">
+                                    <Spinner
+                                        size={22}
+                                        enableTheme={false}
+                                        className="shrink-0 text-gray-500 dark:text-gray-400"
+                                    />
+                                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                        {t('summary.loading')}
+                                    </span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="text-lg font-bold text-red-500 dark:text-red-400">
+                                        {formatAmount(expensesTotal, 'USD')}
+                                    </div>
+                                    <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                        {expensesTransactions.length} {t('sections.transactions')}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 

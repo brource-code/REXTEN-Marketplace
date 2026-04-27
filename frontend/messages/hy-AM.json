@@ -3433,6 +3433,9 @@
                 "transactions": "գործարքներ",
                 "youReceive": "Դուք ստանում եք",
                 "platformFee": "Միջնորդավճար"
+            },
+            "summary": {
+                "loading": "Բեռնում…"
             }
         },
         "knowledge": {
@@ -3739,6 +3742,9 @@
                     "namePlaceholder": "օր.՝ Կտրվածք",
                     "category": "Կատեգորիա",
                     "categoryPlaceholder": "օր.՝ Մազերի ծառայություններ",
+                    "categorySelectPlaceholder": "Ընտրեք կատեգորիա",
+                    "categoryCatalogHint": "Կատեգորիան վերցվում է REXTEN-ի կատալոգից (ինչպես մարկետփլեյսում), ոչ ազատ տեքստ։",
+                    "categoryRequired": "Ընտրեք կատեգորիան ցանկից։",
                     "description": "Նկարագրություն",
                     "descriptionPlaceholder": "Նկարագրեք ծառայությունը",
                     "price": "Գին ($)",
@@ -3892,7 +3898,11 @@
                 "activeDispute": "Դուք ունեք ակտիվ վեճ։ Նոր վճարումները ժամանակավորապես արգելափակված են։",
                 "openDashboard": "Բացել Stripe վահանակը",
                 "disconnect": "Անջատել",
-                "confirmDisconnect": "Վստահ եք, որ ցանկանում եք անջատել Stripe հաշիվը։ Այլևս չեք կարողանա վճարումներ ընդունել։",
+                "disconnectConfirm": {
+                    "title": "Անջատե՞լ Stripe-ը",
+                    "message": "Վստա՞հ եք, որ ցանկանում եք անջատել Stripe հաշիվը։ Առցանց վճարումներ այլևս չեք կարողանա ընդունել, մինչև նորից չկապեք Stripe-ը։",
+                    "confirm": "Անջատել"
+                },
                 "disconnected": "Stripe հաշիվը հաջողությամբ անջատվեց",
                 "errorConnecting": "Չհաջողվեց միացնել Stripe հաշիվը",
                 "errorRefreshing": "Չհաջողվեց թարմացնել գրանցման հղումը",

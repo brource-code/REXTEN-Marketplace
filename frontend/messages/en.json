@@ -3370,6 +3370,9 @@
                 "youReceive": "You receive",
                 "platformFee": "Platform fee"
             },
+            "summary": {
+                "loading": "Loading…"
+            },
             "columns": {
                 "date": "Date",
                 "type": "Type",
@@ -3739,6 +3742,9 @@
                     "namePlaceholder": "e.g.: Haircut",
                     "category": "Category",
                     "categoryPlaceholder": "e.g.: Hair Services",
+                    "categorySelectPlaceholder": "Select category",
+                    "categoryCatalogHint": "Category is taken from the REXTEN catalog (same as on the marketplace).",
+                    "categoryRequired": "Please select a category from the list.",
                     "description": "Description",
                     "descriptionPlaceholder": "Describe the service",
                     "price": "Price ($)",
@@ -3892,7 +3898,11 @@
                 "activeDispute": "You have an active dispute. New payments are temporarily blocked.",
                 "openDashboard": "Open Stripe Dashboard",
                 "disconnect": "Disconnect",
-                "confirmDisconnect": "Are you sure you want to disconnect your Stripe account? You will no longer be able to accept payments.",
+                "disconnectConfirm": {
+                    "title": "Disconnect Stripe?",
+                    "message": "Are you sure you want to disconnect your Stripe account? You will no longer be able to accept online payments until you connect Stripe again.",
+                    "confirm": "Disconnect"
+                },
                 "disconnected": "Stripe account disconnected successfully",
                 "errorConnecting": "Failed to connect Stripe account",
                 "errorRefreshing": "Failed to refresh onboarding link",

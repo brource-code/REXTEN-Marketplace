@@ -3433,6 +3433,9 @@
                 "transactions": "транзакцій",
                 "youReceive": "Ви отримаєте",
                 "platformFee": "Комісія"
+            },
+            "summary": {
+                "loading": "Завантаження…"
             }
         },
         "knowledge": {
@@ -3739,6 +3742,9 @@
                     "namePlaceholder": "напр.: стрижка",
                     "category": "Категорія",
                     "categoryPlaceholder": "напр.: послуги для волосся",
+                    "categorySelectPlaceholder": "Оберіть категорію",
+                    "categoryCatalogHint": "Категорія з довідника REXTEN (як на маркетплейсі), не довільний текст.",
+                    "categoryRequired": "Оберіть категорію зі списку.",
                     "description": "Опис",
                     "descriptionPlaceholder": "Опишіть послугу",
                     "price": "Ціна ($)",
@@ -3892,7 +3898,11 @@
                 "activeDispute": "Є активний спір. Нові платежі тимчасово заблоковано.",
                 "openDashboard": "Відкрити панель Stripe",
                 "disconnect": "Відключити",
-                "confirmDisconnect": "Відключити обліковий запис Stripe? Ви більше не зможете приймати платежі.",
+                "disconnectConfirm": {
+                    "title": "Відключити Stripe?",
+                    "message": "Справді відключити обліковий запис Stripe? Ви більше не зможете приймати онлайн-платежі, доки знову не підключите Stripe.",
+                    "confirm": "Відключити"
+                },
                 "disconnected": "Stripe успішно відключено",
                 "errorConnecting": "Не вдалося підключити Stripe",
                 "errorRefreshing": "Не вдалося оновити посилання реєстрації",

@@ -2524,6 +2524,9 @@
                 "youReceive": "Вы получите",
                 "platformFee": "Комиссия"
             },
+            "summary": {
+                "loading": "Загрузка…"
+            },
             "columns": {
                 "date": "Дата",
                 "type": "Тип",
@@ -3748,6 +3751,9 @@
                     "namePlaceholder": "Например: Стрижка",
                     "category": "Категория",
                     "categoryPlaceholder": "Например: Парикмахерские услуги",
+                    "categorySelectPlaceholder": "Выберите категорию",
+                    "categoryCatalogHint": "Категория из справочника REXTEN (как на маркетплейсе), не произвольный текст.",
+                    "categoryRequired": "Выберите категорию из списка.",
                     "description": "Описание",
                     "descriptionPlaceholder": "Опишите услугу",
                     "price": "Цена ($)",
@@ -3901,7 +3907,11 @@
                 "activeDispute": "У вас есть активный спор. Новые платежи временно заблокированы.",
                 "openDashboard": "Открыть панель Stripe",
                 "disconnect": "Отключить",
-                "confirmDisconnect": "Вы уверены, что хотите отключить аккаунт Stripe? Вы больше не сможете принимать платежи.",
+                "disconnectConfirm": {
+                    "title": "Отключить Stripe?",
+                    "message": "Вы уверены, что хотите отключить аккаунт Stripe? Вы больше не сможете принимать онлайн-платежи, пока снова не подключите Stripe.",
+                    "confirm": "Отключить"
+                },
                 "disconnected": "Аккаунт Stripe успешно отключен",
                 "errorConnecting": "Не удалось подключить аккаунт Stripe",
                 "errorRefreshing": "Не удалось обновить ссылку регистрации",

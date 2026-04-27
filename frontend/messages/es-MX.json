@@ -3433,6 +3433,9 @@
                 "transactions": "transacciones",
                 "youReceive": "Usted recibe",
                 "platformFee": "Comisión"
+            },
+            "summary": {
+                "loading": "Cargando…"
             }
         },
         "knowledge": {
@@ -3739,6 +3742,9 @@
                     "namePlaceholder": "p. ej.: corte de cabello",
                     "category": "Categoría",
                     "categoryPlaceholder": "p. ej.: cuidado del cabello",
+                    "categorySelectPlaceholder": "Selecciona una categoría",
+                    "categoryCatalogHint": "La categoría proviene del catálogo de REXTEN (igual que en el marketplace), no es texto libre.",
+                    "categoryRequired": "Selecciona una categoría de la lista.",
                     "description": "Descripción",
                     "descriptionPlaceholder": "Describe el servicio",
                     "price": "Precio ($)",
@@ -3892,7 +3898,11 @@
                 "activeDispute": "Tienes una disputa activa. Los nuevos pagos están temporalmente bloqueados.",
                 "openDashboard": "Abrir panel de Stripe",
                 "disconnect": "Desconectar",
-                "confirmDisconnect": "¿Estás seguro de que quieres desconectar tu cuenta de Stripe? Ya no podrás aceptar pagos.",
+                "disconnectConfirm": {
+                    "title": "¿Desconectar Stripe?",
+                    "message": "¿Seguro que quieres desconectar tu cuenta de Stripe? Ya no podrás aceptar pagos en línea hasta que vuelvas a conectar Stripe.",
+                    "confirm": "Desconectar"
+                },
                 "disconnected": "Cuenta de Stripe desconectada exitosamente",
                 "errorConnecting": "Error al conectar cuenta de Stripe",
                 "errorRefreshing": "Error al actualizar enlace de registro",

@@ -43,6 +43,7 @@ import {
 } from '@/components/business/booking/shared/bookingDurationPresets'
 import SubscriptionLimitAlert from '@/components/shared/SubscriptionLimitAlert'
 import useSubscriptionLimits from '@/hooks/useSubscriptionLimits'
+import { getCategories } from '@/lib/api/marketplace'
 
 const { Tr, Td, TBody, THead, Th } = Table
 
@@ -150,14 +151,24 @@ const ServicesTab = () => {
     }
 
     const handleSave = (serviceData) => {
+        if (!serviceData.category_id) {
+            toast.push(
+                <Notification title={tCommon('error')} type="danger">
+                    {t('form.categoryRequired')}
+                </Notification>,
+            )
+            return
+        }
         const priceRaw = serviceData.price
         const priceNum =
             priceRaw === null || priceRaw === undefined || priceRaw === ''
                 ? 0
                 : Number(priceRaw)
         // Преобразуем duration в duration_minutes для API (сетка 15…300 мин)
+        const { category: _omitCategory, duration: _omitDur, ...rest } = serviceData
         const apiData = {
-            ...serviceData,
+            ...rest,
+            category_id: Number(serviceData.category_id),
             price: Number.isFinite(priceNum) ? priceNum : 0,
             duration_minutes: snapDurationToBookingPresetMinutes(
                 Number(serviceData.duration) || serviceData.duration_minutes || 60,
@@ -419,11 +430,27 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
     const tDur = useTranslations('common.durationMinutes')
     const [formData, setFormData] = useState({
         name: '',
-        category: '',
+        category_id: null,
         duration: 60,
         price: null,
         service_type: 'onsite',
     })
+
+    const { data: serviceCategories = [], isLoading: categoriesLoading } = useQuery({
+        queryKey: ['marketplace-categories'],
+        queryFn: getCategories,
+        enabled: isOpen,
+        staleTime: 60 * 60 * 1000,
+    })
+
+    const categoryOptions = useMemo(
+        () =>
+            (Array.isArray(serviceCategories) ? serviceCategories : []).map((c) => ({
+                value: c.id,
+                label: c.name,
+            })),
+        [serviceCategories],
+    )
 
     const durationOptions = useMemo(
         () =>
@@ -439,7 +466,10 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
         if (isOpen && service) {
             setFormData({
                 name: service.name || '',
-                category: service.category || '',
+                category_id:
+                    service.category_id != null && service.category_id !== ''
+                        ? Number(service.category_id)
+                        : null,
                 duration: snapDurationToBookingPresetMinutes(
                     service.duration || service.duration_minutes || 60,
                 ),
@@ -453,7 +483,7 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
             // Сброс формы для новой услуги
             setFormData({
                 name: '',
-                category: '',
+                category_id: null,
                 duration: 60,
                 price: null,
                 service_type: 'onsite',
@@ -488,16 +518,27 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
                                 />
                             </FormItem>
                             <FormItem label={t('form.category')}>
-                                <Input
-                                    value={formData.category}
-                                    onChange={(e) =>
+                                <Select
+                                    options={categoryOptions}
+                                    value={
+                                        categoryOptions.find(
+                                            (o) => o.value === Number(formData.category_id),
+                                        ) || null
+                                    }
+                                    onChange={(opt) =>
                                         setFormData((prev) => ({
                                             ...prev,
-                                            category: e.target.value,
+                                            category_id:
+                                                opt?.value != null ? Number(opt.value) : null,
                                         }))
                                     }
-                                    placeholder={t('form.categoryPlaceholder')}
+                                    placeholder={t('form.categorySelectPlaceholder')}
+                                    isSearchable={false}
+                                    isLoading={categoriesLoading}
                                 />
+                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                                    {t('form.categoryCatalogHint')}
+                                </p>
                             </FormItem>
                             <div className="grid grid-cols-2 gap-4">
                                 <FormItem label={t('form.duration')}>

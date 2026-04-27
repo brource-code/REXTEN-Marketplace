@@ -679,6 +679,8 @@ export interface BusinessProfile {
 export interface BusinessService {
     id: number
     name: string
+    /** ID категории из справочника service_categories (маркетплейс) */
+    category_id?: number | null
     category: string
     duration: number
     price: number

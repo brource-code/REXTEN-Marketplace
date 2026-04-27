@@ -18,6 +18,7 @@ import {
     disconnectStripeAccount,
 } from '@/lib/api/stripe'
 import { updateMarketplaceSettings, getMarketplaceSettings } from '@/lib/api/business'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 
 /** Stripe `requirements.disabled_reason` — показываем человекочитаемый текст, не сырой код. */
 function formatStripeDisabledReason(reason, t) {
@@ -51,6 +52,7 @@ const PaymentsTab = () => {
         staleTime: 30000,
     })
 
+    const [stripeDisconnectDialogOpen, setStripeDisconnectDialogOpen] = useState(false)
     const [onlinePaymentToggling, setOnlinePaymentToggling] = useState(false)
     const [cancellationFreeHours, setCancellationFreeHours] = useState(12)
     const [cancellationLateFeePercent, setCancellationLateFeePercent] = useState(50)
@@ -161,6 +163,7 @@ const PaymentsTab = () => {
     const disconnectMutation = useMutation({
         mutationFn: disconnectStripeAccount,
         onSuccess: () => {
+            setStripeDisconnectDialogOpen(false)
             queryClient.invalidateQueries({ queryKey: ['stripe-connect-status'] })
             toast.push(
                 <Notification title={tCommon('success')} type="success">
@@ -190,9 +193,11 @@ const PaymentsTab = () => {
     }
 
     const handleDisconnect = () => {
-        if (window.confirm(t('confirmDisconnect'))) {
-            disconnectMutation.mutate()
-        }
+        setStripeDisconnectDialogOpen(true)
+    }
+
+    const handleConfirmStripeDisconnect = () => {
+        disconnectMutation.mutate()
     }
 
     if (isLoading) {
@@ -500,6 +505,19 @@ const PaymentsTab = () => {
                     </div>
                 </Card>
             )}
+
+            <ConfirmDialog
+                isOpen={stripeDisconnectDialogOpen}
+                type="danger"
+                title={t('disconnectConfirm.title')}
+                confirmText={t('disconnectConfirm.confirm')}
+                cancelText={tCommon('cancel')}
+                onCancel={() => setStripeDisconnectDialogOpen(false)}
+                onConfirm={handleConfirmStripeDisconnect}
+                confirmButtonProps={{ loading: disconnectMutation.isPending }}
+            >
+                <p>{t('disconnectConfirm.message')}</p>
+            </ConfirmDialog>
         </div>
     )
 }
