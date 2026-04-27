@@ -30,7 +30,11 @@ import {
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import PermissionGuard from '@/components/shared/PermissionGuard'
 import useBusinessStore from '@/store/businessStore'
-import { billingStatusUiKey, getBillingTransactionDescription } from '@/utils/businessBillingHelpers'
+import {
+    billingStatusUiKey,
+    bookingPaymentDisplayStatus,
+    getBillingTransactionDescription,
+} from '@/utils/businessBillingHelpers'
 import {
     buildBusinessBillingAoa,
     downloadBillingCsv,
@@ -48,6 +52,8 @@ const statusColors = {
     canceled: 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100',
     expired: 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100',
     paid: 'bg-emerald-200 dark:bg-emerald-700 text-emerald-900 dark:text-emerald-100',
+    refunded: 'bg-violet-200 dark:bg-violet-800 text-violet-900 dark:text-violet-100',
+    partially_refunded: 'bg-indigo-200 dark:bg-indigo-800 text-indigo-900 dark:text-indigo-100',
 }
 
 export default function BillingPage() {
@@ -124,12 +130,15 @@ function BillingPageContent() {
 
     const filteredTransactions = useMemo(() => {
         return currentTransactions.filter((transaction) => {
-            if (statusFilter !== 'all' && transaction.status !== statusFilter) {
-                return false
+            if (statusFilter === 'all') {
+                return true
             }
-            return true
+            if (activeSection === 'earnings') {
+                return bookingPaymentDisplayStatus(transaction) === statusFilter
+            }
+            return transaction.status === statusFilter
         })
-    }, [currentTransactions, statusFilter])
+    }, [currentTransactions, statusFilter, activeSection])
 
     const paginatedTransactions = useMemo(() => {
         const start = (pageIndex - 1) * pageSize
@@ -178,6 +187,8 @@ function BillingPageContent() {
                 { value: 'authorized', label: t('statuses.authorized', { defaultValue: 'Authorized' }) },
                 { value: 'pending', label: t('statuses.pending') },
                 { value: 'failed', label: t('statuses.failed') },
+                { value: 'refunded', label: t('statuses.refunded') },
+                { value: 'partially_refunded', label: t('statuses.partially_refunded') },
             ]
         }
         return [
@@ -265,7 +276,7 @@ function BillingPageContent() {
             accessorKey: 'status',
             cell: (props) => {
                 const tx = props.row.original
-                const displayStatus = tx.capture_status === 'captured' ? 'succeeded' : tx.status
+                const displayStatus = bookingPaymentDisplayStatus(tx)
                 const statusKey = billingStatusUiKey(displayStatus)
                 return (
                     <Tag className={statusColors[statusKey] || statusColors.pending}>

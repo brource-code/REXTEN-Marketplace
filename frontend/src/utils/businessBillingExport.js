@@ -2,6 +2,7 @@ import { csvFormatRows } from 'd3-dsv'
 import { formatDateLocalized } from '@/utils/dateTime'
 import {
     billingStatusUiKey,
+    bookingPaymentDisplayStatus,
     getBillingTransactionDescription,
 } from '@/utils/businessBillingHelpers'
 
@@ -11,7 +12,7 @@ function fmtMoney(n) {
 }
 
 function earningsStatusLabel(tx, t) {
-    const displayStatus = tx.capture_status === 'captured' ? 'succeeded' : tx.status
+    const displayStatus = bookingPaymentDisplayStatus(tx)
     const statusKey = billingStatusUiKey(displayStatus)
     return t(`statuses.${statusKey}`, { defaultValue: displayStatus })
 }

@@ -3,6 +3,18 @@ export function billingStatusUiKey(status) {
     return status === 'cancelled' ? 'canceled' : status
 }
 
+/** Статус строки «Доходы» (платёж по брони): после capture нельзя затирать refunded / partially_refunded. */
+export function bookingPaymentDisplayStatus(tx) {
+    const s = tx?.status
+    if (s === 'refunded' || s === 'partially_refunded') {
+        return s
+    }
+    if (tx?.capture_status === 'captured') {
+        return 'succeeded'
+    }
+    return s ?? 'pending'
+}
+
 /** Типовые описания Charge из Stripe (англ.) → ключи business.billing.stripeChargeLabels.* */
 function stripeChargeDescriptionToKey(line) {
     if (!line || typeof line !== 'string') return null
