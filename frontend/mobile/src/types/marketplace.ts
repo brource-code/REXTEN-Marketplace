@@ -62,15 +62,17 @@ export interface Review {
 }
 
 export interface TeamMember {
-    id: number
+    id: number | string
     name: string
     role: string
-    description: string
-    rating: number
-    experience: string
-    languages: string
+    description?: string
+    bio?: string | null
+    rating?: number
+    experience?: string
+    languages?: string
     avatarColor?: string
-    avatarUrl?: string
+    avatarUrl?: string | null
+    avatar?: string | null
 }
 
 export interface ServiceProfile {

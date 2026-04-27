@@ -755,12 +755,15 @@ export const ServiceDetailsScreen: React.FC = () => {
                 {team.length === 0 ? (
                   <EmptyState title="Команда не указана" message="Информация о команде скоро появится." />
                 ) : (
-                  team.map((member) => (
+                  team.map((member) => {
+                    const teamPhoto = member.avatarUrl || member.avatar
+                    const teamPhotoUri = teamPhoto ? normalizeImageUrl(teamPhoto) : null
+                    return (
                     <View key={member.id} style={[styles.teamMemberContainer, { borderBottomColor: colors.border }]}>
                       <View style={[styles.teamMemberAvatar, { backgroundColor: colors.textMuted }]}>
-                        {normalizeImageUrl(member.avatarUrl) ? (
+                        {teamPhotoUri ? (
                           <Image
-                            source={{ uri: normalizeImageUrl(member.avatarUrl)! }}
+                            source={{ uri: teamPhotoUri }}
                             style={styles.teamMemberAvatar}
                           />
                         ) : (
@@ -774,9 +777,9 @@ export const ServiceDetailsScreen: React.FC = () => {
                         {member.role && (
                           <Text style={[styles.teamMemberRole, { color: colors.textSecondary }]}>{member.role}</Text>
                         )}
-                        {member.description && (
+                        {(member.description || member.bio) && (
                           <Text style={[styles.teamMemberDescription, { color: colors.textSecondary }]}>
-                            {member.description}
+                            {member.description || member.bio}
                           </Text>
                         )}
                         {member.rating && (
@@ -786,7 +789,8 @@ export const ServiceDetailsScreen: React.FC = () => {
                         )}
                       </View>
                     </View>
-                  ))
+                    )
+                  })
                 )}
               </View>
             )}

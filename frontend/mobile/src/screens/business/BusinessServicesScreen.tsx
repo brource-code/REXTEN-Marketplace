@@ -23,6 +23,7 @@ import {
   deleteBusinessService,
   BusinessServiceItem,
 } from '../../api/business';
+import { getCategories } from '../../api/marketplace';
 import { useBusiness } from '../../contexts/BusinessContext';
 import { ScreenContainer } from '../../components/ScreenContainer';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -60,6 +61,8 @@ const T = {
     pricePlaceholder: '0.00',
     category: 'Категория',
     categoryPlaceholder: 'Например: Стрижка',
+    categoryHint: 'Категория из каталога REXTEN (как на маркетплейсе).',
+    categoryRequired: 'Выберите категорию из списка.',
     status: 'Статус',
     serviceType: 'Тип услуги',
     cancel: 'Отмена',
@@ -117,7 +120,7 @@ export function BusinessServicesScreen() {
   const [formName, setFormName] = useState('');
   const [formDuration, setFormDuration] = useState('60');
   const [formPrice, setFormPrice] = useState('0');
-  const [formCategory, setFormCategory] = useState('');
+  const [formCategoryId, setFormCategoryId] = useState<number | null>(null);
   const [formStatus, setFormStatus] = useState<'active' | 'inactive'>('active');
   const [formServiceType, setFormServiceType] = useState<'onsite' | 'offsite' | 'hybrid'>('onsite');
 
@@ -137,6 +140,13 @@ export function BusinessServicesScreen() {
   const query = useQuery({
     queryKey: ['business-services', 'full'],
     queryFn: () => getBusinessServices({ includeInactive: true }),
+  });
+
+  const categoriesQuery = useQuery({
+    queryKey: ['marketplace-categories'],
+    queryFn: getCategories,
+    enabled: modalVisible,
+    staleTime: 60 * 60 * 1000,
   });
 
   const filteredServices = useMemo(() => {
@@ -164,7 +174,7 @@ export function BusinessServicesScreen() {
     setFormName('');
     setFormDuration('60');
     setFormPrice('0');
-    setFormCategory('');
+    setFormCategoryId(null);
     setFormStatus('active');
     setFormServiceType('onsite');
   }, []);
@@ -180,7 +190,12 @@ export function BusinessServicesScreen() {
     setFormName(service.name);
     setFormDuration(String(service.duration));
     setFormPrice(String(service.price));
-    setFormCategory(service.category || '');
+    const rawCat = service.category_id;
+    setFormCategoryId(
+      rawCat == null || rawCat === ''
+        ? null
+        : Number(typeof rawCat === 'number' ? rawCat : String(rawCat).trim()) || null
+    );
     setFormStatus((service.status as 'active' | 'inactive') || 'active');
     setFormServiceType(service.service_type || 'onsite');
     setModalVisible(true);
@@ -196,12 +211,13 @@ export function BusinessServicesScreen() {
       const duration = parseInt(formDuration, 10) || 60;
       const price = parseFloat(formPrice.replace(',', '.')) || 0;
       if (!formName.trim()) throw new Error(T.errors.nameRequired);
+      if (formCategoryId == null) throw new Error(T.modal.categoryRequired);
 
       const data = {
         name: formName.trim(),
         duration,
         price,
-        category: formCategory.trim() || 'General',
+        category_id: formCategoryId,
         status: formStatus,
         service_type: formServiceType,
       };
@@ -209,7 +225,10 @@ export function BusinessServicesScreen() {
       if (editingService) {
         return updateBusinessService(editingService.id, data);
       }
-      return createBusinessService(data);
+      return createBusinessService({
+        ...data,
+        category_id: formCategoryId,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['business-services'] });
@@ -579,16 +598,46 @@ export function BusinessServicesScreen() {
               </View>
             </View>
 
-            {/* Категория */}
+            {/* Категория (справочник маркетплейса) */}
             <View style={styles.formItem}>
               <Text style={[styles.formLabel, { color: colors.text }]}>{T.modal.category}</Text>
-              <TextInput
-                style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.text }]}
-                value={formCategory}
-                onChangeText={setFormCategory}
-                placeholder={T.modal.categoryPlaceholder}
-                placeholderTextColor={colors.textMuted}
-              />
+              <Text style={[styles.formHint, { color: colors.textSecondary }]}>{T.modal.categoryHint}</Text>
+              {categoriesQuery.isLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 12 }} />
+              ) : (
+                <View style={styles.categoryChipsWrap}>
+                  {(categoriesQuery.data ?? []).map((cat) => {
+                    const id = Number(cat.id);
+                    const active = formCategoryId === id;
+                    return (
+                      <TouchableOpacity
+                        key={String(cat.id)}
+                        style={[
+                          styles.categoryChip,
+                          { borderColor: colors.cardBorder, backgroundColor: colors.backgroundSecondary },
+                          active && {
+                            backgroundColor: colors.controlSelectedBg,
+                            borderColor: colors.controlSelectedBorder,
+                          },
+                        ]}
+                        onPress={() => setFormCategoryId(id)}
+                        activeOpacity={0.8}
+                      >
+                        <Text
+                          style={[
+                            styles.categoryChipText,
+                            { color: colors.textSecondary },
+                            active && { color: colors.controlSelectedText },
+                          ]}
+                          numberOfLines={2}
+                        >
+                          {cat.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
             </View>
 
             {/* Статус */}
@@ -777,6 +826,23 @@ const styles = StyleSheet.create({
   modalContentInner: { padding: 16, gap: 16 },
   formItem: { marginBottom: 0 },
   formLabel: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
+  formHint: { fontSize: 12, fontWeight: '600', marginBottom: 8, lineHeight: 16 },
+  categoryChipsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    maxWidth: '100%',
+  },
+  categoryChipText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
   required: {},
   formInput: {
     borderWidth: 1,

@@ -475,6 +475,8 @@ export interface BusinessServiceItem {
   duration: number;
   price: number;
   status?: string;
+  /** С API может прийти число или строка */
+  category_id?: number | string | null;
   category?: string;
   service_type?: 'onsite' | 'offsite' | 'hybrid';
   advertisement_id?: number | null;
@@ -896,11 +898,17 @@ export async function getSalaryReport(params?: ReportsFilters): Promise<SalaryRe
 
 // ========== Услуги CRUD ==========
 export async function createBusinessService(
-  data: Omit<BusinessServiceItem, 'id'> & { name: string; duration: number; price: number }
+  data: Omit<BusinessServiceItem, 'id'> & {
+    name: string;
+    duration: number;
+    price: number;
+    category_id: number;
+  }
 ): Promise<BusinessServiceItem> {
   const res = await apiClient.post('/business/settings/services', {
     name: data.name,
-    category: data.category ?? 'General',
+    category_id: data.category_id,
+    duration_minutes: data.duration,
     duration: data.duration,
     price: data.price,
     status: (data.status as 'active' | 'inactive') ?? 'active',
