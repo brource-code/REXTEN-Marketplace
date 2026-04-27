@@ -157,7 +157,7 @@ export default function ArticleEditorForm({ topicId, article = null }) {
     const pending = createMut.isPending || updateMut.isPending
 
     return (
-        <form onSubmit={submit} className="flex flex-col gap-6">
+        <form onSubmit={submit} className="flex flex-col gap-4">
             <FormItem label={t('articleLocale')} required>
                 {isEdit ? (
                     <Input size="sm" readOnly value={locale} className="bg-gray-50 dark:bg-gray-800/50" />

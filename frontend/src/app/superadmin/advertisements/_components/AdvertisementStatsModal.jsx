@@ -27,7 +27,7 @@ const AdvertisementStatsModal = ({ isOpen, onClose, advertisementId }) => {
             onClose={onClose}
             width={800}
         >
-            <div className="p-6">
+            <div className="p-4">
                 <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <PiChartLine className="text-blue-600" />
                     Статистика объявления
@@ -46,7 +46,7 @@ const AdvertisementStatsModal = ({ isOpen, onClose, advertisementId }) => {
                 )}
 
                 {stats && (
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         {/* Заголовок */}
                         <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
                             <h5 className="font-medium text-gray-900 dark:text-white">{stats.title}</h5>
@@ -71,7 +71,7 @@ const AdvertisementStatsModal = ({ isOpen, onClose, advertisementId }) => {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <Card className="p-4 text-center">
                                 <PiEye className="text-2xl text-blue-600 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                <div className="text-xl font-bold text-gray-900 dark:text-white">
                                     <NumericFormat 
                                         displayType="text" 
                                         value={stats.total_impressions} 
@@ -83,7 +83,7 @@ const AdvertisementStatsModal = ({ isOpen, onClose, advertisementId }) => {
 
                             <Card className="p-4 text-center">
                                 <PiUsers className="text-2xl text-purple-600 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                <div className="text-xl font-bold text-gray-900 dark:text-white">
                                     <NumericFormat 
                                         displayType="text" 
                                         value={stats.unique_impressions} 
@@ -95,7 +95,7 @@ const AdvertisementStatsModal = ({ isOpen, onClose, advertisementId }) => {
 
                             <Card className="p-4 text-center">
                                 <PiCursorClick className="text-2xl text-green-600 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                <div className="text-xl font-bold text-gray-900 dark:text-white">
                                     <NumericFormat 
                                         displayType="text" 
                                         value={stats.total_clicks} 
@@ -107,7 +107,7 @@ const AdvertisementStatsModal = ({ isOpen, onClose, advertisementId }) => {
 
                             <Card className="p-4 text-center">
                                 <PiChartLine className="text-2xl text-amber-600 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                <div className="text-xl font-bold text-gray-900 dark:text-white">
                                     {stats.ctr}%
                                 </div>
                                 <div className="text-xs text-gray-500">CTR</div>

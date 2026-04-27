@@ -20,7 +20,7 @@ export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTe
     const t = useTranslations('business.advertisements.create')
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
                 <div className="mb-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('sections.team')}</h4>
@@ -34,7 +34,7 @@ export function AdvertisementCreateTeamSection({ formData, companyTeam, toggleTe
             </div>
 
             {companyTeam.length === 0 ? (
-                <Card bodyClass="!p-0 sm:!p-6">
+                <Card bodyClass="!p-0 sm:!p-4">
                     <div className="px-3 py-8 text-center sm:px-6">
                         <p className="mb-4 text-sm font-bold text-gray-500 dark:text-gray-400">
                             {t('team.emptyDescription')}

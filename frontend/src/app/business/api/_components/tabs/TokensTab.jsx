@@ -178,7 +178,7 @@ export default function TokensTab() {
             />
 
             <Dialog isOpen={Boolean(keyDialogRow)} onClose={() => setKeyDialogRow(null)} width={520}>
-                <div className="p-6 flex flex-col gap-4">
+                <div className="p-4 flex flex-col gap-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('keyDialog.title')}</h4>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('keyDialog.intro')}</p>
                     {keyDialogRow?.prefix ? (

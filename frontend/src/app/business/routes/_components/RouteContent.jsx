@@ -251,7 +251,7 @@ export default function RouteContent({
             </div>
 
             <Dialog isOpen={previewOpen && !!preview} onClose={onPreviewClose} width={560} closable>
-                <div className="p-6 max-h-[85vh] overflow-y-auto">
+                <div className="p-4 max-h-[85vh] overflow-y-auto">
                     {preview ? (
                         <RoutePreviewPanel
                             preview={preview}

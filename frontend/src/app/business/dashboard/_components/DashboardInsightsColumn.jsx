@@ -69,7 +69,7 @@ export default function DashboardInsightsColumn({ stats }) {
                 <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0">
-                            <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 <AbbreviateNumber value={goal.current} />
                             </span>
                             <span className="text-sm font-bold text-gray-500 dark:text-gray-400">

@@ -66,7 +66,7 @@ export default function ClientsReport({ filters }) {
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {data.newClients && data.newClients.length > 0 && (
                     <div className="rounded-xl border border-gray-100 bg-gray-50/40 p-3 dark:border-gray-700/80 dark:bg-gray-800/30">
                         <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">{t('newClients')}</h4>
@@ -80,7 +80,7 @@ export default function ClientsReport({ filters }) {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     {data.topByBookings && data.topByBookings.length > 0 && (
                         <div className="min-w-0 border-t border-gray-200 pt-4 dark:border-gray-700 lg:border-t-0 lg:pt-0">
                             <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">

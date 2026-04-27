@@ -400,7 +400,7 @@ export function ServiceAdditionalServicesManager({
             {isDeleteDialogOpen ? (
                 <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4">
                     <Card className="w-full max-w-md">
-                        <div className="p-6">
+                        <div className="p-4">
                             <h4 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100">{tAdd('deleteTitle')}</h4>
                             <p className="mb-4 text-sm font-bold text-gray-500 dark:text-gray-400">
                                 {tAdd('deleteMessage')}

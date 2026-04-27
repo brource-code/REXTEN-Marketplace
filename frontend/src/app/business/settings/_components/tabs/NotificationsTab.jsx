@@ -135,7 +135,7 @@ const NotificationsTab = () => {
             </div>
 
             <Card>
-                <div className="space-y-6">
+                <div className="space-y-4">
                     <FormItem label={t('emailNotifications')}>
                         <Switcher
                             checked={settings.email}

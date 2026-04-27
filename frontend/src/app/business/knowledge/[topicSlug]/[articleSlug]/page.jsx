@@ -94,9 +94,9 @@ export default function KnowledgeArticlePage() {
                     {t('backToHub')}
                 </Button>
 
-                <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+                <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-8">
                     <article className="min-w-0 flex-1">
-                        <div className="rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-b from-gray-50/80 to-white dark:from-gray-800/40 dark:to-gray-900/50 p-5 sm:p-6">
+                        <div className="rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-b from-gray-50/80 to-white dark:from-gray-800/40 dark:to-gray-900/50 p-5 sm:p-4">
                             <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                 {article.topic?.title}
                             </p>

@@ -57,7 +57,7 @@ const IntegrationsTab = () => {
 
     if (isError || !data) {
         return (
-            <Card className="p-6">
+            <Card className="p-4">
                 <div className="text-center">
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3">
                         Не удалось загрузить интеграции
@@ -78,7 +78,7 @@ const IntegrationsTab = () => {
 
     return (
         <div className="space-y-4">
-            <Card className="p-6">
+            <Card className="p-4">
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
@@ -118,7 +118,7 @@ const IntegrationsTab = () => {
                 </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-4">
                 <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                         <PiEnvelope className="text-xl text-emerald-600 dark:text-emerald-300" />
@@ -137,7 +137,7 @@ const IntegrationsTab = () => {
                 </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-4">
                 <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                         <PiDeviceMobile className="text-xl text-gray-600 dark:text-gray-300" />
@@ -156,7 +156,7 @@ const IntegrationsTab = () => {
                 </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-4">
                 <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                         <PiPlug className="text-xl text-blue-600 dark:text-blue-300" />

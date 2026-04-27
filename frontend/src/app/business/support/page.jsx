@@ -425,7 +425,7 @@ function BusinessSupportPageInner() {
                     setDetailId(null)
                 }}
             >
-                <div className="p-6 max-h-[85vh] overflow-y-auto">
+                <div className="p-4 max-h-[85vh] overflow-y-auto">
                     {detailLoading || !detailData ? (
                         <div className="flex justify-center py-16">
                             <Loading loading />

@@ -29,14 +29,14 @@ export default function DashboardQuickActions({ stats }) {
                 pendingCompanies > 0
                     ? t('companiesDescPending', { count: pendingCompanies })
                     : t('companiesDesc'),
-            icon: <PiBuildings className="text-2xl" />,
+            icon: <PiBuildings className="text-xl" />,
             color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
             onClick: () => router.push('/superadmin/companies'),
         },
         {
             title: t('users'),
             description: t('usersDesc'),
-            icon: <PiUsers className="text-2xl" />,
+            icon: <PiUsers className="text-xl" />,
             color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
             onClick: () => router.push('/superadmin/users'),
         },
@@ -46,28 +46,28 @@ export default function DashboardQuickActions({ stats }) {
                 pendingAds > 0
                     ? t('adsDescPending', { count: pendingAds })
                     : t('adsDesc'),
-            icon: <PiMegaphone className="text-2xl" />,
+            icon: <PiMegaphone className="text-xl" />,
             color: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
             onClick: () => router.push('/superadmin/advertisements'),
         },
         {
             title: t('activityLog'),
             description: t('activityLogDesc'),
-            icon: <PiClockCounterClockwise className="text-2xl" />,
+            icon: <PiClockCounterClockwise className="text-xl" />,
             color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400',
             onClick: () => router.push('/superadmin/activity-log'),
         },
         {
             title: t('reviews'),
             description: t('reviewsDesc'),
-            icon: <PiWarningCircle className="text-2xl" />,
+            icon: <PiWarningCircle className="text-xl" />,
             color: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
             onClick: () => router.push('/superadmin/reviews'),
         },
         {
             title: t('settings'),
             description: t('settingsDesc'),
-            icon: <PiGear className="text-2xl" />,
+            icon: <PiGear className="text-xl" />,
             color: 'bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400',
             onClick: () => router.push('/superadmin/settings'),
         },

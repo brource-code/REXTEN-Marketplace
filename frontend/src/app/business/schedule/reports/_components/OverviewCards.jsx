@@ -39,7 +39,7 @@ function StatCard({ title, value, prefix, icon: Icon, color }) {
                 <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 md:h-12 md:w-12 ${color}`}
                 >
-                    <Icon className="text-base sm:text-xl md:text-2xl" aria-hidden />
+                    <Icon className="text-base sm:text-xl md:text-xl" aria-hidden />
                 </div>
             </div>
         </Card>

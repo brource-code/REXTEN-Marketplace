@@ -195,13 +195,13 @@ export default function BookingsReport({ filters }) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <Card>
                 <div className="mb-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
                 </div>
 
-                <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
                     <div className="min-w-0 rounded-xl border border-gray-100 bg-gray-50/40 p-3 dark:border-gray-700/80 dark:bg-gray-800/30">
                         <h4 className="mb-3 text-sm font-bold text-gray-500 dark:text-gray-400">
                             {t('byPeriod')}

@@ -114,7 +114,7 @@ export default function Page() {
     return (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                         <div>
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -150,7 +150,7 @@ export default function Page() {
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
                                 {t('stats.total')}
                             </div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 {statsLoading ? <Loading loading /> : (
                                     <NumericFormat
                                         displayType="text"
@@ -164,7 +164,7 @@ export default function Page() {
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
                                 {t('stats.today')}
                             </div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 {statsLoading ? <Loading loading /> : stats?.today || 0}
                             </div>
                         </Card>
@@ -172,7 +172,7 @@ export default function Page() {
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
                                 {t('stats.adminActions')}
                             </div>
-                            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                            <div className="text-xl font-bold text-purple-600 dark:text-purple-400">
                                 {statsLoading ? <Loading loading /> : stats?.by_segment?.admin || 0}
                             </div>
                         </Card>
@@ -180,7 +180,7 @@ export default function Page() {
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
                                 {t('stats.clientActions')}
                             </div>
-                            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                            <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                                 {statsLoading ? <Loading loading /> : stats?.by_segment?.client || 0}
                             </div>
                         </Card>

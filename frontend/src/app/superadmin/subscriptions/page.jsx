@@ -129,7 +129,7 @@ function SubscriptionsContent() {
 
     return (
         <Container>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
                 {/* Header */}
                 <AdaptiveCard>
                     <div className="flex flex-col gap-4">
@@ -153,7 +153,7 @@ function SubscriptionsContent() {
                                 <PiRocketLaunch className="text-xl text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total_plans}</div>
+                                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.total_plans}</div>
                                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('totalPlans')}</div>
                             </div>
                         </div>
@@ -164,7 +164,7 @@ function SubscriptionsContent() {
                                 <PiCheck className="text-xl text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.active_plans}</div>
+                                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.active_plans}</div>
                                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('activePlans')}</div>
                             </div>
                         </div>
@@ -175,7 +175,7 @@ function SubscriptionsContent() {
                                 <PiUsers className="text-xl text-indigo-600 dark:text-indigo-400" />
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total_subscribers}</div>
+                                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.total_subscribers}</div>
                                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('totalSubscribers')}</div>
                             </div>
                         </div>
@@ -186,7 +186,7 @@ function SubscriptionsContent() {
                                 <PiCurrencyDollar className="text-xl text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">${stats.mrr}</div>
+                                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">${stats.mrr}</div>
                                 <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('mrr')}</div>
                             </div>
                         </div>
@@ -367,7 +367,7 @@ function SubscriptionsContent() {
 
             {/* Delete Confirm */}
             <Dialog isOpen={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} width={400}>
-                <div className="p-6">
+                <div className="p-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('deletePlan')}</h4>
                     <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-6">
                         {t('deleteConfirm', { name: deleteConfirm?.name })}
@@ -420,7 +420,7 @@ function EditPlanDialog({ plan, onClose, onSave, loading, t }) {
 
     return (
         <Dialog isOpen={!!plan} onClose={onClose} onAfterOpen={handleOpen} width={600}>
-            <div className="p-6">
+            <div className="p-4">
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('editPlan')}: {plan.name}</h4>
                 <div className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -614,7 +614,7 @@ function CreatePlanDialog({ isOpen, onClose, onSave, loading, t }) {
 
     return (
         <Dialog isOpen={isOpen} onClose={onClose} width={600}>
-            <div className="p-6">
+            <div className="p-4">
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('createPlan')}</h4>
                 <div className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-4">

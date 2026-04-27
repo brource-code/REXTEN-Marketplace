@@ -33,7 +33,7 @@ export default function DashboardStatCards({ stats }) {
         {
             title: t('companies'),
             value: c.total ?? 0,
-            icon: <PiBuildings className="text-2xl" />,
+            icon: <PiBuildings className="text-xl" />,
             color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
             extra:
                 (c.pending ?? 0) > 0 ? (
@@ -45,7 +45,7 @@ export default function DashboardStatCards({ stats }) {
         {
             title: t('users'),
             value: u.total ?? 0,
-            icon: <PiUsers className="text-2xl" />,
+            icon: <PiUsers className="text-xl" />,
             color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
             extra: (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
@@ -63,7 +63,7 @@ export default function DashboardStatCards({ stats }) {
         {
             title: t('bookingsToday'),
             value: b.today ?? 0,
-            icon: <PiCalendarCheck className="text-2xl" />,
+            icon: <PiCalendarCheck className="text-xl" />,
             color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400',
             extra: (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
@@ -91,7 +91,7 @@ export default function DashboardStatCards({ stats }) {
             title: t('revenueMonth'),
             prefix: '$',
             value: revCur,
-            icon: <PiCurrencyDollar className="text-2xl" />,
+            icon: <PiCurrencyDollar className="text-xl" />,
             color: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
             extra:
                 revPct != null ? (
@@ -118,7 +118,7 @@ export default function DashboardStatCards({ stats }) {
         {
             title: t('adsActive'),
             value: (a.marketplace_active ?? 0) + (a.promo_active ?? 0),
-            icon: <PiMegaphone className="text-2xl" />,
+            icon: <PiMegaphone className="text-xl" />,
             color: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
             extra: (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
@@ -143,7 +143,7 @@ export default function DashboardStatCards({ stats }) {
         {
             title: t('avgRating'),
             value: (stats?.average_rating ?? 0).toFixed(2),
-            icon: <PiStar className="text-2xl" />,
+            icon: <PiStar className="text-xl" />,
             color: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400',
         },
     ]
@@ -157,7 +157,7 @@ export default function DashboardStatCards({ stats }) {
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                 {stat.title}
                             </div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 {stat.prefix ? (
                                     <NumericFormat
                                         displayType="text"

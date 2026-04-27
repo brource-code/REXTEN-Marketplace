@@ -341,8 +341,8 @@ export default function CompanyDetailPage() {
 
                         <div className="mt-6">
                             <TabContent value="info">
-                                <Card className="p-6">
-                                    <div className="flex flex-col md:flex-row gap-6">
+                                <Card className="p-4">
+                                    <div className="flex flex-col md:flex-row gap-4">
                                         <div className="flex-shrink-0">
                                             <Avatar
                                                 size={80}

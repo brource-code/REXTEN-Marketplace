@@ -209,9 +209,9 @@ const MarketplaceTab = () => {
 
     return (
         <FormContainer>
-            <div className="flex flex-col gap-6 w-full">
+            <div className="flex flex-col gap-4 w-full">
                     {/* Видимость на маркетплейсе */}
-                    <Card className="p-4 sm:p-6 w-full">
+                    <Card className="p-4 sm:p-4 w-full">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
                                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('visibility.title')}</h4>
@@ -294,7 +294,7 @@ const MarketplaceTab = () => {
                     </Card>
 
                     {/* SEO настройки */}
-                    <Card className="p-4 sm:p-6 w-full">
+                    <Card className="p-4 sm:p-4 w-full">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('seo.title')}</h4>
                         <div className="space-y-4">
                             <FormItem label={t('seo.seoTitle')}>
@@ -339,7 +339,7 @@ const MarketplaceTab = () => {
                     </Card>
 
                     {/* Управление объявлениями */}
-                    <Card className="p-4 sm:p-6 w-full">
+                    <Card className="p-4 sm:p-4 w-full">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                                 <div>
                                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('advertisements.title')}</h4>
@@ -443,7 +443,7 @@ const MarketplaceTab = () => {
                                 {/* Мобильные карточки */}
                                 <div className="md:hidden space-y-3 w-full">
                                     {advertisements.map((ad) => (
-                                        <div key={ad.id} className="p-4 sm:p-6 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                        <div key={ad.id} className="p-4 sm:p-4 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                                             <div className="flex items-start gap-3 mb-3">
                                                 {(ad.image || ad.img || ad.photo || (ad.images && Array.isArray(ad.images) && ad.images[0])) && (
                                                     <img

@@ -145,8 +145,8 @@ const SystemTab = () => {
     return (
         <FormContainer>
             <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-6">
-                    <Card className="p-6">
+                <div className="flex flex-col gap-4">
+                    <Card className="p-4">
                         <div className="flex items-center justify-between mb-4">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 Состояние сервера и здоровье системы
@@ -301,7 +301,7 @@ const SystemTab = () => {
                         )}
                     </Card>
 
-                    <Card className="p-6">
+                    <Card className="p-4">
                         <div className="flex items-center justify-between mb-4">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Системные параметры</h4>
                             <Button

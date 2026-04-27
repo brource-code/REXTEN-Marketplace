@@ -542,7 +542,7 @@ function SubscriptionContent() {
 
     return (
         <Container>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
                 {/* Заголовок */}
                 <AdaptiveCard>
                     <div className="flex flex-col gap-3">
@@ -1081,7 +1081,7 @@ function SubscriptionContent() {
                                                 </div>
                                             </div>
                                             <div className="flex items-baseline gap-1 mb-2">
-                                                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatMoney(price, plan.currency)}</span>
+                                                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">{formatMoney(price, plan.currency)}</span>
                                                 <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
                                                     /{billingInterval === 'year' ? t('yr') : t('mo')}
                                                 </span>
@@ -1280,7 +1280,7 @@ function SubscriptionContent() {
                 }}
                 width={480}
             >
-                <div className="p-6">
+                <div className="p-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         {t('upgradeDialog.title')}
                     </h4>
@@ -1336,7 +1336,7 @@ function SubscriptionContent() {
                 }}
                 width={480}
             >
-                <div className="p-6">
+                <div className="p-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         {t('downgrade.dialogTitle')}
                     </h4>
@@ -1405,7 +1405,7 @@ function SubscriptionContent() {
                 onClose={() => setCancelDialogOpen(false)}
                 width={440}
             >
-                <div className="p-6">
+                <div className="p-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         {t('cancelDialog.title')}
                     </h4>
@@ -1443,9 +1443,9 @@ function SubscriptionContent() {
                 onClose={() => setSuccessDialogOpen(false)}
                 width={440}
             >
-                <div className="p-6 text-center">
+                <div className="p-4 text-center">
                     <div className="w-16 h-16 mx-auto mb-4 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-                        <PiCheck className="text-3xl text-emerald-600 dark:text-emerald-400" />
+                        <PiCheck className="text-2xl text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         {t('successDialog.title')}

@@ -24,7 +24,7 @@ const FeesTab = () => {
     return (
         <FormContainer>
             <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     <FormItem label="Комиссия платформы (%)">
                         <Input
                             type="number"

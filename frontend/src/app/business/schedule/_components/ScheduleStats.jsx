@@ -157,7 +157,7 @@ const ScheduleStats = ({ slots = [], dateRange, statsMode = 'visibleRange' }) =>
                                 <div
                                     className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${stat.color}`}
                                 >
-                                    <Icon className="text-base sm:text-xl md:text-2xl" />
+                                    <Icon className="text-base sm:text-xl md:text-xl" />
                                 </div>
                             </div>
                         </Card>

@@ -52,7 +52,7 @@ const SettingsTabs = () => {
                         Системные логи
                     </TabNav>
                 </TabList>
-                <div className="p-6">
+                <div className="p-4">
                     <TabContent value="realtime">
                         <RealtimeTab />
                     </TabContent>

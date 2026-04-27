@@ -119,7 +119,7 @@ const UsersTab = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {members.map((member) => (
-                            <Card key={member.id} className="p-4 sm:p-6">
+                            <Card key={member.id} className="p-4 sm:p-4">
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className={`h-12 w-12 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0 ${
@@ -306,7 +306,7 @@ const InviteModal = ({ isOpen, onClose, roles }) => {
     if (createdUser) {
         return (
             <Dialog isOpen={isOpen} onClose={handleCloseSuccess} width={440}>
-                <div className="p-6">
+                <div className="p-4">
                     <div className="flex flex-col items-center text-center mb-6">
                         <div className="h-14 w-14 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
                             <PiCheck className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />

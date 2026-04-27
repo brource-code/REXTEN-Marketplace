@@ -35,7 +35,7 @@ export default function Page() {
         return (
             <Container>
                 <AdaptiveCard>
-                    <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6">
+                    <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                             {t('pageTitle')}
                         </h4>

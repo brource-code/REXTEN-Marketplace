@@ -163,9 +163,9 @@ const ScheduleTab = () => {
 
     return (
         <FormContainer>
-            <div className="flex flex-col gap-6 w-full">
+            <div className="flex flex-col gap-4 w-full">
                     {/* Рабочие дни */}
-                    <Card className="p-4 sm:p-6 w-full">
+                    <Card className="p-4 sm:p-4 w-full">
                         <h4 className="mb-4">{t('workDays')}</h4>
                         <div className="space-y-4">
                             {days.map((day) => (
@@ -211,7 +211,7 @@ const ScheduleTab = () => {
                     </Card>
 
                     {/* Перерывы */}
-                    <Card className="p-4 sm:p-6 w-full">
+                    <Card className="p-4 sm:p-4 w-full">
                         <h4 className="mb-4">{t('breaks')}</h4>
                         <div className="space-y-4">
                             <FormItem label={t('enableBreaks')}>
@@ -249,7 +249,7 @@ const ScheduleTab = () => {
                     </Card>
 
                     {/* Начало недели */}
-                    <Card className="p-4 sm:p-6 w-full">
+                    <Card className="p-4 sm:p-4 w-full">
                         <h4 className="mb-4">{t('weekStart.title')}</h4>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <Button
@@ -270,7 +270,7 @@ const ScheduleTab = () => {
                     </Card>
 
                     {/* Дополнительные настройки */}
-                    <Card className="p-4 sm:p-6 w-full">
+                    <Card className="p-4 sm:p-4 w-full">
                         <h4 className="mb-4">{t('additionalSettings')}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormItem label={t('minBookingHours')}>

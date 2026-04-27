@@ -62,20 +62,20 @@ export default function SalaryReport({ filters }) {
             title: tSalary('overview.totalSalary'),
             value: data.totalSalary || 0,
             prefix: '$',
-            icon: <PiCurrencyDollar className="text-2xl" />,
+            icon: <PiCurrencyDollar className="text-xl" />,
             color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
         },
         {
             title: tSalary('overview.specialists'),
             value: data.totalSpecialists || 0,
-            icon: <PiUsers className="text-2xl" />,
+            icon: <PiUsers className="text-xl" />,
             color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
         },
         {
             title: tSalary('overview.averageSalary'),
             value: data.averageSalary || 0,
             prefix: '$',
-            icon: <PiChartBar className="text-2xl" />,
+            icon: <PiChartBar className="text-xl" />,
             color: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
         },
     ]
@@ -95,7 +95,7 @@ export default function SalaryReport({ filters }) {
                                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                     {stat.title}
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {stat.prefix ? (
                                         <NumericFormat
                                             displayType="text"

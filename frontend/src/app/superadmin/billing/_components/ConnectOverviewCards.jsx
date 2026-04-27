@@ -43,37 +43,37 @@ export default function ConnectOverviewCards() {
             title: t('cards.connectedAccounts'),
             value: o.connected_companies ?? 0,
             total: o.total_companies ?? 0,
-            icon: <PiBuildings className="text-2xl" />,
+            icon: <PiBuildings className="text-xl" />,
             color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
         },
         {
             title: t('cards.activeAccounts'),
             value: o.active_companies ?? 0,
-            icon: <PiCheckCircle className="text-2xl" />,
+            icon: <PiCheckCircle className="text-xl" />,
             color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
         },
         {
             title: t('cards.pendingAccounts'),
             value: o.pending_companies ?? 0,
-            icon: <PiClock className="text-2xl" />,
+            icon: <PiClock className="text-xl" />,
             color: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
         },
         {
             title: t('cards.restrictedAccounts'),
             value: o.restricted_companies ?? 0,
-            icon: <PiWarningCircle className="text-2xl" />,
+            icon: <PiWarningCircle className="text-xl" />,
             color: 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400',
         },
         {
             title: t('cards.disabledAccounts'),
             value: o.disabled_companies ?? 0,
-            icon: <PiXCircle className="text-2xl" />,
+            icon: <PiXCircle className="text-xl" />,
             color: 'bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400',
         },
         {
             title: t('cards.disputeAccounts'),
             value: o.dispute_companies ?? 0,
-            icon: <PiWarningCircle className="text-2xl" />,
+            icon: <PiWarningCircle className="text-xl" />,
             color: 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400',
         },
     ]
@@ -83,7 +83,7 @@ export default function ConnectOverviewCards() {
             title: t('cards.revenueMonth'),
             prefix: '$',
             value: o.revenue_this_month ?? 0,
-            icon: <PiCurrencyDollar className="text-2xl" />,
+            icon: <PiCurrencyDollar className="text-xl" />,
             color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
             extra:
                 growth != null ? (
@@ -103,13 +103,13 @@ export default function ConnectOverviewCards() {
             title: t('cards.platformFees'),
             prefix: '$',
             value: o.fees_this_month ?? 0,
-            icon: <PiReceipt className="text-2xl" />,
+            icon: <PiReceipt className="text-xl" />,
             color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400',
         },
         {
             title: t('cards.paymentsMonth'),
             value: o.payments_this_month ?? 0,
-            icon: <PiReceipt className="text-2xl" />,
+            icon: <PiReceipt className="text-xl" />,
             color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
             extra: (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
@@ -122,7 +122,7 @@ export default function ConnectOverviewCards() {
             title: t('cards.pendingCaptures'),
             prefix: '$',
             value: o.pending_captures_amount ?? 0,
-            icon: <PiClock className="text-2xl" />,
+            icon: <PiClock className="text-xl" />,
             color: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
             extra: (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
@@ -135,13 +135,13 @@ export default function ConnectOverviewCards() {
             title: t('cards.refundedMonth'),
             prefix: '$',
             value: o.refunded_this_month ?? 0,
-            icon: <PiArrowsCounterClockwise className="text-2xl" />,
+            icon: <PiArrowsCounterClockwise className="text-xl" />,
             color: 'bg-gray-100 dark:bg-gray-600/30 text-gray-700 dark:text-gray-300',
         },
         {
             title: t('cards.disputedMonth'),
             value: o.disputed_this_month ?? 0,
-            icon: <PiWarningCircle className="text-2xl" />,
+            icon: <PiWarningCircle className="text-xl" />,
             color: 'bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400',
         },
     ]
@@ -158,7 +158,7 @@ export default function ConnectOverviewCards() {
                                     <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                         {stat.title}
                                     </div>
-                                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                         {stat.value}
                                         {stat.total !== undefined && (
                                             <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
@@ -188,7 +188,7 @@ export default function ConnectOverviewCards() {
                                     <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                         {stat.title}
                                     </div>
-                                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                         {stat.prefix ? (
                                             <NumericFormat
                                                 displayType="text"

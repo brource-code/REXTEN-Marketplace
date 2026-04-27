@@ -183,7 +183,7 @@ export default function SuperadminSupportDetailPage() {
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div>
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('companySection')}</h4>
                             <MetaRow label={t('companyName')} value={company.name} />

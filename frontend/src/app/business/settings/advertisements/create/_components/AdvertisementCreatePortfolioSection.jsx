@@ -25,7 +25,7 @@ export function AdvertisementCreatePortfolioSection({
     const t = useTranslations('business.advertisements.create')
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div className="space-y-4">
                     <div className="mb-4 flex items-start justify-between gap-3 sm:gap-4">
                         <div className="min-w-0 flex-1">

@@ -80,7 +80,7 @@ export default function CreateTokenDialog({ isOpen, onClose }) {
 
     return (
         <Dialog isOpen={isOpen} onClose={resetAndClose} width={520}>
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-4 flex flex-col gap-4">
                 {!createdToken ? (
                     <>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('create')}</h4>

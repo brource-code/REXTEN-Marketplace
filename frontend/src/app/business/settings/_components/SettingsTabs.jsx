@@ -166,7 +166,7 @@ function SettingsTabsInner() {
                     ]}
                 />
             </div>
-            <div className="p-4 sm:p-6 -mx-4 sm:mx-0">
+            <div className="p-4 sm:p-4 -mx-4 sm:mx-0">
                 <div
                     role="tabpanel"
                     className={classNames('tab-content', tab === 'profile' && 'tab-content-active')}

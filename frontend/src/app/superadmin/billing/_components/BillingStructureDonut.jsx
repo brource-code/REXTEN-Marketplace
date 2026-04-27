@@ -61,7 +61,7 @@ export default function BillingStructureDonut() {
             ) : !series || data.total <= 0 ? (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('noData')}</div>
             ) : (
-                <div className="flex flex-col md:flex-row md:items-center gap-6">
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className="flex-1 min-h-[260px] flex justify-center">
                         <Chart
                             type="donut"

@@ -237,7 +237,7 @@ const TeamTab = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                     {teamMembers.map((member) => (
-                        <Card key={member.id} className="p-4 sm:p-6 w-full">
+                        <Card key={member.id} className="p-4 sm:p-4 w-full">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     {member.img ? (

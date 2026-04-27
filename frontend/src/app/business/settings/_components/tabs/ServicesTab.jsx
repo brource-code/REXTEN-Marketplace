@@ -217,9 +217,9 @@ const ServicesTab = () => {
                     </Button>
                 </div>
 
-                <Card className="p-0 sm:p-6 w-full">
+                <Card className="p-0 sm:p-4 w-full">
                     {/* Десктопная таблица */}
-                    <div className="hidden md:block p-6">
+                    <div className="hidden md:block p-4">
                         <Table>
                             <THead>
                                 <Tr>
@@ -307,7 +307,7 @@ const ServicesTab = () => {
                     {/* Мобильные карточки */}
                     <div className="md:hidden space-y-3 w-full">
                         {services.map((service) => (
-                            <Card key={service.id} className="p-4 sm:p-6 w-full">
+                            <Card key={service.id} className="p-4 sm:p-4 w-full">
                                 <div className="flex items-start justify-between gap-3 mb-3">
                                     <div className="flex-1">
                                         <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">

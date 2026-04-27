@@ -122,7 +122,7 @@ export default function CompanyDetailEdit({ company, companyId }) {
     if (!company) return null
 
     return (
-        <Card className="p-6">
+        <Card className="p-4">
             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">{t('title')}</h4>
             <FormContainer>
                 <form onSubmit={handleSubmit} className="space-y-5">

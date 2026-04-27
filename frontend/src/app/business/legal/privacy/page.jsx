@@ -19,17 +19,17 @@ export default function BusinessPrivacyPage() {
         >
             <Container>
                 <div className="max-w-4xl mx-auto">
-                    <Card className="p-6 sm:p-8">
-                        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    <Card className="p-4 sm:p-4">
+                        <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                             Политика конфиденциальности для бизнесов
                         </h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                             Последнее обновление: {formatDate(new Date(), businessTz, 'long')}
                         </p>
 
-                        <div className="prose prose-gray dark:prose-invert max-w-none space-y-6 text-gray-700 dark:text-gray-300">
+                        <div className="prose prose-gray dark:prose-invert max-w-none space-y-4 text-gray-700 dark:text-gray-300">
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     1. Введение
                                 </h2>
                                 <p>
@@ -40,7 +40,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     2. Данные бизнеса
                                 </h2>
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
@@ -72,7 +72,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     3. Данные клиентов, получаемые через платформу
                                 </h2>
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
@@ -102,7 +102,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     4. Обязательства по защите данных клиентов
                                 </h2>
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
@@ -132,7 +132,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     5. Соблюдение CCPA (California Consumer Privacy Act)
                                 </h2>
                                 <p>
@@ -167,7 +167,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     6. Передача данных третьим лицам
                                 </h2>
                                 <p>
@@ -184,7 +184,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     7. Уведомление о нарушениях безопасности
                                 </h2>
                                 <p>
@@ -199,7 +199,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     8. Хранение данных
                                 </h2>
                                 <p>
@@ -216,7 +216,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     9. Специальные требования для определенных типов услуг
                                 </h2>
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
@@ -236,7 +236,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     10. Изменения в политике конфиденциальности
                                 </h2>
                                 <p>
@@ -246,7 +246,7 @@ export default function BusinessPrivacyPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     11. Контактная информация
                                 </h2>
                                 <p>

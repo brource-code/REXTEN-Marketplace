@@ -23,7 +23,7 @@ export default function BillingStatCards({ overview }) {
             title: t('revenueMonth'),
             prefix: '$',
             value: o.revenue_this_month ?? 0,
-            icon: <PiCurrencyDollar className="text-2xl" />,
+            icon: <PiCurrencyDollar className="text-xl" />,
             color: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
             extra:
                 growth != null ? (
@@ -47,28 +47,28 @@ export default function BillingStatCards({ overview }) {
             title: t('adRevenue'),
             prefix: '$',
             value: o.revenue_ad_this_month ?? 0,
-            icon: <PiMegaphone className="text-2xl" />,
+            icon: <PiMegaphone className="text-xl" />,
             color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
         },
         {
             title: t('subscriptionRevenue'),
             prefix: '$',
             value: o.revenue_subscription_this_month ?? 0,
-            icon: <PiCreditCard className="text-2xl" />,
+            icon: <PiCreditCard className="text-xl" />,
             color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
         },
         {
             title: t('avgCheck'),
             prefix: '$',
             value: o.avg_check_this_month ?? 0,
-            icon: <PiReceipt className="text-2xl" />,
+            icon: <PiReceipt className="text-xl" />,
             color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400',
         },
         {
             title: t('today'),
             prefix: '$',
             value: o.amount_today ?? 0,
-            icon: <PiArrowsClockwise className="text-2xl" />,
+            icon: <PiArrowsClockwise className="text-xl" />,
             color: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
             extra: (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
@@ -81,7 +81,7 @@ export default function BillingStatCards({ overview }) {
             title: t('openCheckouts'),
             prefix: '$',
             value: o.open_checkouts_amount ?? 0,
-            icon: <PiClockCounterClockwise className="text-2xl" />,
+            icon: <PiClockCounterClockwise className="text-xl" />,
             color: 'bg-gray-100 dark:bg-gray-600/30 text-gray-700 dark:text-gray-300',
             extra: (
                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
@@ -101,7 +101,7 @@ export default function BillingStatCards({ overview }) {
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                 {stat.title}
                             </div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 <NumericFormat
                                     displayType="text"
                                     value={stat.value}

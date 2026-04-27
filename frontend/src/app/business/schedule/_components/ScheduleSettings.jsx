@@ -125,7 +125,7 @@ const ScheduleSettings = () => {
                 width={500}
                 onClose={() => setIsOpen(false)}
             >
-                <div className="p-6 space-y-6">
+                <div className="p-4 space-y-4">
                     {/* Рабочие дни */}
                     <Card className="p-4">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">

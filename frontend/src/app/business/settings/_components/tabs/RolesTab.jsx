@@ -154,7 +154,7 @@ const RolesTab = () => {
                         </h6>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {systemRoles.map((role) => (
-                                <Card key={role.id} className="p-4 sm:p-6">
+                                <Card key={role.id} className="p-4 sm:p-4">
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
@@ -204,7 +204,7 @@ const RolesTab = () => {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {customRoles.map((role) => (
-                                <Card key={role.id} className="p-4 sm:p-6">
+                                <Card key={role.id} className="p-4 sm:p-4">
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
@@ -263,7 +263,7 @@ const RolesTab = () => {
                 onClose={() => setOverflowRole(null)}
                 width={400}
             >
-                <div className="p-5 sm:p-6">
+                <div className="p-5 sm:p-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 pr-8">
                         {overflowRole?.name}
                     </h4>

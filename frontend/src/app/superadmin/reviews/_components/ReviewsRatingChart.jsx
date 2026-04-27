@@ -79,7 +79,7 @@ export default function ReviewsRatingChart() {
                     {t('noData')}
                 </div>
             ) : (
-                <div className="flex flex-col md:flex-row md:items-center gap-6">
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className="flex-1 min-h-[260px] flex justify-center">
                         <Chart
                             type="donut"

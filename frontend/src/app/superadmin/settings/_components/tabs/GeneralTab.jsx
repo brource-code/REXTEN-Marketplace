@@ -144,8 +144,8 @@ const GeneralTab = () => {
     return (
         <FormContainer>
             <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-6">
-                    <Card className="p-6">
+                <div className="flex flex-col gap-4">
+                    <Card className="p-4">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                             Основное
                         </h4>
@@ -206,7 +206,7 @@ const GeneralTab = () => {
                         </div>
                     </Card>
 
-                    <Card className="p-6">
+                    <Card className="p-4">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                             Юридическая информация
                         </h4>
@@ -235,7 +235,7 @@ const GeneralTab = () => {
                         </div>
                     </Card>
 
-                    <Card className="p-6">
+                    <Card className="p-4">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                             Социальные сети
                         </h4>
@@ -264,11 +264,11 @@ const GeneralTab = () => {
                         </div>
                     </Card>
 
-                    <Card className="p-6">
+                    <Card className="p-4">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Кастомизация логотипа</h4>
-                        <div className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-4">
                             <FormItem label="Превью">
-                                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-gray-800 flex items-center justify-center">
+                                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 flex items-center justify-center">
                                     <Logo
                                         type="full"
                                         mode={mode}

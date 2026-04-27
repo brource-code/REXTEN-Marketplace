@@ -133,7 +133,7 @@ export default function BackupsTab() {
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div>
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">

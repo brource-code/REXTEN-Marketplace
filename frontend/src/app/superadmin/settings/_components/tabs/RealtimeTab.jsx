@@ -65,8 +65,8 @@ const RealtimeTab = () => {
     )
 
     return (
-        <div className="flex flex-col gap-6">
-            <Card className="p-6">
+        <div className="flex flex-col gap-4">
+            <Card className="p-4">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                     <div className="min-w-0">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h4>
@@ -110,7 +110,7 @@ const RealtimeTab = () => {
                     </div>
 
                     {data?.online_by_role && Object.keys(data.online_by_role).length > 0 && (
-                        <Card className="p-6">
+                        <Card className="p-4">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('onlineByRole')}</h4>
                             <div className="flex flex-wrap gap-2">
                                 {Object.entries(data.online_by_role).map(([role, count]) => (

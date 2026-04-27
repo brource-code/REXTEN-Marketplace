@@ -30,7 +30,7 @@ const StatisticCard = memo((props) => {
         <button
             type="button"
             className={classNames(
-                'p-4 rounded-2xl cursor-pointer ltr:text-left rtl:text-right transition duration-150 outline-hidden',
+                'p-4 rounded-xl cursor-pointer ltr:text-left rtl:text-right transition duration-150 outline-hidden',
                 active && 'bg-white dark:bg-gray-900 shadow-md',
             )}
             onClick={handleClick}
@@ -139,7 +139,7 @@ export default function ConnectRevenueChart() {
                     onChange={(opt) => opt?.value != null && setDays(Number(opt.value))}
                 />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-2xl p-3 bg-gray-100 dark:bg-gray-700 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl p-3 bg-gray-100 dark:bg-gray-700 mt-4">
                 <StatisticCard
                     title={t('stats.revenue')}
                     value={fmt(totals.revenue)}

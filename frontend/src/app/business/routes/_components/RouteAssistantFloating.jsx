@@ -237,7 +237,7 @@ export default function RouteAssistantFloating({
             ) : null}
             <button
                 type="button"
-                className="pointer-events-auto inline-flex min-h-[3rem] cursor-pointer select-none items-center justify-center gap-2 rounded-2xl rounded-br-md border-2 border-white bg-primary px-3.5 py-2.5 text-sm font-bold text-white shadow-[0_10px_28px_rgba(37,99,235,0.45)] outline-none transition hover:bg-primary-mild hover:shadow-[0_12px_32px_rgba(37,99,235,0.55)] active:scale-[0.98] dark:border-gray-800 dark:bg-primary dark:text-white dark:shadow-[0_10px_32px_rgba(0,0,0,0.55)] dark:hover:bg-primary-mild"
+                className="pointer-events-auto inline-flex min-h-[3rem] cursor-pointer select-none items-center justify-center gap-2 rounded-xl rounded-br-md border-2 border-white bg-primary px-3.5 py-2.5 text-sm font-bold text-white shadow-[0_10px_28px_rgba(37,99,235,0.45)] outline-none transition hover:bg-primary-mild hover:shadow-[0_12px_32px_rgba(37,99,235,0.55)] active:scale-[0.98] dark:border-gray-800 dark:bg-primary dark:text-white dark:shadow-[0_10px_32px_rgba(0,0,0,0.55)] dark:hover:bg-primary-mild"
                 aria-label={open ? t('floatingToggleClose') : t('floatingToggleOpen')}
                 aria-expanded={open}
                 onPointerDown={handleDragPointerDown}

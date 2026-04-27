@@ -151,7 +151,7 @@ function ReportsPageContent() {
                                 />
                             </div>
 
-                            <div className="flex flex-col gap-6">
+                            <div className="flex flex-col gap-4">
                                 <div
                                     className={classNames(
                                         mobileTab !== 'overview' && 'hidden',

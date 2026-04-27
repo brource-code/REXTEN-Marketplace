@@ -77,9 +77,9 @@ const ScheduleAgendaView = ({
 
     if (grouped.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 px-6 py-16 text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800">
-                    <PiCalendarBlank className="text-3xl text-gray-400 dark:text-gray-500" />
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 px-6 py-16 text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+                    <PiCalendarBlank className="text-2xl text-gray-400 dark:text-gray-500" />
                 </div>
                 <p className="text-base font-bold text-gray-900 dark:text-gray-100">{t('noBookings')}</p>
                 <p className="mt-1 text-sm font-bold text-gray-500 dark:text-gray-400">{t('noBookingsHint')}</p>
@@ -97,7 +97,7 @@ const ScheduleAgendaView = ({
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
             {grouped.map((group) => (
                 <section key={group.key}>
                     <header className="mb-3 flex items-baseline justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-2">

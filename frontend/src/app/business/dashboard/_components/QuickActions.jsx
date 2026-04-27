@@ -53,7 +53,7 @@ const QuickActions = () => {
 
     const actions = useMemo(() => {
         const wrapNavIcon = (key) => (
-            <span className="flex items-center justify-center text-2xl leading-none [&_svg]:block [&_svg]:shrink-0">
+            <span className="flex items-center justify-center text-xl leading-none [&_svg]:block [&_svg]:shrink-0">
                 {navigationIcon[key]}
             </span>
         )

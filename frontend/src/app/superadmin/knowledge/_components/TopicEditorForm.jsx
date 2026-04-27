@@ -179,7 +179,7 @@ export default function TopicEditorForm({ topic = null }) {
     }
 
     return (
-        <form onSubmit={submit} className="flex flex-col gap-6 max-w-3xl">
+        <form onSubmit={submit} className="flex flex-col gap-4 max-w-3xl">
             {!isEdit ? (
                 <FormItem label={t('topicGroupKeyOptional')}>
                     <Input

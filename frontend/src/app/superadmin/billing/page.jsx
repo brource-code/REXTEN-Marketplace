@@ -49,7 +49,7 @@ export default function SuperadminBillingPage() {
                             {t('tabs.connect')}
                         </TabNav>
                     </TabList>
-                    <div className="p-4 sm:p-6 -mx-4 sm:mx-0">
+                    <div className="p-4 sm:p-4 -mx-4 sm:mx-0">
                         <TabContent value="platform">
                             <div className="flex flex-col gap-4">
                                 {isLoading && (
@@ -58,7 +58,7 @@ export default function SuperadminBillingPage() {
                                     </div>
                                 )}
                                 {!isLoading && isError && (
-                                    <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6">
+                                    <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
                                         <p className="text-sm font-bold text-red-600 dark:text-red-400">
                                             {error?.message || t('loadError')}
                                         </p>

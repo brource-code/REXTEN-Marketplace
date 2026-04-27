@@ -19,38 +19,38 @@ export default function ReviewsStatCards({ overview }) {
         {
             title: t('totalReviews'),
             value: o.total_reviews ?? 0,
-            icon: <PiStar className="text-2xl" />,
+            icon: <PiStar className="text-xl" />,
             color: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
         },
         {
             title: t('avgRating'),
             value: o.average_rating ?? 0,
-            icon: <PiStar className="text-2xl" />,
+            icon: <PiStar className="text-xl" />,
             color: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400',
             format: { decimalScale: 2 },
         },
         {
             title: t('publishedReviews'),
             value: o.published_reviews ?? 0,
-            icon: <PiEye className="text-2xl" />,
+            icon: <PiEye className="text-xl" />,
             color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
         },
         {
             title: t('pendingReviews'),
             value: o.pending_reviews ?? 0,
-            icon: <PiClockCounterClockwise className="text-2xl" />,
+            icon: <PiClockCounterClockwise className="text-xl" />,
             color: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
         },
         {
             title: t('respondedReviews'),
             value: o.responded_reviews ?? 0,
-            icon: <PiChatCircleDuotone className="text-2xl" />,
+            icon: <PiChatCircleDuotone className="text-xl" />,
             color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
         },
         {
             title: t('withoutResponseReviews'),
             value: o.without_response_reviews ?? 0,
-            icon: <PiPencil className="text-2xl" />,
+            icon: <PiPencil className="text-xl" />,
             color: 'bg-gray-100 dark:bg-gray-600/20 text-gray-700 dark:text-gray-300',
         },
     ]
@@ -64,7 +64,7 @@ export default function ReviewsStatCards({ overview }) {
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                 {stat.title}
                             </div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                 <NumericFormat
                                     displayType="text"
                                     value={stat.value}

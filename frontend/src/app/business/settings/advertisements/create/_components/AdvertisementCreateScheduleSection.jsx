@@ -24,7 +24,7 @@ export function AdvertisementCreateScheduleSection({ formData, setFormData, upda
     const scheduleStepMinutes = Number(formData.slot_step_minutes) || 60
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
                 <h4 className="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100">{t('schedule.title')}</h4>
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('schedule.subtitle')}</p>

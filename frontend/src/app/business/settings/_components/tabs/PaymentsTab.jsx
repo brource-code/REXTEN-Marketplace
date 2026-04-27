@@ -344,7 +344,7 @@ const PaymentsTab = () => {
         <Card>
             <div className="py-6">
                 <div className="flex items-center gap-3 mb-6">
-                    <PiCheckCircle className="text-3xl text-green-500" />
+                    <PiCheckCircle className="text-2xl text-green-500" />
                     <div>
                         <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                             {t('statusActive')}

@@ -271,7 +271,7 @@ function TiersSection({ tiers, onChanged }) {
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
             <p className="text-sm font-bold text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed">
                 {t('sequenceHint')}
             </p>
@@ -577,7 +577,7 @@ function PromosSection({ promos, onChanged }) {
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
             <div className="flex flex-wrap gap-2">
                 <Button
                     size="sm"

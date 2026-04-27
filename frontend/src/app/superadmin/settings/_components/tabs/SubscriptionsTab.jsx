@@ -64,7 +64,7 @@ const SubscriptionsTab = () => {
 
     if (isError) {
         return (
-            <Card className="p-6 text-center">
+            <Card className="p-4 text-center">
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3">
                     Не удалось загрузить настройки подписок
                 </p>
@@ -77,7 +77,7 @@ const SubscriptionsTab = () => {
 
     return (
         <div className="space-y-4">
-            <Card className="p-6">
+            <Card className="p-4">
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Подписки</h4>
@@ -94,7 +94,7 @@ const SubscriptionsTab = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {plans.map((plan, index) => (
-                    <Card key={plan.key || index} className="p-6">
+                    <Card key={plan.key || index} className="p-4">
                         <div className="space-y-3">
                             <div className="text-sm font-bold text-gray-500 dark:text-gray-400">Уровень {index + 1}</div>
                             <Input

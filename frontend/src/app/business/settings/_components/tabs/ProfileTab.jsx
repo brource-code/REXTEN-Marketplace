@@ -202,7 +202,7 @@ const ProfileTab = () => {
 
     return (
         <FormContainer>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
                 <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{tOnboarding('restart')}</div>

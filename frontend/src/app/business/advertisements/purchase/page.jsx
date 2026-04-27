@@ -318,7 +318,7 @@ export default function PurchaseAdvertisementPage() {
                             </Link>
                         </div>
                     ) : (
-                        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6">
+                        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-4">
                             {/* Левая колонка - Выбор объявления */}
                             <div className="lg:col-span-2 order-2 lg:order-1">
                                 <div className="flex flex-col gap-3 md:gap-4">
@@ -372,7 +372,7 @@ export default function PurchaseAdvertisementPage() {
                                                     </div>
                                                     {selectedAdvertisementId === ad.id && (
                                                         <div className="flex-shrink-0">
-                                                            <PiCheck className="text-blue-500 dark:text-blue-400 text-xl md:text-2xl" />
+                                                            <PiCheck className="text-blue-500 dark:text-blue-400 text-xl md:text-xl" />
                                                         </div>
                                                     )}
                                                 </div>
@@ -512,10 +512,10 @@ export default function PurchaseAdvertisementPage() {
                 width={500}
                 closable={true}
             >
-                <div className="p-6">
+                <div className="p-4">
                     <div className="text-center mb-6">
                         <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                            <PiCheck className="text-3xl text-green-600 dark:text-green-400" />
+                            <PiCheck className="text-2xl text-green-600 dark:text-green-400" />
                         </div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                             {t('notifications.paymentSuccess') || 'Оплата прошла успешно!'}
@@ -544,7 +544,7 @@ export default function PurchaseAdvertisementPage() {
                                     <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2">
                                         {t('successModal.amount') || 'Сумма оплаты'}
                                     </div>
-                                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                         ${paymentInfo.price}
                                     </div>
                                 </div>

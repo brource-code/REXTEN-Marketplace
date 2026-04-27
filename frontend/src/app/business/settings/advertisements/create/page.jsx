@@ -940,7 +940,7 @@ export default function CreateAdvertisementPage() {
                         }
                     }
                 }}>
-                    <div className="grid w-full max-w-full grid-cols-1 items-start gap-3 overflow-x-hidden sm:gap-6 lg:grid-cols-12">
+                    <div className="grid w-full max-w-full grid-cols-1 items-start gap-3 overflow-x-hidden sm:gap-4 lg:grid-cols-12">
                         <AdvertisementCreateSectionNav
                             sections={SECTIONS}
                             activeSection={activeSection}
@@ -949,7 +949,7 @@ export default function CreateAdvertisementPage() {
                         />
 
                         <div className="min-w-0 lg:col-span-9">
-                            <div className="min-w-0 space-y-4 overflow-x-hidden sm:space-y-6 sm:rounded-2xl sm:border sm:border-gray-200 sm:bg-white sm:p-6 dark:sm:border-gray-700 dark:sm:bg-gray-800">
+                            <div className="min-w-0 space-y-4 overflow-x-hidden sm:space-y-4 sm:rounded-xl sm:border sm:border-gray-200 sm:bg-white sm:p-4 dark:sm:border-gray-700 dark:sm:bg-gray-800">
                                     {activeSection === 'general' && (
                                         <AdvertisementCreateGeneralSection
                                             formData={formData}

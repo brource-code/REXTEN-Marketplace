@@ -83,7 +83,7 @@ export default function CompanyDetailStats({ companyId }) {
                         </div>
                         <PiCurrencyDollar className="text-2xl text-amber-500" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         {isLoading ? (
                             <Loading loading />
                         ) : (
@@ -103,7 +103,7 @@ export default function CompanyDetailStats({ companyId }) {
                         </div>
                         <PiCalendarCheck className="text-2xl text-blue-500" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         {isLoading ? <Loading loading /> : companyStats.bookings.total}
                     </div>
                 </Card>
@@ -114,7 +114,7 @@ export default function CompanyDetailStats({ companyId }) {
                         </div>
                         <PiUsers className="text-2xl text-emerald-500" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         {isLoading ? <Loading loading /> : companyStats.clients.total}
                     </div>
                 </Card>
@@ -125,7 +125,7 @@ export default function CompanyDetailStats({ companyId }) {
                         </div>
                         <PiChartLine className="text-2xl text-purple-500" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         {isLoading ? <Loading loading /> : companyStats.rating}
                     </div>
                 </Card>
@@ -202,7 +202,7 @@ export default function CompanyDetailStats({ companyId }) {
                         <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
                             {t('clientsAll')}
                         </div>
-                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                             {companyStats.clients.total}
                         </div>
                     </div>
@@ -210,7 +210,7 @@ export default function CompanyDetailStats({ companyId }) {
                         <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
                             {t('clientsActive')}
                         </div>
-                        <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                        <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                             {companyStats.clients.active}
                         </div>
                     </div>
@@ -218,7 +218,7 @@ export default function CompanyDetailStats({ companyId }) {
                         <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
                             {t('clientsNew')}
                         </div>
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                             {companyStats.clients.new}
                         </div>
                     </div>

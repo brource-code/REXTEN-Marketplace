@@ -125,7 +125,7 @@ export default function CreateCompanyPage() {
             </div>
 
             <AdaptiveCard>
-                <div className="p-6">
+                <div className="p-4">
                     <div className="mb-6">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Создать компанию</h4>
                         <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">

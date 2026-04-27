@@ -69,7 +69,7 @@ const StatisticCard = memo((props) => {
     return (
         <button
             className={classNames(
-                'p-4 rounded-2xl cursor-pointer ltr:text-left rtl:text-right transition duration-150 outline-hidden flex flex-col justify-center',
+                'p-4 rounded-xl cursor-pointer ltr:text-left rtl:text-right transition duration-150 outline-hidden flex flex-col justify-center',
                 cardClass,
                 active && 'ring-2 ring-gray-900 dark:ring-gray-100 shadow-md',
             )}
@@ -370,7 +370,7 @@ const BusinessOverview = ({ data }) => {
             <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2">
                 {periodCardsRangeLine}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-2xl mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl mt-4">
                 <StatisticCard
                     title={t('stats.revenue')}
                     value={revenueValue}

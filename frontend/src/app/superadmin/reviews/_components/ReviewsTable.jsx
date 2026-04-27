@@ -320,7 +320,7 @@ export default function ReviewsTable() {
     if (isError) {
         return (
             <Card>
-                <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6">
+                <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         {tPage('title')}
                     </h4>
@@ -349,7 +349,7 @@ export default function ReviewsTable() {
 
     return (
         <Card className="p-0">
-            <div className="flex flex-col gap-4 p-6">
+            <div className="flex flex-col gap-4 p-4">
                 <div className="flex flex-col md:flex-row md:items-end gap-4 justify-between">
                     <div className="max-w-xs">
                         <label className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-2 block">

@@ -19,17 +19,17 @@ export default function BusinessCookiesPage() {
         >
             <Container>
                 <div className="max-w-4xl mx-auto">
-                    <Card className="p-6 sm:p-8">
-                        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                    <Card className="p-4 sm:p-4">
+                        <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                             Политика использования Cookie для бизнесов
                         </h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                             Последнее обновление: {formatDate(new Date(), businessTz, 'long')}
                         </p>
 
-                        <div className="prose prose-gray dark:prose-invert max-w-none space-y-6 text-gray-700 dark:text-gray-300">
+                        <div className="prose prose-gray dark:prose-invert max-w-none space-y-4 text-gray-700 dark:text-gray-300">
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     1. Что такое Cookie
                                 </h2>
                                 <p>
@@ -40,7 +40,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     2. Типы используемых Cookie в админ-панели
                                 </h2>
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
@@ -80,7 +80,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     3. Цели использования Cookie
                                 </h2>
                                 <p>
@@ -97,7 +97,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     4. Сторонние Cookie
                                 </h2>
                                 <p>
@@ -115,7 +115,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     5. Управление Cookie
                                 </h2>
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">
@@ -143,7 +143,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     6. Срок действия Cookie
                                 </h2>
                                 <p>
@@ -158,7 +158,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     7. Безопасность Cookie
                                 </h2>
                                 <p>
@@ -173,7 +173,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     8. Соответствие законодательству США
                                 </h2>
                                 <p>
@@ -183,7 +183,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     9. Обновления политики Cookie
                                 </h2>
                                 <p>
@@ -193,7 +193,7 @@ export default function BusinessCookiesPage() {
                             </section>
 
                             <section>
-                                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
                                     10. Контактная информация
                                 </h2>
                                 <p>

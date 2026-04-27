@@ -15,20 +15,20 @@ const BusinessStats = ({ stats }) => {
             {
                 title: t('totalClients'),
                 value: stats?.activeClients || 0,
-                icon: <PiUsers className="text-2xl" />,
+                icon: <PiUsers className="text-xl" />,
                 color: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
             },
             {
                 title: t('totalRevenue'),
                 value: stats?.totalRevenue || 0,
                 prefix: '$',
-                icon: <PiCurrencyDollar className="text-2xl" />,
+                icon: <PiCurrencyDollar className="text-xl" />,
                 color: 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
             },
             {
                 title: t('totalBookings'),
                 value: stats?.totalBookings || 0,
-                icon: <PiClock className="text-2xl" />,
+                icon: <PiClock className="text-xl" />,
                 color: 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400',
             },
         ],
@@ -40,21 +40,21 @@ const BusinessStats = ({ stats }) => {
             {
                 title: t('activeBookings'),
                 value: stats?.upcomingBookings || 0,
-                icon: <PiCalendarCheck className="text-2xl" />,
+                icon: <PiCalendarCheck className="text-xl" />,
                 color: 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400',
             },
             {
                 title: t('revenueInWork'),
                 value: stats?.revenueInWork || 0,
                 prefix: '$',
-                icon: <PiCurrencyDollar className="text-2xl" />,
+                icon: <PiCurrencyDollar className="text-xl" />,
                 color: 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400',
                 overdueRevenue: stats?.overdueBookings?.revenue || 0,
             },
             {
                 title: t('activeAdvertisements'),
                 value: stats?.activeAdvertisements || 0,
-                icon: <PiMegaphone className="text-2xl" />,
+                icon: <PiMegaphone className="text-xl" />,
                 color: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
             },
         ],
@@ -90,7 +90,7 @@ const BusinessStats = ({ stats }) => {
                                 <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 truncate">
                                     {stat.title}
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {stat.prefix ? (
                                         <NumericFormat
                                             displayType="text"

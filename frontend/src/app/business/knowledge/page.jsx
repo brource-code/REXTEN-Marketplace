@@ -28,7 +28,7 @@ export default function BusinessKnowledgePage() {
     const shell = (children) => (
         <Container>
             <AdaptiveCard>
-                <div className="flex flex-col gap-6 min-h-[40vh]">{children}</div>
+                <div className="flex flex-col gap-4 min-h-[40vh]">{children}</div>
             </AdaptiveCard>
         </Container>
     )

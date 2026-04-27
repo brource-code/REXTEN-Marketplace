@@ -144,7 +144,7 @@ export default function DocsTab() {
         'whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition-colors text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:w-full lg:whitespace-normal lg:text-left'
 
     return (
-        <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
+        <div className="flex flex-col gap-4 lg:flex-row lg:gap-8">
             <div className="lg:w-52 shrink-0">
                 <div className="lg:sticky lg:top-4">
                     <p className="mb-2 hidden text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500 lg:block">

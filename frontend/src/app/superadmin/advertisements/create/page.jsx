@@ -455,7 +455,7 @@ export default function CreateAdvertisementPage() {
 
     return (
         <Container>
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {/* Заголовок */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -474,7 +474,7 @@ export default function CreateAdvertisementPage() {
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="grid lg:grid-cols-12 gap-6">
+                    <div className="grid lg:grid-cols-12 gap-4">
                         {/* Боковое меню разделов */}
                         <div className="lg:col-span-3">
                             <Card className="sticky top-24">
@@ -505,7 +505,7 @@ export default function CreateAdvertisementPage() {
                         {/* Основной контент */}
                         <div className="lg:col-span-9">
                             <Card>
-                                <div className="p-6 space-y-6">
+                                <div className="p-4 space-y-4">
                                     {/* Общая информация */}
                                     {activeSection === 'general' && (
                                         <div className="space-y-4">
