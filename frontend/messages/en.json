@@ -3390,7 +3390,9 @@
                 "pending": "Pending",
                 "failed": "Failed",
                 "canceled": "Canceled",
-                "expired": "Expired"
+                "expired": "Expired",
+                "refunded": "Refunded",
+                "partially_refunded": "Partially refunded"
             },
             "filters": {
                 "type": "Transaction Type",
@@ -3876,7 +3878,8 @@
                 "completeOnboarding": "Complete the onboarding process to start accepting payments",
                 "requirementsDue": "Required information",
                 "requirements": {
-                    "past_due": "Past due requirements — complete them in Stripe to avoid payout restrictions"
+                    "past_due": "Past due requirements — complete them in Stripe to avoid payout restrictions",
+                    "pending_verification": "Stripe is verifying your submitted information. Check the Stripe Dashboard for progress; this usually completes automatically."
                 },
                 "stripeDisabledReasonOther": "Stripe reported “{reason}”. Open the Stripe Dashboard or contact support.",
                 "andMore": "and {count} more",
@@ -4139,7 +4142,6 @@
             "welcomePreviewReviewsText": "Collect feedback after visits, reply in one click, and build trust on your marketplace page.",
             "finishTitle": "You’re all set",
             "finishSubtitle": "Follow this path to go live—start with Settings and work left to right.",
-            "finishShareHint": "Send clients your profile link—that’s your public card: reviews, rating, and booking.",
             "finishCta": "Go to Settings",
             "finishClose": "Close",
             "finishFooter": "You can open the Knowledge base from the menu anytime, and replay this tour from Settings → Profile.",
@@ -4167,6 +4169,10 @@
                 "payments": {
                     "title": "Payments",
                     "text": "Connect Stripe to accept online payments."
+                },
+                "share_link": {
+                    "title": "Share link",
+                    "text": "Send clients your profile URL—your public card: reviews, rating, and booking."
                 }
             },
             "startTour": "Start tour",

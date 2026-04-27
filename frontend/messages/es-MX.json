@@ -3373,7 +3373,9 @@
                 "pending": "Pendiente",
                 "failed": "Error",
                 "canceled": "Cancelado",
-                "expired": "Vencido"
+                "expired": "Vencido",
+                "refunded": "Reembolsado",
+                "partially_refunded": "Reembolso parcial"
             },
             "filters": {
                 "type": "Tipo de transacción",
@@ -3876,7 +3878,8 @@
                 "completeOnboarding": "Completa el proceso de registro para comenzar a aceptar pagos",
                 "requirementsDue": "Información requerida",
                 "requirements": {
-                    "past_due": "Requisitos vencidos: complétalos en Stripe para evitar restricciones de pagos"
+                    "past_due": "Requisitos vencidos: complétalos en Stripe para evitar restricciones de pagos",
+                    "pending_verification": "Stripe está verificando la información enviada. Revisa el panel de Stripe; suele completarse automáticamente."
                 },
                 "stripeDisabledReasonOther": "Stripe indicó «{reason}». Abre el panel de Stripe o contacta a soporte.",
                 "andMore": "y {count} más",
@@ -4139,7 +4142,6 @@
             "welcomePreviewReviewsText": "Recopila opiniones tras cada visita, responde en un clic y genera confianza en tu página del marketplace.",
             "finishTitle": "Todo listo",
             "finishSubtitle": "Sigue esta ruta para salir al aire: empieza en Configuración y avanza de izquierda a derecha.",
-            "finishShareHint": "Envía a tus clientes el enlace de tu perfil: ahí está tu tarjeta pública—reseñas, calificación y reserva.",
             "finishCta": "Ir a Configuración",
             "finishClose": "Cerrar",
             "finishFooter": "Puedes abrir la base de conocimiento desde el menú cuando quieras y repetir el tour en Configuración → Perfil.",
@@ -4167,6 +4169,10 @@
                 "payments": {
                     "title": "Pagos",
                     "text": "Conecta Stripe para cobrar en línea."
+                },
+                "share_link": {
+                    "title": "Enlace al cliente",
+                    "text": "Comparte el enlace de tu perfil: tu tarjeta pública—reseñas, calificación y reserva."
                 }
             },
             "startTour": "Start tour",
