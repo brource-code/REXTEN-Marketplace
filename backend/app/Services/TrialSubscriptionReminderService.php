@@ -43,9 +43,11 @@ class TrialSubscriptionReminderService
 
                 $daysLeft = self::calendarDaysUntilTrialEnd($sub);
 
-                if ($daysLeft === 3 && $sub->trial_reminder_3d_sent_at === null) {
-                    if (SubscriptionMailer::notifyTrialReminder($sub, '3d')) {
-                        $sub->trial_reminder_3d_sent_at = now();
+                // Сначала окно «последний день» (<= 1 календарный день), иначе при daysLeft === 1
+                // сработала бы только ветка «3d» (<= 3) и ушло бы неверное письмо / return без «1d».
+                if ($daysLeft <= 1 && $sub->trial_reminder_1d_sent_at === null) {
+                    if (SubscriptionMailer::notifyTrialReminder($sub, '1d')) {
+                        $sub->trial_reminder_1d_sent_at = now();
                         $sub->save();
                         $sent++;
                     }
@@ -53,9 +55,9 @@ class TrialSubscriptionReminderService
                     return;
                 }
 
-                if ($daysLeft === 1 && $sub->trial_reminder_1d_sent_at === null) {
-                    if (SubscriptionMailer::notifyTrialReminder($sub, '1d')) {
-                        $sub->trial_reminder_1d_sent_at = now();
+                if ($daysLeft <= 3 && $sub->trial_reminder_3d_sent_at === null) {
+                    if (SubscriptionMailer::notifyTrialReminder($sub, '3d')) {
+                        $sub->trial_reminder_3d_sent_at = now();
                         $sub->save();
                         $sent++;
                     }

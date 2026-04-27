@@ -1748,7 +1748,9 @@ class SettingsController extends Controller
                 ? ['nullable', 'string', 'size:2', Rule::in(UsStateCodes::ids())]
                 : ['required', 'string', 'size:2', Rule::in(UsStateCodes::ids())],
             'priceFrom' => $isDraft ? 'nullable|numeric' : 'required|numeric|min:0',
-            'priceTo' => $isDraft ? 'nullable|numeric' : ['required', 'numeric', 'min:0', 'gte:priceFrom'],
+            'priceTo' => $isDraft
+                ? 'nullable|numeric|min:0'
+                : ['nullable', 'numeric', 'min:0', 'gte:priceFrom'],
             'currency' => 'nullable|string',
             'category_id' => $isDraft ? 'nullable|integer|exists:service_categories,id' : 'required|integer|exists:service_categories,id',
             'services' => $isDraft ? 'nullable|array' : 'required|array|min:1',
@@ -3175,18 +3177,21 @@ public function deleteAdvertisement(Request $request, $id)
         if ($pf === null || $pf === '') {
             $errors['priceFrom'] = ['Price from is required.'];
         }
-        if ($pt === null || $pt === '') {
-            $errors['priceTo'] = ['Price to is required.'];
+
+        $nFrom = null;
+        if (! isset($errors['priceFrom'])) {
+            $nFrom = (float) $pf;
+            if (! is_finite($nFrom) || $nFrom < 0) {
+                $errors['priceFrom'] = ['Prices must be valid numbers and cannot be negative.'];
+            }
         }
 
-        if (! isset($errors['priceFrom']) && ! isset($errors['priceTo'])) {
-            $nFrom = (float) $pf;
+        $ptPresent = $pt !== null && $pt !== '' && $pt !== false;
+        if ($ptPresent) {
             $nTo = (float) $pt;
-            if (! is_finite($nFrom) || ! is_finite($nTo)) {
-                $errors['priceFrom'] = ['Prices must be valid numbers.'];
-            } elseif ($nFrom < 0 || $nTo < 0) {
-                $errors['priceFrom'] = ['Prices cannot be negative.'];
-            } elseif ($nFrom > $nTo) {
+            if (! is_finite($nTo) || $nTo < 0) {
+                $errors['priceTo'] = ['Maximum price must be a valid non-negative number.'];
+            } elseif ($nFrom !== null && ! isset($errors['priceFrom']) && $nFrom > $nTo) {
                 $errors['priceTo'] = ['Maximum price must be greater than or equal to minimum price.'];
             }
         }

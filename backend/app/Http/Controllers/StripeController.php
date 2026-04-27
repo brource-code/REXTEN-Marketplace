@@ -1936,6 +1936,7 @@ class StripeController extends Controller
                     return response()->json([
                         'status' => 'captured',
                         'message' => 'Payment was already captured.',
+                        'payment_status' => 'paid',
                     ]);
                 }
 
@@ -1972,6 +1973,7 @@ class StripeController extends Controller
                 return response()->json([
                     'status' => 'captured',
                     'message' => 'Payment captured successfully.',
+                    'payment_status' => 'paid',
                 ]);
             } catch (\Exception $e) {
                 Log::error('Payment capture failed', [
