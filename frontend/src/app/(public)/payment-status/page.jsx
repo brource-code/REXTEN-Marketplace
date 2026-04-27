@@ -101,7 +101,7 @@ function PaymentStatusInner() {
 
     return (
         <Container className="py-10">
-            <Card className="max-w-lg mx-auto p-6">
+            <Card className="max-w-lg mx-auto p-4">
                 <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{title}</h4>
                 {status === 'loading' && (
                     <div className="flex items-center gap-2 py-6">
@@ -149,7 +149,7 @@ export default function PaymentStatusPage() {
         <Suspense
             fallback={
                 <Container className="py-10">
-                    <Card className="max-w-lg mx-auto p-6 flex items-center gap-2">
+                    <Card className="max-w-lg mx-auto p-4 flex items-center gap-2">
                         <Spinner size={24} />
                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('loading')}</span>
                     </Card>

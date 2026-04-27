@@ -246,7 +246,7 @@ export default function VerifyCodeClient() {
     return (
         <div className="mx-auto w-full max-w-xl px-1">
             <AuthPageLogo className="mb-6" />
-            <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900/40 sm:p-8">
+            <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900/40 sm:p-4">
                 <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">
                     {t('title')}
                 </h3>

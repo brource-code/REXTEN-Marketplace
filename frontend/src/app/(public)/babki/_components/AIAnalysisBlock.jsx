@@ -51,7 +51,7 @@ export default function AIAnalysisBlock({ period, safeMinBalance, summary }) {
 
     return (
         <Card>
-            <div className="p-4 md:p-6 space-y-3 md:space-y-4">
+            <div className="p-4 md:p-4 space-y-3 md:space-y-4">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                     <h4 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">
                         ИИ-анализ

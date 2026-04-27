@@ -194,7 +194,7 @@ export default function ReviewByTokenPage() {
             >
                 <Container className="max-w-2xl">
                     <Card>
-                        <div className="text-center p-6">
+                        <div className="text-center p-4">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('invalidLink.title')}</h4>
                             <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('invalidLink.description')}</p>
                         </div>
@@ -212,7 +212,7 @@ export default function ReviewByTokenPage() {
             >
                 <Container className="max-w-2xl">
                     <Card>
-                        <div className="text-center p-6">
+                        <div className="text-center p-4">
                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('alreadySubmitted.title')}</h4>
                             <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('alreadySubmitted.description')}</p>
                         </div>
@@ -236,7 +236,7 @@ export default function ReviewByTokenPage() {
         >
             <Container className="max-w-2xl">
                 <Card>
-                    <div className="p-6">
+                    <div className="p-4">
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">{t('title')}</h4>
                         
                         {/* Информация о бронировании */}

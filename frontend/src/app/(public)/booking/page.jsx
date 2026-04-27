@@ -159,7 +159,7 @@ export default function ClientBookingPage() {
                     
                     {/* Переключатель */}
                     <Card>
-                        <div className="p-4 sm:p-6">
+                        <div className="p-4 sm:p-4">
                             <div className="flex flex-wrap gap-2">
                                 <Button
                                     variant={showUpcoming ? 'solid' : 'plain'}
@@ -190,7 +190,7 @@ export default function ClientBookingPage() {
                     {/* Календарь */}
                     {showCalendar && (
                         <Card>
-                            <div className="p-4 sm:p-6">
+                            <div className="p-4 sm:p-4">
                                 <div className="mb-4">
                                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                                         {t('calendarTitle')}
@@ -228,7 +228,7 @@ export default function ClientBookingPage() {
                     {isLoading ? (
                         <div className="grid grid-cols-1 gap-4">
                             {Array.from({ length: 3 }).map((_, idx) => (
-                                <Card key={idx} className="p-5 sm:p-6">
+                                <Card key={idx} className="p-5 sm:p-4">
                                     <div className="flex flex-col md:flex-row md:items-start gap-4">
                                         <div className="flex-1 space-y-3">
                                             <Skeleton variant="block" width="60%" height={24} />
@@ -273,7 +273,7 @@ export default function ClientBookingPage() {
                         <div className="grid grid-cols-1 gap-4">
                             {displayedBookings.map((booking) => (
                                 <Card key={booking.id} className="hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700">
-                                    <div className="p-5 sm:p-6">
+                                    <div className="p-5 sm:p-4">
                                         <div className="flex flex-col md:flex-row md:items-start gap-4">
                                             {/* Левая часть - информация о бронировании */}
                                             <div className="flex-1 space-y-3">

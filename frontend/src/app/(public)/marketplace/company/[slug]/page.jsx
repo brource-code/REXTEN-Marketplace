@@ -120,7 +120,7 @@ export default function CompanyProfilePage() {
                 </div>
 
                 {/* ========== COVER / HERO С ЛОГОТИПОМ (всегда — без обложки нейтральный градиент) ========== */}
-                <div className="relative w-full h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden mb-8 bg-gray-100 dark:bg-gray-800">
+                <div className="relative w-full h-48 md:h-64 lg:h-80 rounded-xl overflow-hidden mb-8 bg-gray-100 dark:bg-gray-800">
                     {coverImage ? (
                         <img
                             src={coverImage}
@@ -138,7 +138,7 @@ export default function CompanyProfilePage() {
                     )}
                     <div className="absolute inset-0 flex items-center justify-center p-4">
                         {company.logo ? (
-                            <div className="relative w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-900 shadow-2xl bg-white dark:bg-gray-800">
+                            <div className="relative w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-xl overflow-hidden border-4 border-white dark:border-gray-900 shadow-2xl bg-white dark:bg-gray-800">
                                 <Image
                                     src={normalizeImageUrl(company.logo)}
                                     alt={company.name}
@@ -150,7 +150,7 @@ export default function CompanyProfilePage() {
                                 />
                             </div>
                         ) : (
-                            <div className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-2xl border-4 border-white dark:border-gray-900">
+                            <div className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-2xl border-4 border-white dark:border-gray-900">
                                 <PiBuilding className="text-5xl md:text-6xl lg:text-7xl text-white" />
                             </div>
                         )}
@@ -325,7 +325,7 @@ export default function CompanyProfilePage() {
                 </div>
 
                 {/* ========== FEATURED ОТЗЫВ (блок всегда; при отсутствии — плейсхолдер) ========== */}
-                <div className="mb-10 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <div className="mb-10 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                     <div className="flex items-center gap-2 mb-4">
                         <PiCheckCircleFill className="text-xl text-blue-600 dark:text-blue-400" />
                         <span className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
@@ -392,7 +392,7 @@ export default function CompanyProfilePage() {
                                             />
                                         ))}
                                     </div>
-                                    <div className="hidden md:grid grid-cols-2 gap-6">
+                                    <div className="hidden md:grid grid-cols-2 gap-4">
                                         {advertisements.map((ad) => (
                                             <ServiceCard
                                                 key={ad.id}

@@ -643,7 +643,7 @@ const BookingDialog = ({
     if (validServices.length === 0) {
         return (
             <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
-                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md p-6">
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-md p-4">
                     <h2 className="text-xl font-semibold mb-4">{t('errors.error')}</h2>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">{t('errors.cannotLoadServices')}</p>
                     <button
@@ -751,7 +751,7 @@ const BookingDialog = ({
                 onClick={handleClose}
             >
                 <div 
-                    className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm p-6 text-center relative transform transition-all duration-200 scale-100 opacity-100"
+                    className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-sm p-4 text-center relative transform transition-all duration-200 scale-100 opacity-100"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Иконка успеха */}
@@ -814,14 +814,14 @@ const BookingDialog = ({
             onClick={handleClose}
         >
             <div 
-                className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md relative transform transition-all duration-200 scale-100 opacity-100 flex flex-col"
+                className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-md relative transform transition-all duration-200 scale-100 opacity-100 flex flex-col"
                 style={{
                     maxHeight: 'calc(100dvh - max(1rem, env(safe-area-inset-top)) - max(1rem, env(safe-area-inset-bottom)) - 2rem)',
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Заголовок с кнопкой закрытия - зафиксирован сверху */}
-                <div className="flex-shrink-0 p-6 pb-4 relative">
+                <div className="flex-shrink-0 p-4 pb-4 relative">
                     {/* Крестик закрытия */}
                     <button 
                         className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition z-10"
@@ -1476,7 +1476,7 @@ const BookingDialog = ({
 
                 {/* Кнопки навигации - зафиксированы снизу (скрыты при оплате) */}
                 {!paymentStep && (
-                <div className="flex-shrink-0 p-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+                <div className="flex-shrink-0 p-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
                     {currentStep > 1 && (
                         <button
                             type="button"

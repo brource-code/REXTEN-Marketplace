@@ -122,13 +122,13 @@ export default function EventModal({ isOpen, onClose, event, period, onSave }) {
             width={600}
         >
             <div className="flex flex-col h-full max-h-[90vh]">
-                <div className="p-6 pb-4 flex-shrink-0">
+                <div className="p-4 pb-3 flex-shrink-0">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         {event ? 'Редактировать событие' : 'Добавить событие'}
                     </h3>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-6">
+                <div className="flex-1 overflow-y-auto px-4">
                     <form onSubmit={handleSubmit} className="space-y-4 pb-6">
                     {/* Дата */}
                     <div>

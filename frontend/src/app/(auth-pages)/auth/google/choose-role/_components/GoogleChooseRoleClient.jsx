@@ -175,7 +175,7 @@ export default function GoogleChooseRoleClient() {
                         disabled={completing}
                         onClick={() => void onChooseClient()}
                         className={classNames(
-                            'flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-5 text-left transition',
+                            'flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-5 text-left transition',
                             'hover:border-primary dark:border-gray-700 dark:bg-gray-900/40 dark:hover:border-primary',
                             completing && 'pointer-events-none opacity-60',
                         )}
@@ -194,7 +194,7 @@ export default function GoogleChooseRoleClient() {
                         disabled={completing}
                         onClick={onChooseBusiness}
                         className={classNames(
-                            'flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-5 text-left transition',
+                            'flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-5 text-left transition',
                             'hover:border-primary dark:border-gray-700 dark:bg-gray-900/40 dark:hover:border-primary',
                             completing && 'pointer-events-none opacity-60',
                         )}

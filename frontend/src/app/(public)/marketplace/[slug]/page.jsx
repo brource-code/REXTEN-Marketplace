@@ -76,7 +76,7 @@ const ServiceProfileSkeleton = () => {
                 </div>
 
                 {/* Основной контент - двухколоночный layout */}
-                <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+                <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
                     {/* Левая колонка - основной контент skeleton */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Категория skeleton */}
@@ -112,7 +112,7 @@ const ServiceProfileSkeleton = () => {
 
                     {/* Правая колонка - фото карточка skeleton (только десктоп) */}
                     <div className="hidden lg:block">
-                        <div className="rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden sticky top-24">
+                        <div className="rounded-xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden sticky top-24">
                             <div className="h-64 w-full bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
                             <div className="p-4 border-t border-gray-100 dark:border-white/10">
                                 <div className="flex items-center justify-between">
@@ -137,14 +137,14 @@ const ServiceProfileSkeleton = () => {
                 </div>
 
                 {/* Контент табов skeleton - услуги */}
-                <div className="min-h-[400px] pb-12">
+                <div className="min-h-[320px] pb-10">
                     <div className="space-y-4">
                         <div className="h-6 w-40 rounded bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
                         <div className="space-y-4">
                             {[1, 2, 3, 4].map((i) => (
                                 <div
                                     key={i}
-                                    className="rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-4 shadow-sm"
+                                    className="rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-4 shadow-sm"
                                 >
                                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                         <div className="flex-1 min-w-0 space-y-2">
@@ -752,7 +752,7 @@ export default function MarketplaceProfilePage() {
     if (!profile || !profile.service) {
         return (
             <main className="text-base bg-white dark:bg-gray-900 min-h-screen">
-                <section className="relative overflow-hidden py-24">
+                <section className="relative overflow-hidden py-14 md:py-16">
                     <div
                         className="absolute inset-0 pointer-events-none select-none opacity-70"
                         style={{
@@ -760,7 +760,7 @@ export default function MarketplaceProfilePage() {
                         }}
                     ></div>
                     <Container className="px-4 sm:px-6 lg:px-8">
-                        <div className="relative text-center max-w-3xl mx-auto py-20">
+                        <div className="relative text-center max-w-3xl mx-auto py-12 md:py-16">
                             <div className="mb-8 flex justify-center">
                                 <NotFound404 height={200} width={200} />
                             </div>
@@ -773,13 +773,13 @@ export default function MarketplaceProfilePage() {
                             <div className="flex gap-4 justify-center">
                                 <Link
                                     href="/services"
-                                    className="inline-flex items-center justify-center bg-blue-600 text-white hover:bg-blue-700 h-12 rounded-2xl px-6 py-2 text-base font-semibold transition"
+                                    className="inline-flex items-center justify-center bg-blue-600 text-white hover:bg-blue-700 h-12 rounded-xl px-6 py-2 text-base font-semibold transition"
                                 >
                                     {t('viewAllServices')}
                                 </Link>
                                 <Link
                                     href="/landing"
-                                    className="inline-flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 text-gray-600 dark:text-gray-100 h-12 rounded-2xl px-6 py-2 text-base font-semibold transition"
+                                    className="inline-flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 text-gray-600 dark:text-gray-100 h-12 rounded-xl px-6 py-2 text-base font-semibold transition"
                                 >
                                     {t('toHome')}
                                 </Link>
@@ -925,10 +925,10 @@ export default function MarketplaceProfilePage() {
 
                 {/* Верхний блок (header) - улучшенный */}
                 <div className="mb-6 lg:mb-8">
-                    <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
+                    <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-4">
                         {/* Фото/аватар бизнеса (мобильная версия уже показана выше) */}
                         <div className="hidden lg:block lg:flex-shrink-0 w-72">
-                            <div className="rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900">
+                            <div className="rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900">
                                 <div className="relative w-72 h-72 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                                     {businessImageUrl ? (
                                         <Image
@@ -1094,13 +1094,13 @@ export default function MarketplaceProfilePage() {
                 )}
 
                 {/* Основной контент - двухколоночный layout на десктопе */}
-                <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+                <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
                     {/* Левая колонка - основной контент */}
                     <div className="lg:col-span-2 space-y-6">
 
                         {/* Блок "О специалисте / студии" */}
                         {business.description && (
-                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-6">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-4">
                                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                                     {t('aboutSpecialist')}
                                 </h2>
@@ -1380,7 +1380,7 @@ export default function MarketplaceProfilePage() {
                 </div>
 
                 {/* Контент табов */}
-                <div className="min-h-[400px] pb-12">
+                <div className="min-h-[320px] pb-10">
                     {activeTab === 'schedule' && (
                         <div className="space-y-6">
                             <div>
@@ -1400,7 +1400,7 @@ export default function MarketplaceProfilePage() {
                                             key={date.id || `date-${idx}`}
                                             onClick={() => setSelectedDate(date.id || idx)}
                                             className={classNames(
-                                                'flex flex-col items-center rounded-2xl border px-3 py-2 text-sm transition flex-shrink-0 min-w-[70px]',
+                                                'flex flex-col items-center rounded-xl border px-3 py-2 text-sm transition flex-shrink-0 min-w-[70px]',
                                                 selectedDate === date.id
                                                     ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-300 font-medium'
                                                     : 'border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20',
@@ -1499,7 +1499,7 @@ export default function MarketplaceProfilePage() {
                                     {reviews.map((review, idx) => (
                                     <div
                                         key={review.id || `review-${idx}`}
-                                        className="rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-4 shadow-sm"
+                                        className="rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-4 shadow-sm"
                                     >
                                         {/* Верхняя строка */}
                                         <div className="flex items-start justify-between gap-3">
@@ -1610,7 +1610,7 @@ export default function MarketplaceProfilePage() {
                                         return (
                                     <div
                                         key={member.id || `member-${idx}`}
-                                        className="rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm"
+                                        className="rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm"
                                     >
                                         <div className="flex items-start gap-3">
                                             {/* API returns avatar; avatarUrl kept for compatibility */}
@@ -1711,7 +1711,7 @@ export default function MarketplaceProfilePage() {
                         </div>
                         
                         {/* Десктопная версия - сетка */}
-                        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4">
                             {similarServices.map((service) => (
                                 <ServiceCard
                                     key={service.id}
@@ -1738,7 +1738,7 @@ export default function MarketplaceProfilePage() {
                 width={600}
             >
                 {selectedServiceDetail && (
-                    <div className="p-6">
+                    <div className="p-4">
                         <div className="mb-4">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                                 {selectedServiceDetail.name}
@@ -1885,7 +1885,7 @@ export default function MarketplaceProfilePage() {
                             </div>
                             
                             {/* Карусель изображений */}
-                            <div className="relative flex-1 min-h-[400px] max-h-[60vh] bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                            <div className="relative flex-1 min-h-[320px] max-h-[60vh] bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
                                 {images.length > 0 ? (
                                     <>
                                         <Image
@@ -1980,7 +1980,7 @@ export default function MarketplaceProfilePage() {
                     onClick={() => setBookingSuccess(false)}
                 >
                     <div 
-                        className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm p-6 text-center relative transform transition-all duration-200 scale-100 opacity-100"
+                        className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-sm p-4 text-center relative transform transition-all duration-200 scale-100 opacity-100"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Иконка успеха */}

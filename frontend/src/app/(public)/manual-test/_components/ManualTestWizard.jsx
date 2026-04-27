@@ -821,8 +821,8 @@ export default function ManualTestWizard() {
 
     return (
         <Container className="py-8">
-            <div className="mx-auto max-w-5xl space-y-6">
-                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-5 shadow-sm space-y-3">
+            <div className="mx-auto max-w-5xl space-y-4">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4 shadow-sm space-y-3">
                     <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         Интерактивное ручное тестирование REXTEN
                     </h1>
@@ -892,7 +892,7 @@ export default function ManualTestWizard() {
                     </div>
                 )}
 
-                <div className="grid gap-6 lg:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]">
                     <nav
                         aria-label="Этапы теста"
                         className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-3 lg:sticky lg:top-24 lg:self-start"
@@ -945,7 +945,7 @@ export default function ManualTestWizard() {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -slideX }}
                                 transition={{ duration: motionDuration, ease: 'easeOut' }}
-                                className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-5 shadow-sm space-y-4"
+                                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 p-4 shadow-sm space-y-4"
                             >
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div>

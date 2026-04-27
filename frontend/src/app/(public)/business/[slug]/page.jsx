@@ -52,7 +52,7 @@ export default async function Page({ params }) {
         <Container>
             <div className="card card-border">
                 <div className="card-body">
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4">
                         <div className="flex items-start gap-4">
                             <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                                 {business.logo ? (

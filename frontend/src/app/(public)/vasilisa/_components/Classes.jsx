@@ -22,7 +22,7 @@ const Classes = () => {
     ]
 
     return (
-        <section id="classes" className="py-16 lg:py-24 bg-gray-50">
+        <section id="classes" className="py-14 lg:py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12 lg:mb-16">
                     <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
@@ -33,7 +33,7 @@ const Classes = () => {
                     </p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-4">
                     {classes.map((classItem, index) => (
                         <ClassCard
                             key={index}

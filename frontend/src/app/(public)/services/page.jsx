@@ -414,7 +414,7 @@ const FiltersModal = ({
                 className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden pointer-events-auto">
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden pointer-events-auto">
                     <div className="flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                             {t('filters')}
@@ -897,7 +897,7 @@ function ServicesPage() {
                     }}
                 />
                 <Container className="max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="grid gap-8 lg:gap-10 lg:grid-cols-12 lg:items-start">
+                    <div className="grid gap-8 lg:gap-8 lg:grid-cols-12 lg:items-start">
                         <div
                             className={classNames(
                                 'w-full min-w-0 space-y-4 md:space-y-5',
@@ -938,7 +938,7 @@ function ServicesPage() {
                                 ))}
                             </div>
 
-                            <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm p-3 md:p-4 space-y-3">
+                            <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm p-3 md:p-4 space-y-3">
                                 <div className="relative">
                                     <PiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base z-[1]" />
                                     <Input
@@ -1089,7 +1089,7 @@ function ServicesPage() {
                         </button>
                     </div>
 
-                    <div className="grid gap-6 lg:grid-cols-12 items-start">
+                    <div className="grid gap-4 lg:grid-cols-12 items-start">
                         {/* Фильтр слева - только для десктопа */}
                         <div
                             ref={sidebarContainerRef}
@@ -1141,7 +1141,7 @@ function ServicesPage() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                                             {formattedFeaturedServices.map((listing) => (
                                                 <ServiceCard 
                                                     key={listing.id} 
@@ -1276,7 +1276,7 @@ function ServicesPage() {
                                 </div>
 
                                 {/* Десктопная версия - сетка карточек */}
-                                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                     {isLoading ? (
                                         Array.from({ length: 8 }).map((_, idx) => (
                                             <ServiceCardSkeleton key={idx} />

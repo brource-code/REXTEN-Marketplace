@@ -177,7 +177,7 @@ const BookingsTab = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-[400px] flex items-center justify-center">
+            <div className="min-h-[320px] flex items-center justify-center">
                 <Loading loading />
             </div>
         )
@@ -185,7 +185,7 @@ const BookingsTab = () => {
 
     if (bookings.length === 0) {
         return (
-            <div className="p-4 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center w-full">
+            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
                 <PiCalendar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                     {t('noBookings')}
@@ -227,7 +227,7 @@ const BookingsTab = () => {
                     const totalPrice = booking.total_price || (basePrice + additionalTotal)
                     
                     return (
-                        <Card key={booking.id} className="p-4 sm:p-6 hover:shadow-md transition-shadow">
+                        <Card key={booking.id} className="p-4 sm:p-4 hover:shadow-md transition-shadow">
                             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                 <div className="flex-1 min-w-0">
                                     <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
@@ -448,7 +448,7 @@ const ReviewsTab = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-[400px] flex items-center justify-center">
+            <div className="min-h-[320px] flex items-center justify-center">
                 <Loading loading />
             </div>
         )
@@ -459,7 +459,7 @@ const ReviewsTab = () => {
 
     if (!hasPending && !hasCompleted) {
         return (
-            <div className="p-4 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center w-full">
+            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
                 <PiStar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
                 <p className="text-sm sm:text-base text-gray-500">{t('reviewsEmptyTitle')}</p>
                 <p className="text-xs sm:text-sm text-gray-400 mt-2">
@@ -470,7 +470,7 @@ const ReviewsTab = () => {
     }
 
     return (
-        <div className="space-y-6 min-h-[400px] w-full">
+        <div className="space-y-4 min-h-[320px] w-full">
             {/* Ожидающие отзывы */}
             {hasPending && (
                 <div>
@@ -482,7 +482,7 @@ const ReviewsTab = () => {
                     </h3>
                     <div className="space-y-3">
                         {pendingReviews.map((order) => (
-                            <Card key={order.id} className="p-4 sm:p-6">
+                            <Card key={order.id} className="p-4 sm:p-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div className="flex-1">
                                         <div className="flex items-start gap-3 sm:gap-4">
@@ -552,7 +552,7 @@ const ReviewsTab = () => {
                 ) : (
                     <div className="space-y-3 sm:space-y-4">
                         {completedReviews.map((review) => (
-                            <Card key={review.id} className="p-4 sm:p-6">
+                            <Card key={review.id} className="p-4 sm:p-4">
                                 <div className="flex items-start gap-3 sm:gap-4">
                                     <Avatar
                                         src={review.businessAvatar}
@@ -734,7 +734,7 @@ const FavoritesTab = () => {
     // Показываем загрузку, но сохраняем структуру для предотвращения дергания
     if (isLoading) {
         return (
-            <div className="min-h-[400px] flex items-center justify-center">
+            <div className="min-h-[320px] flex items-center justify-center">
                 <Loading loading />
             </div>
         )
@@ -742,7 +742,7 @@ const FavoritesTab = () => {
 
     if (!hasFavorites) {
         return (
-            <div className="p-4 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center w-full">
+            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
                 <PiHeart className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                     {t('noFavorites')}
@@ -760,7 +760,7 @@ const FavoritesTab = () => {
     }
 
     return (
-        <div className="space-y-6 min-h-[400px] w-full">
+        <div className="space-y-4 min-h-[320px] w-full">
             {/* Избранные сервисы */}
             {finalServices.length > 0 && (
                 <div>
@@ -1240,7 +1240,7 @@ const DiscountsAndBonusesTab = () => {
 
     if (loyaltyLoading && legacyStillLoading && !hasLegacyContent) {
         return (
-            <div className="min-h-[400px] flex items-center justify-center">
+            <div className="min-h-[320px] flex items-center justify-center">
                 <Loading loading />
             </div>
         )
@@ -1248,7 +1248,7 @@ const DiscountsAndBonusesTab = () => {
 
     if (showFullEmpty) {
         return (
-            <div className="p-4 sm:p-12 text-center min-h-[400px] flex flex-col items-center justify-center w-full">
+            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
                 <PiTicket className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
                 <p className="text-sm font-bold text-gray-500 dark:text-gray-400 max-w-md">
                     {t('noDiscountsAndBonuses')}
@@ -1258,7 +1258,7 @@ const DiscountsAndBonusesTab = () => {
     }
 
     return (
-        <div className="space-y-6 sm:space-y-8 min-h-[400px] w-full">
+        <div className="space-y-4 sm:space-y-6 min-h-[320px] w-full">
             {/* Лояльность у бизнесов — только если у бизнеса есть активные уровни (API не возвращает остальные) */}
             {(loyaltyLoading || hasLoyaltyContent) && (
                 <div className="space-y-3">
@@ -1306,7 +1306,7 @@ const DiscountsAndBonusesTab = () => {
                 const isDiscount = item.type === 'discount'
                 
                 return (
-                    <Card key={`${item.type}-${item.id}`} className="p-4 sm:p-6">
+                    <Card key={`${item.type}-${item.id}`} className="p-4 sm:p-4">
                         <div className="flex items-start gap-3 sm:gap-4">
                             {item.businessImage && (
                                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0">
@@ -1519,7 +1519,7 @@ export default function ClientProfilePage() {
     if (userLoading) {
         return (
             <Container className="pt-20 pb-8 md:pt-24 md:pb-12 px-4 sm:px-6">
-                <div className="flex items-center justify-center min-h-[400px]">
+                <div className="flex items-center justify-center min-h-[320px]">
                     <Loading loading />
                 </div>
             </Container>
@@ -1573,7 +1573,7 @@ export default function ClientProfilePage() {
                                     {t('notificationsTab')}
                                 </TabNav>
                             </TabList>
-                            <div className="pt-2 sm:p-4 min-h-[400px]">
+                            <div className="pt-2 sm:p-4 min-h-[320px]">
                                 <TabContent value="bookings">
                                     <BookingsTab />
                                 </TabContent>

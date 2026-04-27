@@ -171,7 +171,7 @@ export default function ClientProfileSettingsPage() {
     if (userLoading) {
         return (
             <Container className="py-12">
-                <div className="flex items-center justify-center min-h-[400px]">
+                <div className="flex items-center justify-center min-h-[320px]">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
                         <p className="mt-4 text-gray-600 dark:text-gray-400">{t('loadingProfile')}</p>
@@ -196,9 +196,9 @@ export default function ClientProfileSettingsPage() {
                         </Button>
                     </Link>
 
-                    <Card className="p-4 sm:p-6 md:p-8">
+                    <Card className="p-4 sm:p-4 md:p-8">
                         {/* Заголовок */}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-gray-200 dark:border-gray-700">
                             <div className="relative">
                                 <Avatar
                                     src={avatarUrl}
@@ -244,7 +244,7 @@ export default function ClientProfileSettingsPage() {
 
                         {/* Форма */}
                         <Form onSubmit={handleSubmit(onSubmit)}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4">
                                 <FormItem
                                     label={t('firstName')}
                                     invalid={!!errors.firstName}

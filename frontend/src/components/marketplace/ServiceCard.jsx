@@ -543,7 +543,7 @@ const ServiceCard = ({
             <div
                 className={classNames(
                     'relative w-full flex-shrink-0 bg-gray-100 dark:bg-gray-800',
-                    isCatalogVariant ? 'h-52' : 'h-48',
+                    isCatalogVariant ? 'h-44 md:h-48' : 'h-40 md:h-44',
                 )}
             >
                 {service?.imageUrl ? (
@@ -611,7 +611,7 @@ const ServiceCard = ({
             <div
                 className={classNames(
                     'flex flex-col gap-2.5 flex-1 min-h-0',
-                    isCatalogVariant ? 'p-5 gap-3' : 'p-4',
+                    isCatalogVariant ? 'p-4 gap-2.5 md:p-5 md:gap-3' : 'p-3.5 md:p-4',
                 )}
             >
                 {/* Категория */}

@@ -120,7 +120,7 @@ export default function ClientOrdersPage() {
                     
                     {/* Фильтры */}
                     <Card>
-                        <div className="p-4 sm:p-6">
+                        <div className="p-4 sm:p-4">
                             <div className="flex flex-col gap-4">
                                 <div className="flex flex-col md:flex-row gap-4">
                                     <div className="flex-1">
@@ -180,7 +180,7 @@ export default function ClientOrdersPage() {
                     {isLoading ? (
                         <div className="grid grid-cols-1 gap-4">
                             {Array.from({ length: 3 }).map((_, idx) => (
-                                <Card key={idx} className="p-5 sm:p-6">
+                                <Card key={idx} className="p-4 sm:p-4">
                                     <div className="flex flex-col md:flex-row md:items-start gap-4">
                                         <div className="flex-1 space-y-3">
                                             <Skeleton variant="block" width="60%" height={24} />
@@ -241,7 +241,7 @@ export default function ClientOrdersPage() {
                         <div className="grid grid-cols-1 gap-4">
                             {filteredOrders.map((order) => (
                                 <Card key={order.id} className="hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700">
-                                    <div className="p-5 sm:p-6">
+                                    <div className="p-4 sm:p-4">
                                         <div className="flex flex-col md:flex-row md:items-start gap-4">
                                             {/* Левая часть - информация о заказе */}
                                             <div className="flex-1 space-y-3">
