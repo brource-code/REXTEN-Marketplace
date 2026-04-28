@@ -710,6 +710,32 @@
             "stepNavHint": "Click any step to open and review it.",
             "stepsTitle": "Steps"
         },
+        "seoLanding": {
+            "categoryTitle": "{category} services | Book online | REXTEN",
+            "categoryDescription": "Find {category} providers on REXTEN: compare listings, read reviews, and book online.",
+            "stateTitle": "{category} in {state} | Book online | REXTEN",
+            "stateDescription": "Browse {category} listings in {state} on REXTEN. Local providers, transparent pricing, and online booking.",
+            "cityTitle": "{category} in {city}, {state} | Book online | REXTEN",
+            "cityDescription": "Book {category} services in {city}, {state} on REXTEN. See availability, reviews, and contact providers in a few clicks.",
+            "introCategory": "Discover local {category} professionals on REXTEN Marketplace. Each listing shows what is included, service areas, and real feedback from clients.",
+            "introState": "Explore {category} providers across {state}. Filter by city, compare options, and choose a time that fits your schedule.",
+            "introCity": "Looking for {category} in {city}? These listings serve your area—check details, ratings, and book without back-and-forth calls.",
+            "categoryHeading": "{category} services",
+            "stateHeading": "{category} in {state}",
+            "cityHeading": "{category} in {city}, {state}",
+            "moreInCity": "More services in {city}",
+            "moreCategoryInCity": "More {category} in {city}",
+            "faqCategoryQ1": "How do I book a service?",
+            "faqCategoryA1": "Open a listing, pick an available time if booking is enabled, and confirm your request. The provider receives your booking details through REXTEN.",
+            "faqCategoryQ2": "Are listings verified?",
+            "faqCategoryA2": "Listings come from businesses that operate on REXTEN. Reviews and booking tools help you compare providers before you choose.",
+            "faqCategoryQ3": "Can I contact the business directly?",
+            "faqCategoryA3": "When contact details are shown on the listing or company profile, you can reach the provider using the options they publish.",
+            "faqStateQ1": "Do providers cover all cities in {state}?",
+            "faqStateA1": "Coverage depends on each listing. Check the location on the card and open the profile for precise service areas.",
+            "faqCityQ1": "Is same-week booking available in {city}?",
+            "faqCityA1": "Availability is set by each business. Open a listing to see open times or message the provider if contact options are listed."
+        },
         "services": {
             "title": "All Services",
             "allServices": "All Services",
@@ -720,6 +746,8 @@
             "tryChangeFilters": "Try changing filters or search query",
             "anyBudget": "Any budget",
             "description": "All services in one place: booking, ratings, reviews and more",
+            "seoTitle": "Find and Book Local Services Online",
+            "seoDescription": "Browse verified businesses, compare ratings and prices, and book services online on REXTEN Marketplace.",
             "searchPlaceholder": "Search by name, service...",
             "heroTitle": "Stop searching. Start booking.",
             "heroDescription": "Find a master in minutes — with reviews and online booking",
@@ -4486,6 +4514,7 @@
     "legal": {
         "cookies": {
             "title": "Cookie Policy",
+            "metaDescription": "How REXTEN uses essential, functional, and analytics cookies to run the marketplace and improve your experience.",
             "lastUpdate": "Last Updated",
             "section1": {
                 "title": "1. What are Cookies",
@@ -4584,6 +4613,7 @@
         },
         "privacy": {
             "title": "Privacy Policy",
+            "metaDescription": "Learn how REXTEN collects, uses, and protects personal data on the marketplace in line with US law, including the CCPA.",
             "lastUpdate": "Last Updated",
             "section1": {
                 "title": "1. Introduction",
@@ -4718,6 +4748,7 @@
         },
         "terms": {
             "title": "Terms of Service",
+            "metaDescription": "Read the REXTEN Terms of Service: using the marketplace, accounts, bookings, and your rights as a user in the United States.",
             "lastUpdate": "Last Updated",
             "section1": {
                 "title": "1. General Provisions",
@@ -4803,6 +4834,7 @@
         },
         "marketplaceTerms": {
             "title": "Marketplace Terms",
+            "metaDescription": "How the REXTEN marketplace works: who provides services, payments, taxes, and your relationship with listed businesses.",
             "lastUpdate": "Last Updated",
             "intro": "Important: REXTEN Marketplace is a marketplace and software platform. We are not the supplier of the services you book, and we are not your counterparty for the performance of those services.",
             "section1": {
@@ -5897,6 +5929,12 @@
                     "SUPERADMIN": "Superadmin"
                 }
             }
+        }
+    },
+    "forBusiness": {
+        "meta": {
+            "title": "Business Management Software for Service Teams | REXTEN",
+            "description": "Schedules, bookings, CRM, routes, reports, and marketplace listings for service businesses — one workspace."
         }
     },
     "landing": {

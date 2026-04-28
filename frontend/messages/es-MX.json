@@ -710,6 +710,32 @@
             "stepNavHint": "Haz clic en cualquier paso de la lista para abrirlo y revisarlo.",
             "stepsTitle": "Etapas"
         },
+        "seoLanding": {
+            "categoryTitle": "Servicios de {category} | Reserva en línea | REXTEN",
+            "categoryDescription": "Encuentra proveedores de {category} en REXTEN: anuncios, reseñas y reservas en línea.",
+            "stateTitle": "{category} en {state} | Reserva en línea | REXTEN",
+            "stateDescription": "Explora anuncios de {category} en {state} en REXTEN: negocios locales, precios y reservas en línea.",
+            "cityTitle": "{category} en {city}, {state} | Reserva en línea | REXTEN",
+            "cityDescription": "Reserva {category} en {city}, {state} en REXTEN: disponibilidad, reseñas y contacto en pocos clics.",
+            "introCategory": "Descubre profesionales locales de {category} en REXTEN Marketplace: qué incluye el servicio, área y reseñas reales.",
+            "introState": "Explora {category} en {state}. Compara por ciudad, elige la opción adecuada y agenda a tu ritmo.",
+            "introCity": "¿Buscas {category} en {city}? Estas fichas atienden la zona: detalles, calificaciones y reserva sin ida y vuelta de llamadas.",
+            "categoryHeading": "Servicios de {category}",
+            "stateHeading": "{category} en {state}",
+            "cityHeading": "{category} en {city}, {state}",
+            "moreInCity": "Más servicios en {city}",
+            "moreCategoryInCity": "Más {category} en {city}",
+            "faqCategoryQ1": "¿Cómo reservo un servicio?",
+            "faqCategoryA1": "Abre un anuncio, elige un horario disponible si la reserva en línea está activa y confirma. El negocio recibe la solicitud a través de REXTEN.",
+            "faqCategoryQ2": "¿Los anuncios son confiables?",
+            "faqCategoryA2": "Provienen de negocios que operan en REXTEN. Las reseñas y la reserva en línea te ayudan a comparar antes de decidir.",
+            "faqCategoryQ3": "¿Puedo contactar al negocio directamente?",
+            "faqCategoryA3": "Si el anuncio o el perfil muestran teléfono, correo o chat, usa el canal publicado por el proveedor.",
+            "faqStateQ1": "¿Cobertura en todo {state}?",
+            "faqStateA1": "Depende de cada anuncio. Revisa la ciudad en la tarjeta y abre el perfil para el área exacta de servicio.",
+            "faqCityQ1": "¿Hay citas la misma semana en {city}?",
+            "faqCityA1": "La disponibilidad la define el negocio. Abre un anuncio para ver horarios o contáctalos con las opciones listadas."
+        },
         "services": {
             "title": "Todos los servicios",
             "allServices": "Todos los servicios",
@@ -720,6 +746,8 @@
             "tryChangeFilters": "Prueba cambiar filtros o la búsqueda",
             "anyBudget": "Cualquier presupuesto",
             "description": "Todos los servicios en un solo lugar: reservas, calificaciones, reseñas y más",
+            "seoTitle": "Encuentra y reserva servicios locales en línea",
+            "seoDescription": "Explora negocios verificados, compara calificaciones y precios y reserva servicios en línea en REXTEN Marketplace.",
             "searchPlaceholder": "Buscar por nombre, servicio...",
             "heroTitle": "Deja de buscar. Empieza a reservar.",
             "heroDescription": "Encuentra un profesional en minutos — con reseñas y reserva en línea",
@@ -4486,6 +4514,7 @@
     "legal": {
         "cookies": {
             "title": "Política de cookies",
+            "metaDescription": "Cómo REXTEN usa cookies esenciales, funcionales y de análisis para operar el mercado y mejorar tu experiencia.",
             "lastUpdate": "Última actualización",
             "section1": {
                 "title": "1. Qué son las cookies",
@@ -4584,6 +4613,7 @@
         },
         "privacy": {
             "title": "Aviso de privacidad",
+            "metaDescription": "Cómo REXTEN recopila, usa y protege datos personales en el marketplace conforme a la ley de EE. UU., incluida la CCPA.",
             "lastUpdate": "Última actualización",
             "section1": {
                 "title": "1. Introducción",
@@ -4718,6 +4748,7 @@
         },
         "terms": {
             "title": "Términos del servicio",
+            "metaDescription": "Términos de uso de REXTEN: cuentas, reservas y marketplace en Estados Unidos.",
             "lastUpdate": "Última actualización",
             "section1": {
                 "title": "1. Disposiciones generales",
@@ -4803,6 +4834,7 @@
         },
         "marketplaceTerms": {
             "title": "Términos del mercado",
+            "metaDescription": "Funcionamiento del marketplace REXTEN: quién presta el servicio, pagos, impuestos y tu relación con los negocios listados.",
             "lastUpdate": "Última actualización",
             "intro": "Importante: REXTEN Marketplace es un mercado y una plataforma de software. No somos el proveedor de los servicios que reservas ni tu contraparte en la prestación de esos servicios.",
             "section1": {
@@ -5897,6 +5929,12 @@
             "cancel": "Cancelar",
             "save": "Guardar",
             "create": "Crear"
+        }
+    },
+    "forBusiness": {
+        "meta": {
+            "title": "Software de gestión para equipos de servicios | REXTEN",
+            "description": "Agendas, reservas, CRM, rutas, informes y fichas en el marketplace para negocios de servicios — un solo espacio de trabajo."
         }
     },
     "landing": {
