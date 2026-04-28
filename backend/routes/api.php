@@ -45,6 +45,7 @@ use App\Http\Controllers\Business\KnowledgeBaseController;
 use App\Http\Controllers\Business\SupportTicketsController as BusinessSupportTicketsController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\MarketplaceController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DiscountPreviewController;
 use App\Http\Controllers\Business\DiscountTierController;
@@ -163,6 +164,15 @@ Route::prefix('marketplace')->group(function () {
     Route::get('/services/{slug}', [MarketplaceController::class, 'getServiceBySlug']);
     Route::get('/services/{slug}/profile', [MarketplaceController::class, 'getServiceProfile']);
     Route::get('/company/{slug}', [MarketplaceController::class, 'getCompanyProfile']);
+});
+
+// Public SEO (sitemap, lightweight lists)
+Route::prefix('seo')->group(function () {
+    Route::get('/marketplace-listings', [SeoController::class, 'marketplaceListings']);
+    Route::get('/companies', [SeoController::class, 'companies']);
+    Route::get('/categories', [SeoController::class, 'categories']);
+    Route::get('/locations', [SeoController::class, 'locations']);
+    Route::get('/landing-paths', [SeoController::class, 'seoLandingPaths']);
 });
 
 // Public advertisements (for services page)
