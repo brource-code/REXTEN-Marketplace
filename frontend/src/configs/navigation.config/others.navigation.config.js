@@ -32,7 +32,7 @@ const othersNavigationConfig = [
             },
             {
                 key: 'others.landing',
-                path: `/landing`,
+                path: `/for-business`,
                 title: 'Landing',
                 translateKey: 'nav.others.landing',
                 icon: 'landing',

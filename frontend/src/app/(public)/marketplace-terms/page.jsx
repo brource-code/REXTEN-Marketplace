@@ -4,12 +4,35 @@ import { getTranslations } from 'next-intl/server'
 import { formatDate } from '@/utils/dateTime'
 import { CLIENT_DEFAULT_TIMEZONE } from '@/constants/client-datetime.constant'
 import Link from 'next/link'
+import { buildCanonicalUrl, getSiteUrl } from '@/lib/seo/site-url'
 
 export async function generateMetadata() {
     const t = await getTranslations('legal.marketplaceTerms')
+    const description = t('metaDescription')
+    const title = `${t('title')} | REXTEN Marketplace`
+    const canonical = buildCanonicalUrl('/marketplace-terms')
+    const ogImage = `${getSiteUrl().replace(/\/$/, '')}/icon.svg`
+
     return {
-        title: `${t('title')} | REXTEN Marketplace`,
-        description: t('intro').slice(0, 150) + '...',
+        title,
+        description,
+        alternates: {
+            canonical,
+        },
+        openGraph: {
+            title,
+            description,
+            url: canonical,
+            siteName: 'REXTEN',
+            type: 'website',
+            images: [{ url: ogImage }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [ogImage],
+        },
     }
 }
 

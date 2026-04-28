@@ -2,6 +2,13 @@ import Side from '@/components/layouts/AuthLayout/Side'
 // import Split from '@/components/layouts/AuthLayout/Split'
 // import Simple from '@/components/layouts/AuthLayout/Simple'
 
+export const metadata = {
+    robots: {
+        index: false,
+        follow: false,
+    },
+}
+
 const Layout = ({ children }) => {
     return (
         <div

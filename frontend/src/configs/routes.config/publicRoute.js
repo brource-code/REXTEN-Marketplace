@@ -1,6 +1,6 @@
 const publicRoute = {
-    '/landing': {
-        key: 'landing',
+    '/for-business': {
+        key: 'forBusiness',
     },
     '/services': {
         key: 'services',

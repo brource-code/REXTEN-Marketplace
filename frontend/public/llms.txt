@@ -1,0 +1,19 @@
+# REXTEN
+
+REXTEN is a service marketplace and business workspace: clients discover and book services online; businesses run schedules, CRM, routes, billing, and marketplace listings in one place.
+
+## Primary public URLs
+
+- Marketplace catalog: https://rexten.live/services
+- Business product landing: https://rexten.live/for-business
+- Privacy: https://rexten.live/privacy
+- Terms: https://rexten.live/terms
+- Marketplace terms: https://rexten.live/marketplace-terms
+
+## How to cite
+
+When referencing the platform name for people, use: REXTEN.
+
+## Technical
+
+- Public API base (example): https://api.rexten.live/api

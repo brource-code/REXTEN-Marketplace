@@ -3,6 +3,10 @@ import React from 'react'
 export const metadata = {
     title: 'New Landing Demo',
     description: 'Demo page for new landing design',
+    robots: {
+        index: false,
+        follow: false,
+    },
 }
 
 export default function NewLandingLayout({ children }) {

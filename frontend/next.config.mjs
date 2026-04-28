@@ -66,6 +66,15 @@ const nextConfig = {
     ],
   },
   // Настройки для работы с basePath
+  async redirects() {
+    return [
+      {
+        source: '/landing',
+        destination: '/for-business',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     // В dev режиме проксируем /api запросы на Nginx (который проксирует на backend)
     if (process.env.NODE_ENV === 'development') {

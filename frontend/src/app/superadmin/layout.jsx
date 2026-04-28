@@ -1,18 +1,13 @@
-'use client'
-
 import React from 'react'
-import PostLoginLayout from '@/components/layouts/PostLoginLayout'
-import ProtectedRoute from '@/components/auth/ProtectedRoute'
-import { SUPERADMIN } from '@/constants/roles.constant'
+import SuperadminSegmentLayoutClient from './SuperadminSegmentLayoutClient'
 
-const Layout = ({ children }) => {
-    // Только SUPERADMIN может видеть суперадминку
-    return (
-        <ProtectedRoute allowedRoles={[SUPERADMIN]}>
-            <PostLoginLayout>{children}</PostLoginLayout>
-        </ProtectedRoute>
-    )
+export const metadata = {
+    robots: {
+        index: false,
+        follow: false,
+    },
 }
 
-export default Layout
-
+export default function Layout({ children }) {
+    return <SuperadminSegmentLayoutClient>{children}</SuperadminSegmentLayoutClient>
+}

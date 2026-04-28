@@ -1,25 +1,13 @@
-'use client'
-
 import React from 'react'
-import PostLoginLayout from '@/components/layouts/PostLoginLayout'
-import ProtectedRoute from '@/components/auth/ProtectedRoute'
-import { CLIENT } from '@/constants/roles.constant'
-import MaintenanceGuard from '@/components/platform/MaintenanceGuard'
+import ClientSegmentLayoutClient from './ClientSegmentLayoutClient'
 
-const Layout = ({ children }) => {
-    return (
-        <ProtectedRoute allowedRoles={[CLIENT]}>
-            <MaintenanceGuard>
-                <div
-                    data-public-fullscreen
-                    className="flex min-h-screen min-h-[100dvh] flex-col bg-white dark:bg-gray-900"
-                >
-                    <PostLoginLayout>{children}</PostLoginLayout>
-                </div>
-            </MaintenanceGuard>
-        </ProtectedRoute>
-    )
+export const metadata = {
+    robots: {
+        index: false,
+        follow: false,
+    },
 }
 
-export default Layout
-
+export default function Layout({ children }) {
+    return <ClientSegmentLayoutClient>{children}</ClientSegmentLayoutClient>
+}
