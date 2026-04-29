@@ -102,7 +102,7 @@ class SeoController extends Controller
     {
         $rows = Company::query()
             ->where('is_visible_on_marketplace', true)
-            ->whereIn('status', ['active', 'pending'])
+            ->where('status', 'active')
             ->whereNotNull('slug')
             ->where('slug', '!=', '')
             ->select(['slug', 'updated_at'])

@@ -15,6 +15,7 @@ use App\Support\UsStateCodes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class MarketplaceController extends Controller
 {
@@ -238,54 +239,11 @@ class MarketplaceController extends Controller
                 }
             }
 
-            $isOpenNow = false;
-            if ($hasSchedule && $ad->schedule && is_array($ad->schedule)) {
-                $tz = $company->timezone ?? 'America/Los_Angeles';
-                try {
-                    $now = \Carbon\Carbon::now($tz);
-                    $currentMinutes = $now->hour * 60 + $now->minute;
-                    $dayOfWeek = strtolower($now->format('l'));
-
-                    // Проверяем текущий день
-                    $daySchedule = $ad->schedule[$dayOfWeek] ?? null;
-                    if ($daySchedule && is_array($daySchedule) && !empty($daySchedule['enabled']) && isset($daySchedule['from'], $daySchedule['to'])) {
-                        $fromParts = explode(':', $daySchedule['from']);
-                        $toParts = explode(':', $daySchedule['to']);
-                        if (count($fromParts) === 2 && count($toParts) === 2) {
-                            $fromMin = (int)$fromParts[0] * 60 + (int)$fromParts[1];
-                            $toMin = (int)$toParts[0] * 60 + (int)$toParts[1];
-
-                            if ($toMin > $fromMin) {
-                                // Обычная смена (09:00→18:00)
-                                $isOpenNow = $currentMinutes >= $fromMin && $currentMinutes < $toMin;
-                            } else {
-                                // Ночная смена (22:00→02:00): открыто от from до полуночи
-                                $isOpenNow = $currentMinutes >= $fromMin;
-                            }
-                        }
-                    }
-
-                    // Если ещё не нашли — проверяем вчерашнюю ночную смену, которая перешла через полночь
-                    if (!$isOpenNow) {
-                        $yesterday = strtolower($now->copy()->subDay()->format('l'));
-                        $ySchedule = $ad->schedule[$yesterday] ?? null;
-                        if ($ySchedule && is_array($ySchedule) && !empty($ySchedule['enabled']) && isset($ySchedule['from'], $ySchedule['to'])) {
-                            $yFrom = explode(':', $ySchedule['from']);
-                            $yTo = explode(':', $ySchedule['to']);
-                            if (count($yFrom) === 2 && count($yTo) === 2) {
-                                $yFromMin = (int)$yFrom[0] * 60 + (int)$yFrom[1];
-                                $yToMin = (int)$yTo[0] * 60 + (int)$yTo[1];
-                                // Ночная смена вчера (to < from): открыто до to сегодня
-                                if ($yToMin < $yFromMin && $currentMinutes < $yToMin) {
-                                    $isOpenNow = true;
-                                }
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // invalid timezone — ignore
-                }
-            }
+            // «Свободно сейчас»: пересечение расписания с окном [сейчас, +2 ч] — без расчёта слотов бронирования
+            $isOpenNow = $hasSchedule && $this->advertisementScheduleOverlapsNextTwoHours(
+                is_array($ad->schedule) ? $ad->schedule : null,
+                $company->timezone ?? null
+            );
 
             // Вычисляемые теги на основе реальных данных
             $tags = [];
@@ -1655,6 +1613,168 @@ class MarketplaceController extends Controller
             'services' => $services,
             'reviews' => $formattedReviews,
         ]);
+    }
+
+    /**
+     * Батч: какие объявления имеют включённые часы работы в выбранную календарную дату (TZ компании).
+     * Без расчёта слотов бронирования, без воркеров — один SELECT + обход в памяти.
+     */
+    public function advertisementsHasSlotsForDate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'date' => 'required|date_format:Y-m-d',
+            'advertisement_ids' => 'required|array|max:300',
+            'advertisement_ids.*' => 'integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $dateStr = $request->input('date');
+        $ids = array_values(array_unique(array_map('intval', $request->input('advertisement_ids', []))));
+        if ($ids === []) {
+            return response()->json(['success' => true, 'available_ids' => []]);
+        }
+
+        $ads = Advertisement::query()
+            ->whereIn('id', $ids)
+            ->where('is_active', true)
+            ->where('status', 'approved')
+            ->whereIn('type', ['regular', 'advertisement'])
+            ->with(['company:id,timezone'])
+            ->get(['id', 'schedule', 'company_id']);
+
+        $availableIds = [];
+        foreach ($ads as $ad) {
+            $tz = $ad->company?->timezone ?? null;
+            if ($this->advertisementScheduleHasOpenHoursOnDate(is_array($ad->schedule) ? $ad->schedule : null, $tz, $dateStr)) {
+                $availableIds[] = (int) $ad->id;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'available_ids' => $availableIds,
+        ]);
+    }
+
+    /**
+     * Пересечение расписания объявления с окном [сейчас, сейчас + 2 ч] в TZ компании (без слотов бронирования).
+     */
+    private function advertisementScheduleOverlapsNextTwoHours(?array $schedule, ?string $timezone): bool
+    {
+        if (empty($schedule)) {
+            return false;
+        }
+
+        $tz = $timezone ?: 'America/Los_Angeles';
+
+        try {
+            $now = \Carbon\Carbon::now($tz)->startOfMinute();
+            $until = $now->copy()->addHours(2);
+
+            $appendWindowsForDay = function (\Carbon\Carbon $dayStart, $daySchedule) {
+                if (!is_array($daySchedule) || empty($daySchedule['enabled']) || !isset($daySchedule['from'], $daySchedule['to'])) {
+                    return [];
+                }
+                $fromParts = explode(':', $daySchedule['from']);
+                $toParts = explode(':', $daySchedule['to']);
+                if (count($fromParts) !== 2 || count($toParts) !== 2) {
+                    return [];
+                }
+                $ws = $dayStart->copy()->setTime((int) $fromParts[0], (int) $fromParts[1], 0);
+                $we = $dayStart->copy()->setTime((int) $toParts[0], (int) $toParts[1], 0);
+                if ($we->lte($ws)) {
+                    $we = $we->copy()->addDay();
+                }
+
+                return [[$ws, $we]];
+            };
+
+            $windows = [];
+            $todayStart = $now->copy()->startOfDay();
+            $dowToday = strtolower($now->format('l'));
+            if (isset($schedule[$dowToday])) {
+                foreach ($appendWindowsForDay($todayStart, $schedule[$dowToday]) as $w) {
+                    $windows[] = $w;
+                }
+            }
+
+            if ($until->toDateString() !== $now->toDateString()) {
+                $tomorrowStart = $todayStart->copy()->addDay();
+                $dowUntil = strtolower($until->format('l'));
+                if (isset($schedule[$dowUntil])) {
+                    foreach ($appendWindowsForDay($tomorrowStart, $schedule[$dowUntil]) as $w) {
+                        $windows[] = $w;
+                    }
+                }
+            }
+
+            $yesterdayStart = $todayStart->copy()->subDay();
+            $yDow = strtolower($yesterdayStart->format('l'));
+            if (isset($schedule[$yDow])) {
+                $ys = $schedule[$yDow];
+                if (is_array($ys) && !empty($ys['enabled']) && isset($ys['from'], $ys['to'])) {
+                    $fp = explode(':', $ys['from']);
+                    $tp = explode(':', $ys['to']);
+                    if (count($fp) === 2 && count($tp) === 2) {
+                        $yWs = $yesterdayStart->copy()->setTime((int) $fp[0], (int) $fp[1], 0);
+                        $yWeSame = $yesterdayStart->copy()->setTime((int) $tp[0], (int) $tp[1], 0);
+                        if ($yWeSame->lte($yWs)) {
+                            $yWe = $todayStart->copy()->setTime((int) $tp[0], (int) $tp[1], 0);
+                            $windows[] = [$yWs, $yWe];
+                        }
+                    }
+                }
+            }
+
+            foreach ($windows as [$ws, $we]) {
+                if ($now->lt($we) && $until->gt($ws)) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * В указанную дату (Y-m-d) в TZ компании у дня недели включены часы from/to в schedule.
+     */
+    private function advertisementScheduleHasOpenHoursOnDate(?array $schedule, ?string $timezone, string $dateYmd): bool
+    {
+        if (empty($schedule)) {
+            return false;
+        }
+
+        $tz = $timezone ?: 'America/Los_Angeles';
+
+        try {
+            $day = \Carbon\Carbon::createFromFormat('Y-m-d', $dateYmd, $tz)->startOfDay();
+            $dow = strtolower($day->format('l'));
+            $daySchedule = $schedule[$dow] ?? null;
+            if (!is_array($daySchedule) || empty($daySchedule['enabled']) || !isset($daySchedule['from'], $daySchedule['to'])) {
+                return false;
+            }
+            $fromParts = explode(':', $daySchedule['from']);
+            $toParts = explode(':', $daySchedule['to']);
+            if (count($fromParts) !== 2 || count($toParts) !== 2) {
+                return false;
+            }
+            $fromMin = (int) $fromParts[0] * 60 + (int) $fromParts[1];
+            $toMin = (int) $toParts[0] * 60 + (int) $toParts[1];
+
+            if ($toMin <= $fromMin) {
+                return true;
+            }
+
+            return $fromMin < $toMin;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**

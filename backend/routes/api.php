@@ -159,6 +159,7 @@ Route::prefix('locations')->group(function () {
 // Public marketplace routes
 Route::prefix('marketplace')->group(function () {
     Route::get('/services', [MarketplaceController::class, 'getServices']);
+    Route::post('/has-slots', [MarketplaceController::class, 'advertisementsHasSlotsForDate']);
     Route::get('/categories', [MarketplaceController::class, 'getCategories']);
     Route::get('/states', [MarketplaceController::class, 'getStates']);
     Route::get('/services/{slug}', [MarketplaceController::class, 'getServiceBySlug']);
