@@ -8,10 +8,18 @@ use App\Models\Service;
 use App\Models\Company;
 use App\Models\Advertisement;
 use App\Models\Review;
-use Illuminate\Http\Request;
 
 class FavoritesController extends Controller
 {
+    /** Строка в БД и полное имя класса (старые записи morph) для объявлений */
+    private function scopeFavoriteAdvertisementTypes($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('favoriteable_type', 'advertisement')
+                ->orWhere('favoriteable_type', Advertisement::class);
+        });
+    }
+
     /**
      * Get favorite services.
      */
@@ -147,15 +155,42 @@ class FavoritesController extends Controller
         $user = auth('api')->user();
 
         $favorites = Favorite::where('user_id', $user->id)
-            ->where('favoriteable_type', 'advertisement')
+            ->where(function ($q) {
+                $this->scopeFavoriteAdvertisementTypes($q);
+            })
             ->get();
 
         $data = $favorites->map(function ($favorite) {
             // Manually load the advertisement
             $advertisement = Advertisement::with('company')->find($favorite->favoriteable_id);
-            
+
+            // Запись избранного есть, а объявление недоступно — всё равно отдаём id, чтобы клиент показал «в избранном»
             if (!$advertisement) {
-                return null;
+                $adId = (int) $favorite->favoriteable_id;
+
+                return [
+                    'id' => $favorite->id,
+                    'advertisementId' => $adId,
+                    'advertisementName' => '',
+                    'title' => '',
+                    'name' => '',
+                    'advertisementSlug' => 'ad_' . $adId,
+                    'slug' => 'ad_' . $adId,
+                    'link' => null,
+                    'businessName' => '',
+                    'businessSlug' => '',
+                    'price' => 0.0,
+                    'priceLabel' => '',
+                    'rating' => null,
+                    'reviewsCount' => 0,
+                    'image' => '/img/others/placeholder.jpg',
+                    'description' => '',
+                    'category' => '',
+                    'city' => '',
+                    'state' => '',
+                    'addedAt' => $favorite->created_at->toISOString(),
+                    'missingEntity' => true,
+                ];
             }
             
             // Форматируем цену
@@ -239,7 +274,9 @@ class FavoritesController extends Controller
     {
         $user = auth('api')->user();
 
-        \Log::info('Adding to favorites', ['type' => $type, 'id' => $id, 'user_id' => $user->id ?? null]);
+        $numericId = (int) $id;
+
+        \Log::info('Adding to favorites', ['type' => $type, 'id' => $numericId, 'user_id' => $user->id ?? null]);
 
         if (!in_array($type, ['service', 'business', 'advertisement'])) {
             \Log::warning('Invalid favorite type', ['type' => $type]);
@@ -263,34 +300,46 @@ class FavoritesController extends Controller
         }
         
         try {
-            $item = $model::findOrFail($id);
+            $item = $model::findOrFail($numericId);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            \Log::warning('Item not found', ['type' => $type, 'id' => $id, 'model' => $model]);
+            \Log::warning('Item not found', ['type' => $type, 'id' => $numericId, 'model' => $model]);
             return response()->json([
                 'message' => ucfirst($type) . ' not found',
             ], 404);
         }
 
-        // Check if already favorited
-        $existing = Favorite::where('user_id', $user->id)
-            ->where('favoriteable_type', $type)
-            ->where('favoriteable_id', $id)
-            ->first();
+        // Check if already favorited (учитываем старый morph favoriteable_type = полное имя класса)
+        if ($type === 'advertisement') {
+            $existing = Favorite::where('user_id', $user->id)
+                ->where('favoriteable_id', $numericId)
+                ->where(function ($q) {
+                    $this->scopeFavoriteAdvertisementTypes($q);
+                })
+                ->first();
+        } else {
+            $existing = Favorite::where('user_id', $user->id)
+                ->where('favoriteable_type', $type)
+                ->where('favoriteable_id', $numericId)
+                ->first();
+        }
 
         if ($existing) {
             return response()->json([
                 'message' => 'Already in favorites',
-            ], 400);
+                'already_exists' => true,
+                'data' => ['id' => $existing->id],
+            ], 200);
         }
 
         $favorite = Favorite::create([
             'user_id' => $user->id,
             'favoriteable_type' => $type,
-            'favoriteable_id' => $id,
+            'favoriteable_id' => $numericId,
         ]);
 
         return response()->json([
             'message' => 'Added to favorites',
+            'already_exists' => false,
             'data' => $favorite,
         ], 201);
     }
@@ -302,6 +351,8 @@ class FavoritesController extends Controller
     {
         $user = auth('api')->user();
 
+        $numericId = (int) $id;
+
         // Проверяем валидность типа
         if (!in_array($type, ['service', 'business', 'advertisement'])) {
             return response()->json([
@@ -309,10 +360,19 @@ class FavoritesController extends Controller
             ], 400);
         }
 
-        $favorite = Favorite::where('user_id', $user->id)
-            ->where('favoriteable_type', $type)
-            ->where('favoriteable_id', $id)
-            ->first();
+        if ($type === 'advertisement') {
+            $favorite = Favorite::where('user_id', $user->id)
+                ->where('favoriteable_id', $numericId)
+                ->where(function ($q) {
+                    $this->scopeFavoriteAdvertisementTypes($q);
+                })
+                ->first();
+        } else {
+            $favorite = Favorite::where('user_id', $user->id)
+                ->where('favoriteable_type', $type)
+                ->where('favoriteable_id', $numericId)
+                ->first();
+        }
 
         // Если избранное не найдено, считаем это успехом (уже удалено)
         if (!$favorite) {
