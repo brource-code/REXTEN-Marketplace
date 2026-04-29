@@ -73,6 +73,12 @@ const nextConfig = {
         destination: '/for-business',
         permanent: true,
       },
+      // Футер ссылался на маршруты без страниц — редирект на существующие разделы
+      { source: '/about', destination: '/for-business', permanent: false },
+      { source: '/how-it-works', destination: '/services', permanent: false },
+      { source: '/help', destination: '/services', permanent: false },
+      { source: '/contact', destination: '/services', permanent: false },
+      { source: '/faq', destination: '/marketplace-terms', permanent: false },
     ];
   },
   async rewrites() {

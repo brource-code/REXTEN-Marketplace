@@ -5,15 +5,37 @@ REXTEN is a service marketplace and business workspace: clients discover and boo
 ## Primary public URLs
 
 - Marketplace catalog: https://rexten.live/services
+- Listing (URL pattern): https://rexten.live/marketplace/{listing-slug}
+- Company profile (canonical): https://rexten.live/marketplace/company/{company-slug}
 - Business product landing: https://rexten.live/for-business
 - Privacy: https://rexten.live/privacy
 - Terms: https://rexten.live/terms
 - Marketplace terms: https://rexten.live/marketplace-terms
+- Sitemap: https://rexten.live/sitemap.xml
+- Robots: https://rexten.live/robots.txt
+
+## Machine-readable discovery (agents)
+
+- API catalog (RFC 9727, `application/linkset+json`): https://rexten.live/.well-known/api-catalog
+- OpenAPI description of **public** read endpoints (JSON): https://rexten.live/.well-known/openapi.json
+
+The catalog anchor URL is the public Laravel API base (example): https://api.rexten.live/api
+
+## Public HTTP API (Laravel)
+
+Base URL (example production): https://api.rexten.live/api
+
+Typical unauthenticated reads used by the public site:
+
+- GET `/marketplace/services`, `/marketplace/categories`, `/marketplace/states`
+- GET `/marketplace/services/{slug}`, `/marketplace/services/{slug}/profile`, `/marketplace/company/{slug}`
+- GET `/locations/states`, `/locations/cities`, `/locations/search`, `/locations/validate`
+- GET `/seo/marketplace-listings`, `/seo/companies`, `/seo/categories`, `/seo/locations`, `/seo/landing-paths`
+- GET `/settings/public`, `/subscription-plans/public`, `/advertisements/featured`
+- Booking-related public endpoints include GET `/bookings/available-slots` and POST flows under `/bookings/…` (see OpenAPI on the site for a concise list)
+
+Authentication for client/business dashboards is **JWT** (access + refresh), not OpenID Connect discovery at `/.well-known/openid-configuration`. Obtain tokens via `POST /auth/login` and `POST /auth/refresh` on the same API base.
 
 ## How to cite
 
 When referencing the platform name for people, use: REXTEN.
-
-## Technical
-
-- Public API base (example): https://api.rexten.live/api

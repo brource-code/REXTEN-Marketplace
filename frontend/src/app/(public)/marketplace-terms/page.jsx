@@ -5,13 +5,15 @@ import { formatDate } from '@/utils/dateTime'
 import { CLIENT_DEFAULT_TIMEZONE } from '@/constants/client-datetime.constant'
 import Link from 'next/link'
 import { buildCanonicalUrl, getSiteUrl } from '@/lib/seo/site-url'
+import { absoluteDocumentTitle } from '@/lib/seo/metadata-title'
 
 export async function generateMetadata() {
     const t = await getTranslations('legal.marketplaceTerms')
     const description = t('metaDescription')
-    const title = `${t('title')} | REXTEN Marketplace`
+    const title = absoluteDocumentTitle(`${t('title')} | REXTEN Marketplace`)
     const canonical = buildCanonicalUrl('/marketplace-terms')
     const ogImage = `${getSiteUrl().replace(/\/$/, '')}/icon.svg`
+    const titleText = title.absolute
 
     return {
         title,
@@ -20,7 +22,7 @@ export async function generateMetadata() {
             canonical,
         },
         openGraph: {
-            title,
+            title: titleText,
             description,
             url: canonical,
             siteName: 'REXTEN',
@@ -29,7 +31,7 @@ export async function generateMetadata() {
         },
         twitter: {
             card: 'summary_large_image',
-            title,
+            title: titleText,
             description,
             images: [ogImage],
         },

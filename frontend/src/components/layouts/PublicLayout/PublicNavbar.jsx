@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import useTheme from '@/utils/hooks/useTheme'
 import useScrollTop from '@/utils/hooks/useScrollTop'
 import { MODE_DARK, MODE_LIGHT } from '@/constants/theme.constant'
@@ -10,7 +11,7 @@ import { useAuthStore, useUserStore } from '@/store'
 import Avatar from '@/components/ui/Avatar'
 import Dropdown from '@/components/ui/Dropdown'
 import { useLogout } from '@/hooks/api/useAuth'
-import { PiUser, PiSignOut, PiGear, PiCalendar, PiStorefront, PiBuildings, PiShieldCheck } from 'react-icons/pi'
+import { PiUser, PiSignOut, PiGear, PiCalendar, PiStorefront, PiBuildings, PiShieldCheck, PiBriefcase } from 'react-icons/pi'
 import { CLIENT, BUSINESS_OWNER, SUPERADMIN } from '@/constants/roles.constant'
 import ClientNotification from '@/components/layouts/PublicLayout/ClientNotification'
 import Logo from '@/components/template/Logo'
@@ -20,10 +21,12 @@ import { setLocale } from '@/server/actions/locale'
 import { HiCheck } from 'react-icons/hi'
 import { updateUserLocale } from '@/lib/api/client'
 import { UI_LANGUAGE_OPTIONS } from '@/constants/languageOptions'
+import { PUBLIC_MARKETPLACE_CONTENT_MAX } from '@/constants/public-marketplace-layout.constant'
 
 const languageList = UI_LANGUAGE_OPTIONS
 
 const PublicNavbar = () => {
+    const pathname = usePathname()
     const mode = useTheme((state) => state.mode)
     const setMode = useTheme((state) => state.setMode)
     const { isSticky } = useScrollTop()
@@ -76,20 +79,49 @@ const PublicNavbar = () => {
         >
             <div
                 className={classNames(
-                    'flex flex-row items-center justify-between py-3 max-w-7xl mx-auto px-4 rounded-xl relative z-[60] w-full transition duration-200',
+                    `relative z-[60] mx-auto flex w-full ${PUBLIC_MARKETPLACE_CONTENT_MAX} flex-row items-center justify-between rounded-xl px-4 py-3 transition duration-200 sm:px-6 lg:px-8`,
                     isSticky
                         ? 'bg-white dark:bg-gray-800 shadow-lg'
                         : 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm lg:bg-transparent lg:dark:bg-transparent lg:backdrop-blur-none',
                 )}
             >
-                <Link href={appConfig.marketplaceHomePath} className="flex items-center flex-shrink-0">
-                    <Logo
-                        type="full"
-                        mode={mode}
-                        forceSvg={true}
-                        imgClass="h-7 w-auto max-w-[120px]"
-                    />
-                </Link>
+                {/* Логотип + nav ссылки — сгруппированы слева */}
+                <div className="flex items-center gap-5">
+                    <Link href={appConfig.marketplaceHomePath} className="flex items-center flex-shrink-0">
+                        <Logo
+                            type="full"
+                            mode={mode}
+                            forceSvg={true}
+                            imgClass="h-7 w-auto max-w-[120px]"
+                        />
+                    </Link>
+                    <nav className="hidden sm:flex items-center gap-0.5">
+                        <Link
+                            href="/services"
+                            className={classNames(
+                                'inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold transition',
+                                pathname.startsWith('/services') || pathname.startsWith('/marketplace')
+                                    ? 'text-gray-900 dark:text-gray-100'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/60',
+                            )}
+                        >
+                            <PiStorefront className="shrink-0 text-[17px] text-gray-400 dark:text-gray-500" aria-hidden />
+                            {t('marketplace')}
+                        </Link>
+                        <Link
+                            href="/for-business"
+                            className={classNames(
+                                'inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold transition',
+                                pathname.startsWith('/for-business') || pathname.startsWith('/landing')
+                                    ? 'text-gray-900 dark:text-gray-100'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/60',
+                            )}
+                        >
+                            <PiBriefcase className="shrink-0 text-[17px] text-gray-400 dark:text-gray-500" aria-hidden />
+                            {t('forBusiness')}
+                        </Link>
+                    </nav>
+                </div>
 
                 <div className="flex items-center gap-3">
                     {/* Language Selector */}

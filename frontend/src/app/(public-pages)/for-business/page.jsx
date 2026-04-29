@@ -7,15 +7,17 @@ import {
     buildCanonicalUrl,
     getSiteUrl,
 } from '@/lib/seo/site-url'
+import { absoluteDocumentTitle } from '@/lib/seo/metadata-title'
 
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata() {
     const t = await getTranslations('forBusiness.meta')
-    const title = t('title')
+    const title = absoluteDocumentTitle(t('title'))
     const description = t('description')
     const canonical = buildCanonicalUrl('/for-business')
     const ogImage = `${getSiteUrl().replace(/\/$/, '')}/icon.svg`
+    const titleText = title.absolute
 
     return {
         title,
@@ -24,7 +26,7 @@ export async function generateMetadata() {
             canonical,
         },
         openGraph: {
-            title,
+            title: titleText,
             description,
             url: canonical,
             siteName: 'REXTEN',
@@ -33,7 +35,7 @@ export async function generateMetadata() {
         },
         twitter: {
             card: 'summary_large_image',
-            title,
+            title: titleText,
             description,
             images: [ogImage],
         },

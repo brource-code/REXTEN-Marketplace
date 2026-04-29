@@ -344,10 +344,23 @@ LaravelAxios.interceptors.response.use(
             switch (status) {
                 case 403:
                     // Доступ запрещен
-                    // Не логируем ошибки 403 для публичных endpoints, так как это нормально
-                    var isPublicEndpoint = url.includes('/settings/public') || url.includes('/marketplace') || url.includes('/auth/')
+                    // Не логируем 403 для публичных API и для избранного клиента (BUSINESS_OWNER/SUPERADMIN —
+                    // ожидаемый ответ при просмотре маркетплейса).
+                    var isPublicEndpoint =
+                        url.includes('/settings/public') ||
+                        url.includes('/marketplace') ||
+                        url.includes('/auth/') ||
+                        url.includes('/client/favorites')
                     if (!isPublicEndpoint && (errorMessage !== 'Unknown error' || Object.keys(data || {}).length > 0)) {
                         logAxiosFailure(`[${method} ${url}] Access forbidden`, payload)
+                    }
+                    break
+                case 401:
+                    // Не спамить консоль опциональными запросами (например присутствие без сессии)
+                    if (!url.includes('/user/presence')) {
+                        if (data && Object.keys(data || {}).length > 0) {
+                            logAxiosFailure(`[${method} ${url}] Unauthorized`, payload)
+                        }
                     }
                     break
                 case 404:

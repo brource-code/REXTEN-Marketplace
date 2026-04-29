@@ -307,6 +307,40 @@ export async function getFilteredServices(filters: ServicesFilters): Promise<Ser
     }
 }
 
+/** Один POST: какие объявления имеют включённые часы в выбранную дату (TZ компании на бэке). Без слотов на карточку. */
+export async function postMarketplaceHasSlotsForDate(
+    date: string,
+    advertisementIds: number[],
+    init?: RequestInit,
+): Promise<number[]> {
+    if (!date || advertisementIds.length === 0) {
+        return []
+    }
+    try {
+        const url = `${getLaravelApiUrl()}/marketplace/has-slots`
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ date, advertisement_ids: advertisementIds }),
+            ...init,
+        })
+        if (!response.ok) {
+            return []
+        }
+        const json = await response.json()
+        if (!json?.success || !Array.isArray(json.available_ids)) {
+            return []
+        }
+        return json.available_ids.map((n: unknown) => Number(n)).filter((n) => Number.isFinite(n))
+    } catch (error) {
+        logClientApiError('postMarketplaceHasSlotsForDate', error)
+        return []
+    }
+}
+
 // Fallback функция для фильтрации моков
 function getFilteredServicesFallback(filters: ServicesFilters): Service[] {
     let filtered = [...mockServices]

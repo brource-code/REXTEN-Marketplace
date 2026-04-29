@@ -8,8 +8,14 @@
 
 import { NextResponse } from 'next/server'
 import appConfig from '@/configs/app.config'
+import { getAgentDiscoveryLinkHeaderValue } from '@/lib/seo/agent-discovery'
 
 const apiAuthPrefix = `${appConfig.apiPrefix}/auth`
+
+function attachAgentDiscoveryLinkHeader(res) {
+    const link = getAgentDiscoveryLinkHeaderValue()
+    if (link) res.headers.set('Link', link)
+}
 
 function firstHeaderValue(raw) {
     if (!raw || typeof raw !== 'string') return ''
@@ -24,6 +30,15 @@ export default function middleware(req) {
         let pathname = nextUrl.pathname
         if (basePath && pathname.startsWith(basePath)) {
             pathname = pathname.slice(basePath.length) || '/'
+        }
+
+        /** Не вмешиваемся в метаданные и статические SEO-файлы (sitemap / robots / llms). */
+        if (
+            pathname === '/robots.txt' ||
+            pathname === '/sitemap.xml' ||
+            pathname === '/llms.txt'
+        ) {
+            return NextResponse.next()
         }
 
         if (pathname === '/') {
@@ -53,10 +68,20 @@ export default function middleware(req) {
 
             try {
                 const redirectUrl = new URL('/services', redirectOrigin)
-                return NextResponse.redirect(redirectUrl)
+                const res = NextResponse.redirect(redirectUrl)
+                attachAgentDiscoveryLinkHeader(res)
+                return res
             } catch {
-                return NextResponse.redirect(new URL('/services', nextUrl))
+                const res = NextResponse.redirect(new URL('/services', nextUrl))
+                attachAgentDiscoveryLinkHeader(res)
+                return res
             }
+        }
+
+        if (pathname === '/services') {
+            const res = NextResponse.next()
+            attachAgentDiscoveryLinkHeader(res)
+            return res
         }
 
         if (pathname.startsWith(apiAuthPrefix)) {
@@ -67,7 +92,9 @@ export default function middleware(req) {
     } catch (e) {
         console.error('[middleware]', e)
         try {
-            return NextResponse.redirect(new URL('/services', req.nextUrl))
+            const res = NextResponse.redirect(new URL('/services', req.nextUrl))
+            attachAgentDiscoveryLinkHeader(res)
+            return res
         } catch {
             return new NextResponse('Service temporarily unavailable', { status: 503 })
         }

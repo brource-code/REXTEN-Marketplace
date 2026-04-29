@@ -7,8 +7,10 @@ import Avatar from '@/components/ui/Avatar'
 import classNames from '@/utils/classNames'
 import useScrollTop from '@/utils/hooks/useScrollTop'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { TbMenu2 } from 'react-icons/tb'
 import { HiCheck } from 'react-icons/hi'
+import { PiStorefront, PiBriefcase } from 'react-icons/pi'
 import Logo from '@/components/template/Logo'
 import appConfig from '@/configs/app.config'
 import { useLocale, useTranslations } from 'next-intl'
@@ -19,6 +21,7 @@ import { useAuthStore } from '@/store'
 const languageList = UI_LANGUAGE_OPTIONS
 
 const Navigation = ({ toggleMode, mode }) => {
+    const pathname = usePathname()
     const { isSticky } = useScrollTop()
     const [isOpen, setIsOpen] = useState(false)
     const locale = useLocale()
@@ -119,15 +122,43 @@ const Navigation = ({ toggleMode, mode }) => {
                     </Drawer>
                 </div>
 
-                {/* Center: logo (mobile grid auto column = always centered) */}
-                <Link href={appConfig.marketplaceHomePath} className="flex items-center justify-center lg:justify-start flex-shrink-0 lg:order-first">
-                    <Logo
-                        type="full"
-                        mode={mode}
-                        forceSvg={true}
-                        imgClass="h-7 w-auto max-w-[130px]"
-                    />
-                </Link>
+                {/* Center: логотип + nav ссылки рядом на десктопе */}
+                <div className="flex items-center gap-5 justify-center lg:justify-start lg:order-first">
+                    <Link href={appConfig.marketplaceHomePath} className="flex items-center flex-shrink-0">
+                        <Logo
+                            type="full"
+                            mode={mode}
+                            forceSvg={true}
+                            imgClass="h-7 w-auto max-w-[130px]"
+                        />
+                    </Link>
+                    <nav className="hidden lg:flex items-center gap-0.5">
+                        <Link
+                            href="/services"
+                            className={classNames(
+                                'inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold transition',
+                                pathname.startsWith('/services') || pathname.startsWith('/marketplace')
+                                    ? 'text-gray-900 dark:text-gray-100'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/60',
+                            )}
+                        >
+                            <PiStorefront className="shrink-0 text-[17px] text-gray-400 dark:text-gray-500" aria-hidden />
+                            {tNavbar('marketplace')}
+                        </Link>
+                        <Link
+                            href="/for-business"
+                            className={classNames(
+                                'inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold transition',
+                                pathname.startsWith('/for-business') || pathname.startsWith('/landing')
+                                    ? 'text-gray-900 dark:text-gray-100'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/60',
+                            )}
+                        >
+                            <PiBriefcase className="shrink-0 text-[17px] text-gray-400 dark:text-gray-500" aria-hidden />
+                            {tNavbar('forBusiness')}
+                        </Link>
+                    </nav>
+                </div>
 
                 {/* Desktop nav links (centered absolute) */}
                 <div className="lg:flex flex-row flex-1 absolute inset-0 hidden items-center justify-center text-sm text-zinc-600 font-medium hover:text-zinc-800 transition duration-200 [perspective:1000px] overflow-auto sm:overflow-visible no-visible-scrollbar pointer-events-none">
