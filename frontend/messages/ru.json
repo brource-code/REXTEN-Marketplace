@@ -948,6 +948,8 @@
             "platformVerified": "Проходит проверку платформы",
             "paymentsProtected": "Ваши платежи под защитой",
             "estimatedTime": "Примерное время",
+            "workingSince": "Работает с {year} года",
+            "ordersCompleted": "выполненных заказов",
             "outOf5": "из 5",
             "allReviews": "Все отзывы",
             "badges": {

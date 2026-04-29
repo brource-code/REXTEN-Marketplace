@@ -1030,7 +1030,7 @@ export default function MarketplaceProfilePage({
                 <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 items-start">
 
                     {/* ЛЕВАЯ КОЛОНКА — галерея + табы + контент */}
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 min-w-0">
 
                         {/* ── ФОТО-ГАЛЕРЕЯ (внутри левой колонки) ── */}
                         {galleryPhotos.length > 0 && (
@@ -1125,6 +1125,98 @@ export default function MarketplaceProfilePage({
                             </div>
                         )}
 
+                        {/* ── МОБИЛЬНЫЙ ВИДЖЕТ БРОНИРОВАНИЯ ── */}
+                        <div className="lg:hidden mb-5">
+                            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+                                {/* Цена + кнопка */}
+                                <div className="flex items-center justify-between gap-3 p-4 pb-3">
+                                    <div className="min-w-0">
+                                        {minServicePrice ? (
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-sm text-gray-500 dark:text-gray-400">{t('from')}</span>
+                                                <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                    {formatCurrency(minServicePrice, (firstService?.currency || currency))}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-xl font-bold text-gray-900 dark:text-white">
+                                                {business.priceLabel || t('priceOnRequest')}
+                                            </span>
+                                        )}
+                                        {firstService?.duration && (
+                                            <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                <PiClockCountdown className="flex-shrink-0" />
+                                                <span>{t('estimatedTime')}: {formatDuration(firstService.duration, firstService.duration_unit || 'hours')}</span>
+                                            </div>
+                                        )}
+                                        {business.location && (
+                                            <div className="flex items-center gap-1.5 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                                                <PiMapPinDuotone className="flex-shrink-0" />
+                                                <span>{business.location}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {showOnlineBookingBadge && (
+                                        <button
+                                            onClick={() => openBooking(null)}
+                                            className="flex-shrink-0 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold px-5 py-3.5 transition text-sm shadow-sm"
+                                        >
+                                            {t('book')}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Мгновенное подтверждение */}
+                                <div className="flex items-center justify-center gap-1.5 pb-3 text-xs text-gray-500 dark:text-gray-400">
+                                    <PiShieldCheck className="text-green-500 flex-shrink-0" />
+                                    <span>{t('instantConfirmation')}</span>
+                                </div>
+
+                                {/* Разделитель */}
+                                <div className="border-t border-gray-100 dark:border-gray-800 mx-4" />
+
+                                {/* 4 trust-фичи в ряд */}
+                                <div className="grid grid-cols-4 gap-1 p-3 pt-2.5">
+                                    {showOnlineBookingBadge && (
+                                        <div className="flex flex-col items-center gap-1 text-center px-0.5">
+                                            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                                                <PiCalendarDuotone className="text-blue-600 dark:text-blue-400 text-base" />
+                                            </div>
+                                            <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 leading-tight">{t('onlineBooking')}</span>
+                                            <span className="text-[9px] text-gray-400 leading-tight">{t('bookingAvailable247')}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col items-center gap-1 text-center px-0.5">
+                                        <div className="p-1.5 rounded-lg bg-green-50 dark:bg-green-900/20">
+                                            <PiShieldCheck className="text-green-600 dark:text-green-400 text-base" />
+                                        </div>
+                                        <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 leading-tight">{t('verifiedSpecialist')}</span>
+                                        <span className="text-[9px] text-gray-400 leading-tight">{t('platformVerified')}</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-1 text-center px-0.5">
+                                        <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                                            <PiCreditCard className="text-purple-600 dark:text-purple-400 text-base" />
+                                        </div>
+                                        <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 leading-tight">{t('safePayments')}</span>
+                                        <span className="text-[9px] text-gray-400 leading-tight">{t('paymentsProtected')}</span>
+                                    </div>
+                                    {(reviews.length > 0 || (business.reviewsCount || 0) > 0) && (
+                                        <div className="flex flex-col items-center gap-1 text-center px-0.5">
+                                            <div className="flex -space-x-1.5 mb-0.5">
+                                                {['RA','SK','JM'].map((ini, i) => (
+                                                    <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[7px] font-bold border border-white dark:border-gray-900">
+                                                        {ini}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 leading-tight">{(reviews.length || business.reviewsCount || 0)}+</span>
+                                            <span className="text-[9px] text-gray-400 leading-tight">{t('trustedClients')}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Табы */}
                         <div className="border-b border-gray-200 dark:border-white/10 mb-6">
                             <div className="flex overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -1175,14 +1267,28 @@ export default function MarketplaceProfilePage({
                                                     {showFullDescription ? t('hide') : t('showMore')}
                                                 </button>
                                             )}
+                                        </div>
+                                    )}
 
-                                            {/* Язык (без дублирования счётчика отзывов — он уже в шапке) */}
+                                    {/* Строка статистики: год, заказы, язык */}
+                                    {(business.yearFounded || business.ordersCompleted || business.tags?.includes('russian-speaking')) && (
+                                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
+                                            {business.yearFounded && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <PiCalendarDuotone className="text-base flex-shrink-0" />
+                                                    <span>{t('workingSince', { year: business.yearFounded })}</span>
+                                                </div>
+                                            )}
+                                            {business.ordersCompleted > 0 && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <PiUsersDuotone className="text-base flex-shrink-0" />
+                                                    <span>{business.ordersCompleted}+ {t('ordersCompleted')}</span>
+                                                </div>
+                                            )}
                                             {business.tags?.includes('russian-speaking') && (
-                                                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-500 dark:text-gray-400">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <PiChatCircleDuotone className="text-base flex-shrink-0" />
-                                                        <span>{getTagLabel('russian-speaking', tServices)}</span>
-                                                    </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <PiChatCircleDuotone className="text-base flex-shrink-0" />
+                                                    <span>{getTagLabel('russian-speaking', tServices)}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -1191,10 +1297,42 @@ export default function MarketplaceProfilePage({
                                     {/* Доступные услуги */}
                                     {services && services.length > 0 && (
                                         <div>
-                                            <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">
+                                            <h2 className="text-base font-bold text-gray-900 dark:text-white mb-3">
                                                 {t('availableServices')}
                                             </h2>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+                                            {/* Мобилка: список-строки */}
+                                            <div className="sm:hidden divide-y divide-gray-100 dark:divide-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                                                {services.map((service, index) => (
+                                                    <div
+                                                        key={service.id || `service-mob-${index}`}
+                                                        onClick={() => { setSelectedServiceDetail(service); setServiceDetailModalOpen(true) }}
+                                                        className="flex items-center justify-between gap-3 px-4 py-3.5 bg-white dark:bg-gray-900 active:bg-gray-50 dark:active:bg-gray-800 cursor-pointer"
+                                                    >
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-bold text-gray-900 dark:text-white leading-snug">{service.name}</p>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                                {service.duration && `${formatDuration(service.duration, service.duration_unit || 'hours')} · `}
+                                                                {t('tabs.services')}
+                                                            </p>
+                                                            {service.description && (
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{service.description}</p>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                                            {service.price && (
+                                                                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                                                    {formatCurrency(service.price, service.currency || currency)}
+                                                                </span>
+                                                            )}
+                                                            <PiCaretRight className="text-gray-400 text-sm flex-shrink-0" />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Десктоп: сетка карточек */}
+                                            <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                 {services.map((service, index) => (
                                                     <div
                                                         key={service.id || `service-${index}`}
@@ -1232,6 +1370,16 @@ export default function MarketplaceProfilePage({
                                                     </div>
                                                 ))}
                                             </div>
+
+                                            {/* Кнопка «Выбрать и забронировать» на мобилке */}
+                                            {showOnlineBookingBadge && (
+                                                <button
+                                                    onClick={() => openBooking(null)}
+                                                    className="sm:hidden mt-3 w-full text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline py-1"
+                                                >
+                                                    {t('viewAllServices')} →
+                                                </button>
+                                            )}
                                         </div>
                                     )}
 
@@ -1625,18 +1773,6 @@ export default function MarketplaceProfilePage({
                     </div>
 
                 </div>
-
-                {/* Мобильная кнопка бронирования (внизу экрана) */}
-                {showOnlineBookingBadge && (
-                    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 px-4 pb-safe-area-inset-bottom bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-3 shadow-lg">
-                        <button
-                            onClick={() => openBooking(null)}
-                            className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 transition text-base"
-                        >
-                            {t('book')}
-                        </button>
-                    </div>
-                )}
 
                 {/* Блок похожих услуг */}
                 {similarServices.length > 0 && (
