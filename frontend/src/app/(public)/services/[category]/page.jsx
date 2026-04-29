@@ -12,6 +12,7 @@ import {
     getSiteUrl,
 } from '@/lib/seo/site-url'
 import { truncateMetaDescription } from '@/lib/seo/meta-text'
+import { absoluteDocumentTitle } from '@/lib/seo/metadata-title'
 
 function buildCategoryFaqJsonLd(t) {
     return {
@@ -56,20 +57,21 @@ export async function generateMetadata({ params }) {
     }
     const t = await getTranslations('public.seoLanding')
     const name = String(cat.name || cat.slug || slug)
-    const title = t('categoryTitle', { category: name })
+    const title = absoluteDocumentTitle(t('categoryTitle', { category: name }))
     const description = truncateMetaDescription(
         t('categoryDescription', { category: name }),
         160,
     )
     const canonical = buildCanonicalUrl(`/services/${encodeURIComponent(slug)}`)
     const ogImage = `${getSiteUrl().replace(/\/$/, '')}/icon.svg`
+    const titleText = title.absolute
 
     return {
         title,
         description,
         alternates: { canonical },
         openGraph: {
-            title,
+            title: titleText,
             description,
             url: canonical,
             siteName: 'REXTEN',
@@ -78,7 +80,7 @@ export async function generateMetadata({ params }) {
         },
         twitter: {
             card: 'summary_large_image',
-            title,
+            title: titleText,
             description,
             images: [ogImage],
         },

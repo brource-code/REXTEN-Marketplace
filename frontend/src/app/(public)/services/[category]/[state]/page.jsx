@@ -12,6 +12,7 @@ import {
     getSiteUrl,
 } from '@/lib/seo/site-url'
 import { truncateMetaDescription } from '@/lib/seo/meta-text'
+import { absoluteDocumentTitle } from '@/lib/seo/metadata-title'
 import { US_STATES } from '@/constants/us-locations.constant'
 import { normalizeUsStateCode } from '@/utils/seo-location-slugs'
 
@@ -62,10 +63,12 @@ export async function generateMetadata({ params }) {
     }
     const t = await getTranslations('public.seoLanding')
     const name = String(cat.name || cat.slug || slug)
-    const title = t('stateTitle', {
-        category: name,
-        state: stateRow.name,
-    })
+    const title = absoluteDocumentTitle(
+        t('stateTitle', {
+            category: name,
+            state: stateRow.name,
+        }),
+    )
     const description = truncateMetaDescription(
         t('stateDescription', {
             category: name,
@@ -77,13 +80,14 @@ export async function generateMetadata({ params }) {
         `/services/${encodeURIComponent(slug)}/${encodeURIComponent(stateCode)}`,
     )
     const ogImage = `${getSiteUrl().replace(/\/$/, '')}/icon.svg`
+    const titleText = title.absolute
 
     return {
         title,
         description,
         alternates: { canonical },
         openGraph: {
-            title,
+            title: titleText,
             description,
             url: canonical,
             siteName: 'REXTEN',
@@ -92,7 +96,7 @@ export async function generateMetadata({ params }) {
         },
         twitter: {
             card: 'summary_large_image',
-            title,
+            title: titleText,
             description,
             images: [ogImage],
         },

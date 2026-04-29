@@ -10,6 +10,7 @@ import { truncateMetaDescription } from '@/lib/seo/meta-text'
 import { normalizeSeoImageUrl } from '@/lib/seo/normalize-image'
 import { getCompanyProfileServer } from '@/lib/api/marketplace-server'
 import { normalizeMarketplaceRouteSlug } from '@/utils/marketplace-slug'
+import { absoluteBrandedTitle } from '@/lib/seo/metadata-title'
 
 /** Не кэшировать RSC как 404 при временных сбоях SSR/API */
 export const dynamic = 'force-dynamic'
@@ -20,14 +21,14 @@ function companyProfileOk(payload) {
 
 function buildCompanyTitle(company) {
     const seo = typeof company.seo_title === 'string' ? company.seo_title.trim() : ''
-    if (seo) return `${seo} | REXTEN`
+    if (seo) return seo
     const name = typeof company.name === 'string' ? company.name : 'Business'
     const loc =
         typeof company.location === 'string' && company.location.trim()
             ? company.location.trim()
             : [company.city, company.state].filter(Boolean).join(', ')
-    if (loc) return `${name} | Services in ${loc} | REXTEN`
-    return `${name} | REXTEN`
+    if (loc) return `${name} | Services in ${loc}`
+    return name
 }
 
 function buildCompanyDescription(company) {
@@ -186,7 +187,7 @@ export async function generateMetadata({ params }) {
     }
 
     const company = profile.company
-    const title = buildCompanyTitle(company)
+    const title = absoluteBrandedTitle(buildCompanyTitle(company))
     const description = buildCompanyDescription(company)
     const canonical = buildCanonicalUrl(`/marketplace/company/${slug}`)
 
@@ -195,6 +196,7 @@ export async function generateMetadata({ params }) {
             typeof company.logo === 'string' ? company.logo : null,
         ) || `${getSiteUrl().replace(/\/$/, '')}/icon.svg`
 
+    const titleText = title.absolute
     return {
         title,
         description,
@@ -202,7 +204,7 @@ export async function generateMetadata({ params }) {
             canonical,
         },
         openGraph: {
-            title,
+            title: titleText,
             description,
             url: canonical,
             siteName: 'REXTEN',
@@ -211,7 +213,7 @@ export async function generateMetadata({ params }) {
         },
         twitter: {
             card: 'summary_large_image',
-            title,
+            title: titleText,
             description,
             images: [ogImage],
         },
