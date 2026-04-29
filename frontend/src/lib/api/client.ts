@@ -436,8 +436,14 @@ export async function getFavoriteAdvertisements(): Promise<any[]> {
         }
         const map = new Map()
         data.forEach((item) => {
-            if (!map.has(item.id)) {
-                map.set(item.id, item)
+            const key =
+                item.advertisementId ??
+                item.advertisement_id ??
+                item.favoriteable_id ??
+                item.id
+            if (key === undefined || key === null) return
+            if (!map.has(key)) {
+                map.set(key, item)
             }
         })
         return Array.from(map.values())
@@ -482,11 +488,33 @@ export async function getFavoriteBusinesses(): Promise<FavoriteBusiness[]> {
     }
 }
 
-export async function addToFavorites(type: 'service' | 'business' | 'advertisement', id: number): Promise<void> {
+export type AddFavoriteResult = { alreadyExists: boolean }
+
+export async function addToFavorites(
+    type: 'service' | 'business' | 'advertisement',
+    id: number,
+): Promise<AddFavoriteResult> {
     try {
-        await LaravelAxios.post(`/client/favorites/${type}/${id}`)
+        const res = await LaravelAxios.post(`/client/favorites/${type}/${id}`)
+        const msg = String(res.data?.message || '')
+        const already =
+            res.data?.already_exists === true ||
+            msg.toLowerCase().includes('already in favorites') ||
+            msg.includes('уже в избранном')
+        return { alreadyExists: already }
     } catch (error: any) {
-        logClientApiError('Error adding to favorites', error, { type, id })
+        if (error?.response?.status === 400) {
+            const errorMessage = String(error?.response?.data?.message || '')
+            if (
+                errorMessage.includes('Already in favorites') ||
+                errorMessage.includes('уже в избранном')
+            ) {
+                return { alreadyExists: true }
+            }
+        }
+        if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+            logClientApiError('Error adding to favorites', error, { type, id })
+        }
         throw error
     }
 }

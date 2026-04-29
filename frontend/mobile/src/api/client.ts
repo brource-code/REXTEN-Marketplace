@@ -172,8 +172,13 @@ export async function getFavoriteAdvertisements(): Promise<FavoriteAdvertisement
     // Дедупликация по advertisementId или id
     const map = new Map();
     advertisements.forEach((item: FavoriteAdvertisement) => {
-      const key = item.advertisementId || item.id;
-      if (key && !map.has(key)) {
+      const key =
+        item.advertisementId ??
+        (item as any).advertisement_id ??
+        (item as any).favoriteable_id ??
+        item.id;
+      if (key === undefined || key === null) return;
+      if (!map.has(key)) {
         map.set(key, item);
       }
     });
@@ -224,10 +229,28 @@ export async function getFavoriteBusinesses(): Promise<FavoriteBusiness[]> {
 /**
  * Добавить в избранное (универсальная функция)
  */
-export async function addToFavorites(type: 'service' | 'business' | 'advertisement', id: number | string): Promise<void> {
+export async function addToFavorites(
+  type: 'service' | 'business' | 'advertisement',
+  id: number | string,
+): Promise<{ alreadyExists: boolean }> {
   try {
-    await apiClient.post(`/client/favorites/${type}/${id}`);
+    const res = await apiClient.post(`/client/favorites/${type}/${id}`);
+    const msg = String(res.data?.message || '');
+    const already =
+      res.data?.already_exists === true ||
+      msg.toLowerCase().includes('already in favorites') ||
+      msg.includes('уже в избранном');
+    return { alreadyExists: already };
   } catch (error: any) {
+    if (error?.response?.status === 400) {
+      const errorMessage = String(error?.response?.data?.message || '');
+      if (
+        errorMessage.includes('Already in favorites') ||
+        errorMessage.includes('уже в избранном')
+      ) {
+        return { alreadyExists: true };
+      }
+    }
     console.error('Error adding to favorites:', { type, id, error: error?.response?.data });
     throw error;
   }
