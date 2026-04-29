@@ -7,6 +7,7 @@ import { normalizeSeoImageUrl } from '@/lib/seo/normalize-image'
 import { getServiceProfileServer } from '@/lib/api/marketplace-server'
 import { fetchLaravelPublicJson } from '@/lib/seo/laravel-fetch'
 import { normalizeMarketplaceRouteSlug } from '@/utils/marketplace-slug'
+import { absoluteBrandedTitle } from '@/lib/seo/metadata-title'
 
 /** Не кэшировать RSC как 404 при временных сбоях SSR/API */
 export const dynamic = 'force-dynamic'
@@ -26,8 +27,8 @@ function buildListingTitle(svc) {
         typeof svc.location === 'string' && svc.location.trim()
             ? svc.location.trim()
             : [svc.city, svc.state].filter(Boolean).join(', ')
-    if (location) return `${name} in ${location} | REXTEN`
-    return `${name} | Book Online | REXTEN`
+    if (location) return `${name} in ${location}`
+    return `${name} | Book Online`
 }
 
 function buildListingDescription(svc) {
@@ -204,7 +205,7 @@ export async function generateMetadata({ params }) {
     const svc = /** @type {Record<string, unknown>} */ (
         /** @type {ServiceProfilePayload} */ (profile).service
     )
-    const title = buildListingTitle(svc)
+    const title = absoluteBrandedTitle(buildListingTitle(svc))
     const description = buildListingDescription(svc)
 
     const canonical = buildCanonicalUrl(`/marketplace/${slug}`)
@@ -213,6 +214,7 @@ export async function generateMetadata({ params }) {
             typeof svc.imageUrl === 'string' ? svc.imageUrl : null,
         ) || `${getSiteUrl().replace(/\/$/, '')}/icon.svg`
 
+    const titleText = title.absolute
     return {
         title,
         description,
@@ -220,7 +222,7 @@ export async function generateMetadata({ params }) {
             canonical,
         },
         openGraph: {
-            title,
+            title: titleText,
             description,
             url: canonical,
             siteName: 'REXTEN',
@@ -229,7 +231,7 @@ export async function generateMetadata({ params }) {
         },
         twitter: {
             card: 'summary_large_image',
-            title,
+            title: titleText,
             description,
             images: [ogImage],
         },

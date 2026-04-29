@@ -30,6 +30,10 @@ import {
     PiCaretLeft,
     PiCaretRight,
     PiX,
+    PiShieldCheck,
+    PiClockCountdown,
+    PiCreditCard,
+    PiCamera,
 } from 'react-icons/pi'
 import classNames from '@/utils/classNames'
 import { formatDuration } from '@/utils/formatDuration'
@@ -43,12 +47,16 @@ import {
     marketplaceSlugsMatch,
     normalizeMarketplaceRouteSlug,
 } from '@/utils/marketplace-slug'
+import { useAuthStore } from '@/store'
+import { CLIENT } from '@/constants/roles.constant'
 
 // Функция для получения табов с переводами
 const getTabs = (t) => [
-    { id: 'schedule', label: t('tabs.schedule'), icon: PiCalendarDuotone },
-    { id: 'reviews', label: t('tabs.reviews'), icon: PiChatCircleDuotone },
-    { id: 'team', label: t('tabs.team'), icon: PiUsersDuotone },
+    { id: 'overview', label: t('tabs.overview') },
+    { id: 'services', label: t('tabs.services') },
+    { id: 'reviews', label: t('tabs.reviews') },
+    { id: 'about', label: t('tabs.about') },
+    { id: 'works', label: t('tabs.works') },
 ]
 
 
@@ -186,8 +194,11 @@ export default function MarketplaceProfilePage({
     const t = useTranslations('public.marketplace')
     const tServices = useTranslations('public.services')
     const locale = useLocale()
-    
-    const [activeTab, setActiveTab] = useState('schedule')
+    const { isAuthenticated, userRole, authReady } = useAuthStore()
+    const favoritesApiEnabled =
+        authReady && isAuthenticated && userRole === CLIENT
+
+    const [activeTab, setActiveTab] = useState('overview')
     const [selectedDate, setSelectedDate] = useState(0)
     const [isLoading, setIsLoading] = useState(() => initialProfile == null)
     const [profile, setProfile] = useState(() => initialProfile ?? null)
@@ -207,7 +218,6 @@ export default function MarketplaceProfilePage({
     const [availableSlotsData, setAvailableSlotsData] = useState({}) // Кэш доступных слотов по дате
     const [loadingSlots, setLoadingSlots] = useState(false)
     const [showFullDescription, setShowFullDescription] = useState(false)
-    const [galleryOpen, setGalleryOpen] = useState(false)
     const [galleryIndex, setGalleryIndex] = useState(-1)
     const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
     const [selectedPortfolioItem, setSelectedPortfolioItem] = useState(null)
@@ -249,21 +259,24 @@ export default function MarketplaceProfilePage({
         queryKey: ['client-favorite-services'],
         queryFn: getFavoriteServices,
         retry: false,
-        enabled: false, // Загружаем только при необходимости
+        enabled: favoritesApiEnabled,
+        staleTime: 30000,
     })
-    
+
     const { data: favoriteBusinesses = [], refetch: refetchFavoriteBusinesses } = useQuery({
         queryKey: ['client-favorite-businesses'],
         queryFn: getFavoriteBusinesses,
         retry: false,
-        enabled: false, // Загружаем только при необходимости
+        enabled: favoritesApiEnabled,
+        staleTime: 30000,
     })
-    
+
     const { data: favoriteAdvertisements = [], refetch: refetchFavoriteAdvertisements } = useQuery({
         queryKey: ['client-favorite-advertisements'],
         queryFn: getFavoriteAdvertisements,
         retry: false,
-        enabled: false, // Загружаем только при необходимости
+        enabled: favoritesApiEnabled,
+        staleTime: 30000,
     })
     
     const refetchFavorites = useCallback(async () => {
@@ -293,7 +306,13 @@ export default function MarketplaceProfilePage({
             
             // Проверяем по ID объявления в избранных объявлениях
             return favoriteAdvertisements.some((fav) => {
-                const favAdId = typeof fav.advertisementId === 'string' ? parseInt(fav.advertisementId) : fav.advertisementId
+                const raw =
+                    fav.advertisementId ??
+                    fav.advertisement_id ??
+                    fav.favoriteable_id
+                if (raw === undefined || raw === null) return false
+                const favAdId = typeof raw === 'string' ? parseInt(raw, 10) : raw
+                if (Number.isNaN(favAdId)) return false
                 return favAdId === advertisementId
             })
         } else {
@@ -336,7 +355,9 @@ export default function MarketplaceProfilePage({
             setIsLoading(false)
             if (favoritesHydratedForSlugRef.current !== slug) {
                 favoritesHydratedForSlugRef.current = slug
-                refetchFavorites().catch(() => {})
+                if (favoritesApiEnabled) {
+                    refetchFavorites().catch(() => {})
+                }
             }
             return
         }
@@ -356,10 +377,12 @@ export default function MarketplaceProfilePage({
                 setProfile(profileData)
                 setCategories(categoriesData)
                 favoritesHydratedForSlugRef.current = slug
-                try {
-                    await refetchFavorites()
-                } catch {
-                    /* неавторизован */
+                if (favoritesApiEnabled) {
+                    try {
+                        await refetchFavorites()
+                    } catch {
+                        /* неавторизован / нет роли CLIENT */
+                    }
                 }
             } catch (error) {
                 console.error('Error loading profile:', error)
@@ -375,7 +398,7 @@ export default function MarketplaceProfilePage({
             cancelled = true
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialCategories из RSC без стабильной ссылки
-    }, [slug, initialProfile, initialSlug, refetchFavorites])
+    }, [slug, initialProfile, initialSlug, refetchFavorites, favoritesApiEnabled])
     
     // Загрузка похожих услуг (та же категория и штат)
     useEffect(() => {
@@ -415,7 +438,17 @@ export default function MarketplaceProfilePage({
     // Обработчик добавления/удаления из избранного
     const handleToggleFavorite = async () => {
         if (!profile?.service?.id) return
-        
+
+        if (!authReady) return
+        if (!isAuthenticated || userRole !== CLIENT) {
+            toast.push(
+                <Notification title={t('errors.authRequired')} type="info">
+                    {t('pleaseLogin')}
+                </Notification>
+            )
+            return
+        }
+
         setIsFavoriteLoading(true)
         try {
             const serviceIdStr = String(profile.service.id)
@@ -475,25 +508,31 @@ export default function MarketplaceProfilePage({
                 // Обновляем кэш избранного
                 if (isAdvertisement) {
                     await queryClient.invalidateQueries({ queryKey: ['client-favorite-advertisements'] })
+                    await queryClient.refetchQueries({ queryKey: ['client-favorite-advertisements'] })
                 } else {
                     await queryClient.invalidateQueries({ queryKey: ['client-favorite-services'] })
+                    await queryClient.refetchQueries({ queryKey: ['client-favorite-services'] })
                 }
             } else {
                 try {
-                    await addToFavorites(favoriteType, favoriteId)
-                    toast.push(
-                        <Notification
-                            title={t('success.title')}
-                            type="success"
-                        >
-                            {isAdvertisement ? t('success.adAddedToFavorites') : t('success.serviceAddedToFavorites')}
-                        </Notification>
-                    )
+                    const { alreadyExists } = await addToFavorites(favoriteType, favoriteId)
+                    if (!alreadyExists) {
+                        toast.push(
+                            <Notification
+                                title={t('success.title')}
+                                type="success"
+                            >
+                                {isAdvertisement ? t('success.adAddedToFavorites') : t('success.serviceAddedToFavorites')}
+                            </Notification>
+                        )
+                    }
                     // Обновляем кэш избранного
                     if (isAdvertisement) {
                         await queryClient.invalidateQueries({ queryKey: ['client-favorite-advertisements'] })
+                        await queryClient.refetchQueries({ queryKey: ['client-favorite-advertisements'] })
                     } else {
                         await queryClient.invalidateQueries({ queryKey: ['client-favorite-services'] })
+                        await queryClient.refetchQueries({ queryKey: ['client-favorite-services'] })
                     }
                 } catch (addError) {
                     // Если услуга уже в избранном (400), обновляем кэш и считаем успехом
@@ -503,8 +542,10 @@ export default function MarketplaceProfilePage({
                             // Обновляем кэш избранного
                             if (isAdvertisement) {
                                 await queryClient.invalidateQueries({ queryKey: ['client-favorite-advertisements'] })
+                                await queryClient.refetchQueries({ queryKey: ['client-favorite-advertisements'] })
                             } else {
                                 await queryClient.invalidateQueries({ queryKey: ['client-favorite-services'] })
+                                await queryClient.refetchQueries({ queryKey: ['client-favorite-services'] })
                             }
                             // Не показываем ошибку, так как уже в избранном
                             return
@@ -539,8 +580,10 @@ export default function MarketplaceProfilePage({
                     await refetchFavorites()
                     if (isAdvertisement) {
                         await queryClient.invalidateQueries({ queryKey: ['client-favorite-advertisements'] })
+                        await queryClient.refetchQueries({ queryKey: ['client-favorite-advertisements'] })
                     } else {
                         await queryClient.invalidateQueries({ queryKey: ['client-favorite-services'] })
+                        await queryClient.refetchQueries({ queryKey: ['client-favorite-services'] })
                     }
                     // Не показываем ошибку, так как это нормальная ситуация
                     return
@@ -846,441 +889,723 @@ export default function MarketplaceProfilePage({
 
     const showOnlineBookingBadge = profile?.allowBooking !== false
 
+    // Фото-галерея: главное фото + первые изображения из портфолио
+    const galleryPhotos = [
+        businessImageUrl,
+        ...portfolio.slice(0, 8).map(p => normalizeImageUrl(p.images?.[0] || p.imageUrl)).filter(Boolean),
+    ].filter((url, idx, arr) => url && arr.indexOf(url) === idx)
+
+    // Минимальная цена из списка услуг
+    const minServicePrice = services.reduce((min, s) => {
+        const p = parseFloat(s.price)
+        return (!isNaN(p) && p > 0 && (min === null || p < min)) ? p : min
+    }, null)
+    const firstService = services[0] || null
+
+    // Утилита поделиться
+    const handleShare = () => {
+        if (navigator.share) {
+            navigator.share({ title: business.name, text: business.description, url: window.location.href }).catch(() => {})
+        } else {
+            navigator.clipboard.writeText(window.location.href)
+        }
+    }
+
+    // Открытие бронирования
+    const openBooking = (serviceId = null) => {
+        setBookingSelectedService(serviceId)
+        setBookingSelectedDate(0)
+        setBookingSelectedTime(null)
+        setBookingSelectedMaster(null)
+        setBookingOpen(true)
+    }
+
     return (
         <main className="text-base bg-white dark:bg-gray-900 overflow-x-hidden pt-20 md:pt-24">
-            <Container className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Container className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
                 {/* Хлебные крошки */}
                 <div className="pb-4">
                     <Link
                         href="/services"
-                        className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 flex items-center gap-2 mb-4 transition"
+                        className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 flex items-center gap-2 transition"
                     >
                         <PiArrowLeft className="text-base" />
                         <span>{t('backToServices')}</span>
                     </Link>
                 </div>
 
-                {/* Мобильная версия — только фото; локация и теги в шапке и в блоке «Особенности» */}
-                <div className="block lg:hidden mb-6">
-                    <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 overflow-hidden shadow-sm">
-                        <div className="relative min-h-56 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                            {businessImageUrl ? (
-                                <Image
-                                    src={normalizeImageUrl(businessImageUrl) || FALLBACK_IMAGE}
-                                    alt={business.name}
-                                    fill
-                                    quality={90}
-                                    className="object-contain"
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                            ) : (
-                                <div className="w-full min-h-56 flex items-center justify-center bg-gray-200 dark:bg-gray-800">
-                                    <span className="text-gray-400 dark:text-gray-600">{t('noImage')}</span>
-                                </div>
+                {/* ── ШАПКА: категория + заголовок + рейтинг + бейджи ── */}
+                <div className="mb-5">
+                    {/* Категория */}
+                    <div className="mb-2">
+                        <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-xs font-medium text-blue-700 dark:text-blue-300">
+                            {business.group === 'regular_ad'
+                                ? t('regularAdvertisement')
+                                : getCategoryName(business.category || categoryInfo, tServices) || business.group}
+                        </span>
+                    </div>
+
+                    {/* Заголовок + кнопки (избранное, поделиться) */}
+                    <div className="flex items-start gap-3 justify-between">
+                        <TitleTag className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white leading-tight flex-1 min-w-0">
+                            {business.name}
+                        </TitleTag>
+                        <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                            <button
+                                onClick={handleToggleFavorite}
+                                disabled={isFavoriteLoading}
+                                className={classNames(
+                                    'p-2 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition',
+                                    isFavorite ? 'text-red-500 border-red-200 dark:border-red-800' : 'text-gray-400'
+                                )}
+                                title={isFavorite ? t('removeFromFavorites') : t('addToFavorites')}
+                            >
+                                {isFavorite ? <PiHeartFill className="text-lg" /> : <PiHeart className="text-lg" />}
+                            </button>
+                            <button
+                                onClick={handleShare}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition text-sm font-medium"
+                            >
+                                <PiShareNetwork className="text-base" />
+                                <span className="hidden sm:inline">{t('share')}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Компания */}
+                    {business.companyName && business.companySlug && (
+                        <div className="flex items-center gap-2 mt-1.5 text-sm">
+                            <span className="text-gray-500 dark:text-gray-400">{t('company')}:</span>
+                            <Link
+                                href={`/marketplace/company/${business.companySlug}`}
+                                className="font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                            >
+                                {business.companyName}
+                                {business.companyAdvertisementsCount > 1 && (
+                                    <span className="text-xs text-gray-400">({business.companyAdvertisementsCount} {t('advertisements')})</span>
+                                )}
+                            </Link>
+                        </div>
+                    )}
+
+                    {/* Рейтинг + локация */}
+                    <div className="flex flex-wrap items-center gap-3 text-sm mt-2">
+                        <div className="flex items-center gap-1">
+                            <PiStarFill className="text-yellow-500 text-base" />
+                            <span className="font-semibold text-gray-900 dark:text-white">{averageRating}</span>
+                            {(reviews.length || business.reviewsCount || 0) > 0 && (
+                                <span className="text-gray-500 dark:text-gray-400">
+                                    ({reviews.length || business.reviewsCount} {t('reviews')})
+                                </span>
                             )}
                         </div>
+                        {business.location && (
+                            <>
+                                <span className="text-gray-300 dark:text-gray-600">•</span>
+                                <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                                    <PiMapPinDuotone className="text-base" />
+                                    <span>{business.location}</span>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Бейджи: онлайн-бронирование + проверенный специалист */}
+                    <div className="flex flex-wrap items-center gap-2 mt-3">
+                        {showOnlineBookingBadge && (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-3 py-1 text-xs font-medium text-green-700 dark:text-green-400">
+                                <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                                {t('onlineBooking')}
+                            </span>
+                        )}
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+                            <PiShieldCheck className="text-sm" />
+                            {t('verifiedSpecialist')}
+                        </span>
                     </div>
                 </div>
 
-                {/* Верхний блок (header) - улучшенный */}
-                <div className="mb-6 lg:mb-8">
-                    <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-4">
-                        {/* Фото/аватар бизнеса (мобильная версия уже показана выше) */}
-                        <div className="hidden lg:block lg:flex-shrink-0 w-72">
-                            <div className="rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900">
-                                <div className="relative w-72 h-72 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                    {businessImageUrl ? (
+                {/* ── ДВУХКОЛОНОЧНЫЙ LAYOUT: галерея + контент (слева) | сайдбар (справа) ── */}
+                <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+
+                    {/* ЛЕВАЯ КОЛОНКА — галерея + табы + контент */}
+                    <div className="lg:col-span-2">
+
+                        {/* ── ФОТО-ГАЛЕРЕЯ (внутри левой колонки) ── */}
+                        {galleryPhotos.length > 0 && (
+                            <div className="mb-5 rounded-xl overflow-hidden">
+                                {galleryPhotos.length >= 2 ? (
+                                    <div className="grid grid-cols-4 grid-rows-2 gap-1 h-56 md:h-[340px]">
+                                        {/* Главное фото: 2 колонки × 2 строки */}
+                                        <div
+                                            className="col-span-2 row-span-2 relative bg-gray-100 dark:bg-gray-800 cursor-pointer overflow-hidden group rounded-l-xl"
+                                            onClick={() => { setGalleryIndex(0) }}
+                                        >
+                                            <Image
+                                                src={galleryPhotos[0]}
+                                                alt={business.name}
+                                                fill
+                                                quality={90}
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                sizes="40vw"
+                                            />
+                                            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/50 text-white text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm">
+                                                <PiCamera className="text-sm" />
+                                                <span>{t('photo')}</span>
+                                            </div>
+                                        </div>
+                                        {/* До 4 маленьких фото */}
+                                        {galleryPhotos.slice(1, 5).map((photo, idx) => {
+                                            const total = Math.min(galleryPhotos.length - 1, 4)
+                                            const isLast = idx === total - 1
+                                            const remaining = galleryPhotos.length - 5
+                                            const isTopRight = idx === 1
+                                            const isBottomRight = idx === 3
+                                            // Заполнитель — серый квадрат если фото меньше 4
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    className={classNames(
+                                                        'relative bg-gray-100 dark:bg-gray-800 cursor-pointer overflow-hidden group',
+                                                        isTopRight && 'rounded-tr-xl',
+                                                        isBottomRight && 'rounded-br-xl',
+                                                    )}
+                                                    onClick={() => { setGalleryIndex(idx + 1) }}
+                                                >
+                                                    <Image
+                                                        src={photo}
+                                                        alt={business.name}
+                                                        fill
+                                                        quality={80}
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                        sizes="20vw"
+                                                    />
+                                                    {isLast && remaining > 0 && (
+                                                        <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-0.5">
+                                                            <span className="text-white font-bold text-lg leading-none">+{remaining}</span>
+                                                            <span className="text-white/80 text-xs">{t('morePhotos')}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                        {/* Заполнители пустых ячеек если фото 2 или 3 */}
+                                        {galleryPhotos.length < 5 && Array.from({ length: 4 - (galleryPhotos.length - 1) }).map((_, i) => {
+                                            const absIdx = (galleryPhotos.length - 1) + i
+                                            const isTopRight = absIdx === 1
+                                            const isBottomRight = absIdx === 3
+                                            return (
+                                                <div
+                                                    key={`placeholder-${i}`}
+                                                    className={classNames(
+                                                        'bg-gray-100 dark:bg-gray-800',
+                                                        isTopRight && 'rounded-tr-xl',
+                                                        isBottomRight && 'rounded-br-xl',
+                                                    )}
+                                                />
+                                            )
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="relative h-56 md:h-[340px] bg-gray-100 dark:bg-gray-800 cursor-pointer overflow-hidden group rounded-xl"
+                                        onClick={() => { setGalleryIndex(0) }}
+                                    >
                                         <Image
-                                            src={normalizeImageUrl(businessImageUrl) || FALLBACK_IMAGE}
+                                            src={galleryPhotos[0]}
                                             alt={business.name}
                                             fill
                                             quality={90}
-                                            className="object-contain"
-                                            sizes="288px"
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                            sizes="(max-width: 1024px) 100vw, 66vw"
                                         />
-                                    ) : (
-                                        <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
-                                            <span className="text-gray-400 dark:text-gray-600">{t('noImage')}</span>
-                                        </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Табы */}
+                        <div className="border-b border-gray-200 dark:border-white/10 mb-6">
+                            <div className="flex overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                {getTabs(t).filter(tab => {
+                                    if (tab.id === 'reviews' && profile?.showReviews === false) return false
+                                    if (tab.id === 'works' && (!portfolio || portfolio.length === 0 || !(profile?.showPortfolio ?? true))) return false
+                                    return true
+                                }).map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={classNames(
+                                            'px-5 py-3 text-sm font-medium border-b-2 transition whitespace-nowrap flex-shrink-0',
+                                            activeTab === tab.id
+                                                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                                        )}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                        
-                        {/* Основная информация */}
-                        <div className="flex-1 min-w-0">
-                            {/* Категория */}
-                            <div className="mb-2">
-                                <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-xs font-medium text-blue-700 dark:text-blue-300">
-                                    {business.group === 'regular_ad' 
-                                        ? t('regularAdvertisement')
-                                        : getCategoryName(business.category || categoryInfo, tServices) || business.group
-                                    }
-                                </span>
-                            </div>
 
-                            {/* Название: h1 (один на странице) при primaryTitleAsH2=false */}
-                            <TitleTag className="text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white mb-3">
-                                {business.name}
-                            </TitleTag>
+                        {/* ── КОНТЕНТ ТАБОВ ── */}
+                        <div className="min-h-[320px] pb-10">
 
-                            {/* Информация о компании */}
-                            {business.companyName && business.companySlug && (
-                                <div className="flex items-center gap-2 mb-3 text-sm">
-                                    <span className="text-gray-500 dark:text-gray-400">
-                                        {t('company')}:
-                                    </span>
-                                    <Link
-                                        href={`/marketplace/company/${business.companySlug}`}
-                                        className="font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-                                    >
-                                        {business.companyName}
-                                        {business.companyAdvertisementsCount > 1 && (
-                                            <span className="text-xs text-gray-400">
-                                                ({business.companyAdvertisementsCount} {t('advertisements')})
-                                            </span>
-                                        )}
-                                    </Link>
+                            {/* TAB: ОБЗОР */}
+                            {activeTab === 'overview' && (
+                                <div className="space-y-8">
+
+                                    {/* О специалисте */}
+                                    {business.description && (
+                                        <div>
+                                            <h2 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                                                {t('aboutSpecialist')}
+                                            </h2>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                                {showFullDescription || business.description.length <= 300
+                                                    ? business.description
+                                                    : business.description.substring(0, 300) + '…'}
+                                            </p>
+                                            {business.description.length > 300 && (
+                                                <button
+                                                    onClick={() => setShowFullDescription(v => !v)}
+                                                    className="mt-1.5 text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+                                                >
+                                                    {showFullDescription ? t('hide') : t('showMore')}
+                                                </button>
+                                            )}
+
+                                            {/* Язык (без дублирования счётчика отзывов — он уже в шапке) */}
+                                            {business.tags?.includes('russian-speaking') && (
+                                                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-500 dark:text-gray-400">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <PiChatCircleDuotone className="text-base flex-shrink-0" />
+                                                        <span>{getTagLabel('russian-speaking', tServices)}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Доступные услуги */}
+                                    {services && services.length > 0 && (
+                                        <div>
+                                            <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">
+                                                {t('availableServices')}
+                                            </h2>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                {services.map((service, index) => (
+                                                    <div
+                                                        key={service.id || `service-${index}`}
+                                                        onClick={() => {
+                                                            setSelectedServiceDetail(service)
+                                                            setServiceDetailModalOpen(true)
+                                                        }}
+                                                        className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600 transition-all cursor-pointer flex flex-col"
+                                                    >
+                                                        <div className="flex items-start justify-between mb-1.5">
+                                                            <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-snug flex-1 min-w-0 pr-2">
+                                                                {service.name}
+                                                            </h3>
+                                                            {service.price && (
+                                                                <span className="text-sm font-bold text-gray-900 dark:text-white flex-shrink-0">
+                                                                    {formatCurrency(service.price, service.currency || currency)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                                            {service.duration && (
+                                                                <span>{formatDuration(service.duration, service.duration_unit || 'hours')}</span>
+                                                            )}
+                                                            {service.duration && <span>•</span>}
+                                                            <span>{t('tabs.services')}</span>
+                                                        </div>
+                                                        {service.description && (
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 flex-1">
+                                                                {service.description}
+                                                            </p>
+                                                        )}
+                                                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400 mt-auto">
+                                                            {t('selectAndBook')} →
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Превью отзывов */}
+                                    {profile?.showReviews !== false && reviews.length > 0 && (
+                                        <div>
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                                                    {t('tabs.reviews')} ({reviews.length})
+                                                </h2>
+                                                <div className="flex items-center gap-1 text-sm">
+                                                    <PiStarFill className="text-yellow-500" />
+                                                    <span className="font-semibold text-gray-900 dark:text-white">{averageRating}</span>
+                                                    <span className="text-gray-500 dark:text-gray-400">{t('outOf5')}</span>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-3">
+                                                {reviews.slice(0, 3).map((review, idx) => (
+                                                    <div key={review.id || `rev-${idx}`} className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4">
+                                                        <div className="flex items-start gap-3">
+                                                            <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xs font-bold text-blue-700 dark:text-blue-300 flex-shrink-0">
+                                                                {getInitials(review.name)}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2 flex-wrap">
+                                                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{review.name}</span>
+                                                                    <div className="flex items-center gap-0.5">
+                                                                        {[...Array(5)].map((_, i) => (
+                                                                            <PiStarFill key={i} className={classNames('text-xs', i < review.rating ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600')} />
+                                                                        ))}
+                                                                    </div>
+                                                                    <span className="text-xs text-gray-400">{review.date}</span>
+                                                                </div>
+                                                                <p className="text-sm text-gray-700 dark:text-gray-300 mt-1.5 leading-relaxed">{review.text}</p>
+                                                                {review.response && (
+                                                                    <div className="mt-2 p-2.5 bg-gray-50 dark:bg-gray-800 rounded-lg border-l-4 border-blue-500">
+                                                                        <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-0.5">{t('responseFrom', { name: business.name })}</p>
+                                                                        <p className="text-xs text-gray-600 dark:text-gray-300">{review.response}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {reviews.length > 3 && (
+                                                <button
+                                                    onClick={() => setActiveTab('reviews')}
+                                                    className="mt-4 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                                                >
+                                                    {t('allReviews')} ({reviews.length}) →
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
-                            {/* Рейтинг, отзывы, город, выполненные заказы */}
-                            <div className="flex flex-wrap items-center gap-3 text-sm mb-3">
-                                <div className="flex items-center gap-1">
-                                    {/* Звездочка рейтинга */}
-                                    <PiStarFill className="text-yellow-500 text-lg" />
-                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                        {averageRating}
-                                    </span>
-                                    {((reviews.length || business.reviewsCount || 0) > 0) && (
-                                        <span className="text-gray-500 dark:text-gray-400">
-                                            ({reviews.length || business.reviewsCount || 0})
+                            {/* TAB: УСЛУГИ */}
+                            {activeTab === 'services' && (
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('availableServices')}</h3>
+                                    {services && services.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {services.map((service, index) => (
+                                                <div
+                                                    key={service.id || `service-${index}`}
+                                                    onClick={() => {
+                                                        setSelectedServiceDetail(service)
+                                                        setServiceDetailModalOpen(true)
+                                                    }}
+                                                    className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition-all cursor-pointer"
+                                                >
+                                                    <div className="flex items-start justify-between mb-2">
+                                                        <h3 className="text-base font-bold text-gray-900 dark:text-white">{service.name}</h3>
+                                                        {service.price && (
+                                                            <span className="text-base font-bold text-gray-900 dark:text-white ml-2 flex-shrink-0">
+                                                                {formatCurrency(service.price, service.currency || currency)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                                        {service.duration && <span>{formatDuration(service.duration, service.duration_unit || 'hours')}</span>}
+                                                        {service.duration && <span>•</span>}
+                                                        <span>{t('tabs.services')}</span>
+                                                    </div>
+                                                    {service.description && (
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{service.description}</p>
+                                                    )}
+                                                    <button className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                                        {t('selectAndBook')} →
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="py-12 text-center border border-dashed border-gray-200 dark:border-white/20 rounded-xl">
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('noServicesAvailable')}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TAB: ОТЗЫВЫ */}
+                            {activeTab === 'reviews' && (profile?.showReviews ?? true) && (
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <PiStarFill className="text-yellow-500 text-2xl" />
+                                            <span className="text-3xl font-bold text-gray-900 dark:text-white">{averageRating}</span>
+                                        </div>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            {t('basedOnReviews', { count: reviews.length, reviewWord: reviews.length === 1 ? t('review') : t('reviews') })}
+                                        </p>
+                                    </div>
+                                    {reviews.length === 0 ? (
+                                        <div className="py-12 text-center border border-dashed border-gray-200 dark:border-white/20 rounded-xl">
+                                            <PiChatCircleDuotone className="text-4xl text-gray-400 mx-auto mb-3" />
+                                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t('noReviews')}</h4>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('beFirstToReview')}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {reviews.map((review, idx) => (
+                                                <div key={review.id || `review-${idx}`} className="rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-4 shadow-sm">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xs font-bold text-blue-700 dark:text-blue-300 flex-shrink-0">
+                                                                {getInitials(review.name)}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2">
+                                                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{review.name}</h4>
+                                                                    <div className="flex items-center gap-0.5">
+                                                                        {[...Array(5)].map((_, i) => (
+                                                                            <PiStarFill key={i} className={classNames('text-xs', i < review.rating ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600')} />
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                                <p className="text-xs text-gray-400 mt-0.5">{review.date}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-3">{review.text}</p>
+                                                    {review.response && (
+                                                        <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border-l-4 border-blue-500">
+                                                            <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">{t('responseFrom', { name: business.name })}</p>
+                                                            <p className="text-sm text-gray-700 dark:text-gray-300">{review.response}</p>
+                                                            {review.responseDate && <p className="text-xs text-gray-400 mt-1">{formatDate(review.responseDate, reviewTz, 'long')}</p>}
+                                                        </div>
+                                                    )}
+                                                    {(() => {
+                                                        const hasService = review.service?.trim()
+                                                        const specialistName = (review.specialistName?.trim() || review.master?.trim())
+                                                        const hasSpecialist = specialistName && specialistName !== 'Администратор Системы'
+                                                        if (!hasService && !hasSpecialist) return null
+                                                        return (
+                                                            <div className="flex flex-wrap gap-2 mt-3">
+                                                                {hasService && <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">{t('service')}: {review.service}</span>}
+                                                                {hasSpecialist && <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">{t('specialist')}: {specialistName}</span>}
+                                                            </div>
+                                                        )
+                                                    })()}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TAB: О СПЕЦИАЛИСТЕ */}
+                            {activeTab === 'about' && (
+                                <div className="space-y-6">
+                                    {business.description && (
+                                        <div>
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('aboutSpecialist')}</h3>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{business.description}</p>
+                                        </div>
+                                    )}
+                                    {team.length > 0 && (
+                                        <div>
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('team')}</h3>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {team.map((member, idx) => {
+                                                    const teamPhoto = member.avatarUrl || member.avatar
+                                                    return (
+                                                        <div key={member.id || `member-${idx}`} className="rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                                                            <div className="flex items-start gap-3">
+                                                                {teamPhoto ? (
+                                                                    <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200 dark:border-gray-700 relative">
+                                                                        <Image src={normalizeImageUrl(teamPhoto) || FALLBACK_IMAGE} alt={member.name} fill quality={90} className="object-cover" sizes="48px" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className={classNames('h-12 w-12 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0', member.avatarColor || 'bg-blue-500')}>
+                                                                        {getInitials(member.name)}
+                                                                    </div>
+                                                                )}
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">{member.name}</h4>
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{member.role}</p>
+                                                                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">{member.description || member.bio}</p>
+                                                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                                                        {member.experience && <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">{t('experience')} {member.experience}</span>}
+                                                                        {member.languages && <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">{member.languages}</span>}
+                                                                    </div>
+                                                                    {member.rating && (
+                                                                        <div className="flex items-center gap-1 mt-2">
+                                                                            <PiStarFill className="text-yellow-500 text-xs" />
+                                                                            <span className="text-xs text-gray-500">{member.rating.toFixed(1)}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {team.length === 0 && !business.description && (
+                                        <div className="py-12 text-center border border-dashed border-gray-200 dark:border-white/20 rounded-xl">
+                                            <PiUsersDuotone className="text-4xl text-gray-400 mx-auto mb-3" />
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('noTeamInfo')}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TAB: РАБОТЫ */}
+                            {activeTab === 'works' && portfolio.length > 0 && (profile?.showPortfolio ?? true) && (
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('ourWorks')}</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        {portfolio.map((item, idx) => {
+                                            const images = item.images || (item.imageUrl ? [item.imageUrl] : [])
+                                            const firstImage = images[0] || '/img/others/placeholder.jpg'
+                                            const remainingImagesCount = Math.max(0, images.length - 1)
+                                            return (
+                                                <div
+                                                    key={item.id || `portfolio-${idx}`}
+                                                    onClick={() => { setSelectedPortfolioItem(item); setPortfolioImageIndex(0); setPortfolioModalOpen(true) }}
+                                                    className="rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm cursor-pointer hover:shadow-md transition-all group"
+                                                >
+                                                    <div className="relative w-full aspect-[4/3]">
+                                                        <Image src={normalizeImageUrl(firstImage) || FALLBACK_IMAGE} alt={item.title || t('portfolio')} fill quality={90} className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 50vw, 33vw" />
+                                                        {remainingImagesCount > 0 && (
+                                                            <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-black/70 text-white text-[10px] rounded-full backdrop-blur-sm">+{remainingImagesCount}</div>
+                                                        )}
+                                                    </div>
+                                                    <div className="px-3 py-2">
+                                                        {item.title && <h3 className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-1">{item.title}</h3>}
+                                                        {item.tag && <span className="inline-block px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full mt-1">{item.tag}</span>}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    </div>
+
+                    {/* ПРАВАЯ КОЛОНКА — booking widget (только десктоп) */}
+                    <div className="hidden lg:block">
+                        <div className="sticky top-24 space-y-3">
+
+                            {/* Карточка цены + кнопка бронирования */}
+                            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 p-5 bg-white dark:bg-gray-900 shadow-sm">
+                                {/* Цена */}
+                                <div className="mb-4">
+                                    {minServicePrice ? (
+                                        <div className="flex items-baseline gap-1.5">
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">{t('from')}</span>
+                                            <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                                                {formatCurrency(minServicePrice, (firstService?.currency || currency))}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-xl font-bold text-gray-900 dark:text-white">
+                                            {business.priceLabel || t('priceOnRequest')}
                                         </span>
                                     )}
-                                    {/* Кнопка избранного - сердечко */}
-                                    <button
-                                            onClick={handleToggleFavorite}
-                                            disabled={isFavoriteLoading}
-                                            className={classNames(
-                                                'ml-1 transition',
-                                                isFavorite
-                                                    ? 'text-red-500 hover:text-red-600'
-                                                    : 'text-gray-400 hover:text-red-500'
-                                            )}
-                                            title={isFavorite ? t('removeFromFavorites') : t('addToFavorites')}
-                                        >
-                                            {isFavorite ? (
-                                                <PiHeartFill className="text-lg" />
-                                            ) : (
-                                                <PiHeart className="text-lg" />
-                                            )}
-                                        </button>
-                                </div>
-                                {business.location && (
-                                    <>
-                                        <span className="text-gray-300 dark:text-gray-600">•</span>
-                                        <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                                            <PiMapPinDuotone className="text-base" />
+                                    {/* Примерное время */}
+                                    {firstService?.duration && (
+                                        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                            <PiClockCountdown className="text-base flex-shrink-0" />
+                                            <span>{t('estimatedTime')}: {formatDuration(firstService.duration, firstService.duration_unit || 'hours')}</span>
+                                        </div>
+                                    )}
+                                    {/* Локация */}
+                                    {business.location && (
+                                        <div className="flex items-center gap-2 mt-1.5 text-sm text-gray-500 dark:text-gray-400">
+                                            <PiMapPinDuotone className="text-base flex-shrink-0" />
                                             <span>{business.location}</span>
                                         </div>
-                                    </>
-                                )}
-                            </div>
+                                    )}
+                                </div>
 
-                            {/* CTA-кнопки */}
-                            <div className="flex flex-col sm:flex-row gap-3">
+                                {/* Кнопка «Забронировать» */}
                                 {showOnlineBookingBadge && (
-                                    <button 
-                                        onClick={() => {
-                                            setBookingSelectedDate(0)
-                                            setBookingSelectedTime(null)
-                                            setBookingSelectedMaster(null)
-                                            setBookingOpen(true)
-                                        }}
-                                        className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 transition shadow-sm hover:shadow-md"
+                                    <button
+                                        onClick={() => openBooking(null)}
+                                        className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 transition shadow-sm text-base"
                                     >
                                         {t('book')}
                                     </button>
                                 )}
-                                {business.companyName && business.companySlug && business.companyAdvertisementsCount > 1 && (
-                                    <Link
-                                        href={`/marketplace/company/${business.companySlug}`}
-                                        className="w-full sm:w-auto rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-400 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold px-6 py-3 transition flex items-center justify-center gap-2"
-                                    >
-                                        <PiUsersDuotone className="text-lg" />
-                                        <span>{t('allCompanyAdvertisements')}</span>
-                                    </Link>
+
+                                {/* Мгновенное подтверждение */}
+                                <div className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500 dark:text-gray-400">
+                                    <PiShieldCheck className="text-green-500 text-sm flex-shrink-0" />
+                                    <span>{t('instantConfirmation')}</span>
+                                </div>
+                            </div>
+
+                            {/* Trust-блок */}
+                            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900 space-y-3.5">
+                                {showOnlineBookingBadge && (
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex-shrink-0">
+                                            <PiCalendarDuotone className="text-blue-600 dark:text-blue-400 text-lg" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white">{t('onlineBooking')}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('bookingAvailable247')}</p>
+                                        </div>
+                                    </div>
                                 )}
-                                <button 
-                                    onClick={() => {
-                                        if (navigator.share) {
-                                            navigator.share({
-                                                title: business.name,
-                                                text: business.description,
-                                                url: window.location.href,
-                                            }).catch(() => {})
-                                        } else {
-                                            navigator.clipboard.writeText(window.location.href)
-                                        }
-                                    }}
-                                    className="w-full sm:w-auto sm:px-5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 px-6 py-3 transition flex items-center justify-center gap-2"
-                                >
-                                    <PiShareNetwork className="text-base" />
-                                    <span>{t('share')}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Особенности — компактно под шапкой только на мобиле (на десктопе — в сайдбаре под ценой) */}
-                {Array.isArray(business.tags) && business.tags.length > 0 && (
-                    <div className="lg:hidden mb-4 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 p-3 shadow-sm">
-                        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
-                            {t('features')}
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                            {business.tags.map((tag) => (
-                                <span
-                                    key={tag}
-                                    className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-bold text-gray-900 dark:text-gray-100"
-                                >
-                                    {getTagLabel(tag, tServices)}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Основной контент - двухколоночный layout на десктопе */}
-                <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
-                    {/* Левая колонка - основной контент */}
-                    <div className="lg:col-span-2 space-y-6">
-
-                        {/* Блок "О специалисте / студии" */}
-                        {business.description && (
-                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 md:p-4">
-                                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                                    {t('aboutSpecialist')}
-                                </h2>
-                                <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                    {business.description.length > 300 ? (
-                                        <>
-                                            {showFullDescription ? (
-                                                <>
-                                                    <p>{business.description}</p>
-                                                    <button
-                                                        onClick={() => setShowFullDescription(false)}
-                                                        className="mt-2 text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
-                                                    >
-                                                        {t('hide')}
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <p>{business.description.substring(0, 300)}...</p>
-                                                    <button
-                                                        onClick={() => setShowFullDescription(true)}
-                                                        className="mt-2 text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
-                                                    >
-                                                        {t('showMore')}
-                                                    </button>
-                                                </>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <p>{business.description}</p>
-                                    )}
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 flex-shrink-0">
+                                        <PiShieldCheck className="text-green-600 dark:text-green-400 text-lg" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">{t('verifiedSpecialist')}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('platformVerified')}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex-shrink-0">
+                                        <PiCreditCard className="text-purple-600 dark:text-purple-400 text-lg" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">{t('safePayments')}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('paymentsProtected')}</p>
+                                    </div>
                                 </div>
                             </div>
-                        )}
 
-                        {/* Блок "Наши работы" / портфолио */}
-                        {portfolio && portfolio.length > 0 && (profile?.showPortfolio ?? true) && (
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                    {t('ourWorks')}
-                                </h2>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                    {t('portfolioExamples')}
-                                </p>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
-                                    {portfolio.map((item, idx) => {
-                                        const images = item.images || (item.imageUrl ? [item.imageUrl] : [])
-                                        const firstImage = images[0] || '/img/others/placeholder.jpg'
-                                        const remainingImagesCount = Math.max(0, images.length - 1)
-                                        
-                                        // Вычисляем индекс первого изображения этого элемента в общем массиве всех изображений
-                                        let imageIndex = 0
-                                        for (let i = 0; i < idx; i++) {
-                                            const prevImages = portfolio[i].images || (portfolio[i].imageUrl ? [portfolio[i].imageUrl] : [])
-                                            imageIndex += prevImages.length || 1
-                                        }
-                                        
-                                        return (
-                                            <div
-                                                key={item.id || `portfolio-${idx}`}
-                                                onClick={() => {
-                                                    setSelectedPortfolioItem(item)
-                                                    setPortfolioImageIndex(0)
-                                                    setPortfolioModalOpen(true)
-                                                }}
-                                                className="rounded-lg overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm cursor-pointer hover:shadow-md transition-all group"
-                                            >
-                                                {/* Изображения */}
-                                                <div className="relative w-full aspect-[4/3]">
-                                                    <Image
-                                                        src={normalizeImageUrl(firstImage) || FALLBACK_IMAGE}
-                                                        alt={item.title || t('portfolio')}
-                                                        fill
-                                                        quality={90}
-                                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                    />
-                                                    {remainingImagesCount > 0 && (
-                                                        <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-black/70 text-white text-[10px] rounded-full backdrop-blur-sm">
-                                                            +{remainingImagesCount}
-                                                        </div>
-                                                    )}
-                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                                                </div>
-                                                
-                                                {/* Информация */}
-                                                <div className="px-2 py-2">
-                                                    {item.title && (
-                                                        <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1">
-                                                            {item.title}
-                                                        </h3>
-                                                    )}
-                                                    {item.tag && (
-                                                        <span className="inline-block px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full mb-1">
-                                                            {item.tag}
-                                                        </span>
-                                                    )}
-                                                    {item.description && (
-                                                        <p className="text-[10px] text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
-                                                            {item.description}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Блок "Доступные услуги" */}
-                        <div>
-                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                {t('availableServices')}
-                            </h2>
-                            {services && services.length > 0 ? (
-                                <>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                        {t('selectServiceAndBook')}
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {services.map((service, index) => (
-                                            <div
-                                                key={service.id || `service-${index}`}
-                                                onClick={() => {
-                                                    setSelectedServiceDetail(service)
-                                                    setServiceDetailModalOpen(true)
-                                                }}
-                                                className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition-all cursor-pointer"
-                                            >
-                                                <div className="flex items-start justify-between mb-2">
-                                                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                                                        {service.name}
-                                                    </h3>
-                                                    {service.price && (
-                                                        <span className="text-base font-semibold text-gray-900 dark:text-white ml-2">
-                                                            {formatCurrency(service.price, service.currency || currency)}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                {service.description && (
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                                                        {service.description}
-                                                    </p>
-                                                )}
-                                                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                                                    {service.duration && (
-                                                        <span>⏱ {formatDuration(service.duration, service.duration_unit || 'hours')}</span>
-                                                    )}
-                                                    {service.category && typeof service.category === 'string' && service.category.trim() !== '' && (
-                                                        <span>• {(() => {
-                                                            try {
-                                                                const categoryName = getCategoryName(service.category, tServices)
-                                                                return categoryName || service.category
-                                                            } catch (error) {
-                                                                return service.category
-                                                            }
-                                                        })()}</span>
-                                                    )}
-                                                </div>
-                                                <button className="mt-3 w-full text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
-                                                    {t('selectAndBook')} →
-                                                </button>
+                            {/* Доверяют клиенты */}
+                            {(reviews.length > 0 || (business.reviewsCount || 0) > 0) && (
+                                <div className="flex items-center gap-3 px-1 py-1">
+                                    <div className="flex -space-x-2">
+                                        {['RA', 'SK', 'JM'].map((initials, i) => (
+                                            <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[10px] font-bold border-2 border-white dark:border-gray-900 flex-shrink-0">
+                                                {initials}
                                             </div>
                                         ))}
                                     </div>
-                                </>
-                            ) : (
-                                <div className="py-8 text-center border border-dashed border-gray-200 dark:border-white/20 rounded-xl">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t('noServicesAvailable')}
-                                    </p>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        {(reviews.length || business.reviewsCount || 0)}+ {t('trustedClients')}
+                                    </span>
                                 </div>
                             )}
-                        </div>
-                    </div>
 
-                    {/* Правая колонка - сайдбар (только десктоп) */}
-                    <div className="hidden lg:block">
-                        <div className="sticky top-24 space-y-4">
-                            {/* Карточка с ценой */}
-                            <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
-                                <div className="p-4 space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                                            {services.length > 0 && services[0].price ? t('from') : ''}
-                                        </span>
-                                        <span className="text-xl font-bold text-gray-900 dark:text-white">
-                                            {services.length > 0 && services[0].price 
-                                                ? formatCurrency(services[0].price, services[0].currency || currency)
-                                                : business.priceLabel || t('priceOnRequest')}
-                                        </span>
-                                    </div>
-                                    {services.length > 0 && services[0].duration && (
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                                            ⏱ {formatDuration(services[0].duration, services[0].duration_unit || 'hours')}
-                                        </div>
-                                    )}
-                                </div>
-                                {business.location && (
-                                    <div className="px-4 pb-4 border-t border-gray-100 dark:border-white/10 pt-3">
-                                        <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
-                                            <PiMapPinDuotone className="text-base" />
-                                            <span>{business.location}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Особенности — компактный подблок под ценой/локацией */}
+                            {/* Особенности */}
                             {Array.isArray(business.tags) && business.tags.length > 0 && (
-                                <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-sm p-3">
-                                    <p className="text-[11px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900">
+                                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
                                         {t('features')}
                                     </p>
                                     <div className="flex flex-wrap gap-1.5">
                                         {business.tags.map((tag) => (
-                                            <span
-                                                key={tag}
-                                                className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-bold text-gray-900 dark:text-gray-100"
-                                            >
+                                            <span key={tag} className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300">
                                                 {getTagLabel(tag, tServices)}
                                             </span>
                                         ))}
@@ -1288,357 +1613,31 @@ export default function MarketplaceProfilePage({
                                 </div>
                             )}
 
-                            {/* Кнопка "Поделиться" */}
+                            {/* Кнопка «Поделиться» */}
                             <button
-                                onClick={() => {
-                                    if (navigator.share) {
-                                        navigator.share({
-                                            title: business.name,
-                                            text: business.description,
-                                            url: window.location.href,
-                                        }).catch(() => {})
-                                    } else {
-                                        navigator.clipboard.writeText(window.location.href)
-                                    }
-                                }}
-                                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-3 transition flex items-center justify-center gap-2 font-medium"
+                                onClick={handleShare}
+                                className="w-full rounded-2xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-3 transition flex items-center justify-center gap-2 font-medium"
                             >
                                 <PiShareNetwork className="text-lg" />
                                 <span>{t('share')}</span>
                             </button>
                         </div>
                     </div>
+
                 </div>
 
-                {/* Табы */}
-                <div className="mt-8 lg:mt-12 border-b border-gray-200 dark:border-white/10 mb-6">
-                    <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        {getTabs(t).filter(tab => {
-                            // Скрываем таб отзывов если showReviews выключен
-                            if (tab.id === 'reviews' && profile?.showReviews === false) return false
-                            return true
-                        }).map((tab) => {
-                            const Icon = tab.icon
-                            return (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={classNames(
-                                        'px-4 py-3 flex items-center gap-2 text-sm font-medium border-b-2 transition whitespace-nowrap flex-shrink-0',
-                                        activeTab === tab.id
-                                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                            : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200',
-                                    )}
-                                >
-                                    <Icon className="text-base" />
-                                    <span>{tab.label}</span>
-                                </button>
-                            )
-                        })}
+                {/* Мобильная кнопка бронирования (внизу экрана) */}
+                {showOnlineBookingBadge && (
+                    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 px-4 pb-safe-area-inset-bottom bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-3 shadow-lg">
+                        <button
+                            onClick={() => openBooking(null)}
+                            className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 transition text-base"
+                        >
+                            {t('book')}
+                        </button>
                     </div>
-                </div>
+                )}
 
-                {/* Контент табов */}
-                <div className="min-h-[320px] pb-10">
-                    {activeTab === 'schedule' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                    {t('workingSchedule')}
-                                </h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {t('selectDateAndTime')}
-                                </p>
-                            </div>
-
-                            {/* Список дат - горизонтальный скролл */}
-                            <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                <div className="flex gap-3 pb-2">
-                                    {availableDates.map((date, idx) => (
-                                        <button
-                                            key={date.id || `date-${idx}`}
-                                            onClick={() => setSelectedDate(date.id || idx)}
-                                            className={classNames(
-                                                'flex flex-col items-center rounded-xl border px-3 py-2 text-sm transition flex-shrink-0 min-w-[70px]',
-                                                selectedDate === date.id
-                                                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-300 font-medium'
-                                                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-white/20',
-                                            )}
-                                        >
-                                            <span className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                {date.dayName}
-                                            </span>
-                                            <span className="text-base font-semibold">
-                                                {date.dayNumber}
-                                            </span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Временные слоты */}
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                                    {t('availableTime')}
-                                </h4>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    {timeSlots.map((slot, idx) => (
-                                        <button
-                                            key={idx}
-                                            disabled={!slot.available}
-                                            className={classNames(
-                                                'rounded-full border px-4 py-2 text-sm text-gray-700 dark:text-gray-300 transition',
-                                                slot.available
-                                                    ? 'border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-white/20'
-                                                    : 'border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-gray-800/50 opacity-50 cursor-not-allowed',
-                                            )}
-                                        >
-                                            {slot.time}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'reviews' && (profile?.showReviews ?? true) && (
-                        <div className="space-y-6">
-                            {/* Summary сверху */}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex items-center gap-1">
-                                        {/* Звездочка рейтинга */}
-                                        <PiStarFill className="text-yellow-500 text-2xl" />
-                                        <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                                            {averageRating}
-                                        </span>
-                                        {/* Кнопка избранного - сердечко */}
-                                        <button
-                                                onClick={handleToggleFavorite}
-                                                disabled={isFavoriteLoading}
-                                                className={classNames(
-                                                    'ml-2 transition',
-                                                    isFavorite
-                                                        ? 'text-red-500 hover:text-red-600'
-                                                        : 'text-gray-400 hover:text-red-500'
-                                                )}
-                                                title={isFavorite ? t('removeFromFavorites') : t('addToFavorites')}
-                                            >
-                                                {isFavorite ? (
-                                                    <PiHeartFill className="text-2xl" />
-                                                ) : (
-                                                    <PiHeart className="text-2xl" />
-                                                )}
-                                            </button>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t('basedOnReviews', { 
-                                            count: reviews.length,
-                                            reviewWord: reviews.length === 1 ? t('review') : t('reviews')
-                                        })}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Список отзывов */}
-                            {reviews.length === 0 ? (
-                                <div className="py-12 text-center border border-dashed border-gray-200 dark:border-white/20 rounded-xl">
-                                    <PiChatCircleDuotone className="text-4xl text-gray-400 dark:text-gray-500 mx-auto mb-3" />
-                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                        {t('noReviews')}
-                                    </h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t('beFirstToReview')}
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {reviews.map((review, idx) => (
-                                    <div
-                                        key={review.id || `review-${idx}`}
-                                        className="rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-4 shadow-sm"
-                                    >
-                                        {/* Верхняя строка */}
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                {/* Аватар */}
-                                                <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300 flex-shrink-0">
-                                                    {getInitials(review.name)}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                            {review.name}
-                                                        </h4>
-                                                        <div className="flex items-center gap-0.5">
-                                                            {[...Array(5)].map((_, i) => (
-                                                                <PiStarFill
-                                                                    key={i}
-                                                                    className={classNames(
-                                                                        'text-xs',
-                                                                        i < review.rating
-                                                                            ? 'text-yellow-500'
-                                                                            : 'text-gray-300 dark:text-gray-600',
-                                                                    )}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                                                        {review.date}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Текст отзыва */}
-                                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-3">
-                                            {review.text}
-                                        </p>
-
-                                        {/* Ответ на отзыв */}
-                                        {review.response && (
-                                            <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border-l-4 border-blue-500">
-                                                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                                    {t('responseFrom', { name: business.name })}
-                                                </p>
-                                                <p className="text-sm text-gray-700 dark:text-gray-300">
-                                                    {review.response}
-                                                </p>
-                                                {review.responseDate && (
-                                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                                        {formatDate(review.responseDate, reviewTz, 'long')}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Теги (если есть) */}
-                                        {(() => {
-                                            const hasService = review.service && review.service.trim();
-                                            const specialistName = (review.specialistName && review.specialistName.trim()) || (review.master && review.master.trim());
-                                            const hasSpecialist = specialistName && specialistName !== 'Администратор Системы';
-                                            
-                                            if (!hasService && !hasSpecialist) return null;
-                                            
-                                            return (
-                                                <div className="flex flex-wrap gap-2 mt-3">
-                                                    {hasService && (
-                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">
-                                                            {t('service')}: {review.service}
-                                                        </span>
-                                                    )}
-                                                    {hasSpecialist && (
-                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">
-                                                            {t('specialist')}: {specialistName}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {activeTab === 'team' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                    {t('team')}
-                                </h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    {t('ourSpecialists')}
-                                </p>
-                            </div>
-                            {team.length === 0 ? (
-                                <div className="py-12 text-center border border-dashed border-gray-200 dark:border-white/20 rounded-xl">
-                                    <PiUsersDuotone className="text-4xl text-gray-400 dark:text-gray-500 mx-auto mb-3" />
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t('noTeamInfo')}
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {team.map((member, idx) => {
-                                        const teamPhoto = member.avatarUrl || member.avatar
-                                        return (
-                                    <div
-                                        key={member.id || `member-${idx}`}
-                                        className="rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm"
-                                    >
-                                        <div className="flex items-start gap-3">
-                                            {/* API returns avatar; avatarUrl kept for compatibility */}
-                                            {teamPhoto ? (
-                                                <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200 dark:border-gray-700 relative">
-                                                    <Image
-                                                        src={normalizeImageUrl(teamPhoto) || FALLBACK_IMAGE}
-                                                        alt={member.name}
-                                                        fill
-                                                        quality={90}
-                                                        className="object-cover"
-                                                        sizes="48px"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className={classNames(
-                                                    'h-12 w-12 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0',
-                                                    member.avatarColor || 'bg-gray-500'
-                                                )}>
-                                                    {getInitials(member.name)}
-                                                </div>
-                                            )}
-                                            
-                                            {/* Информация о мастере */}
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                    {member.name}
-                                                </h4>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    {member.role}
-                                                </p>
-                                                <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
-                                                    {member.description || member.bio}
-                                                </p>
-                                                
-                                                {/* Теги */}
-                                                <div className="flex flex-wrap gap-1.5 mt-2">
-                                                    {member.experience && (
-                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">
-                                                            {t('experience')} {member.experience}
-                                                        </span>
-                                                    )}
-                                                    {member.languages && (
-                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-300">
-                                                            {member.languages}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                
-                                                {/* Рейтинг */}
-                                                {member.rating && (
-                                                    <div className="flex items-center gap-1 mt-2">
-                                                        <PiStarFill className="text-yellow-500 text-xs" />
-                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {member.rating.toFixed(1)}
-                                                        </span>
-                                                    </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        )
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-                
                 {/* Блок похожих услуг */}
                 {similarServices.length > 0 && (
                     <div className="mt-4 md:mt-6 pt-4 md:pt-5 border-t border-gray-200 dark:border-gray-700">
@@ -1983,6 +1982,13 @@ export default function MarketplaceProfilePage({
                     </div>
                 </div>
             )}
+
+            {/* Лайтбокс галереи */}
+            <ImageGallery
+                index={galleryIndex}
+                slides={galleryPhotos.map(src => ({ src }))}
+                onClose={() => setGalleryIndex(-1)}
+            />
         </main>
     )
 }
