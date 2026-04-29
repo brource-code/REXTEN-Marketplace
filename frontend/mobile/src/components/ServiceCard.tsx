@@ -240,8 +240,12 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         return;
       }
       const isFav = favoriteAdvertisements.some((fav) => {
-        const favAdId = fav.advertisementId || fav.id;
-        const favAdIdNum = typeof favAdId === 'string' ? parseInt(favAdId) : favAdId;
+        const raw =
+          fav.advertisementId ??
+          (fav as any).advertisement_id ??
+          (fav as any).favoriteable_id;
+        if (raw === undefined || raw === null) return false;
+        const favAdIdNum = typeof raw === 'string' ? parseInt(raw, 10) : raw;
         return favAdIdNum === advertisementId;
       });
       setIsFavorite(isFav);
@@ -334,10 +338,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         setIsFavorite(false);
       } else {
         await addToFavorites(favoriteType, favoriteId);
-        setIsFavorite(true);
       }
 
-      // Обновляем локальный список избранного
+      // Обновляем локальный список избранного (useEffect выставит isFavorite по данным API)
       await loadFavorites();
       
       // Вызываем callback для обновления родительского компонента
