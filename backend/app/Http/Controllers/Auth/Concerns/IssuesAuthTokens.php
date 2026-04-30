@@ -43,6 +43,7 @@ trait IssuesAuthTokens
 
         $response = response()->json([
             'access_token' => $accessToken,
+            'refresh_token' => $refreshToken,
             'user' => [
                 'id' => $userData->id,
                 'email' => $userData->email,

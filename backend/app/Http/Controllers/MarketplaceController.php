@@ -487,6 +487,20 @@ class MarketplaceController extends Controller
                 ->first();
         }
 
+        // Формат из избранного/API: ad_123 → то же, что числовой id объявления
+        if (!$advertisement && is_string($cleanSlug) && preg_match('/^ad_(\d+)$/i', $cleanSlug, $m)) {
+            $advertisement = Advertisement::whereIn('type', ['regular', 'advertisement'])
+                ->where('is_active', true)
+                ->where('status', 'approved')
+                ->whereNotNull('status')
+                ->where('id', (int) $m[1])
+                ->whereHas('company', function($q) {
+                    $q->where('is_visible_on_marketplace', true);
+                })
+                ->with('company')
+                ->first();
+        }
+
         // Если это обычное объявление, возвращаем его профиль
         if ($advertisement) {
             $company = $advertisement->company;

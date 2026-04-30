@@ -78,6 +78,12 @@ class GoogleAuthController extends Controller
 
         // Сохраняем сессию явно
         $request->session()->save();
+
+        // Нативное iOS-приложение: GET .../auth/google/redirect?ios=1 → после OAuth редирект на custom scheme
+        if ($request->boolean('ios')) {
+            $request->session()->put('oauth_ios_app', true);
+            $request->session()->save();
+        }
         
         // ПРИНУДИТЕЛЬНО: для production всегда используем значение из конфига
         $appEnv = config('app.env');
@@ -463,6 +469,13 @@ class GoogleAuthController extends Controller
                 if ($googleSignupRawToken !== null && $user === null) {
                     $frontendUrl = $this->getFrontendUrl($request);
 
+                    if ($request->hasSession() && $request->session()->pull('oauth_ios_app')) {
+                        $scheme = (string) config('services.google.ios_callback_scheme', 'com.rexten.client');
+                        $iosUrl = $scheme.'://auth/google/pending?pending='.urlencode($googleSignupRawToken);
+
+                        return redirect()->away($iosUrl);
+                    }
+
                     return redirect($frontendUrl . '/auth/google/choose-role?pending=' . urlencode($googleSignupRawToken));
                 }
 
@@ -627,7 +640,22 @@ class GoogleAuthController extends Controller
                 throw $e; // Пробрасываем дальше для обработки в общем catch
             }
             
-            // Редиректим на фронтенд с токеном
+            // Редирект: веб → фронт с token= ; iOS → custom scheme с access_token и refresh_token в query
+            if ($request->hasSession() && $request->session()->pull('oauth_ios_app')) {
+                $scheme = (string) config('services.google.ios_callback_scheme', 'com.rexten.client');
+                $query = http_build_query([
+                    'access_token' => $accessToken,
+                    'refresh_token' => $refreshToken,
+                ], '', '&', PHP_QUERY_RFC3986);
+                $iosUrl = $scheme.'://auth/callback?'.$query;
+
+                \Log::info('Google OAuth: Redirecting to iOS app', [
+                    'scheme' => $scheme,
+                ]);
+
+                return redirect()->away($iosUrl);
+            }
+
             $frontendUrl = $this->getFrontendUrl($request);
             $redirectUrl = $frontendUrl . '/auth/google/callback?token=' . urlencode($accessToken);
             

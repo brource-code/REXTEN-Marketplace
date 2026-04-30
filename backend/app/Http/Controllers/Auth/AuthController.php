@@ -451,10 +451,11 @@ class AuthController extends Controller
     public function refresh(Request $request)
     {
         try {
-            // Получаем refresh token из cookie
-            $refreshToken = $request->cookie('refresh_token');
-            
-            if (!$refreshToken) {
+            // Cookie (браузер) или тело запроса (мобильные клиенты без общего cookie jar)
+            $refreshToken = $request->cookie('refresh_token')
+                ?: $request->input('refresh_token');
+
+            if (! is_string($refreshToken) || $refreshToken === '') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Refresh token не найден',
@@ -493,6 +494,7 @@ class AuthController extends Controller
             $response = response()->json([
                 'success' => true,
                 'access_token' => $newAccessToken,
+                'refresh_token' => $newRefreshToken,
                 'token_type' => 'bearer',
                 'expires_in' => config('jwt.ttl') * 60,
             ]);

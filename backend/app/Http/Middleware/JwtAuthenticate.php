@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,7 @@ class JwtAuthenticate
     /**
      * Разрешённые запросы без подтверждённого email (онбординг).
      */
-    private function pathAllowsUnverifiedEmailAccess(\Illuminate\Http\Request $request): bool
+    private function pathAllowsUnverifiedEmailAccess(Request $request, User $user): bool
     {
         $path = $request->path();
         $method = $request->method();
@@ -24,6 +25,12 @@ class JwtAuthenticate
         }
 
         if ($path === 'api/business/settings/profile' && in_array($method, ['GET', 'PUT'], true)) {
+            return true;
+        }
+
+        // ЛК клиента (/api/client/*): без этого JWT отдаёт 403 на избранное/брони и т.д.,
+        // пока auth/me уже доступен — пользователь видит «полупрофиль» и ошибки на вкладках.
+        if ($user->role === 'CLIENT' && str_starts_with($path, 'api/client/')) {
             return true;
         }
 
@@ -50,7 +57,7 @@ class JwtAuthenticate
             if (! $user->isSuperAdmin()
                 && PlatformSettingsService::isEmailVerificationRequired()
                 && ! $user->email_verified_at
-                && ! $this->pathAllowsUnverifiedEmailAccess($request)) {
+                && ! $this->pathAllowsUnverifiedEmailAccess($request, $user)) {
                 return response()->json([
                     'success' => false,
                     'code' => 'email_not_verified',
