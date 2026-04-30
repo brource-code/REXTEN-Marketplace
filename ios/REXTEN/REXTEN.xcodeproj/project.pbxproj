@@ -1,0 +1,625 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0234BA1B160848268A480DDC /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537EB1A5FA3FD6E31527615A /* APIClient.swift */; };
+		0BC53E81FF6C40497F08064E /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82EDFFDF80718B360443E52 /* ProfileView.swift */; };
+		1FB71732BC6FC902253DA218 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89475F9434B540D74BC6C05 /* ProfileViewModel.swift */; };
+		225D526E51194D9DC632F009 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F4F39EACDFF9D23119F7C8 /* RegisterView.swift */; };
+		2492ED805A6BF440D5163F2A /* TagBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2AD8A612167DAEC1103FEFE /* TagBadgeView.swift */; };
+		2715CC64AFA9D285B18F4552 /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319D4A57E0A27E5C56A1B97F /* APIConfig.swift */; };
+		2EF4E036C256BF69357521C5 /* ServiceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FBF4DF8FAC799A9B817D041 /* ServiceCardView.swift */; };
+		31B321299EC5A8DFB3CFD059 /* ServiceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36790EC96DC372F4DB318CC3 /* ServiceDetailView.swift */; };
+		38449E08FE2B4DE7A0D89905 /* BookingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC746043BD1D6563E0EF934 /* BookingViewModel.swift */; };
+		3C9C8F88AC6E3AF136A35720 /* VerifyCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15B2FEF8BC82044F2CDE4AEE /* VerifyCodeView.swift */; };
+		3FE25C2E182E4DF8790F43A5 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60B53C8D445A47DB5E4A1F18 /* FavoritesView.swift */; };
+		4094841448DCF5FFFC2A0341 /* StatusBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3667064D2755C4F9D86AEDF6 /* StatusBadgeView.swift */; };
+		449B0B85E1C2D08AE146E4E2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8152D80A39468BD84BBCAF45 /* ContentView.swift */; };
+		4DFBCCFA04E60050ABE5A531 /* ServicesListTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA824FDDDD4E71E3486A4B35 /* ServicesListTabView.swift */; };
+		51007ABAB3657E2B2FBF30FA /* ImageURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21272E6E48A34D4B032ED63 /* ImageURL.swift */; };
+		59F69D9BEFE1CA2C3C982058 /* ReviewsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3027A4C5FBE68A23214E047 /* ReviewsTabView.swift */; };
+		5B7AB2A28E94AAC83D262EA7 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62365289542F04FD19623BBD /* AppLogger.swift */; };
+		5BAA4F7DDA071EF3F7BCBB27 /* TeamTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED942624680A374CB1DE7B4E /* TeamTabView.swift */; };
+		5D409C7CBB0CD5FA96DFD435 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08F2AFA857D5DCE10EF2A91E /* KeychainStore.swift */; };
+		5DB0E728C28187E1E0F1D70E /* ClientReviewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBE12A278712425F01A51EB /* ClientReviewsView.swift */; };
+		5DEAF62185ECB24745EE13B9 /* BookingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 308B8D6AC5F226BF821F5B6C /* BookingsViewModel.swift */; };
+		64876BD24ED5815E730F2871 /* GuestTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B9198AA9CF2E55E4350363 /* GuestTabView.swift */; };
+		65CF8A393D356B37A912822B /* CatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AD02E219D195517D3B9041 /* CatalogView.swift */; };
+		670C9D1DA23B087DA6182273 /* GoogleAuthHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC2ECA909A89E3260951C84 /* GoogleAuthHelper.swift */; };
+		6B77532605057079EB9080ED /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9E687F6668B7AA08B7BB51 /* AppTheme.swift */; };
+		6EB5FFFE8A5746221437B15F /* Favorite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CC874029AB0F1284F2A8B0 /* Favorite.swift */; };
+		7766DA13351638DFB7F6F3CC /* Booking.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC762C17642309D0D2AB6459 /* Booking.swift */; };
+		7A1B9990CF700801D9ABCFD4 /* OverviewTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D7AC9205BEE0DB14DBBBA31 /* OverviewTabView.swift */; };
+		7C8A315462E5AD99FB096FEC /* REXTENApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7643CC6456B81F1A284CF3D /* REXTENApp.swift */; };
+		81AD8FF19633AED5E98BEC30 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE044BC50F76A178F5B51289 /* PrimaryButton.swift */; };
+		833D91A3F11ADF7E9FF33E1B /* RewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD66B1214F8F7029910C8AB7 /* RewardsView.swift */; };
+		859855111978CD8D2B29D0F2 /* RatingBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 518141E0783B3783D9257465 /* RatingBadgeView.swift */; };
+		859BD3E6761265413E2FEA3B /* ServiceDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477A3F777E9C215955668032 /* ServiceDetailViewModel.swift */; };
+		97E28227F1CE8E80168223ED /* LoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBAABE44EE3C416F9D0D1AB7 /* LoaderView.swift */; };
+		A136CA1E3FD97A3C804715FD /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FA2C5D5A0B4C8FF14F6F34 /* EmptyStateView.swift */; };
+		A55FBE21A9E4E600D34AE363 /* FilterChipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AA5F398ABFC192BC056685 /* FilterChipsView.swift */; };
+		A75D6A3F3E4803659D0DA42B /* BookingsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D057842A717D03A89776B6F2 /* BookingsListView.swift */; };
+		B1E63724641D9B0C77C53318 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54971C1A77A46AE4759B0F2 /* NotificationSettingsView.swift */; };
+		B5592E1578F4DD9251E598B3 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = E364D372987D3A338DAAEE56 /* User.swift */; };
+		B71D80DF24E83F7424708991 /* PortfolioTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9343FA8E01FB73494C46BDF1 /* PortfolioTabView.swift */; };
+		C16C672B5C3457234CB13EA5 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 152D0991905F0377E20FC052 /* AuthManager.swift */; };
+		C7C8CE3A39EAD4BB98D11125 /* ClientExtras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59F21B208862C9C4483D7DCA /* ClientExtras.swift */; };
+		CDE264C87D62950DE2747203 /* CatalogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B02BB5CC85C4A793E49A7B2 /* CatalogViewModel.swift */; };
+		D748912F467C60010A8EEF8D /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791DE1064A3770565A166B40 /* FiltersView.swift */; };
+		D97F39DC19A2405D8F142FA4 /* ClientTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662966B48A0383391A8EB08E /* ClientTabView.swift */; };
+		DE7E3E049343EFCE1AA4A153 /* BookingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854D01B134E524D62C617BC9 /* BookingView.swift */; };
+		E721BFB968379E649A6D6423 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6746470DAD5992EC065D9158 /* Service.swift */; };
+		EF2A9C3A056378690415FFD0 /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB79C29CBAFFF42FA834305 /* ProfileSettingsView.swift */; };
+		EFFA9BC17B2E7B24DEAD1568 /* JSONHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7DD94C1E081404F682921A7 /* JSONHelpers.swift */; };
+		F05AB67FFF0A0C2B9CE46D63 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F49FCCCAB1341A20F9574C /* FavoritesViewModel.swift */; };
+		F1778B98BA14641A9A4EF0DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADBF1532EE64F052B177CD79 /* Assets.xcassets */; };
+		F9391F9168C22CBE99E8F6AA /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73F56684349984EB21E4262D /* LoginView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		08F2AFA857D5DCE10EF2A91E /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		0B02BB5CC85C4A793E49A7B2 /* CatalogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogViewModel.swift; sourceTree = "<group>"; };
+		152D0991905F0377E20FC052 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		15B2FEF8BC82044F2CDE4AEE /* VerifyCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyCodeView.swift; sourceTree = "<group>"; };
+		308B8D6AC5F226BF821F5B6C /* BookingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingsViewModel.swift; sourceTree = "<group>"; };
+		319D4A57E0A27E5C56A1B97F /* APIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfig.swift; sourceTree = "<group>"; };
+		3667064D2755C4F9D86AEDF6 /* StatusBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadgeView.swift; sourceTree = "<group>"; };
+		36790EC96DC372F4DB318CC3 /* ServiceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceDetailView.swift; sourceTree = "<group>"; };
+		3DBE12A278712425F01A51EB /* ClientReviewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientReviewsView.swift; sourceTree = "<group>"; };
+		3FBF4DF8FAC799A9B817D041 /* ServiceCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCardView.swift; sourceTree = "<group>"; };
+		4642E03CAA5C1DDC7952DCC8 /* REXTEN.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = REXTEN.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		46FA2C5D5A0B4C8FF14F6F34 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		477A3F777E9C215955668032 /* ServiceDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceDetailViewModel.swift; sourceTree = "<group>"; };
+		49F4F39EACDFF9D23119F7C8 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		4EC746043BD1D6563E0EF934 /* BookingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingViewModel.swift; sourceTree = "<group>"; };
+		518141E0783B3783D9257465 /* RatingBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingBadgeView.swift; sourceTree = "<group>"; };
+		537EB1A5FA3FD6E31527615A /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		58AD02E219D195517D3B9041 /* CatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogView.swift; sourceTree = "<group>"; };
+		59F21B208862C9C4483D7DCA /* ClientExtras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientExtras.swift; sourceTree = "<group>"; };
+		5C9E687F6668B7AA08B7BB51 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		60B53C8D445A47DB5E4A1F18 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
+		62365289542F04FD19623BBD /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		662966B48A0383391A8EB08E /* ClientTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientTabView.swift; sourceTree = "<group>"; };
+		6746470DAD5992EC065D9158 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
+		73F56684349984EB21E4262D /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		76AA5F398ABFC192BC056685 /* FilterChipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChipsView.swift; sourceTree = "<group>"; };
+		791DE1064A3770565A166B40 /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
+		79545C9FDF0B99CE9358353E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8152D80A39468BD84BBCAF45 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		83CC874029AB0F1284F2A8B0 /* Favorite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Favorite.swift; sourceTree = "<group>"; };
+		854D01B134E524D62C617BC9 /* BookingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingView.swift; sourceTree = "<group>"; };
+		8D7AC9205BEE0DB14DBBBA31 /* OverviewTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewTabView.swift; sourceTree = "<group>"; };
+		8EC2ECA909A89E3260951C84 /* GoogleAuthHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAuthHelper.swift; sourceTree = "<group>"; };
+		9343FA8E01FB73494C46BDF1 /* PortfolioTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioTabView.swift; sourceTree = "<group>"; };
+		A2AD8A612167DAEC1103FEFE /* TagBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagBadgeView.swift; sourceTree = "<group>"; };
+		AA824FDDDD4E71E3486A4B35 /* ServicesListTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesListTabView.swift; sourceTree = "<group>"; };
+		ACB79C29CBAFFF42FA834305 /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
+		ADBF1532EE64F052B177CD79 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B21272E6E48A34D4B032ED63 /* ImageURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageURL.swift; sourceTree = "<group>"; };
+		B54971C1A77A46AE4759B0F2 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		B7643CC6456B81F1A284CF3D /* REXTENApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = REXTENApp.swift; sourceTree = "<group>"; };
+		BC762C17642309D0D2AB6459 /* Booking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Booking.swift; sourceTree = "<group>"; };
+		C6B9198AA9CF2E55E4350363 /* GuestTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTabView.swift; sourceTree = "<group>"; };
+		CD66B1214F8F7029910C8AB7 /* RewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardsView.swift; sourceTree = "<group>"; };
+		D057842A717D03A89776B6F2 /* BookingsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookingsListView.swift; sourceTree = "<group>"; };
+		D6F49FCCCAB1341A20F9574C /* FavoritesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
+		D7DD94C1E081404F682921A7 /* JSONHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONHelpers.swift; sourceTree = "<group>"; };
+		D89475F9434B540D74BC6C05 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		E3027A4C5FBE68A23214E047 /* ReviewsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewsTabView.swift; sourceTree = "<group>"; };
+		E364D372987D3A338DAAEE56 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		E82EDFFDF80718B360443E52 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		ED942624680A374CB1DE7B4E /* TeamTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamTabView.swift; sourceTree = "<group>"; };
+		EE044BC50F76A178F5B51289 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
+		FBAABE44EE3C416F9D0D1AB7 /* LoaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoaderView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		09EC6CF9DA87195EFF5A9E1E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				79545C9FDF0B99CE9358353E /* Info.plist */,
+				34D07A40A7093D07EBE5B9D7 /* App */,
+				53ACCE7475289F1D8DC3CE6E /* Components */,
+				61E9AF9E8B272969A5776C59 /* Core */,
+				8A902DCB0550AFA69F49CF29 /* Features */,
+				F49B547350E1F43F2797F2A9 /* Models */,
+				BBD85BFD84CC351647ADDF13 /* Navigation */,
+				C3E469DAD6F2978167E3C404 /* Utils */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		34D07A40A7093D07EBE5B9D7 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				8152D80A39468BD84BBCAF45 /* ContentView.swift */,
+				B7643CC6456B81F1A284CF3D /* REXTENApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		44BF0324D7ED2F15C09B896B /* Catalog */ = {
+			isa = PBXGroup;
+			children = (
+				58AD02E219D195517D3B9041 /* CatalogView.swift */,
+				0B02BB5CC85C4A793E49A7B2 /* CatalogViewModel.swift */,
+				76AA5F398ABFC192BC056685 /* FilterChipsView.swift */,
+				791DE1064A3770565A166B40 /* FiltersView.swift */,
+				3FBF4DF8FAC799A9B817D041 /* ServiceCardView.swift */,
+			);
+			path = Catalog;
+			sourceTree = "<group>";
+		};
+		4834B3C09391DE5FC263E541 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4642E03CAA5C1DDC7952DCC8 /* REXTEN.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		53ACCE7475289F1D8DC3CE6E /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				46FA2C5D5A0B4C8FF14F6F34 /* EmptyStateView.swift */,
+				FBAABE44EE3C416F9D0D1AB7 /* LoaderView.swift */,
+				EE044BC50F76A178F5B51289 /* PrimaryButton.swift */,
+				518141E0783B3783D9257465 /* RatingBadgeView.swift */,
+				3667064D2755C4F9D86AEDF6 /* StatusBadgeView.swift */,
+				A2AD8A612167DAEC1103FEFE /* TagBadgeView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		54BBD0A633A549254129C176 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				8D7AC9205BEE0DB14DBBBA31 /* OverviewTabView.swift */,
+				9343FA8E01FB73494C46BDF1 /* PortfolioTabView.swift */,
+				E3027A4C5FBE68A23214E047 /* ReviewsTabView.swift */,
+				36790EC96DC372F4DB318CC3 /* ServiceDetailView.swift */,
+				477A3F777E9C215955668032 /* ServiceDetailViewModel.swift */,
+				AA824FDDDD4E71E3486A4B35 /* ServicesListTabView.swift */,
+				ED942624680A374CB1DE7B4E /* TeamTabView.swift */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		58F74A143C41F90556D19338 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				73F56684349984EB21E4262D /* LoginView.swift */,
+				49F4F39EACDFF9D23119F7C8 /* RegisterView.swift */,
+				15B2FEF8BC82044F2CDE4AEE /* VerifyCodeView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		61E9AF9E8B272969A5776C59 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				537EB1A5FA3FD6E31527615A /* APIClient.swift */,
+				319D4A57E0A27E5C56A1B97F /* APIConfig.swift */,
+				5C9E687F6668B7AA08B7BB51 /* AppTheme.swift */,
+				152D0991905F0377E20FC052 /* AuthManager.swift */,
+				8EC2ECA909A89E3260951C84 /* GoogleAuthHelper.swift */,
+				B21272E6E48A34D4B032ED63 /* ImageURL.swift */,
+				D7DD94C1E081404F682921A7 /* JSONHelpers.swift */,
+				08F2AFA857D5DCE10EF2A91E /* KeychainStore.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		6340A0369E161D87BF0E9CB3 /* Favorites */ = {
+			isa = PBXGroup;
+			children = (
+				60B53C8D445A47DB5E4A1F18 /* FavoritesView.swift */,
+				D6F49FCCCAB1341A20F9574C /* FavoritesViewModel.swift */,
+			);
+			path = Favorites;
+			sourceTree = "<group>";
+		};
+		8A902DCB0550AFA69F49CF29 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				58F74A143C41F90556D19338 /* Auth */,
+				CA3FF2A932A92BFF663EBC4D /* Booking */,
+				CE0E05F40793570BF537D1EB /* Bookings */,
+				44BF0324D7ED2F15C09B896B /* Catalog */,
+				54BBD0A633A549254129C176 /* Detail */,
+				6340A0369E161D87BF0E9CB3 /* Favorites */,
+				8C63304B766950E2FC3B004B /* Profile */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		8C63304B766950E2FC3B004B /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				3DBE12A278712425F01A51EB /* ClientReviewsView.swift */,
+				B54971C1A77A46AE4759B0F2 /* NotificationSettingsView.swift */,
+				ACB79C29CBAFFF42FA834305 /* ProfileSettingsView.swift */,
+				E82EDFFDF80718B360443E52 /* ProfileView.swift */,
+				D89475F9434B540D74BC6C05 /* ProfileViewModel.swift */,
+				CD66B1214F8F7029910C8AB7 /* RewardsView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		B7AE864D3D5A49E519E0AC2F = {
+			isa = PBXGroup;
+			children = (
+				ADBF1532EE64F052B177CD79 /* Assets.xcassets */,
+				09EC6CF9DA87195EFF5A9E1E /* Sources */,
+				4834B3C09391DE5FC263E541 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BBD85BFD84CC351647ADDF13 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				662966B48A0383391A8EB08E /* ClientTabView.swift */,
+				C6B9198AA9CF2E55E4350363 /* GuestTabView.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		C3E469DAD6F2978167E3C404 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				62365289542F04FD19623BBD /* AppLogger.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		CA3FF2A932A92BFF663EBC4D /* Booking */ = {
+			isa = PBXGroup;
+			children = (
+				854D01B134E524D62C617BC9 /* BookingView.swift */,
+				4EC746043BD1D6563E0EF934 /* BookingViewModel.swift */,
+			);
+			path = Booking;
+			sourceTree = "<group>";
+		};
+		CE0E05F40793570BF537D1EB /* Bookings */ = {
+			isa = PBXGroup;
+			children = (
+				D057842A717D03A89776B6F2 /* BookingsListView.swift */,
+				308B8D6AC5F226BF821F5B6C /* BookingsViewModel.swift */,
+			);
+			path = Bookings;
+			sourceTree = "<group>";
+		};
+		F49B547350E1F43F2797F2A9 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BC762C17642309D0D2AB6459 /* Booking.swift */,
+				59F21B208862C9C4483D7DCA /* ClientExtras.swift */,
+				83CC874029AB0F1284F2A8B0 /* Favorite.swift */,
+				6746470DAD5992EC065D9158 /* Service.swift */,
+				E364D372987D3A338DAAEE56 /* User.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C5E1E8E5B95FC680C543C816 /* REXTEN */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8734E3BB7531EFBD5721F4D8 /* Build configuration list for PBXNativeTarget "REXTEN" */;
+			buildPhases = (
+				1F0F55DC13FC5C2077D9B1C5 /* Sources */,
+				A542D85C764C92C24DE6E21B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = REXTEN;
+			packageProductDependencies = (
+			);
+			productName = REXTEN;
+			productReference = 4642E03CAA5C1DDC7952DCC8 /* REXTEN.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6E13002B589D0F56728676CD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 45EA10DD920E3F9C9917B0EC /* Build configuration list for PBXProject "REXTEN" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B7AE864D3D5A49E519E0AC2F;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 4834B3C09391DE5FC263E541 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C5E1E8E5B95FC680C543C816 /* REXTEN */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A542D85C764C92C24DE6E21B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1778B98BA14641A9A4EF0DE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1F0F55DC13FC5C2077D9B1C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0234BA1B160848268A480DDC /* APIClient.swift in Sources */,
+				2715CC64AFA9D285B18F4552 /* APIConfig.swift in Sources */,
+				5B7AB2A28E94AAC83D262EA7 /* AppLogger.swift in Sources */,
+				6B77532605057079EB9080ED /* AppTheme.swift in Sources */,
+				C16C672B5C3457234CB13EA5 /* AuthManager.swift in Sources */,
+				7766DA13351638DFB7F6F3CC /* Booking.swift in Sources */,
+				DE7E3E049343EFCE1AA4A153 /* BookingView.swift in Sources */,
+				38449E08FE2B4DE7A0D89905 /* BookingViewModel.swift in Sources */,
+				A75D6A3F3E4803659D0DA42B /* BookingsListView.swift in Sources */,
+				5DEAF62185ECB24745EE13B9 /* BookingsViewModel.swift in Sources */,
+				65CF8A393D356B37A912822B /* CatalogView.swift in Sources */,
+				CDE264C87D62950DE2747203 /* CatalogViewModel.swift in Sources */,
+				C7C8CE3A39EAD4BB98D11125 /* ClientExtras.swift in Sources */,
+				5DB0E728C28187E1E0F1D70E /* ClientReviewsView.swift in Sources */,
+				D97F39DC19A2405D8F142FA4 /* ClientTabView.swift in Sources */,
+				449B0B85E1C2D08AE146E4E2 /* ContentView.swift in Sources */,
+				A136CA1E3FD97A3C804715FD /* EmptyStateView.swift in Sources */,
+				6EB5FFFE8A5746221437B15F /* Favorite.swift in Sources */,
+				3FE25C2E182E4DF8790F43A5 /* FavoritesView.swift in Sources */,
+				F05AB67FFF0A0C2B9CE46D63 /* FavoritesViewModel.swift in Sources */,
+				A55FBE21A9E4E600D34AE363 /* FilterChipsView.swift in Sources */,
+				D748912F467C60010A8EEF8D /* FiltersView.swift in Sources */,
+				670C9D1DA23B087DA6182273 /* GoogleAuthHelper.swift in Sources */,
+				64876BD24ED5815E730F2871 /* GuestTabView.swift in Sources */,
+				51007ABAB3657E2B2FBF30FA /* ImageURL.swift in Sources */,
+				EFFA9BC17B2E7B24DEAD1568 /* JSONHelpers.swift in Sources */,
+				5D409C7CBB0CD5FA96DFD435 /* KeychainStore.swift in Sources */,
+				97E28227F1CE8E80168223ED /* LoaderView.swift in Sources */,
+				F9391F9168C22CBE99E8F6AA /* LoginView.swift in Sources */,
+				B1E63724641D9B0C77C53318 /* NotificationSettingsView.swift in Sources */,
+				7A1B9990CF700801D9ABCFD4 /* OverviewTabView.swift in Sources */,
+				B71D80DF24E83F7424708991 /* PortfolioTabView.swift in Sources */,
+				81AD8FF19633AED5E98BEC30 /* PrimaryButton.swift in Sources */,
+				EF2A9C3A056378690415FFD0 /* ProfileSettingsView.swift in Sources */,
+				0BC53E81FF6C40497F08064E /* ProfileView.swift in Sources */,
+				1FB71732BC6FC902253DA218 /* ProfileViewModel.swift in Sources */,
+				7C8A315462E5AD99FB096FEC /* REXTENApp.swift in Sources */,
+				859855111978CD8D2B29D0F2 /* RatingBadgeView.swift in Sources */,
+				225D526E51194D9DC632F009 /* RegisterView.swift in Sources */,
+				59F69D9BEFE1CA2C3C982058 /* ReviewsTabView.swift in Sources */,
+				833D91A3F11ADF7E9FF33E1B /* RewardsView.swift in Sources */,
+				E721BFB968379E649A6D6423 /* Service.swift in Sources */,
+				2EF4E036C256BF69357521C5 /* ServiceCardView.swift in Sources */,
+				31B321299EC5A8DFB3CFD059 /* ServiceDetailView.swift in Sources */,
+				859BD3E6761265413E2FEA3B /* ServiceDetailViewModel.swift in Sources */,
+				4DFBCCFA04E60050ABE5A531 /* ServicesListTabView.swift in Sources */,
+				4094841448DCF5FFFC2A0341 /* StatusBadgeView.swift in Sources */,
+				2492ED805A6BF440D5163F2A /* TagBadgeView.swift in Sources */,
+				5BAA4F7DDA071EF3F7BCBB27 /* TeamTabView.swift in Sources */,
+				B5592E1578F4DD9251E598B3 /* User.swift in Sources */,
+				3C9C8F88AC6E3AF136A35720 /* VerifyCodeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		14170EE9AD3C2B2DE33A3C81 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				BUNDLE_DISPLAY_NAME = REXTEN;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AMZSNY9U5S;
+				INFOPLIST_FILE = Sources/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rexten.client;
+				PRODUCT_NAME = REXTEN;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8AB9B1F4171A329C3666BB3D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		9C745352B605CA2BEF95E341 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				BUNDLE_DISPLAY_NAME = REXTEN;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AMZSNY9U5S;
+				INFOPLIST_FILE = Sources/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rexten.client;
+				PRODUCT_NAME = REXTEN;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E00D86BA6134FDA4FF58866A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		45EA10DD920E3F9C9917B0EC /* Build configuration list for PBXProject "REXTEN" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E00D86BA6134FDA4FF58866A /* Debug */,
+				8AB9B1F4171A329C3666BB3D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8734E3BB7531EFBD5721F4D8 /* Build configuration list for PBXNativeTarget "REXTEN" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				14170EE9AD3C2B2DE33A3C81 /* Debug */,
+				9C745352B605CA2BEF95E341 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6E13002B589D0F56728676CD /* Project object */;
+}
