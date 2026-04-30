@@ -614,6 +614,7 @@ const ServiceModal = ({ isOpen, onClose, service, onSave }) => {
 const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
     const t = useTranslations('business.settings.services.additionalServices')
     const tCommon = useTranslations('business.common')
+    const tDur = useTranslations('common.durationMinutes')
     const queryClient = useQueryClient()
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [editingAdditionalService, setEditingAdditionalService] = useState(null)
@@ -650,6 +651,7 @@ const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
         mutationFn: ({ id, data }) => updateAdditionalService(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['additional-services', service?.id] })
+            setIsAddModalOpen(false)
             setEditingAdditionalService(null)
             toast.push(
                 <Notification title={tCommon('success')} type="success">
@@ -667,7 +669,7 @@ const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
     })
 
     const deleteMutation = useMutation({
-        mutationFn: deleteAdditionalService,
+        mutationFn: (id) => deleteAdditionalService(id, service.id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['additional-services', service?.id] })
             toast.push(
@@ -717,7 +719,7 @@ const AdditionalServicesModal = ({ isOpen, onClose, service }) => {
         if (editingAdditionalService) {
             updateMutation.mutate({
                 id: editingAdditionalService.id,
-                data: payload,
+                data: { ...payload, service_id: service.id },
             })
         } else {
             createMutation.mutate({

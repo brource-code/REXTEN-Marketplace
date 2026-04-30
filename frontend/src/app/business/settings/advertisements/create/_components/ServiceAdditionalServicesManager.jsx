@@ -86,7 +86,7 @@ export function ServiceAdditionalServicesManager({
     })
 
     const deleteMutation = useMutation({
-        mutationFn: deleteAdditionalService,
+        mutationFn: (id) => deleteAdditionalService(id, serviceId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['additional-services', serviceId] })
             toast.push(
@@ -197,7 +197,7 @@ export function ServiceAdditionalServicesManager({
         if (editingAdditionalService) {
             updateMutation.mutate({
                 id: editingAdditionalService.id,
-                data,
+                data: { ...data, service_id: serviceId },
             })
         } else {
             createMutation.mutate({

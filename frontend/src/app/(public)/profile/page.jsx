@@ -1,14 +1,17 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Container from '@/components/shared/Container'
-import Card from '@/components/ui/Card'
-import Tabs from '@/components/ui/Tabs'
+import Link from 'next/link'
+import Image from 'next/image'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
+import classNames from '@/utils/classNames'
+import Loading from '@/components/shared/Loading'
 import Avatar from '@/components/ui/Avatar'
 import Button from '@/components/ui/Button'
-import Badge from '@/components/ui/Badge'
+import Card from '@/components/ui/Card'
+import Tabs from '@/components/ui/Tabs'
 import Switcher from '@/components/ui/Switcher'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useCurrentUser } from '@/hooks/api/useAuth'
 import { useUserStore } from '@/store'
@@ -16,6 +19,15 @@ import { CLIENT } from '@/constants/roles.constant'
 import { formatCurrency } from '@/utils/formatCurrency'
 import { formatDate } from '@/utils/dateTime'
 import { CLIENT_DEFAULT_TIMEZONE, resolveClientBookingTimezone } from '@/constants/client-datetime.constant'
+import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
+import { NumericFormat } from 'react-number-format'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
+import ReviewModal from '@/components/reviews/ReviewModal'
+import LoyaltyProgramBlock from '@/components/loyalty/LoyaltyProgramBlock'
+import { PUBLIC_MARKETPLACE_CONTENT_MAX } from '@/constants/public-marketplace-layout.constant'
+import { getCategoryName } from '@/utils/categoryUtils'
+import { getCategories } from '@/lib/api/marketplace'
 import {
     getClientReviews,
     getPendingReviews,
@@ -40,383 +52,403 @@ import {
     PiHeart,
     PiHeartFill,
     PiBell,
-    PiGear,
     PiMapPinFill,
     PiCalendar,
-    PiTrash,
-    PiCheck,
     PiEnvelope,
     PiPaperPlaneTilt,
     PiTicket,
-    PiGift,
     PiCopy,
+    PiCamera,
+    PiMapPin,
+    PiBroom,
+    PiCar,
+    PiSparkle,
+    PiScissors,
+    PiFlower,
+    PiHammer,
+    PiLightning,
+    PiDrop,
+    PiWind,
+    PiTree,
+    PiSnowflake,
+    PiBaby,
+    PiDog,
+    PiStudent,
+    PiTranslate,
+    PiMusicNote,
+    PiCamera as PiCameraAlt,
+    PiTag,
+    PiClock,
 } from 'react-icons/pi'
 import { TbSettings } from 'react-icons/tb'
-import Link from 'next/link'
-import Image from 'next/image'
-import { normalizeImageUrl, FALLBACK_IMAGE } from '@/utils/imageUtils'
-import { NumericFormat } from 'react-number-format'
-import classNames from '@/utils/classNames'
-import Loading from '@/components/shared/Loading'
-import LoyaltyProgramBlock from '@/components/loyalty/LoyaltyProgramBlock'
-import toast from '@/components/ui/toast'
-import Notification from '@/components/ui/Notification'
-import ReviewModal from '@/components/reviews/ReviewModal'
-import { useTranslations } from 'next-intl'
+import dayjs from 'dayjs'
 
 const { TabNav, TabList, TabContent } = Tabs
 
-// Компонент профиля — двухколоночный layout с мини-картами статистики
-const ProfileHeader = ({ user, bookingsCount, favoritesCount }) => {
+// Иконки категорий для сайдбара
+const CATEGORY_ICON_BY_SLUG = {
+    cleaning: PiBroom,
+    'auto-service': PiCar,
+    beauty: PiSparkle,
+    'hair-services': PiScissors,
+    barbershop: PiScissors,
+    'massage-spa': PiFlower,
+    'repair-construction': PiHammer,
+    electrical: PiLightning,
+    plumbing: PiDrop,
+    hvac: PiWind,
+    landscaping: PiTree,
+    'snow-removal': PiSnowflake,
+    childcare: PiBaby,
+    eldercare: PiHeart,
+    'pet-care': PiDog,
+    tutoring: PiStudent,
+    'language-learning': PiTranslate,
+    'music-lessons': PiMusicNote,
+    photography: PiCameraAlt,
+}
+
+function CategoryGlyph({ category }) {
+    const raw = category?.icon != null && String(category.icon).trim()
+    if (raw) {
+        return (
+            <span className="select-none text-[1.125rem] leading-none" aria-hidden>
+                {String(category.icon).trim()}
+            </span>
+        )
+    }
+    const slug = (category?.slug || '').toLowerCase().trim()
+    const Icon = CATEGORY_ICON_BY_SLUG[slug] || PiTag
+    return <Icon className="h-5 w-5 shrink-0" aria-hidden />
+}
+
+// Заголовок профиля
+const ProfileHeader = ({ user }) => {
     const t = useTranslations('public.profile')
     const avatarUrl = user?.avatar || user?.image
     const fullName = user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+    const memberSince = user?.created_at
+        ? dayjs(user.created_at).format('MMM YYYY')
+        : null
+    const hasLocation = user?.city && user?.state
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* Основная карточка профиля */}
-            <Card>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    {/* Аватар */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-gray-900">
+            <div className="flex flex-col sm:flex-row gap-5">
+                {/* Аватар с иконкой камеры */}
+                <div className="relative shrink-0 self-start">
                     <Avatar
                         src={avatarUrl}
                         alt={fullName || 'User'}
-                        size={72}
+                        size={100}
                         shape="circle"
                         icon={<PiUser />}
                     />
-                    
-                    {/* Информация */}
-                    <div className="flex-1 min-w-0">
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
-                            {fullName || t('user')}
-                        </h4>
-                        {user?.email && (
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-0.5 truncate">
-                                {user.email}
-                            </p>
-                        )}
-                        {user?.city && user?.state ? (
-                            <div className="flex items-center gap-1.5 mt-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
-                                <PiMapPinFill size={14} className="shrink-0" />
-                                <span className="truncate">{user.city}, {user.state}</span>
-                            </div>
-                        ) : (
-                            <Link
-                                href="/profile/settings"
-                                className="inline-flex items-center gap-1.5 mt-1.5 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                                <PiMapPinFill size={14} />
-                                {t('setLocation')}
-                            </Link>
-                        )}
-                    </div>
+                    <Link
+                        href="/profile/settings"
+                        className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md border border-gray-200 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        title={t('settings')}
+                    >
+                        <PiCamera className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    </Link>
+                </div>
 
-                    {/* Кнопки действий */}
-                    <div className="flex gap-2 shrink-0">
-                        <Link href="/booking">
-                            <Button variant="outline" size="sm" icon={<PiCalendar />}>
-                                <span className="hidden sm:inline">{t('bookings')}</span>
-                                <span className="sm:hidden">{t('bookingsShort')}</span>
-                            </Button>
-                        </Link>
-                        <Link href="/profile/settings">
-                            <Button variant="outline" size="sm" icon={<TbSettings />}>
-                                {t('settings')}
-                            </Button>
-                        </Link>
+                {/* Основная информация */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="min-w-0">
+                            {/* Имя + бейдж роли */}
+                            <div className="flex items-center gap-2.5 flex-wrap">
+                                <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">
+                                    {fullName || t('user')}
+                                </h4>
+                                <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-500/20 px-2.5 py-0.5 text-xs font-bold text-blue-700 dark:text-blue-300 shrink-0">
+                                    {t('bookings') === 'Bookings' ? 'Client' : 'Клиент'}
+                                </span>
+                            </div>
+
+                            {/* Email */}
+                            {user?.email && (
+                                <div className="mt-1.5 flex items-center gap-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                    <PiEnvelope className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate">{user.email}</span>
+                                </div>
+                            )}
+
+                            {/* Локация */}
+                            <div className="mt-1.5 flex items-center gap-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                <PiMapPin className="h-3.5 w-3.5 shrink-0" />
+                                {hasLocation ? (
+                                    <span className="truncate">{user.city}, {user.state}, USA</span>
+                                ) : (
+                                    <span className="text-gray-400 dark:text-gray-500 italic text-xs">
+                                        {t('setLocation')}
+                                    </span>
+                                )}
+                                <Link
+                                    href="/profile/settings"
+                                    className="shrink-0 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline ml-1"
+                                >
+                                    {t('changeLocationLink')}
+                                </Link>
+                            </div>
+
+                            {/* Мета-строка: дата, язык, таймзон */}
+                            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm font-bold text-gray-500 dark:text-gray-400">
+                                {memberSince && (
+                                    <span className="flex items-center gap-1.5">
+                                        <PiCalendar className="h-3.5 w-3.5 shrink-0" />
+                                        <span>{t('memberSince')}</span>
+                                        <span className="text-gray-900 dark:text-gray-100">{memberSince}</span>
+                                    </span>
+                                )}
+                                {user?.locale && (
+                                    <span className="flex items-center gap-1.5">
+                                        <PiTranslate className="h-3.5 w-3.5 shrink-0" />
+                                        <span className="text-gray-900 dark:text-gray-100 capitalize">{user.locale}</span>
+                                    </span>
+                                )}
+                                {user?.timezone && (
+                                    <span className="flex items-center gap-1.5">
+                                        <PiClock className="h-3.5 w-3.5 shrink-0" />
+                                        <span className="text-gray-900 dark:text-gray-100">{user.timezone}</span>
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Кнопки действий */}
+                        <div className="flex gap-2 shrink-0">
+                            <Link href="/profile/settings">
+                                <Button variant="outline" size="sm" icon={<TbSettings />}>
+                                    <span className="hidden sm:inline">{t('profileSettingsBtn')}</span>
+                                </Button>
+                            </Link>
+                            <Link href="/booking">
+                                <Button variant="solid" size="sm" icon={<PiCalendar />}>
+                                    <span className="hidden sm:inline">{t('myBookingsBtn')}</span>
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
-            </Card>
-
-            {/* Статистика — мини-карточки как в BusinessStats */}
-            <div className="grid grid-cols-2 gap-3">
-                <Card>
-                    <div className="flex items-center justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
-                                {t('bookings')}
-                            </div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                {bookingsCount || 0}
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-center w-11 h-11 rounded-lg shrink-0 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
-                            <PiCalendar className="text-2xl" />
-                        </div>
-                    </div>
-                </Card>
-                <Card>
-                    <div className="flex items-center justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1">
-                                {t('favorites')}
-                            </div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                {favoritesCount || 0}
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-center w-11 h-11 rounded-lg shrink-0 bg-pink-100 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400">
-                            <PiHeart className="text-2xl" />
-                        </div>
-                    </div>
-                </Card>
             </div>
         </div>
     )
 }
 
-// Компонент бронирований
-const BookingsTab = () => {
+// Блок статистики (4 карточки)
+const StatsGrid = ({ bookingsCount, recentBookingsCount, favoritesCount, reviewsCount, activeDiscountsCount }) => {
     const t = useTranslations('public.profile')
-    // Загружаем только предстоящие бронирования для профиля
-    const { data: bookings = [], isLoading } = useQuery({
-        queryKey: ['client-bookings', true],
-        queryFn: () => getClientBookings({ upcoming: true }),
-    })
-
-    if (isLoading) {
-        return (
-            <div className="min-h-[320px] flex items-center justify-center">
-                <Loading loading />
-            </div>
-        )
-    }
-
-    if (bookings.length === 0) {
-        return (
-            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
-                <PiCalendar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    {t('noBookings')}
-                </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {t('noBookingsDescription')}
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                    <Link href="/services">
-                        <Button variant="outline" size="sm">
-                            {t('findServices')}
-                        </Button>
-                    </Link>
-                    <Link href="/booking">
-                        <Button variant="outline" size="sm">
-                            {t('allBookings')}
-                        </Button>
-                    </Link>
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 truncate">
+                            {t('bookings')}
+                        </div>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            {bookingsCount}
+                        </div>
+                        {recentBookingsCount > 0 && (
+                            <div className="mt-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                {t('lastMonthSub', { count: recentBookingsCount })}
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                        <PiCalendar className="text-2xl" />
+                    </div>
                 </div>
             </div>
-        )
-    }
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 truncate">
+                            {t('favorites')}
+                        </div>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            {favoritesCount}
+                        </div>
+                        <div className="mt-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                            {t('savedServicesSub')}
+                        </div>
+                    </div>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pink-100 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400">
+                        <PiHeart className="text-2xl" />
+                    </div>
+                </div>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 truncate">
+                            {t('reviews')}
+                        </div>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            {reviewsCount}
+                        </div>
+                        <div className="mt-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                            {t('reviewsLeftSub')}
+                        </div>
+                    </div>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400">
+                        <PiStarFill className="text-2xl" />
+                    </div>
+                </div>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-1 truncate">
+                            {t('discounts')}
+                        </div>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            {activeDiscountsCount}
+                        </div>
+                        <div className="mt-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                            {t('activeOffersSub')}
+                        </div>
+                    </div>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400">
+                        <PiTicket className="text-2xl" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// Карточка бронирования
+const BookingCard = ({ booking, onLeaveReview }) => {
+    const t = useTranslations('public.profile')
+    const isPast = booking.status === 'completed' || booking.status === 'cancelled'
+    const image = booking.image || booking.serviceImage || booking.businessImage || null
+    const normalizedImage = image ? normalizeImageUrl(image) : null
+
+    const totalPrice = booking.total_price || parseFloat(booking.price || 0)
 
     return (
-        <div className="space-y-3 sm:space-y-4 w-full">
-            {bookings.length > 0 && (
-                <>
-                {bookings.slice(0, 5).map((booking) => {
-                    // Рассчитываем стоимость дополнительных услуг
-                    const additionalServices = booking.additional_services || []
-                    const additionalTotal = additionalServices.reduce((sum, item) => {
-                        const price = parseFloat(item.pivot?.price || item.price || 0)
-                        const quantity = parseInt(item.pivot?.quantity || item.quantity || 1)
-                        return sum + price * quantity
-                    }, 0)
-                    
-                    // Общая стоимость = цена услуги + дополнительные услуги
-                    const basePrice = parseFloat(booking.price || 0)
-                    const totalPrice = booking.total_price || (basePrice + additionalTotal)
-                    
-                    return (
-                        <Card key={booking.id} className="p-4 sm:p-4 hover:shadow-md transition-shadow">
-                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-                                        {booking.serviceName}
-                                    </h4>
-                                    {booking.businessSlug ? (
-                                        <Link 
-                                            href={`/marketplace/${booking.businessSlug}`}
-                                            className="text-sm text-gray-500 dark:text-gray-400 mb-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-block"
-                                        >
-                                            {booking.businessName}
-                                        </Link>
-                                    ) : (
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                            {booking.businessName}
-                                        </p>
-                                    )}
-                                    <div className="flex flex-wrap gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                        <span>
-                                            {booking.date
-                                                ? formatDate(
-                                                      booking.date,
-                                                      resolveClientBookingTimezone(booking),
-                                                      'long',
-                                                  )
-                                                : t('notAvailable')}
-                                        </span>
-                                        <span>•</span>
-                                        <span>{booking.time}</span>
-                                        {booking.specialist && (
-                                            <>
-                                                <span>•</span>
-                                                <span>{t('master')}: {booking.specialist}</span>
-                                            </>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Итого */}
-                                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                                        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-3 space-y-2">
-                                            {/* Базовая стоимость услуги */}
-                                            {basePrice > 0 && (
-                                                <div className="flex justify-between items-center text-sm">
-                                                    <span className="text-gray-700 dark:text-gray-300">
-                                                        {t('baseServicePrice')}
-                                                    </span>
-                                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                                        {formatCurrency(basePrice, booking.currency || 'USD')}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            
-                                            {/* Дополнительные услуги */}
-                                            {additionalServices.length > 0 && (
-                                                <>
-                                                    {additionalServices.map((addService, idx) => {
-                                                        const service = addService
-                                                        const price = parseFloat(addService.pivot?.price || addService.price || 0)
-                                                        const quantity = parseInt(addService.pivot?.quantity || addService.quantity || 1)
-                                                        const itemTotal = price * quantity
-                                                        
-                                                        return (
-                                                            <div key={addService.id || idx} className="flex justify-between items-center text-sm">
-                                                                <span className="text-gray-700 dark:text-gray-300">
-                                                                    {service.name} × {quantity}
-                                                                </span>
-                                                                <span className="font-semibold text-gray-900 dark:text-white">
-                                                                    {formatCurrency(itemTotal, booking.currency || 'USD')}
-                                                                </span>
-                                                            </div>
-                                                        )
-                                                    })}
-                                                </>
-                                            )}
+        <div className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow dark:border-white/10 dark:bg-gray-900">
+            {/* Миниатюра */}
+            <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                {normalizedImage ? (
+                    <Image
+                        src={normalizedImage}
+                        alt={booking.serviceName || ''}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                        onError={(e) => { e.target.src = FALLBACK_IMAGE; e.target.onerror = null }}
+                    />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                        <PiCalendar className="text-2xl text-gray-400 dark:text-gray-600" />
+                    </div>
+                )}
+                {/* Статус бейдж */}
+                <span
+                    className={classNames(
+                        'absolute top-1.5 left-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold',
+                        booking.status === 'new' && 'bg-blue-500 text-white',
+                        booking.status === 'pending' && 'bg-yellow-500 text-white',
+                        booking.status === 'confirmed' && 'bg-emerald-500 text-white',
+                        booking.status === 'completed' && 'bg-gray-500 text-white',
+                        booking.status === 'cancelled' && 'bg-red-500 text-white',
+                    )}
+                >
+                    {t(`bookingStatus.${['new', 'pending', 'confirmed', 'completed', 'cancelled'].includes(booking.status) ? booking.status : 'pending'}`)}
+                </span>
+            </div>
 
-                                            {Number(booking.discount_amount) > 0 && (() => {
-                                                const subtotalBeforeDiscount =
-                                                    Number(booking.discount_amount) + Number(booking.total_price ?? totalPrice)
-                                                const hasAdditionalServices = additionalServices.length > 0
-                                                const subtotalDiffersFromBase =
-                                                    Math.abs(subtotalBeforeDiscount - basePrice) > 0.01
-                                                const showSubtotal = hasAdditionalServices || subtotalDiffersFromBase
-
-                                                return (
-                                                    <>
-                                                        {showSubtotal && (
-                                                            <div className="flex justify-between items-center text-sm">
-                                                                <span className="text-gray-700 dark:text-gray-300">
-                                                                    {t('subtotalBeforeDiscount')}
-                                                                </span>
-                                                                <span className="font-semibold text-gray-900 dark:text-white">
-                                                                    {formatCurrency(subtotalBeforeDiscount, booking.currency || 'USD')}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        <div className="flex justify-between items-center text-sm">
-                                                            <span className="text-gray-700 dark:text-gray-300">
-                                                                {booking.discount_source === 'promo_code' &&
-                                                                booking.promo_code
-                                                                    ? t('discountDetailPromo', {
-                                                                          code: booking.promo_code,
-                                                                      })
-                                                                    : booking.discount_source === 'loyalty_tier' &&
-                                                                        booking.discount_tier_name
-                                                                      ? t('discountDetailLoyalty', {
-                                                                            tier: booking.discount_tier_name,
-                                                                        })
-                                                                      : t('discount')}
-                                                            </span>
-                                                            <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                                                                −
-                                                                {formatCurrency(
-                                                                    Number(booking.discount_amount),
-                                                                    booking.currency || 'USD',
-                                                                )}
-                                                            </span>
-                                                        </div>
-                                                    </>
-                                                )
-                                            })()}
-                                            
-                                            {/* Итого общий */}
-                                            <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2 flex justify-between items-center">
-                                                <span className="text-sm font-semibold text-gray-900 dark:text-white">{t('total')}:</span>
-                                                <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                    {formatCurrency(totalPrice, booking.currency || 'USD')}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span
-                                        className={classNames(
-                                            'text-xs font-medium px-2.5 py-1 rounded-full',
-                                            booking.status === 'new' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-                                            booking.status === 'pending' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-                                            booking.status === 'confirmed' && 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-                                            booking.status === 'completed' && 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-                                            booking.status === 'cancelled' && 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-                                        )}
-                                    >
-                                        {t(`bookingStatus.${['new', 'pending', 'confirmed', 'completed', 'cancelled'].includes(booking.status) ? booking.status : 'pending'}`)}
-                                    </span>
-                                    <Link href="/booking">
-                                        <Button variant="plain" size="sm">
-                                            {t('detailsCta')}
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </Card>
-                    )
-                })}
-                </>
-            )}
-            {bookings.length > 5 && (
-                <div className="text-center pt-2">
-                    <Link href="/booking">
-                        <Button variant="outline" size="sm">
-                            {t('showAllBookings', { count: bookings.length })}
-                        </Button>
-                    </Link>
+            {/* Контент */}
+            <div className="flex flex-1 min-w-0 flex-col justify-between gap-1">
+                <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                        {booking.businessSlug ? (
+                            <Link
+                                href={`/marketplace/${booking.businessSlug}`}
+                                className="text-sm font-bold text-gray-900 dark:text-gray-100 hover:text-primary transition-colors truncate block"
+                            >
+                                {booking.businessName}
+                            </Link>
+                        ) : (
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
+                                {booking.businessName}
+                            </p>
+                        )}
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                            {booking.serviceName}
+                        </p>
+                    </div>
+                    <span className="shrink-0 text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {formatCurrency(totalPrice, booking.currency || 'USD')}
+                    </span>
                 </div>
-            )}
+
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        {booking.date && (
+                            <span className="flex items-center gap-1">
+                                <PiClock className="h-3 w-3 shrink-0" />
+                                {formatDate(booking.date, resolveClientBookingTimezone(booking), 'short')}{booking.time ? `, ${booking.time}` : ''}
+                            </span>
+                        )}
+                        {(booking.city || booking.state) && (
+                            <span className="flex items-center gap-1">
+                                <PiMapPin className="h-3 w-3 shrink-0" />
+                                {[booking.city, booking.state].filter(Boolean).join(', ')}
+                            </span>
+                        )}
+                    </div>
+                    {isPast && booking.status === 'completed' ? (
+                        <Button
+                            variant="outline"
+                            size="xs"
+                            onClick={() => onLeaveReview && onLeaveReview(booking)}
+                            className="shrink-0"
+                        >
+                            {t('leaveReview')}
+                        </Button>
+                    ) : !isPast ? (
+                        <Link href="/booking" className="shrink-0">
+                            <Button variant="plain" size="xs">
+                                {t('detailsCta')}
+                            </Button>
+                        </Link>
+                    ) : null}
+                </div>
+            </div>
         </div>
     )
 }
 
-// Компонент отзывов
-const ReviewsTab = () => {
+// Вкладка бронирований
+const BookingsTab = () => {
     const t = useTranslations('public.profile')
     const tCommon = useTranslations('common')
     const queryClient = useQueryClient()
     const [reviewModal, setReviewModal] = useState({ isOpen: false, order: null })
 
-    // Загрузка ожидающих отзывов
-    const { data: pendingReviews = [], isLoading: pendingLoading } = useQuery({
+    const { data: upcoming = [], isLoading: upcomingLoading } = useQuery({
+        queryKey: ['client-bookings', 'upcoming'],
+        queryFn: () => getClientBookings({ upcoming: true }),
+    })
+
+    const { data: past = [], isLoading: pastLoading } = useQuery({
+        queryKey: ['client-bookings', 'past'],
+        queryFn: () => getClientBookings({ upcoming: false }),
+    })
+
+    const { data: pendingReviews = [] } = useQuery({
         queryKey: ['client-pending-reviews'],
         queryFn: getPendingReviews,
     })
 
-    // Загрузка готовых отзывов
-    const { data: completedReviews = [], isLoading: completedLoading } = useQuery({
-        queryKey: ['client-reviews'],
-        queryFn: getClientReviews,
-    })
-
-    // Мутация для создания отзыва
     const createReviewMutation = useMutation({
         mutationFn: createReview,
         onSuccess: () => {
@@ -427,19 +459,127 @@ const ReviewsTab = () => {
                 <Notification type="success" title={tCommon('messages.success')}>
                     {t('reviewAdded')}
                 </Notification>,
-                {
-                    placement: 'top-end',
-                }
+                { placement: 'top-end' }
             )
         },
-        onError: (error) => {
+    })
+
+    const isLoading = upcomingLoading || pastLoading
+
+    if (isLoading) {
+        return (
+            <div className="min-h-[320px] flex items-center justify-center">
+                <Loading loading />
+            </div>
+        )
+    }
+
+    const hasUpcoming = upcoming.length > 0
+    const hasPast = past.length > 0
+    const hasAny = hasUpcoming || hasPast
+
+    if (!hasAny) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[320px] text-center py-8">
+                <PiCalendar className="text-4xl text-gray-400 mb-3" />
+                <h4 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {t('noBookings')}
+                </h4>
+                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-4">
+                    {t('noBookingsDescription')}
+                </p>
+                <Link href="/services">
+                    <Button variant="outline" size="sm">{t('findServices')}</Button>
+                </Link>
+            </div>
+        )
+    }
+
+    const handleLeaveReview = (booking) => {
+        const pending = pendingReviews.find(
+            (r) => r.bookingId === booking.id || r.id === booking.id
+        )
+        setReviewModal({ isOpen: true, order: pending || booking })
+    }
+
+    return (
+        <div className="space-y-5">
+            {/* Предстоящие */}
+            {hasUpcoming && (
+                <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">
+                        {t('upcomingSection')}
+                    </h3>
+                    <div className="space-y-3">
+                        {upcoming.slice(0, 3).map((booking) => (
+                            <BookingCard key={booking.id} booking={booking} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Прошлые */}
+            {hasPast && (
+                <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">
+                        {t('pastSection')}
+                    </h3>
+                    <div className="space-y-3">
+                        {past.slice(0, 3).map((booking) => (
+                            <BookingCard key={booking.id} booking={booking} onLeaveReview={handleLeaveReview} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Ссылка на все бронирования */}
+            <div className="text-center pt-1">
+                <Link href="/booking" className="text-sm font-bold text-primary hover:underline">
+                    {t('viewAllBookingsLink')}
+                </Link>
+            </div>
+
+            {reviewModal.isOpen && reviewModal.order && (
+                <ReviewModal
+                    isOpen={reviewModal.isOpen}
+                    onClose={() => setReviewModal({ isOpen: false, order: null })}
+                    order={reviewModal.order}
+                    onSubmit={(data) => createReviewMutation.mutate(data)}
+                    isLoading={createReviewMutation.isPending}
+                />
+            )}
+        </div>
+    )
+}
+
+// Вкладка отзывов (сохранена из оригинала)
+const ReviewsTab = () => {
+    const t = useTranslations('public.profile')
+    const tCommon = useTranslations('common')
+    const queryClient = useQueryClient()
+    const [reviewModal, setReviewModal] = useState({ isOpen: false, order: null })
+
+    const { data: pendingReviews = [], isLoading: pendingLoading } = useQuery({
+        queryKey: ['client-pending-reviews'],
+        queryFn: getPendingReviews,
+    })
+
+    const { data: completedReviews = [], isLoading: completedLoading } = useQuery({
+        queryKey: ['client-reviews'],
+        queryFn: getClientReviews,
+    })
+
+    const createReviewMutation = useMutation({
+        mutationFn: createReview,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['client-reviews'] })
+            queryClient.invalidateQueries({ queryKey: ['client-pending-reviews'] })
+            setReviewModal({ isOpen: false, order: null })
             toast.push(
-                <Notification type="error" title={tCommon('messages.error')}>
-                    {t('reviewError')}
+                <Notification type="success" title={tCommon('messages.success')}>
+                    {t('reviewAdded')}
                 </Notification>,
-                {
-                    placement: 'top-end',
-                }
+                { placement: 'top-end' }
             )
         },
     })
@@ -459,164 +599,121 @@ const ReviewsTab = () => {
 
     if (!hasPending && !hasCompleted) {
         return (
-            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
-                <PiStar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
-                <p className="text-sm sm:text-base text-gray-500">{t('reviewsEmptyTitle')}</p>
-                <p className="text-xs sm:text-sm text-gray-400 mt-2">
-                    {t('reviewsEmptyHint')}
-                </p>
+            <div className="flex flex-col items-center justify-center min-h-[320px] text-center py-8">
+                <PiStar className="text-4xl text-gray-400 mb-3" />
+                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('reviewsEmptyTitle')}</p>
+                <p className="text-xs font-bold text-gray-400 mt-2">{t('reviewsEmptyHint')}</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-4 min-h-[320px] w-full">
-            {/* Ожидающие отзывы */}
+        <div className="space-y-5 min-h-[320px]">
             {hasPending && (
                 <div>
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2 uppercase tracking-wide">
                         {t('pendingReviews')}
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-500 dark:bg-yellow-600 text-white">
+                        <span className="rounded-full bg-yellow-500 dark:bg-yellow-600 px-2 py-0.5 text-[10px] font-bold text-white">
                             {pendingReviews.length}
                         </span>
                     </h3>
                     <div className="space-y-3">
                         {pendingReviews.map((order) => (
-                            <Card key={order.id} className="p-4 sm:p-4">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                    <div className="flex-1">
-                                        <div className="flex items-start gap-3 sm:gap-4">
-                                            <div className="flex-1 min-w-0">
-                                                <Link
-                                                    href={`/marketplace/${order.businessSlug}`}
-                                                    className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white hover:text-primary block mb-1"
-                                                >
-                                                    {order.businessName}
-                                                </Link>
-                                                <p className="text-xs sm:text-sm text-gray-500 mb-2">
-                                                    {order.serviceName}
-                                                </p>
-                                                <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500">
-                                                    <span>
-                                                    {formatDate(
-                                                        order.date,
-                                                        resolveClientBookingTimezone(order),
-                                                        'short',
-                                                    )}
-                                                </span>
-                                                    <span>•</span>
-                                                    <span>{order.time}</span>
-                                                    <span>•</span>
-                                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                                        <NumericFormat
-                                                            displayType="text"
-                                                            value={order.price}
-                                                            prefix="$"
-                                                            thousandSeparator={true}
-                                                        />
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <Button
-                                        variant="solid"
-                                        size="sm"
-                                        onClick={() => setReviewModal({ isOpen: true, order })}
-                                        className="flex-shrink-0"
+                            <div key={order.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                                <div className="flex-1 min-w-0">
+                                    <Link
+                                        href={`/marketplace/${order.businessSlug}`}
+                                        className="text-sm font-bold text-gray-900 dark:text-gray-100 hover:text-primary block truncate"
                                     >
-                                        {t('leaveReview')}
-                                    </Button>
+                                        {order.businessName}
+                                    </Link>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+                                        {order.serviceName}
+                                    </p>
+                                    <div className="flex gap-3 mt-1.5 text-xs font-bold text-gray-500 dark:text-gray-400">
+                                        <span>{formatDate(order.date, resolveClientBookingTimezone(order), 'short')}</span>
+                                        <span>•</span>
+                                        <span className="text-gray-900 dark:text-gray-100">
+                                            <NumericFormat displayType="text" value={order.price} prefix="$" thousandSeparator />
+                                        </span>
+                                    </div>
                                 </div>
-                            </Card>
+                                <Button
+                                    variant="solid"
+                                    size="sm"
+                                    onClick={() => setReviewModal({ isOpen: true, order })}
+                                    className="shrink-0"
+                                >
+                                    {t('leaveReview')}
+                                </Button>
+                            </div>
                         ))}
                     </div>
                 </div>
             )}
 
-            {/* Готовые отзывы */}
-            <div>
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            {hasCompleted && (
+                <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2 uppercase tracking-wide">
                         {t('myReviews')}
-                        {hasCompleted && (
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500 dark:bg-blue-600 text-white">
-                                {completedReviews.length}
-                            </span>
-                        )}
+                        <span className="rounded-full bg-blue-500 dark:bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                            {completedReviews.length}
+                        </span>
                     </h3>
-                {!hasCompleted ? (
-                    <div className="p-4 sm:p-12 text-center">
-                        <PiStar className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
-                        <p className="text-sm sm:text-base text-gray-500">{t('noReviews')}</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-3">
                         {completedReviews.map((review) => (
-                            <Card key={review.id} className="p-4 sm:p-4">
-                                <div className="flex items-start gap-3 sm:gap-4">
-                                    <Avatar
-                                        src={review.businessAvatar}
-                                        size={40}
-                                        shape="circle"
-                                        className="flex-shrink-0 sm:w-[50px] sm:h-[50px]"
-                                    />
+                            <div key={review.id} className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    <Avatar src={review.businessAvatar} size={40} shape="circle" className="shrink-0" />
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-2">
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                                             <div className="min-w-0">
                                                 <Link
                                                     href={`/marketplace/${review.businessSlug}`}
-                                                    className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white hover:text-primary truncate block"
+                                                    className="text-sm font-bold text-gray-900 dark:text-gray-100 hover:text-primary truncate block"
                                                 >
                                                     {review.businessName}
                                                 </Link>
-                                                <p className="text-xs sm:text-sm text-gray-500 mt-1 truncate">
+                                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5 truncate">
                                                     {review.serviceName}
                                                 </p>
-                                                {review.specialistName && (
-                                                    <p className="text-xs text-gray-400 mt-0.5 truncate">
-                                                        {t('specialist')}: {review.specialistName}
-                                                    </p>
-                                                )}
                                             </div>
-                                            <div className="flex items-center gap-1 flex-shrink-0">
+                                            <div className="flex items-center gap-0.5 shrink-0">
                                                 {[...Array(5)].map((_, i) => (
                                                     <PiStarFill
                                                         key={i}
                                                         className={classNames(
-                                                            'text-sm sm:text-lg',
-                                                            i < review.rating
-                                                                ? 'text-yellow-400'
-                                                                : 'text-gray-300 dark:text-gray-600'
+                                                            'text-sm',
+                                                            i < review.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'
                                                         )}
                                                     />
                                                 ))}
                                             </div>
                                         </div>
-                                        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
+                                        <p className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
                                             {review.comment}
                                         </p>
                                         {review.response && (
-                                            <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
+                                            <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                <p className="text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">
                                                     {t('businessResponse', { name: review.businessName })}
                                                 </p>
-                                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                                <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
                                                     {review.response}
                                                 </p>
                                             </div>
                                         )}
-                                        <div className="text-xs text-gray-400 mt-2">
+                                        <div className="mt-2 text-xs font-bold text-gray-400">
                                             {formatDate(review.createdAt, CLIENT_DEFAULT_TIMEZONE, 'long')}
                                         </div>
                                     </div>
                                 </div>
-                            </Card>
+                            </div>
                         ))}
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
-            {/* Модалка для отзыва */}
             {reviewModal.isOpen && reviewModal.order && (
                 <ReviewModal
                     isOpen={reviewModal.isOpen}
@@ -630,7 +727,7 @@ const ReviewsTab = () => {
     )
 }
 
-// Компонент избранного (сервисы, объявления и бизнесы)
+// Вкладка избранного (сохранена из оригинала, стиль обновлён)
 const FavoritesTab = () => {
     const t = useTranslations('public.profile')
     const tCommon = useTranslations('common')
@@ -640,534 +737,157 @@ const FavoritesTab = () => {
         queryKey: ['client-favorite-services'],
         queryFn: getFavoriteServices,
     })
-
     const { data: advertisements = [], isLoading: advertisementsLoading } = useQuery({
         queryKey: ['client-favorite-advertisements'],
         queryFn: getFavoriteAdvertisements,
     })
-
     const { data: businesses = [], isLoading: businessesLoading } = useQuery({
         queryKey: ['client-favorite-businesses'],
         queryFn: getFavoriteBusinesses,
     })
 
     const removeFavoriteMutation = useMutation({
-        mutationFn: ({ type, id }) => 
-            removeFromFavorites(type, id),
+        mutationFn: ({ type, id }) => removeFromFavorites(type, id),
         onSuccess: (_, variables) => {
-            // Обновляем соответствующий кэш в зависимости от типа
-            if (variables.type === 'service') {
-                queryClient.invalidateQueries({ queryKey: ['client-favorite-services'] })
-            } else if (variables.type === 'advertisement') {
-                queryClient.invalidateQueries({ queryKey: ['client-favorite-advertisements'] })
-            } else if (variables.type === 'business') {
-                queryClient.invalidateQueries({ queryKey: ['client-favorite-businesses'] })
-            }
-            toast.push({
-                title: tCommon('messages.success'),
-                message: t('removedFromFavorites'),
-                type: 'success',
-            })
-        },
-        onError: (error) => {
-            toast.push({
-                title: tCommon('messages.error'),
-                message: error?.response?.data?.message || t('removeFromFavoritesError'),
-                type: 'danger',
-            })
+            if (variables.type === 'service') queryClient.invalidateQueries({ queryKey: ['client-favorite-services'] })
+            else if (variables.type === 'advertisement') queryClient.invalidateQueries({ queryKey: ['client-favorite-advertisements'] })
+            else if (variables.type === 'business') queryClient.invalidateQueries({ queryKey: ['client-favorite-businesses'] })
         },
     })
 
-    // Дедупликация по serviceId для услуг, по id для бизнесов
     const finalServices = useMemo(() => {
         const map = new Map()
-        services.forEach((service) => {
-            // Используем serviceId как основной ключ, если он есть
-            // Это гарантирует, что мы не показываем дубликаты одной и той же услуги
-            const key = service.serviceId || service.id
-            if (key && !map.has(key)) {
-                map.set(key, service)
-            } else if (key && map.has(key)) {
-                // Если уже есть запись с таким ключом, логируем для отладки
-                console.warn('Duplicate favorite service found:', {
-                    existing: map.get(key),
-                    duplicate: service,
-                    key: key
-                })
-            }
-        })
+        services.forEach((s) => { const k = s.serviceId || s.id; if (k && !map.has(k)) map.set(k, s) })
         return Array.from(map.values())
     }, [services])
 
-    const finalBusinesses = useMemo(() => {
-        const map = new Map()
-        businesses.forEach((business) => {
-            if (!map.has(business.id)) {
-                map.set(business.id, business)
-            }
-        })
-        return Array.from(map.values())
-    }, [businesses])
-
-    // Дедупликация объявлений
     const finalAdvertisements = useMemo(() => {
         const map = new Map()
-        advertisements.forEach((ad) => {
-            // Используем advertisementId или id как ключ
-            const key = ad.advertisementId || ad.id
-            if (key && !map.has(key)) {
-                map.set(key, ad)
-            }
-        })
+        advertisements.forEach((a) => { const k = a.advertisementId || a.id; if (k && !map.has(k)) map.set(k, a) })
         return Array.from(map.values())
     }, [advertisements])
+
+    const finalBusinesses = useMemo(() => {
+        const map = new Map()
+        businesses.forEach((b) => { if (!map.has(b.id)) map.set(b.id, b) })
+        return Array.from(map.values())
+    }, [businesses])
 
     const isLoading = servicesLoading || advertisementsLoading || businessesLoading
     const hasFavorites = finalServices.length > 0 || finalAdvertisements.length > 0 || finalBusinesses.length > 0
 
     const handleRemoveFavorite = (e, type, id) => {
-        e.preventDefault()
-        e.stopPropagation()
+        e.preventDefault(); e.stopPropagation()
         removeFavoriteMutation.mutate({ type, id })
     }
 
-    // Показываем загрузку, но сохраняем структуру для предотвращения дергания
     if (isLoading) {
-        return (
-            <div className="min-h-[320px] flex items-center justify-center">
-                <Loading loading />
-            </div>
-        )
+        return <div className="min-h-[320px] flex items-center justify-center"><Loading loading /></div>
     }
 
     if (!hasFavorites) {
         return (
-            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
-                <PiHeart className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    {t('noFavorites')}
-                </h4>
-                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4">
-                    {t('noFavoritesDescription')}
-                </p>
-                <Link href="/services">
-                    <Button variant="outline" size="sm" className="mt-2 sm:mt-4">
-                        {t('findServices')}
-                    </Button>
-                </Link>
+            <div className="flex flex-col items-center justify-center min-h-[320px] text-center py-8">
+                <PiHeart className="text-4xl text-gray-400 mb-3" />
+                <h4 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">{t('noFavorites')}</h4>
+                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-4">{t('noFavoritesDescription')}</p>
+                <Link href="/services"><Button variant="outline" size="sm">{t('findServices')}</Button></Link>
             </div>
         )
     }
 
+    const FavGrid = ({ items, renderCard }) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{items.map(renderCard)}</div>
+    )
+
     return (
-        <div className="space-y-4 min-h-[320px] w-full">
-            {/* Избранные сервисы */}
+        <div className="space-y-5 min-h-[320px]">
             {finalServices.length > 0 && (
                 <div>
-                    <h3 className="text-lg font-semibold mb-4">{t('favoriteServices')}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                        {finalServices.map((service) => {
-                            const serviceSlug = service.serviceSlug || service.businessSlug || ''
-                            const serviceUrl = serviceSlug ? `/marketplace/${serviceSlug}` : `/services`
-                            const imageUrl = service.image || (service.businessImage || null)
-                            const normalizedImageUrl = imageUrl ? normalizeImageUrl(imageUrl) : null
-                            
-                            return (
-                                <Card key={`service-${service.serviceId || service.id}`} className="p-0 overflow-hidden group hover:shadow-lg transition-shadow">
-                                    <Link href={serviceUrl} className="block">
-                                        <div className="relative h-48 sm:h-56 bg-gray-100 dark:bg-gray-800">
-                                            {normalizedImageUrl ? (
-                                                <Image
-                                                    src={normalizedImageUrl}
-                                                    alt={service.serviceName || t('altServiceImage')}
-                                                    fill
-                                                    className="object-cover"
-                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full">
-                                                    <PiCalendar className="text-4xl text-gray-400" />
-                                                </div>
-                                            )}
-                                            <div className="absolute top-2 right-2 z-10">
-                                                <Button
-                                                    variant="plain"
-                                                    size="sm"
-                                                    className="bg-white/90 dark:bg-gray-900/90 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-sm"
-                                                    icon={<PiHeartFill className="text-red-500" />}
-                                                    onClick={(e) => handleRemoveFavorite(e, 'service', service.serviceId || service.id)}
-                                                    disabled={removeFavoriteMutation.isPending}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="p-4">
-                                            {/* Категория */}
-                                            {service.category && (
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                    {service.category}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Название услуги */}
-                                            <h4 className="font-semibold text-base text-gray-900 dark:text-white mb-1 line-clamp-1">
-                                                {service.serviceName || t('altServiceImage')}
-                                            </h4>
-                                            
-                                            {/* Название бизнеса */}
-                                            {service.businessName && service.businessName !== 'N/A' && (
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-1">
-                                                    {service.businessName}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Описание */}
-                                            {service.description && (
-                                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                                                    {service.description}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Локация */}
-                                            {(service.city || service.state) && (
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-1">
-                                                    <PiMapPinFill className="text-xs" />
-                                                    {service.city && service.state ? `${service.city}, ${service.state}` : service.city || service.state}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Рейтинг и цена */}
-                                            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
-                                                {/* Показываем рейтинг только если он есть и больше 0 */}
-                                                {service.rating !== null && service.rating !== undefined && service.rating > 0 ? (
-                                                    <div className="flex items-center gap-1">
-                                                        <PiStarFill className="text-yellow-400 text-sm" />
-                                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                            {service.rating.toFixed(1)}
-                                                        </span>
-                                                        {service.reviewsCount !== undefined && service.reviewsCount > 0 && (
-                                                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                                ({service.reviewsCount})
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div></div> // Пустой div для выравнивания
-                                                )}
-                                                {service.priceLabel && (
-                                                    <span className="text-base font-semibold text-gray-900 dark:text-white">
-                                                        {service.priceLabel}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Избранные объявления */}
-            {finalAdvertisements.length > 0 && (
-                <div>
-                    <h3 className="text-lg font-semibold mb-4">{t('favoriteAdvertisements')}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                        {finalAdvertisements.map((ad) => {
-                            const adId = ad.advertisementId || ad.id
-                            // Используем slug из link объявления, если есть
-                            // Приоритет: slug > advertisementSlug > link (без префикса) > fallback
-                            let adSlug = ad.slug || ad.advertisementSlug || ''
-                            
-                            // Если есть link, извлекаем slug из него
-                            if (!adSlug && ad.link) {
-                                // Убираем префикс /marketplace/ если есть
-                                adSlug = ad.link.replace(/^\/marketplace\//, '').replace(/^marketplace\//, '')
-                                // Убираем ведущий слеш
-                                adSlug = adSlug.trim().replace(/^\//, '')
-                                // Если это полный URL, извлекаем только путь
-                                if (adSlug.startsWith('http://') || adSlug.startsWith('https://')) {
-                                    try {
-                                        const url = new URL(adSlug)
-                                        adSlug = url.pathname.replace(/^\//, '')
-                                    } catch {
-                                        // Если не удалось распарсить URL, используем как есть
-                                    }
-                                }
-                            }
-                            
-                            // Fallback: если slug все еще пустой, используем формат ad_ID
-                            if (!adSlug) {
-                                adSlug = `ad_${adId}`
-                            }
-                            
-                            const adUrl = `/marketplace/${adSlug}`
-                            const imageUrl = ad.image || ad.imageUrl || null
-                            const normalizedImageUrl = imageUrl ? normalizeImageUrl(imageUrl) : null
-                            
-                            return (
-                                <Card key={`advertisement-${adId}`} className="p-0 overflow-hidden group hover:shadow-lg transition-shadow">
-                                    <Link href={adUrl} className="block">
-                                        <div className="relative h-48 sm:h-56 bg-gray-100 dark:bg-gray-800">
-                                            {normalizedImageUrl ? (
-                                                <Image
-                                                    src={normalizedImageUrl}
-                                                    alt={ad.title || ad.name || ad.advertisementName || t('altAdvertisementImage')}
-                                                    fill
-                                                    className="object-cover"
-                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                    onError={(e) => {
-                                                        // Заменяем битое изображение на fallback
-                                                        e.target.src = FALLBACK_IMAGE
-                                                        e.target.onerror = null
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full">
-                                                    <PiCalendar className="text-4xl text-gray-400" />
-                                                </div>
-                                            )}
-                                            <div className="absolute top-2 right-2 z-10">
-                                                <Button
-                                                    variant="plain"
-                                                    size="sm"
-                                                    className="bg-white/90 dark:bg-gray-900/90 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-sm"
-                                                    icon={<PiHeartFill className="text-red-500" />}
-                                                    onClick={(e) => handleRemoveFavorite(e, 'advertisement', adId)}
-                                                    disabled={removeFavoriteMutation.isPending}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="p-4">
-                                            {/* Категория */}
-                                            {ad.category && (
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                    {ad.category}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Название объявления */}
-                                            <h4 className="font-semibold text-base text-gray-900 dark:text-white mb-1 line-clamp-1">
-                                                {ad.title || ad.name || ad.advertisementName || t('altAdvertisementImage')}
-                                            </h4>
-                                            
-                                            {/* Название бизнеса */}
-                                            {ad.businessName && ad.businessName !== 'N/A' && (
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-1">
-                                                    {ad.businessName}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Описание */}
-                                            {ad.description && (
-                                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                                                    {ad.description}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Локация */}
-                                            {(ad.city || ad.state) && (
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-1">
-                                                    <PiMapPinFill className="text-xs" />
-                                                    {ad.city && ad.state ? `${ad.city}, ${ad.state}` : ad.city || ad.state}
-                                                </p>
-                                            )}
-                                            
-                                            {/* Рейтинг и цена */}
-                                            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
-                                                {/* Показываем рейтинг только если он есть и больше 0 */}
-                                                {ad.rating !== null && ad.rating !== undefined && ad.rating > 0 && (
-                                                    <div className="flex items-center gap-1">
-                                                        <PiStarFill className="text-yellow-400 text-sm" />
-                                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                            {ad.rating.toFixed(1)}
-                                                        </span>
-                                                        {ad.reviewsCount !== undefined && ad.reviewsCount > 0 && (
-                                                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                                ({ad.reviewsCount})
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                )}
-                                                {ad.priceLabel && (
-                                                    <span className={`text-base font-semibold text-gray-900 dark:text-white ${(!ad.rating || ad.rating === 0) ? 'ml-0' : ''}`}>
-                                                        {ad.priceLabel}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </Link>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Избранные бизнесы */}
-            {finalBusinesses.length > 0 && (
-                <div>
-                    <h3 className="text-lg font-semibold mb-4">{t('favoriteBusinesses')}</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                        {finalBusinesses.map((business) => (
-                            <Card key={`business-${business.id}`} className="p-0 overflow-hidden group hover:shadow-lg transition-shadow">
-                                <Link href={`/marketplace/${business.businessSlug}`}>
-                                    <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800">
-                                        {business.image ? (
-                                            <Image
-                                                src={business.image}
-                                                alt={business.businessName}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        ) : (
-                                            <div className="flex items-center justify-center h-full">
-                                                <PiUser className="text-4xl text-gray-400" />
-                                            </div>
-                                        )}
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">{t('favoriteServices')}</h3>
+                    <FavGrid items={finalServices} renderCard={(service) => {
+                        const url = service.serviceSlug || service.businessSlug ? `/marketplace/${service.serviceSlug || service.businessSlug}` : '/services'
+                        const img = service.image || service.businessImage || null
+                        return (
+                            <div key={`service-${service.serviceId || service.id}`} className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+                                <Link href={url} className="block">
+                                    <div className="relative h-40 bg-gray-100 dark:bg-gray-800">
+                                        {img ? <Image src={normalizeImageUrl(img)} alt={service.serviceName || ''} fill className="object-cover" sizes="(max-width: 640px) 100vw, 50vw" /> : <div className="flex h-full items-center justify-center"><PiCalendar className="text-4xl text-gray-400" /></div>}
                                         <div className="absolute top-2 right-2">
-                                            <Button
-                                                variant="plain"
-                                                size="sm"
-                                                className="bg-white/90 hover:bg-white"
-                                                icon={<PiHeartFill className="text-red-500" />}
-                                                onClick={(e) => handleRemoveFavorite(e, 'business', business.businessId || business.id)}
-                                                disabled={removeFavoriteMutation.isPending}
-                                            />
+                                            <Button variant="plain" size="sm" className="bg-white/90 dark:bg-gray-900/90 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-sm" icon={<PiHeartFill className="text-red-500" />} onClick={(e) => handleRemoveFavorite(e, 'service', service.serviceId || service.id)} disabled={removeFavoriteMutation.isPending} />
                                         </div>
                                     </div>
-                                    <div className="p-3 sm:p-4">
-                                        <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white mb-1 truncate">
-                                            {business.businessName}
-                                        </h4>
-                                        <p className="text-xs sm:text-sm text-gray-500 mb-2 truncate">
-                                            {business.category}
-                                        </p>
-                                        {/* Показываем рейтинг только если он есть и больше 0 */}
-                                        {business.rating !== null && business.rating !== undefined && business.rating > 0 && (
-                                            <div className="flex items-center gap-1">
-                                                <PiStarFill className="text-yellow-400 text-sm sm:text-base" />
-                                                <span className="text-xs sm:text-sm font-semibold">{business.rating.toFixed(1)}</span>
-                                                {business.reviewsCount !== undefined && business.reviewsCount > 0 && (
-                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                        ({business.reviewsCount})
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
+                                    <div className="p-3">
+                                        <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{service.serviceName || t('altServiceImage')}</h4>
+                                        {service.businessName && <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{service.businessName}</p>}
+                                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                                            {service.rating > 0 ? <span className="flex items-center gap-1 text-xs font-bold text-gray-900 dark:text-gray-100"><PiStarFill className="text-yellow-400" />{service.rating.toFixed(1)}</span> : <span />}
+                                            {service.priceLabel && <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{service.priceLabel}</span>}
+                                        </div>
                                     </div>
                                 </Link>
-                            </Card>
-                        ))}
-                    </div>
+                            </div>
+                        )
+                    }} />
+                </div>
+            )}
+
+            {finalAdvertisements.length > 0 && (
+                <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">{t('favoriteAdvertisements')}</h3>
+                    <FavGrid items={finalAdvertisements} renderCard={(ad) => {
+                        const adId = ad.advertisementId || ad.id
+                        let adSlug = ad.slug || ad.advertisementSlug || ''
+                        if (!adSlug && ad.link) adSlug = ad.link.replace(/^\/marketplace\//, '').replace(/^\//, '')
+                        if (!adSlug) adSlug = `ad_${adId}`
+                        const img = ad.image || ad.imageUrl || null
+                        return (
+                            <div key={`advertisement-${adId}`} className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+                                <Link href={`/marketplace/${adSlug}`} className="block">
+                                    <div className="relative h-40 bg-gray-100 dark:bg-gray-800">
+                                        {img ? <Image src={normalizeImageUrl(img)} alt={ad.title || ''} fill className="object-cover" sizes="(max-width: 640px) 100vw, 50vw" onError={(e) => { e.target.src = FALLBACK_IMAGE; e.target.onerror = null }} /> : <div className="flex h-full items-center justify-center"><PiCalendar className="text-4xl text-gray-400" /></div>}
+                                        <div className="absolute top-2 right-2">
+                                            <Button variant="plain" size="sm" className="bg-white/90 dark:bg-gray-900/90 hover:bg-white backdrop-blur-sm" icon={<PiHeartFill className="text-red-500" />} onClick={(e) => handleRemoveFavorite(e, 'advertisement', adId)} disabled={removeFavoriteMutation.isPending} />
+                                        </div>
+                                    </div>
+                                    <div className="p-3">
+                                        <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{ad.title || ad.name || t('altAdvertisementImage')}</h4>
+                                        {ad.businessName && <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{ad.businessName}</p>}
+                                    </div>
+                                </Link>
+                            </div>
+                        )
+                    }} />
+                </div>
+            )}
+
+            {finalBusinesses.length > 0 && (
+                <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">{t('favoriteBusinesses')}</h3>
+                    <FavGrid items={finalBusinesses} renderCard={(business) => (
+                        <div key={`business-${business.id}`} className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+                            <Link href={`/marketplace/${business.businessSlug}`} className="block">
+                                <div className="relative h-40 bg-gray-100 dark:bg-gray-800">
+                                    {business.image ? <Image src={business.image} alt={business.businessName} fill className="object-cover" /> : <div className="flex h-full items-center justify-center"><PiUser className="text-4xl text-gray-400" /></div>}
+                                    <div className="absolute top-2 right-2">
+                                        <Button variant="plain" size="sm" className="bg-white/90 hover:bg-white" icon={<PiHeartFill className="text-red-500" />} onClick={(e) => handleRemoveFavorite(e, 'business', business.businessId || business.id)} disabled={removeFavoriteMutation.isPending} />
+                                    </div>
+                                </div>
+                                <div className="p-3">
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{business.businessName}</h4>
+                                    {business.category && <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5 truncate">{business.category}</p>}
+                                    {business.rating > 0 && <div className="flex items-center gap-1 mt-1.5 text-xs font-bold text-gray-900 dark:text-gray-100"><PiStarFill className="text-yellow-400" />{business.rating.toFixed(1)}</div>}
+                                </div>
+                            </Link>
+                        </div>
+                    )} />
                 </div>
             )}
         </div>
     )
 }
 
-// Компонент уведомлений (только настройки)
-const NotificationsTab = () => {
-    const t = useTranslations('public.profile')
-    const queryClient = useQueryClient()
-
-    const { data: settings = { email: true, sms: false, telegram: false, push: true }, isLoading: settingsLoading } = useQuery({
-        queryKey: ['client-notification-settings'],
-        queryFn: getNotificationSettings,
-    })
-
-    const updateSettingsMutation = useMutation({
-        mutationFn: updateNotificationSettings,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['client-notification-settings'] })
-        },
-    })
-
-    const handleSettingChange = (key, value) => {
-        const newSettings = {
-            ...settings,
-            [key]: value,
-        }
-        updateSettingsMutation.mutate(newSettings)
-    }
-
-    if (settingsLoading) {
-        return <Loading loading />
-    }
-
-    return (
-        <div className="w-full">
-            <h4 className="text-lg font-semibold mb-4">{t('notificationSettings')}</h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                {t('notificationSettingsDescription')}
-            </p>
-            <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                            <PiBell className="text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                            <div className="font-semibold text-sm sm:text-base">{t('notifications.push')}</div>
-                            <div className="text-xs sm:text-sm text-gray-500">
-                                {t('notifications.browser')}
-                            </div>
-                        </div>
-                    </div>
-                    <Switcher
-                        checked={settings.push}
-                        onChange={(checked) => handleSettingChange('push', checked)}
-                        disabled={settingsLoading || updateSettingsMutation.isPending}
-                    />
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center">
-                            <PiEnvelope className="text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                            <div className="font-semibold text-sm sm:text-base">{t('notifications.email')}</div>
-                            <div className="text-xs sm:text-sm text-gray-500">
-                                {t('notifications.emailDescription')}
-                            </div>
-                        </div>
-                    </div>
-                    <Switcher
-                        checked={settings.email}
-                        onChange={(checked) => handleSettingChange('email', checked)}
-                        disabled={settingsLoading || updateSettingsMutation.isPending}
-                    />
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/20 flex items-center justify-center">
-                            <PiPaperPlaneTilt className="text-sky-600 dark:text-sky-400" />
-                        </div>
-                        <div>
-                            <div className="font-semibold text-sm sm:text-base">{t('notifications.telegram')}</div>
-                            <div className="text-xs sm:text-sm text-gray-500">
-                                {t('notifications.telegramDescription')}
-                            </div>
-                        </div>
-                    </div>
-                    <Switcher
-                        checked={settings.telegram}
-                        onChange={(checked) => handleSettingChange('telegram', checked)}
-                        disabled={settingsLoading || updateSettingsMutation.isPending}
-                    />
-                </div>
-            </div>
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-xs text-blue-700 dark:text-blue-300">
-                    <strong>{t('telegramFutureTitle')}</strong>{' '}
-                    {t('telegramFutureBody')}
-                </p>
-            </div>
-        </div>
-    )
-}
-
-// Компонент скидок и бонусов (лояльность по бронированиям + промо/бонусы платформы)
+// Вкладка скидок (сохранена из оригинала)
 const DiscountsAndBonusesTab = () => {
     const t = useTranslations('public.profile')
     const tLoyalty = useTranslations('client.discounts')
@@ -1177,101 +897,54 @@ const DiscountsAndBonusesTab = () => {
         queryKey: ['client-loyalty-discounts'],
         queryFn: getClientLoyaltyProgress,
     })
-
     const { data: discounts = [], isLoading: discountsLoading } = useQuery({
         queryKey: ['client-discounts'],
         queryFn: getClientDiscounts,
     })
-
     const { data: bonuses = [], isLoading: bonusesLoading } = useQuery({
         queryKey: ['client-bonuses'],
         queryFn: getClientBonuses,
     })
 
-    const applyDiscountMutation = useMutation({
-        mutationFn: applyDiscount,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['client-discounts'] })
-        },
-    })
+    const applyDiscountMutation = useMutation({ mutationFn: applyDiscount })
+    const applyBonusMutation = useMutation({ mutationFn: applyBonus })
 
-    const applyBonusMutation = useMutation({
-        mutationFn: applyBonus,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['client-bonuses'] })
-        },
-    })
-
-    const handleCopyCode = (code) => {
-        navigator.clipboard.writeText(code)
-        // TODO: Показать toast уведомление
-    }
-
-    const handleApplyDiscount = (discountId) => {
-        applyDiscountMutation.mutate(discountId)
-        // TODO: Перенаправить на страницу бронирования с примененной скидкой
-    }
-
-    const handleApplyBonus = (bonusId) => {
-        applyBonusMutation.mutate(bonusId)
-        // TODO: Применить бонус
-    }
+    const handleCopyCode = (code) => navigator.clipboard.writeText(code)
 
     const activeDiscounts = discounts.filter((d) => d.isActive && !d.isUsed)
     const usedDiscounts = discounts.filter((d) => d.isUsed)
     const activeBonuses = bonuses.filter((b) => b.isActive && !b.isUsed)
     const usedBonuses = bonuses.filter((b) => b.isUsed)
+    const allItems = [...activeDiscounts.map((d) => ({ ...d, type: 'discount' })), ...activeBonuses.map((b) => ({ ...b, type: 'bonus' }))]
 
-    const allItems = [
-        ...activeDiscounts.map((d) => ({ ...d, type: 'discount' })),
-        ...activeBonuses.map((b) => ({ ...b, type: 'bonus' })),
-    ]
-
-    const hasLegacyContent =
-        allItems.length > 0 || usedDiscounts.length > 0 || usedBonuses.length > 0
+    const hasLegacyContent = allItems.length > 0 || usedDiscounts.length > 0 || usedBonuses.length > 0
     const hasLoyaltyContent = loyaltyItems.length > 0
     const legacyStillLoading = discountsLoading || bonusesLoading
+    const showFullEmpty = !loyaltyLoading && !legacyStillLoading && !hasLoyaltyContent && !hasLegacyContent
 
-    const showFullEmpty =
-        !loyaltyLoading &&
-        !legacyStillLoading &&
-        !hasLoyaltyContent &&
-        !hasLegacyContent
-
-    if (loyaltyLoading && legacyStillLoading && !hasLegacyContent) {
-        return (
-            <div className="min-h-[320px] flex items-center justify-center">
-                <Loading loading />
-            </div>
-        )
+    if (loyaltyLoading && legacyStillLoading) {
+        return <div className="min-h-[320px] flex items-center justify-center"><Loading loading /></div>
     }
 
     if (showFullEmpty) {
         return (
-            <div className="p-4 sm:p-4 text-center min-h-[320px] flex flex-col items-center justify-center w-full">
-                <PiTicket className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-3 sm:mb-4" />
-                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 max-w-md">
-                    {t('noDiscountsAndBonuses')}
-                </p>
+            <div className="flex flex-col items-center justify-center min-h-[320px] text-center py-8">
+                <PiTicket className="text-4xl text-gray-400 mb-3" />
+                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 max-w-md">{t('noDiscountsAndBonuses')}</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-4 sm:space-y-6 min-h-[320px] w-full">
-            {/* Лояльность у бизнесов — только если у бизнеса есть активные уровни (API не возвращает остальные) */}
+        <div className="space-y-5 min-h-[320px]">
             {(loyaltyLoading || hasLoyaltyContent) && (
                 <div className="space-y-3">
                     <div>
                         <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{tLoyalty('title')}</h4>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">
-                            {tLoyalty('description')}
-                        </p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{tLoyalty('description')}</p>
                     </div>
                     {loyaltyLoading ? (
-                        <div className="min-h-[120px] flex items-center justify-center">
-                            <Loading loading />
-                        </div>
+                        <div className="min-h-[120px] flex items-center justify-center"><Loading loading /></div>
                     ) : (
                         <div className="space-y-4">
                             {loyaltyItems.map((row) => (
@@ -1291,309 +964,288 @@ const DiscountsAndBonusesTab = () => {
                 </div>
             )}
 
-            {/* Промо и бонусы платформы (legacy API) */}
             {legacyStillLoading && !hasLegacyContent ? (
-                <div className="min-h-[120px] flex items-center justify-center">
-                    <Loading loading />
-                </div>
+                <div className="min-h-[120px] flex items-center justify-center"><Loading loading /></div>
             ) : hasLegacyContent ? (
-                <div className="space-y-3 sm:space-y-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-700">
                     <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('platformOffersTitle')}</h4>
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('platformOffersDescription')}</p>
-            {/* Активные скидки и бонусы */}
-            {allItems.map((item) => {
-                const isValid = new Date(item.validUntil) > new Date()
-                const isDiscount = item.type === 'discount'
-                
-                return (
-                    <Card key={`${item.type}-${item.id}`} className="p-4 sm:p-4">
-                        <div className="flex items-start gap-3 sm:gap-4">
-                            {item.businessImage && (
-                                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0">
-                                    <Image
-                                        src={item.businessImage}
-                                        alt={item.businessName}
-                                        fill
-                                        className="object-cover"
-                                    />
-                                </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-2">
-                                    <div className="min-w-0">
+                    {allItems.map((item) => {
+                        const isDiscount = item.type === 'discount'
+                        const isValid = new Date(item.validUntil) > new Date()
+                        return (
+                            <div key={`${item.type}-${item.id}`} className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">
-                                                {item.title}
-                                            </h4>
-                                            <span
-                                                className={classNames(
-                                                    'text-xs font-medium px-2.5 py-1 rounded-full',
-                                                    isDiscount
-                                                        ? 'bg-primary text-white'
-                                                        : 'bg-emerald-500 text-white'
-                                                )}
-                                            >
-                                                {isDiscount
-                                                    ? item.discountType === 'percentage'
-                                                        ? t('discountPercentOff', {
-                                                              value: item.discountValue,
-                                                          })
-                                                        : t('discountMoneyOff', {
-                                                              amount: `$${item.discountValue}`,
-                                                          })
-                                                    : item.bonusType === 'points'
-                                                      ? t('pointsReward', {
-                                                            value: item.bonusValue,
-                                                        })
-                                                      : item.bonusType === 'cashback'
-                                                        ? t('cashbackReward', {
-                                                              value: item.bonusValue,
-                                                          })
-                                                        : t('bonusValueLabel', {
-                                                              value: item.bonusValue,
-                                                          })}
+                                            <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">{item.title}</h4>
+                                            <span className={classNames('text-xs font-bold px-2 py-0.5 rounded-full', isDiscount ? 'bg-primary text-white' : 'bg-emerald-500 text-white')}>
+                                                {isDiscount ? (item.discountType === 'percentage' ? t('discountPercentOff', { value: item.discountValue }) : t('discountMoneyOff', { amount: `$${item.discountValue}` })) : t('bonusValueLabel', { value: item.bonusValue })}
                                             </span>
                                         </div>
-                                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1">
-                                            {item.description}
-                                        </p>
-                                        <Link
-                                            href={`/marketplace/${item.businessSlug}`}
-                                            className="text-xs sm:text-sm text-primary hover:underline"
-                                        >
-                                            {item.businessName}
-                                        </Link>
-                                    </div>
-                                </div>
-                                {isDiscount && (
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-xs sm:text-sm font-mono font-semibold bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                                            {item.code}
-                                        </span>
-                                        <Button
-                                            variant="plain"
-                                            size="sm"
-                                            icon={<PiCopy />}
-                                            onClick={() => handleCopyCode(item.code)}
-                                            title={t('copyCodeTitle')}
-                                            className="h-6 w-6 p-0"
-                                        />
-                                        {item.minPurchaseAmount && (
-                                            <span className="text-xs text-gray-500">
-                                                {t('minPurchaseFrom', {
-                                                    amount: `$${item.minPurchaseAmount}`,
-                                                })}
-                                            </span>
+                                        {isDiscount && (
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="text-xs font-mono font-bold bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">{item.code}</span>
+                                                <Button variant="plain" size="sm" icon={<PiCopy />} onClick={() => handleCopyCode(item.code)} className="h-6 w-6 p-0" title={t('copyCodeTitle')} />
+                                            </div>
                                         )}
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t('validUntil')} {formatDate(item.validUntil, CLIENT_DEFAULT_TIMEZONE, 'short')}</span>
+                                            {isValid && <Button size="sm" variant="solid" onClick={() => isDiscount ? applyDiscountMutation.mutate(item.id) : applyBonusMutation.mutate(item.id)}>{isDiscount ? t('apply') : t('get')}</Button>}
+                                        </div>
                                     </div>
-                                )}
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs text-gray-500">
-                                        {t('validUntil')}{' '}
-                                        {formatDate(item.validUntil, CLIENT_DEFAULT_TIMEZONE, 'short')}
-                                    </span>
-                                    {isValid && (
-                                        <Button
-                                            size="sm"
-                                            variant="solid"
-                                            onClick={() =>
-                                                isDiscount
-                                                    ? handleApplyDiscount(item.id)
-                                                    : handleApplyBonus(item.id)
-                                            }
-                                            loading={
-                                                isDiscount
-                                                    ? applyDiscountMutation.isPending
-                                                    : applyBonusMutation.isPending
-                                            }
-                                        >
-                                            {isDiscount ? t('apply') : t('get')}
-                                        </Button>
-                                    )}
                                 </div>
                             </div>
-                        </div>
-                    </Card>
-                )
-            })}
-
-            {/* Использованные скидки и бонусы */}
-            {(usedDiscounts.length > 0 || usedBonuses.length > 0) && (
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
-                        {t('usedItems')}
-                    </h4>
-                    <div className="space-y-2">
-                        {[...usedDiscounts, ...usedBonuses].map((item) => {
-                            const isDiscount = 'code' in item
-                            return (
-                                <Card key={`used-${isDiscount ? 'discount' : 'bonus'}-${item.id}`} className="p-3 opacity-60">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <span className="font-semibold text-sm">{item.title}</span>
-                                            <span className="text-xs text-gray-500 ml-2">
-                                                {t('used')}:{' '}
-                                                {item.usedAt
-                                                    ? formatDate(item.usedAt, CLIENT_DEFAULT_TIMEZONE, 'short')
-                                                    : '-'}
-                                            </span>
-                                        </div>
-                                        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-400 text-white">
-                                            {isDiscount
-                                                ? item.discountType === 'percentage'
-                                                    ? t('discountPercentOff', {
-                                                          value: item.discountValue,
-                                                      })
-                                                    : t('discountMoneyOff', {
-                                                          amount: `$${item.discountValue}`,
-                                                      })
-                                                : item.bonusType === 'points'
-                                                  ? t('pointsReward', {
-                                                        value: item.bonusValue,
-                                                    })
-                                                  : item.bonusType === 'cashback'
-                                                    ? t('cashbackReward', {
-                                                          value: item.bonusValue,
-                                                      })
-                                                    : t('bonusValueLabel', {
-                                                          value: item.bonusValue,
-                                                      })}
-                                        </span>
-                                    </div>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                </div>
-            )}
+                        )
+                    })}
                 </div>
             ) : null}
         </div>
     )
 }
 
-// Основной компонент страницы
+// Вкладка уведомлений
+const NotificationsTab = () => {
+    const t = useTranslations('public.profile')
+    const queryClient = useQueryClient()
+
+    const { data: settings = { email: true, sms: false, telegram: false, push: true }, isLoading } = useQuery({
+        queryKey: ['client-notification-settings'],
+        queryFn: getNotificationSettings,
+    })
+
+    const updateSettingsMutation = useMutation({
+        mutationFn: updateNotificationSettings,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['client-notification-settings'] }),
+    })
+
+    if (isLoading) return <Loading loading />
+
+    const handleChange = (key, value) => updateSettingsMutation.mutate({ ...settings, [key]: value })
+
+    const items = [
+        { key: 'push', icon: <PiBell />, colorClass: 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400', label: t('notifications.push'), desc: t('notifications.browser') },
+        { key: 'email', icon: <PiEnvelope />, colorClass: 'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400', label: t('notifications.email'), desc: t('notifications.emailDescription') },
+        { key: 'telegram', icon: <PiPaperPlaneTilt />, colorClass: 'bg-sky-100 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400', label: t('notifications.telegram'), desc: t('notifications.telegramDescription') },
+    ]
+
+    return (
+        <div className="space-y-3">
+            <div>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('notificationSettings')}</h4>
+                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1">{t('notificationSettingsDescription')}</p>
+            </div>
+            {items.map(({ key, icon, colorClass, label, desc }) => (
+                <div key={key} className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900">
+                    <div className="flex items-center gap-3">
+                        <div className={classNames('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', colorClass)}>{icon}</div>
+                        <div>
+                            <div className="text-sm font-bold text-gray-900 dark:text-gray-100">{label}</div>
+                            <div className="text-xs font-bold text-gray-500 dark:text-gray-400">{desc}</div>
+                        </div>
+                    </div>
+                    <Switcher checked={settings[key]} onChange={(v) => handleChange(key, v)} disabled={isLoading || updateSettingsMutation.isPending} />
+                </div>
+            ))}
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                <p className="text-xs font-bold text-blue-700 dark:text-blue-300">
+                    <strong>{t('telegramFutureTitle')}</strong>{' '}{t('telegramFutureBody')}
+                </p>
+            </div>
+        </div>
+    )
+}
+
+
+
+// Основная страница профиля
 export default function ClientProfilePage() {
     const t = useTranslations('public.profile')
+    const tServices = useTranslations('public.services')
     const { data: user, isLoading: userLoading } = useCurrentUser()
     const { user: userStore } = useUserStore()
     const [activeTab, setActiveTab] = useState('bookings')
 
     const displayUser = user || userStore
 
-    // Загружаем данные для статистики
-    const { data: upcomingBookingsForBadge = [] } = useQuery({
-        queryKey: ['client-bookings', true],
-        queryFn: () => getClientBookings({ upcoming: true }),
+    // Данные для статистики
+    const { data: allBookings = [] } = useQuery({
+        queryKey: ['client-bookings-all'],
+        queryFn: () => getClientBookings(),
         staleTime: 30000,
     })
-    
+
     const { data: favoriteServices = [] } = useQuery({
         queryKey: ['client-favorite-services'],
         queryFn: getFavoriteServices,
     })
-    
     const { data: favoriteAdvertisements = [] } = useQuery({
         queryKey: ['client-favorite-advertisements'],
         queryFn: getFavoriteAdvertisements,
     })
-    
     const { data: favoriteBusinesses = [] } = useQuery({
         queryKey: ['client-favorite-businesses'],
         queryFn: getFavoriteBusinesses,
     })
-    
+    const { data: completedReviews = [] } = useQuery({
+        queryKey: ['client-reviews'],
+        queryFn: getClientReviews,
+    })
     const { data: pendingReviewsForBadge = [] } = useQuery({
         queryKey: ['client-pending-reviews'],
         queryFn: getPendingReviews,
         staleTime: 30000,
     })
-    
-    const upcomingBookingsCount = upcomingBookingsForBadge?.length || 0
-    const favoritesCount =
-        (favoriteServices?.length || 0) +
-        (favoriteAdvertisements?.length || 0) +
-        (favoriteBusinesses?.length || 0)
+    const { data: discounts = [] } = useQuery({
+        queryKey: ['client-discounts'],
+        queryFn: getClientDiscounts,
+    })
+    const { data: categories = [] } = useQuery({
+        queryKey: ['marketplace-categories'],
+        queryFn: getCategories,
+        staleTime: 5 * 60 * 1000,
+    })
+
+    // Подсчёт статистики
+    const bookingsTotal = allBookings.length
+    const recentBookingsCount = useMemo(() => {
+        const monthAgo = new Date()
+        monthAgo.setMonth(monthAgo.getMonth() - 1)
+        return allBookings.filter((b) => new Date(b.date) >= monthAgo).length
+    }, [allBookings])
+
+    const favoritesCount = (favoriteServices?.length || 0) + (favoriteAdvertisements?.length || 0) + (favoriteBusinesses?.length || 0)
+    const reviewsCount = completedReviews?.length || 0
     const pendingReviewsCount = pendingReviewsForBadge?.length || 0
+    const activeDiscountsCount = discounts.filter((d) => d.isActive && !d.isUsed).length
 
     if (userLoading) {
         return (
-            <Container className="pt-20 pb-8 md:pt-24 md:pb-12 px-4 sm:px-6">
-                <div className="flex items-center justify-center min-h-[320px]">
-                    <Loading loading />
+            <main>
+                <div className={`mx-auto w-full ${PUBLIC_MARKETPLACE_CONTENT_MAX} px-4 sm:px-6 lg:px-8 pt-20 pb-8 md:pt-24 md:pb-12`}>
+                    <div className="flex items-center justify-center min-h-[320px]">
+                        <Loading loading />
+                    </div>
                 </div>
-            </Container>
+            </main>
         )
     }
 
     return (
         <ProtectedRoute allowedRoles={[CLIENT]} redirectTo="/sign-in">
-            <Container className="pt-20 pb-8 md:pt-24 md:pb-12 px-4 sm:px-6">
-                <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
-                    <ProfileHeader 
-                        user={displayUser} 
-                        bookingsCount={upcomingBookingsCount}
-                        favoritesCount={favoritesCount}
-                    />
+            <main>
+                <div className={`mx-auto w-full ${PUBLIC_MARKETPLACE_CONTENT_MAX} px-4 sm:px-6 lg:px-8 pt-20 pb-10 md:pt-24 md:pb-14`}>
+                    <div className="flex flex-col lg:flex-row gap-5">
 
-                    <Card bodyClass="!p-2 sm:!p-5">
-                        <Tabs value={activeTab} onChange={setActiveTab}>
-                            <TabList className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                <TabNav value="bookings" icon={<PiCalendar />} className="whitespace-nowrap">
-                                    <span className="hidden sm:inline">{t('bookings')}</span>
-                                    <span className="sm:hidden">{t('bookingsShort')}</span>
-                                    {upcomingBookingsCount > 0 && (
-                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500 dark:bg-blue-600 text-white ml-2">
-                                            {upcomingBookingsCount}
-                                        </span>
-                                    )}
-                                </TabNav>
-                                <TabNav value="reviews" icon={<PiStar />} className="whitespace-nowrap">
-                                    <span className="hidden sm:inline">{t('myReviews')}</span>
-                                    <span className="sm:hidden">{t('reviews')}</span>
-                                    {pendingReviewsCount > 0 && (
-                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-500 dark:bg-yellow-600 text-white ml-2">
-                                            {pendingReviewsCount}
-                                        </span>
-                                    )}
-                                </TabNav>
-                                <TabNav value="favorites" icon={<PiHeart />} className="whitespace-nowrap">
-                                    {t('favorites')}
-                                    {favoritesCount > 0 && (
-                                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500 dark:bg-blue-600 text-white ml-2">
-                                            {favoritesCount}
-                                        </span>
-                                    )}
-                                </TabNav>
-                                <TabNav value="discounts" icon={<PiTicket />} className="whitespace-nowrap">
-                                    <span className="hidden sm:inline">{t('discountsAndBonuses')}</span>
-                                    <span className="sm:hidden">{t('discounts')}</span>
-                                </TabNav>
-                                <TabNav value="notifications" icon={<PiBell />} className="whitespace-nowrap">
-                                    {t('notificationsTab')}
-                                </TabNav>
-                            </TabList>
-                            <div className="pt-2 sm:p-4 min-h-[320px]">
-                                <TabContent value="bookings">
-                                    <BookingsTab />
-                                </TabContent>
-                                <TabContent value="reviews">
-                                    <ReviewsTab />
-                                </TabContent>
-                                <TabContent value="favorites">
-                                    <FavoritesTab />
-                                </TabContent>
-                                <TabContent value="discounts">
-                                    <DiscountsAndBonusesTab />
-                                </TabContent>
-                                <TabContent value="notifications">
-                                    <NotificationsTab />
-                                </TabContent>
+                        {/* Основной контент */}
+                        <div className="flex-1 min-w-0 flex flex-col gap-4">
+                            <ProfileHeader user={displayUser} />
+
+                            <StatsGrid
+                                bookingsCount={bookingsTotal}
+                                recentBookingsCount={recentBookingsCount}
+                                favoritesCount={favoritesCount}
+                                reviewsCount={reviewsCount}
+                                activeDiscountsCount={activeDiscountsCount}
+                            />
+
+                            {/* Карточка с табами */}
+                            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-gray-900">
+                                <Tabs value={activeTab} onChange={setActiveTab}>
+                                    <TabList className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-4 border-b border-gray-100 dark:border-white/10">
+                                        <TabNav value="bookings" icon={<PiCalendar />} className="whitespace-nowrap">
+                                            {t('bookings')}
+                                            {pendingReviewsCount > 0 && (
+                                                <span className="ml-2 rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                                                    {pendingReviewsCount}
+                                                </span>
+                                            )}
+                                        </TabNav>
+                                        <TabNav value="reviews" icon={<PiStar />} className="whitespace-nowrap">
+                                            {t('myReviews')}
+                                            {pendingReviewsCount > 0 && (
+                                                <span className="ml-2 rounded-full bg-yellow-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                                                    {pendingReviewsCount}
+                                                </span>
+                                            )}
+                                        </TabNav>
+                                        <TabNav value="favorites" icon={<PiHeart />} className="whitespace-nowrap">
+                                            {t('favorites')}
+                                            {favoritesCount > 0 && (
+                                                <span className="ml-2 rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                                                    {favoritesCount}
+                                                </span>
+                                            )}
+                                        </TabNav>
+                                        <TabNav value="discounts" icon={<PiTicket />} className="whitespace-nowrap">
+                                            {t('discountsAndBonuses')}
+                                        </TabNav>
+                                        <TabNav value="notifications" icon={<PiBell />} className="whitespace-nowrap">
+                                            {t('notificationsTab')}
+                                        </TabNav>
+                                    </TabList>
+
+                                    <div className="p-4 sm:p-5 min-h-[320px]">
+                                        <TabContent value="bookings">
+                                            <BookingsTab />
+                                        </TabContent>
+                                        <TabContent value="reviews">
+                                            <ReviewsTab />
+                                        </TabContent>
+                                        <TabContent value="favorites">
+                                            <FavoritesTab />
+                                        </TabContent>
+                                        <TabContent value="discounts">
+                                            <DiscountsAndBonusesTab />
+                                        </TabContent>
+                                        <TabContent value="notifications">
+                                            <NotificationsTab />
+                                        </TabContent>
+                                    </div>
+                                </Tabs>
                             </div>
-                        </Tabs>
-                    </Card>
+                        </div>
+
+                        {/* Сайдбар */}
+                        <aside className="hidden lg:flex lg:flex-col lg:w-[300px] xl:w-[300px] shrink-0 gap-4">
+                            {/* Популярные категории */}
+                            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-gray-900">
+                                <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                    {t('popularCategoriesTitle')}
+                                </h4>
+                                <ul className="mt-4 flex flex-col">
+                                    {categories.slice(0, 5).map((cat) => (
+                                        <li
+                                            key={cat.id}
+                                            className="border-b border-gray-100 py-3 last:border-b-0 dark:border-white/10"
+                                        >
+                                            <Link
+                                                href={`/services?category=${cat.id}`}
+                                                className="group flex w-full items-center justify-between gap-4"
+                                            >
+                                                <span className="flex min-w-0 flex-1 items-center gap-3">
+                                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                                        <CategoryGlyph category={cat} />
+                                                    </span>
+                                                    <span className="min-w-0 truncate text-sm font-bold text-gray-900 group-hover:text-primary dark:text-gray-100 transition-colors">
+                                                        {getCategoryName(cat, tServices)}
+                                                    </span>
+                                                </span>
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Link
+                                    href="/services"
+                                    className="mt-2 block pt-1 text-sm font-bold text-primary hover:underline"
+                                >
+                                    {t('viewAllCategoriesLink')}
+                                </Link>
+                            </div>
+
+                        </aside>
+                    </div>
                 </div>
-            </Container>
+            </main>
         </ProtectedRoute>
     )
 }

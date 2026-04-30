@@ -1131,7 +1131,26 @@
             "pointsReward": "+{value} միավոր",
             "cashbackReward": "{value}% կեշբեք",
             "bonusValueLabel": "Բոնուս {value}",
-            "copyCodeTitle": "Պատճենել կոդը"
+            "copyCodeTitle": "Պատճենել կոդը",
+            "profileSettingsBtn": "Պրոֆիլի կարգավորումներ",
+            "myBookingsBtn": "Իմ ամրագրումները",
+            "memberSince": "Անդամ է",
+            "changeLocationLink": "Փոխել",
+            "upcomingSection": "Առաջիկա ամրագրումներ",
+            "pastSection": "Անցած ամրագրումներ",
+            "viewAllBookingsLink": "Տեսնել բոլոր ամրագրումները",
+            "savedServicesSub": "Պահված ծառայություններ",
+            "reviewsLeftSub": "Թողած կարծիքներ",
+            "activeOffersSub": "Ակտիվ առաջարկներ",
+            "lastMonthSub": "+{count} անցած ամիս",
+            "paymentsTab": "Վճարումներ",
+            "paymentsComingSoon": "Վճարումների պատմությունը շուտով կհայտնվի։",
+            "referralTitle": "Հրավիրե՛ք ընկերներին",
+            "referralDesc": "Ստացեք $20 յուրաքանչյուր ընկերոջ համար, ով ամրագրում կկատարի",
+            "referralInviteBtn": "Հրավիրել ընկերներ",
+            "popularCategoriesTitle": "Հայտնի կատեգորիաներ",
+            "viewAllCategoriesLink": "Տեսնել բոլոր կատեգորիաները",
+            "servicesSuffix": "ծառայություն"
         },
         "profileSettings": {
             "backToProfile": "Վերադառնալ պրոֆիլ",
@@ -4354,7 +4373,7 @@
             "user": "Օգտատեր",
             "businessOwner": "Բիզնեսի սեփականատեր",
             "superAdministrator": "Գերակայուն ադմինիստրատոր",
-            "marketplace": "Մարկետփleյս",
+            "marketplace": "Մարկետփլեյս",
             "forBusiness": "Բիզնեսի համար"
         },
         "footer": {
